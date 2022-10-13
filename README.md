@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+# S4Life front end Repository
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

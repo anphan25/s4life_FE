@@ -38,6 +38,7 @@ import Autocomplete from "./Autocomplete";
 import ToggleButton from "./ToggleButton";
 import ControlLabel from "./FormControlLabel";
 import LoadingButton from "./LoadingButton";
+import InputLabel from "./InputLabel";
 
 export function Overrides(theme) {
   return Object.assign(
@@ -80,6 +81,7 @@ export function Overrides(theme) {
     Autocomplete(theme),
     ControlLabel(theme),
     ToggleButton(theme),
-    LoadingButton(theme)
+    LoadingButton(theme),
+    InputLabel(theme)
   );
 }

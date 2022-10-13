@@ -4,7 +4,7 @@ const initialState = {
   // error: "",
   // isLoading: false,
   // auth: getAuthState(),
-  user: null,
+  auth: null,
 };
 
 export const authSlice = createSlice({ name: "auth", initialState });
