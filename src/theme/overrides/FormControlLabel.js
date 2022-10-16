@@ -3,8 +3,12 @@ export default function FormControlLabel(theme) {
     MuiFormControlLabel: {
       styleOverrides: {
         label: {
-          fontWeight: 600,
+          cursor: 'pointer',
+          mb: 1,
+          //transform: "none",
+          // position: "relative",
           fontSize: 14,
+          fontWeight: 600,
         },
       },
     },
