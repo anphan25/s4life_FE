@@ -1,4 +1,4 @@
-import { FormControl, FormControlLabel, TextField } from '@mui/material';
+import { FormControl, InputLabel, TextField } from '@mui/material';
 import React from 'react';
 import { Controller } from 'react-hook-form';
 
@@ -9,7 +9,7 @@ export const RHFInput = ({ control, label, name, ...props }) => {
       control={control}
       render={({ field, fieldState: { error } }) => (
         <FormControl sx={{ mb: 2 }} fullWidth>
-          <FormControlLabel htmlFor={name}>{label}</FormControlLabel>
+          <InputLabel htmlFor={name}>{label}</InputLabel>
           <TextField id={name} {...field} {...props} error={!!error} helperText={error?.message?.toString()} />
         </FormControl>
       )}
