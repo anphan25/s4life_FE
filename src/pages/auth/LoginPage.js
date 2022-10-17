@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { Alert, styled, Typography, Grid } from '@mui/material';
-import { logo } from 'assets';
+import { Logo as logo } from 'assets';
 import LoginForm from './components/LoginForm';
 
 const DivContainner = styled('div')(({ theme }) => ({

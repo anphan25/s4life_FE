@@ -31,5 +31,5 @@ export const palette = {
     800: '#3F4254',
     900: '#181C32',
   },
-  background: '#F4F4F4',
+  background: { grey: '#F1F1F5', white: '#FFFFFF' },
 };

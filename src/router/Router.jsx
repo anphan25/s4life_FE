@@ -20,6 +20,7 @@ export default function Router() {
       element: <LoginPage />,
       index: true,
     },
+
     {
       path: '/',
       element: (
