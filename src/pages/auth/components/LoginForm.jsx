@@ -14,6 +14,14 @@ const ButtonLogin = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: 'white',
   marginTop: '24px',
+  '@media screen and (max-width: 320px) and (max-height: 878px)':{
+
+    width:'260px',
+    height:'56px'
+
+
+    //do Smth
+  },
 
   ':hover': {
     backgroundColor: theme.palette.primary.main,
