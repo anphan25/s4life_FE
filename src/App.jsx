@@ -1,8 +1,8 @@
-import { CssBaseline } from "@mui/material";
-import Router from "router/Router";
-import { Theme } from "theme";
-import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { CssBaseline } from '@mui/material';
+import Router from 'router/Router';
+import { Theme } from 'theme';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 function App() {
   return (
