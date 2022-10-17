@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import { RHFInput } from 'components';
 
 const LoginSchema = Yup.object().shape({
-  email: Yup.string().email('Email không hợp lệ').required('Vui lòng nhập email'),
+  email: Yup.string().email('Tên đăng nhập không hợp lệ').required('Vui lòng nhập tên đăng nhập'),
   password: Yup.string().required('Vui lòng nhập mật khẩu'),
 });
 
@@ -34,10 +34,16 @@ const LoginForm = () => {
 
   return (
     <form>
-      <RHFInput name="email" label="Email" control={control} placeholder="Nhập email" sx={{ marginBottom: '24px' }} />
+      <RHFInput
+        name="email"
+        label="Tên đăng nhập"
+        control={control}
+        placeholder="Nhập tên đăng nhập"
+        sx={{ marginBottom: '24px' }}
+      />
       <RHFInput name="password" label="Mật khẩu" control={control} placeholder="Nhập mật khẩu" type="password" />
       <Box sx={{ marginLeft: '10px', float: 'left', width: '100%' }}>
-        <Typography sx={{ fontSize: '12px', color: '#FC5A5A' }}>Email hoặc mật khẩu không đúng</Typography>
+        <Typography sx={{ fontSize: '12px', color: '#FC5A5A' }}>Tên đăng nhập hoặc mật khẩu không đúng</Typography>
       </Box>
       <ButtonLogin>Đăng nhập</ButtonLogin>
     </form>
