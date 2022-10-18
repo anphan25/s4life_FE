@@ -1,27 +1,20 @@
 export default function FormControlLabel(theme) {
   return {
-    MuiFormControlLabel: {
-      styleOverrides: {
-        label: {
-          cursor: 'pointer',
-          mb: 1,
-          //transform: "none",
-          // position: "relative",
-          fontSize: 14,
-          fontWeight: 600,
-        },
-      },
-    },
     MuiFormHelperText: {
       styleOverrides: {
         root: {
           marginTop: theme.spacing(1),
+          fontWeight: 600,
         },
       },
     },
     MuiFormLabel: {
       styleOverrides: {
         root: {
+          cursor: 'pointer',
+          marginBottom: theme.spacing(1),
+          fontSize: 14,
+          fontWeight: 600,
           color: theme.palette.grey[900],
         },
       },
