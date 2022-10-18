@@ -64,13 +64,14 @@ const UserPopover = () => {
             {user?.email || ''}
           </Typography>
         </Box>
-        <Divider
-          sx={{
-            mx: 2,
-            color: 'grey.400',
-          }}
-        />
+
         <Stack sx={{ p: 2 }} justifyContent="center">
+          <Divider
+            sx={{
+              mx: 2,
+              color: 'grey.400',
+            }}
+          />
           {menu.map((option) => (
             <MenuItem
               key={option.name}

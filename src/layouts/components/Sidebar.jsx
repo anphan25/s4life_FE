@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 const sidebarMembership = [{ name: 'Trang chủ', icon: <TbLayout2 />, to: '/' }];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({
-  width: '17rem',
+  width: '250px',
   background: 'white',
 }));
 
@@ -23,7 +23,7 @@ export const Sidebar = () => {
   return (
     <SidebarContainer>
       <Logo sx={{ p: 6 }} />
-      <MenuList sx={{ gap: 1.5, pt: 8 }}>
+      <MenuList sx={{ gap: 2, pt: 8 }}>
         {sidebarMembership.map((item, index) =>
           item.children ? (
             <SubHeader item={item} key={index} active={active} onActive={setActive} />

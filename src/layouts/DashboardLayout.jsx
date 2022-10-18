@@ -10,14 +10,16 @@ const MainContainer = styled('div')(({ theme }) => ({
   color: theme.palette.grey[900],
   background: theme.palette.background.grey,
   display: 'flex',
-  overflow: 'scroll',
+  overflowX: 'scroll',
+
+  '& .box-content': { width: '100%' },
 }));
 
 export const DashboardLayout = () => {
   return (
     <MainContainer>
       <Sidebar />
-      <Box sx={{ flex: 1, pb: 8 }}>
+      <Box className="box-content" sx={{ flex: 1, pb: 8 }}>
         <Navbar />
         <Box sx={{ height: 1, px: 5, pt: 6, pb: 18 }}>
           <Outlet />
