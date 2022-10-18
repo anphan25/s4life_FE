@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel } from '@mui/material';
 import { Controller } from 'react-hook-form';
 
 export const RHFCheckbox = ({ control, label, name, list, ...props }) => {
@@ -9,7 +9,7 @@ export const RHFCheckbox = ({ control, label, name, list, ...props }) => {
       control={control}
       render={({ field, fieldState: { error } }) => (
         <FormControl sx={{ mb: 2 }} fullWidth>
-          <FormControlLabel htmlFor={name}>{label}</FormControlLabel>
+          <FormLabel htmlFor={name}>{label}</FormLabel>
           <FormGroup>
             {list?.map((item) => (
               <FormControlLabel
