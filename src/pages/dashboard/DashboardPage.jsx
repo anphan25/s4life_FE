@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Paper, Grid, Stack, Box, Typography, styled, Select, MenuItem } from '@mui/material';
+import YearSelectFilter from './components/YearSelectFilter';
 import { MdOutlineEventNote, MdOutlineWaterDrop } from 'react-icons/md';
 import { BsPeople } from 'react-icons/bs';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
@@ -15,13 +16,18 @@ const StatisticTabContent = styled(Stack)(({ theme }) => ({
   paddingLeft: '30px',
   justifyContent: 'start',
 
-  // '@media(minWidth: 600px)': {
-  //   justifyContent: 'center',
-  // },
+  [theme.breakpoints.down('lg')]: {
+    justifyContent: 'center',
+  },
 
   '& .statistic_tab_icon': {
     width: '65px',
     height: '65px',
+
+    [theme.breakpoints.between('lg', 1400)]: {
+      width: '55px',
+      height: '55px',
+    },
     borderRadius: '100%',
     padding: '15px',
   },
@@ -44,6 +50,10 @@ const StatisticTabContent = styled(Stack)(({ theme }) => ({
   '& .statistic_tab_number': {
     fontWeight: 800,
     fontSize: '40px',
+
+    [theme.breakpoints.down('lg')]: {
+      fontSize: '30px',
+    },
   },
 }));
 
@@ -58,18 +68,20 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
 const ChartSection = styled(Box)(({ theme }) => ({}));
 
 const ChartContainer = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.background.white,
   padding: '20px',
   boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04)',
   borderRadius: '20px',
-  height: '490px',
-}));
 
-const SelectFilterChart = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  '& .select-chart': {
-    width: '100px',
-    boxShadow: '0px 2px 10px rgba(124, 141, 181, 0.12)',
+  [theme.breakpoints.between('md', 'lg')]: {
+    '& .doughnut-chart': { margin: '0 auto !important', height: '450px !important', width: '450px !important' },
+  },
+
+  [theme.breakpoints.between('sm', 'md')]: {
+    '& .doughnut-chart': { margin: '0 auto !important', height: '400px !important', width: '400px !important' },
+  },
+
+  [theme.breakpoints.between('xs', 'sm')]: {
+    '& .bar-chart': { height: '300px !important' },
   },
 }));
 
@@ -101,7 +113,8 @@ const doughnutChartOptions = {
 
 const DashboardPage = () => {
   const theme = useTheme();
-  const [year, setYear] = useState(2022);
+  const [barChartYear, setBarChartYear] = useState(2022);
+  const [doughnutCharYear, setDoughnutChartYear] = useState(2022);
 
   const barChartData = {
     labels: ['18 - 23', '24 - 29', '30 - 45', '36 - 41', '42 - 47', '48 - 53', '54 - 60'],
@@ -134,7 +147,7 @@ const DashboardPage = () => {
     <Box sx={{ width: '100%' }}>
       {/* Total Tab */}
 
-      <Grid container spacing={7} sx={{ marginBottom: '50px' }} rowSpacing={5}>
+      <Grid container rowSpacing={7} columnSpacing={{ xl: 7, lg: 3 }} sx={{ marginBottom: '50px' }}>
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
             <StatisticTabContent direction="row" spacing={3}>
@@ -176,34 +189,16 @@ const DashboardPage = () => {
       <ChartSection>
         <Grid container spacing={3}>
           <Grid item lg={8} md={12} sm={12} xs={12}>
-            <ChartContainer elevation={1}>
-              <SelectFilterChart direction="row" justifyContent="flex-end">
-                <Select
-                  className="select-chart"
-                  value={year}
-                  label="Year"
-                  // onChange={handelChooseYear}
-                  defaultValue={year}
-                >
-                  <MenuItem value={2022}>2022</MenuItem>
-                  <MenuItem value={2021}>2021</MenuItem>
-                  <MenuItem value={2020}>2020</MenuItem>
-                </Select>
-              </SelectFilterChart>
+            <ChartContainer className="bar-chart" elevation={1}>
+              <YearSelectFilter year={barChartYear} />
               <Bar options={barChartOptions} data={barChartData} />
             </ChartContainer>
           </Grid>
 
           <Grid item lg={4} md={12} sm={12} xs={12}>
             <ChartContainer elevation={1}>
-              <SelectFilterChart direction="row" justifyContent="flex-end" sx={{ marginBottom: '30px' }}>
-                <Select className="select-chart" value={year} label="Year" defaultValue={year}>
-                  <MenuItem value={2022}>2022</MenuItem>
-                  <MenuItem value={2021}>2021</MenuItem>
-                  <MenuItem value={2020}>2020</MenuItem>
-                </Select>
-              </SelectFilterChart>
-              <Doughnut options={doughnutChartOptions} data={doughnutChartData} />
+              <YearSelectFilter year={doughnutCharYear} sx={{ mb: '30px' }} />
+              <Doughnut className="doughnut-chart" options={doughnutChartOptions} data={doughnutChartData} />
             </ChartContainer>
           </Grid>
         </Grid>
