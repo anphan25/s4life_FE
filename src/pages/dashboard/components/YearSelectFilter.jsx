@@ -1,4 +1,4 @@
-import { Paper, Grid, Stack, Box, Typography, styled, Select, MenuItem, TextField } from '@mui/material';
+import { Stack, styled, Select, MenuItem } from '@mui/material';
 
 const SelectFilterChart = styled(Stack)(({ theme }) => ({
   marginBottom: '10px',
