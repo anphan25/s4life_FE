@@ -6,24 +6,24 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { useTheme } from '@mui/material/styles';
 
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 const StatisticTabContent = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
   height: '110px',
   width: '100%',
-  justifyContent: 'center',
+  paddingLeft: '30px',
+  justifyContent: 'start',
 
   // '@media(minWidth: 600px)': {
   //   justifyContent: 'center',
   // },
 
   '& .statistic_tab_icon': {
-    width: '70px',
-    height: '70px',
+    width: '65px',
+    height: '65px',
     borderRadius: '100%',
-    padding: '12px',
+    padding: '15px',
   },
 
   '& .first_icon': {
@@ -62,6 +62,15 @@ const ChartContainer = styled(Paper)(({ theme }) => ({
   padding: '20px',
   boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04)',
   borderRadius: '20px',
+  height: '490px',
+}));
+
+const SelectFilterChart = styled(Stack)(({ theme }) => ({
+  marginBottom: '20px',
+  '& .select-chart': {
+    width: '100px',
+    boxShadow: '0px 2px 10px rgba(124, 141, 181, 0.12)',
+  },
 }));
 
 const barChartOptions = {
@@ -168,9 +177,9 @@ const DashboardPage = () => {
         <Grid container spacing={3}>
           <Grid item lg={8} md={12} sm={12} xs={12}>
             <ChartContainer elevation={1}>
-              <Stack direction="row" justifyContent="flex-end">
+              <SelectFilterChart direction="row" justifyContent="flex-end">
                 <Select
-                  sx={{ width: '100px', border: `0.5px solid ${theme.palette.grey[800]}` }}
+                  className="select-chart"
                   value={year}
                   label="Year"
                   // onChange={handelChooseYear}
@@ -180,12 +189,20 @@ const DashboardPage = () => {
                   <MenuItem value={2021}>2021</MenuItem>
                   <MenuItem value={2020}>2020</MenuItem>
                 </Select>
-              </Stack>
+              </SelectFilterChart>
               <Bar options={barChartOptions} data={barChartData} />
             </ChartContainer>
           </Grid>
+
           <Grid item lg={4} md={12} sm={12} xs={12}>
             <ChartContainer elevation={1}>
+              <SelectFilterChart direction="row" justifyContent="flex-end" sx={{ marginBottom: '30px' }}>
+                <Select className="select-chart" value={year} label="Year" defaultValue={year}>
+                  <MenuItem value={2022}>2022</MenuItem>
+                  <MenuItem value={2021}>2021</MenuItem>
+                  <MenuItem value={2020}>2020</MenuItem>
+                </Select>
+              </SelectFilterChart>
               <Doughnut options={doughnutChartOptions} data={doughnutChartData} />
             </ChartContainer>
           </Grid>

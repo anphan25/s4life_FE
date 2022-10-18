@@ -24,16 +24,16 @@ export default function Router() {
     {
       path: '/',
       element: (
-        <AuthRouter>
-          <DashboardLayout />
-        </AuthRouter>
+        // <AuthRouter>
+        <DashboardLayout />
+        // </AuthRouter>
       ),
       children: [
         {
           element: (
-            <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
-              <DashboardPage />
-            </ProtectedRouter>
+            // <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
+            <DashboardPage />
+            // </ProtectedRouter>
           ),
           index: true,
         },
