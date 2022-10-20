@@ -47,29 +47,29 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log('hello');
       const res = await loginUserPassword(data);
 
       console.log('res: ', res);
 
       dispatch(
         loginSuccess({
-          accessToken: res.token.accessToken,
-          refreshToken: res.token.refreshToken,
-          user: jwtDecode(res.token.accessToken),
+          accessToken: res.result.accessToken,
+          refreshToken: res.result.refreshToken,
+          user: jwtDecode(res.result.accessToken),
         })
       );
 
       localStorage.setItem(
         'authTokens',
         JSON.stringify({
-          accessToken: res.token.accessToken,
-          refreshToken: res.token.refreshToken,
+          accessToken: res.result.accessToken,
+          refreshToken: res.result.refreshToken,
         })
       );
       navigate('/');
     } catch (err) {
       dispatch(loginFail('Tên đăng nhập hoặc mật khẩu không đúng'));
+      console.log(err.message);
     }
   };
 
