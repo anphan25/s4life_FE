@@ -1,4 +1,5 @@
 import { HiOutlineCalendar, HiOutlinePlus, HiUsers } from 'react-icons/hi';
+import { FaRegHospital } from 'react-icons/fa';
 import { TbClipboardList, TbLayout2 } from 'react-icons/tb';
 import { MenuList, styled } from '@mui/material';
 import { Logo } from 'components';
@@ -8,7 +9,10 @@ import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
-const sidebarMembership = [{ name: 'Trang chủ', icon: <TbLayout2 />, to: '/' }];
+const sidebarAdmin = [
+  { name: 'Trang chủ', icon: <TbLayout2 />, to: '/' },
+  { name: 'Quản lý bệnh viện', icon: <FaRegHospital />, to: '/hospital/list' },
+];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({
   width: '250px',
@@ -24,7 +28,7 @@ export const Sidebar = () => {
     <SidebarContainer>
       <Logo sx={{ p: 6 }} />
       <MenuList sx={{ gap: 2, pt: 8 }}>
-        {sidebarMembership.map((item, index) =>
+        {sidebarAdmin.map((item, index) =>
           item.children ? (
             <SubHeader item={item} key={index} active={active} onActive={setActive} />
           ) : (

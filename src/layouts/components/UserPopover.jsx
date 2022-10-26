@@ -11,12 +11,11 @@ import {
 } from '@mui/material';
 import { Dropdown } from 'components';
 import React, { useState } from 'react';
-import { BiUser, BiBarChartAlt, BiCog } from 'react-icons/bi';
+import { BiUser } from 'react-icons/bi';
 import { TbLogout } from 'react-icons/tb';
-import { MdLeaderboard } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-// import { logoutSuccess } from 'redux/slices/AuthSlice';
+import { logoutSuccess } from 'app/slices/AuthSlice';
 
 const UserPopover = () => {
   const dispatch = useDispatch();
@@ -40,7 +39,7 @@ const UserPopover = () => {
   };
 
   const handleLogout = () => {
-    // dispatch(logoutSuccess());
+    dispatch(logoutSuccess());
     navigate('/auth/login');
   };
 
