@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button, Stack, DialogActions, styled, Box } from '@mui/material';
-import { CustomDialog, RHFInput, RHFAutoComplete, DataTable, HeaderBreadcumbs } from 'components';
+import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs } from 'components';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import { importCSVHospitalData } from 'api/HospitalApi';
 
 const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   marginTop: 'auto',
@@ -35,18 +36,10 @@ const HeaderMain = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const AddHospitalSchema = Yup.object().shape({
-  name: Yup.string().required('Vui lòng nhập tên bệnh viện'),
-  province: Yup.string().required('Vui lòng chọn tỉnh/thành'),
-  district: Yup.string().required('Vui lòng chọn quận/huyện'),
-  ward: Yup.string().required('Vui lòng chọn phường/xã'),
-});
-
-const defaultValues = { name: '', province: '', district: '', ward: '' };
-const dummySelectMenu = ['Tp HCM', 'Long An', 'Tiền Giang', 'Hà Nội', 'Đà Nẵng'];
-
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
+  const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
+  const [importParams, setImportParams] = useState([]);
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
@@ -55,10 +48,7 @@ const HospitalListPage = () => {
     pageSize: 10,
   });
 
-  const { handleSubmit, control, reset } = useForm({
-    resolver: yupResolver(AddHospitalSchema),
-    defaultValues,
-  });
+  const { handleSubmit, control } = useForm({});
 
   const gridOptions = {
     columns: [
@@ -108,24 +98,44 @@ const HospitalListPage = () => {
     setIsAddHospitalDialogOpen(!isAddHospitalDialogOpen);
   };
 
-  const onSubmit = async (data) => {};
+  const getDataFromFile = (values, disabledBtn) => {
+    setImportParams([]);
+    setImportParams(values);
+    setIsImportBtnDisabled(disabledBtn);
+  };
+
+  const onSubmit = async () => {
+    console.log('csv data: ', importParams);
+    if (importParams.length <= 0) {
+      return;
+    }
+
+    try {
+      await importCSVHospitalData(importParams);
+      addHospitalDialogHandler();
+      setImportParams([]);
+      setIsImportBtnDisabled(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const addHospitalDialogContent = () => {
     return (
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={3}>
-          <RHFInput control={control} label="Tên bệnh viện" name="name" />
-          <Stack spacing={2}>
-            <RHFAutoComplete name="province" options={dummySelectMenu} control={control} label="Tỉnh/Thành" />
-            <RHFAutoComplete name="district" options={dummySelectMenu} control={control} label="Quận/Huyện" />
-            <RHFAutoComplete name="ward" options={dummySelectMenu} control={control} label="Phường/Xã" />
-          </Stack>
-          <RHFInput control={control} label="Địa chỉ" name="street" />
+        <Stack spacing={3} sx={{ height: '100%' }}>
+          <RHFImport
+            control={control}
+            name="hospitalFile"
+            label="Kéo thả hoặc nhấn vào để chọn file"
+            onImport={getDataFromFile}
+          />
           <DialogButtonGroup>
             <Button className="dialog_button" onClick={addHospitalDialogHandler}>
               Hủy
             </Button>
             <Button
+              disabled={isImportBtnDisabled}
               className="dialog_button"
               sx={{
                 backgroundColor: 'error.main',
@@ -134,7 +144,7 @@ const HospitalListPage = () => {
               type="submit"
               variant="contained"
             >
-              Thêm bệnh viện
+              Thêm bệnh viện từ file
             </Button>
           </DialogButtonGroup>
         </Stack>
@@ -146,8 +156,8 @@ const HospitalListPage = () => {
     <div>
       <HeaderMain>
         <HeaderBreadcumbs
-          heading="Danh sách người dùng"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách người dùng' }]}
+          heading="Danh sách bệnh viện"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
         />
         <Button sx={{ height: '50px' }} variant="contained" onClick={addHospitalDialogHandler}>
           Thêm bệnh viện
@@ -160,7 +170,7 @@ const HospitalListPage = () => {
         onClose={addHospitalDialogHandler}
         children={addHospitalDialogContent()}
         title="Thêm bệnh viện"
-        sx={{ '& .MuiDialog-paper': { width: '70%', height: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '400px' } }}
       />
       <DataTable gridOptions={gridOptions} onPageChange={pageChangeHandler} onPageSizeChange={pageSizeChangeHandler} />
     </div>
