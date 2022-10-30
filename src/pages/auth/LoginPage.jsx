@@ -19,16 +19,22 @@ const DivContent = styled('div')(({ theme }) => ({
   justifyContent: 'start',
   alignItems: 'center',
   borderRadius: '16px',
-  '@media screen and (max-width: 1200px)': {
+
+  [theme.breakpoints.down('lg')]: {
+    justifyContent: 'center',
+  },
+  [theme.breakpoints.between('sm', 'md')]: {
+    justifyContent: 'center',
     width: '880px',
     height: '551px',
-    //do Smth
   },
-  '@media screen and (max-width: 320px) and (max-height: 878px)': {
+
+  [theme.breakpoints.between('xs', 'sm')]: {
     flexDirection: 'column',
     width: '290px',
     height: '819px',
-    //do Smth
+    // paddingLeft: '15px',
+    // paddingRight: '15px',
   },
 }));
 const DivLeft = styled('div')(({ theme }) => ({
@@ -39,14 +45,6 @@ const DivLeft = styled('div')(({ theme }) => ({
   borderBottomLeftRadius: '16px',
   display: 'flex',
   flexDirection: 'column',
-  '@media screen and (max-width: 1200px)': {
-    height: '551px',
-  },
-  '@media screen and (max-width: 320px) and (max-height: 878px)': {
-    width: '290px',
-    height: '381px',
-    //do Smth
-  },
 }));
 
 const DivRight = styled('div')(({ theme }) => ({
@@ -61,23 +59,6 @@ const DivRight = styled('div')(({ theme }) => ({
     color: '#171725',
     marginTop: '106px',
     marginBottom: '36px',
-    '@media screen and (max-width: 320px) and (max-height: 878px)': {
-      marginTop: '40px',
-      marginBottom: '40px',
-
-      //do Smth
-    },
-  },
-
-  '@media screen and (max-width: 1200px)': {
-    height: '551px',
-  },
-  '@media screen and (max-width: 320px) and (max-height: 878px)': {
-    width: '290px',
-    height: '438px',
-    paddingLeft: '15px',
-    paddingRight: '15px',
-    //do Smth
   },
 }));
 
@@ -86,19 +67,6 @@ const DivLogo = styled('div')(({ theme }) => ({
   height: '375px',
   marginTop: '86px',
   marginLeft: '95px',
-  '@media screen and (max-width: 1200px)': {
-    width: '200px',
-    height: '200px',
-    //do Smth
-  },
-  '@media screen and (max-width: 320px) and (max-height: 878px)': {
-    flexDirection: 'column',
-    width: '260px',
-    height: '260px',
-    marginTop: '15px',
-    marginLeft: '15px',
-    //do Smth
-  },
 }));
 const DivSlogan = styled('div')(({ theme }) => ({
   display: 'flex',
