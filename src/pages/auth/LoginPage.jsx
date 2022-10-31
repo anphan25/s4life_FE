@@ -22,19 +22,19 @@ const DivContent = styled('div')(({ theme }) => ({
 
   [theme.breakpoints.down('lg')]: {
     justifyContent: 'center',
+    display: 'flex',
   },
   [theme.breakpoints.between('sm', 'md')]: {
     justifyContent: 'center',
-    width: '880px',
+    width: '700px',
     height: '551px',
   },
 
   [theme.breakpoints.between('xs', 'sm')]: {
     flexDirection: 'column',
-    width: '290px',
+    margin: '0 auto !important',
+    width: '100%',
     height: '819px',
-    // paddingLeft: '15px',
-    // paddingRight: '15px',
   },
 }));
 const DivLeft = styled('div')(({ theme }) => ({
@@ -45,6 +45,29 @@ const DivLeft = styled('div')(({ theme }) => ({
   borderBottomLeftRadius: '16px',
   display: 'flex',
   flexDirection: 'column',
+  [theme.breakpoints.down('lg')]: {
+    justifyContent: 'center',
+  },
+  [theme.breakpoints.between('sm', 'md')]: {
+    height: '551px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: '0px',
+    borderBottomLeftRadius: '0px',
+  },
+
+  [theme.breakpoints.between('xs', 'sm')]: {
+    width: '100%',
+    height: '381px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: '0px',
+    borderBottomLeftRadius: '0px',
+  },
 }));
 
 const DivRight = styled('div')(({ theme }) => ({
@@ -60,6 +83,19 @@ const DivRight = styled('div')(({ theme }) => ({
     marginTop: '106px',
     marginBottom: '36px',
   },
+  [theme.breakpoints.down('lg')]: {
+    justifyContent: 'center',
+  },
+  [theme.breakpoints.between('sm', 'md')]: {
+    height: '551px',
+  },
+
+  [theme.breakpoints.between('xs', 'sm')]: {
+    width: '100%',
+    height: '438px',
+    paddingLeft: '15px',
+    paddingRight: '15px',
+  },
 }));
 
 const DivLogo = styled('div')(({ theme }) => ({
@@ -67,6 +103,28 @@ const DivLogo = styled('div')(({ theme }) => ({
   height: '375px',
   marginTop: '86px',
   marginLeft: '95px',
+  [theme.breakpoints.down('lg')]: {
+    justifyContent: 'center',
+  },
+  [theme.breakpoints.between('sm', 'md')]: {
+    width: '200px',
+    height: '200px',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: '0px',
+    display: 'flex',
+  },
+
+  [theme.breakpoints.between('xs', 'sm')]: {
+    flexDirection: 'column',
+    width: '260px',
+    height: '260px',
+    marginTop: '15px',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: '0px',
+    display: 'flex',
+  },
 }));
 const DivSlogan = styled('div')(({ theme }) => ({
   display: 'flex',
