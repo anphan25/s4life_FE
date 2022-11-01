@@ -60,7 +60,16 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
 
   '& .tab_content': {
     marginTop: '15px',
-    '& .tab_content--number': { fontWeight: 600, fontSize: '32px', marginBottom: '10px' },
+
+    '& .tab_content--number': {
+      fontWeight: 600,
+      fontSize: '32px',
+      marginBottom: '10px',
+
+      [theme.breakpoints.down('lg')]: {
+        textAlign: 'center',
+      },
+    },
   },
 
   '& .status_box': {
