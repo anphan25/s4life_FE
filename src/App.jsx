@@ -3,11 +3,12 @@ import Router from 'router/Router';
 import { Theme } from 'theme';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import 'dayjs/locale/vi';
 
 function App() {
   return (
     <Theme>
-      <LocalizationProvider dateAdapter={AdapterMoment}>
+      <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={'vi'}>
         <CssBaseline />
         <Router />
       </LocalizationProvider>
