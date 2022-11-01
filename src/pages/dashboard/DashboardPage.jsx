@@ -1,59 +1,39 @@
 import React, { useState } from 'react';
-import { Paper, Grid, Stack, Box, Typography, styled } from '@mui/material';
-import YearSelectFilter from './components/YearSelectFilter';
+import {
+  Paper,
+  Grid,
+  Stack,
+  Box,
+  Typography,
+  styled,
+  Divider,
+  Table,
+  TableContainer,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableBody,
+  useMediaQuery,
+} from '@mui/material';
 import { MdOutlineEventNote, MdOutlineWaterDrop } from 'react-icons/md';
 import { BsPeople } from 'react-icons/bs';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { FcProcess } from 'react-icons/fc';
+import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
+import { BsCheck2 } from 'react-icons/bs';
+import { IoMdClose } from 'react-icons/io';
+import { formatNumber } from 'utils/formatNumber';
+import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
+import dayjs from 'dayjs';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
-
-const StatisticTabContent = styled(Stack)(({ theme }) => ({
+const PageTitle = styled(Stack)(({ theme }) => ({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
   alignItems: 'center',
-  height: '110px',
-  width: '100%',
-  paddingLeft: '30px',
-  justifyContent: 'start',
 
-  [theme.breakpoints.down('lg')]: {
-    justifyContent: 'center',
-  },
-
-  '& .statistic_tab_icon': {
-    width: '65px',
-    height: '65px',
-
-    [theme.breakpoints.between('lg', 1400)]: {
-      width: '55px',
-      height: '55px',
-    },
-    borderRadius: '100%',
-    padding: '15px',
-  },
-
-  '& .first_icon': {
-    backgroundColor: theme.palette.success.light,
-    color: theme.palette.success.main,
-  },
-
-  '& .second_icon': {
-    backgroundColor: theme.palette.info.light,
-    color: theme.palette.info.main,
-  },
-
-  '& .third_icon': {
-    backgroundColor: theme.palette.error.light,
-    color: theme.palette.error.main,
-  },
-
-  '& .statistic_tab_number': {
-    fontWeight: 800,
-    fontSize: '40px',
-
-    [theme.breakpoints.down('lg')]: {
-      fontSize: '30px',
-    },
+  [theme.breakpoints.down('sm')]: {
+    display: 'block',
+    '& .quarter_box': { width: '70%' },
   },
 }));
 
@@ -63,146 +43,310 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
   boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04)',
   width: '100%',
   borderRadius: '20px',
+
+  '& .tab_title': {
+    '& .tab_title--icon': {
+      width: '30px',
+      height: '30px',
+      backgroundColor: theme.palette.error.light,
+      color: theme.palette.error.main,
+      borderRadius: '100%',
+      padding: '6px',
+      marginRight: '10px',
+    },
+
+    '& .tab_title--text': { fontWeight: 500, fontSize: '14px' },
+  },
+
+  '& .tab_content': {
+    marginTop: '15px',
+    '& .tab_content--number': { fontWeight: 600, fontSize: '32px', marginBottom: '10px' },
+  },
+
+  '& .status_box': {
+    '& .status_title': {
+      marginBottom: '8px',
+      '& .status_icon': { marginRight: '8px' },
+      '& .fail': { color: theme.palette.error.main },
+      '& .success': { color: theme.palette.success.main },
+      '& .status_text': { fontWeight: 600, fontSize: '14px' },
+    },
+
+    '& .status_number': {
+      textAlign: 'center',
+      fontSize: '14px',
+      color: theme.palette.grey[600],
+    },
+  },
 }));
 
-const ChartSection = styled(Box)(({ theme }) => ({}));
-
-const ChartContainer = styled(Paper)(({ theme }) => ({
+const IncomingEventStyle = styled(Paper)(({ theme }) => ({
   padding: '20px',
-  boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04)',
+  borderRadius: '20px',
+}));
+
+const BloodVolume = styled(Paper)(({ theme }) => ({
+  padding: '40px 20px 40px',
   borderRadius: '20px',
 
-  [theme.breakpoints.between('md', 'lg')]: {
-    '& .doughnut-chart': { margin: '0 auto !important', height: '450px !important', width: '450px !important' },
+  '& .blood_volume--content': {
+    [theme.breakpoints.down('lg')]: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   },
 
-  [theme.breakpoints.between('sm', 'md')]: {
-    '& .doughnut-chart': { margin: '0 auto !important', height: '400px !important', width: '400px !important' },
+  '& .blood-type': {
+    padding: '8px',
+    backgroundColor: theme.palette.error.light,
+    width: '55px',
+    height: '55px',
+    borderRadius: '10px',
+    marginRight: '10px',
+
+    [theme.breakpoints.down('lg')]: {
+      marginRight: 0,
+      marginBottom: '10px',
+    },
   },
 
-  [theme.breakpoints.between('xs', 'sm')]: {
-    '& .bar-chart': { height: '300px !important' },
+  '& .blood_volume--item': {
+    [theme.breakpoints.down('lg')]: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
+    },
+
+    '& .blood-volume-number': { fontWeight: 600, fontSize: '20px' },
   },
 }));
-
-const barChartOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top',
-    },
-    title: {
-      display: true,
-      text: 'Người hiến máu theo tuổi',
-    },
-  },
-};
-
-const doughnutChartOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'bottom',
-    },
-    title: {
-      display: true,
-      text: 'Nhóm máu',
-    },
-  },
-};
 
 const DashboardPage = () => {
   const theme = useTheme();
-  const [barChartYear, setBarChartYear] = useState(2022);
-  const [doughnutCharYear, setDoughnutChartYear] = useState(2022);
 
-  const barChartData = {
-    labels: ['18 - 23', '24 - 29', '30 - 45', '36 - 41', '42 - 47', '48 - 53', '54 - 60'],
-    datasets: [
-      {
-        label: 'Số lượng',
-        data: [161, 26, 331, 25, 34, 180, 222],
-        backgroundColor: `${theme.palette.error.main}`,
-      },
-    ],
-  };
+  const rows = [
+    {
+      name: 'Hiến máu cho người nghèo',
+      address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
+      startDate: new Date(),
+      endDate: new Date(),
+    },
+    {
+      name: 'Hiến máu cho người nghèo, người khuyết tật, người thiếu máu',
+      address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
+      startDate: new Date(),
+      endDate: new Date(),
+    },
+  ];
 
-  const doughnutChartData = {
-    labels: ['Máu A', 'Máu B', 'Máu AB', 'Máu O'],
-    datasets: [
-      {
-        label: '# of Votes',
-        data: [12, 19, 3, 5],
-        backgroundColor: [
-          `${theme.palette.error.main}`,
-          `${theme.palette.info.main}`,
-          `${theme.palette.success.main}`,
-          `${theme.palette.warning.main}`,
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
   return (
     <Box sx={{ width: '100%' }}>
+      <PageTitle sx={{ mb: 5 }}>
+        <Typography variant="h4" gutterBottom fontWeight={600}>
+          Trang chủ
+        </Typography>
+        <Paper className="quarter_box" elevation={0} sx={{ padding: '10px' }}>
+          <Typography>
+            {dayjs('2001-09-05T00:00:00').locale('vi').format('MMMM, YYYY')} -{' '}
+            {dayjs('2001-12-05T00:00:00').locale('vi').format('MMMM, YYYY')}
+          </Typography>
+        </Paper>
+      </PageTitle>
+
       {/* Total Tab */}
-
-      <Grid container rowSpacing={7} columnSpacing={{ xl: 7, lg: 3 }} sx={{ marginBottom: '50px' }}>
+      <Grid container rowSpacing={4} columnSpacing={{ xl: 5, lg: 3 }} sx={{ marginBottom: '50px' }}>
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            <StatisticTabContent direction="row" spacing={3}>
-              <MdOutlineEventNote className="statistic_tab_icon first_icon" />
-              <Box>
-                <Typography className="statistic_tab_number">56</Typography>
-                <Typography>Tổng số sự kiện</Typography>
-              </Box>
-            </StatisticTabContent>
+            <Stack className="tab_title" direction="row" alignItems="center">
+              <MdOutlineEventNote className="tab_title--icon" />
+              <Typography className="tab_title--text">Số sự kiện</Typography>
+            </Stack>
+
+            <Stack className="tab_content">
+              <Typography className="tab_content--number">{formatNumber(50041)}</Typography>
+
+              <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
+                <Box className="status_box">
+                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                    <BsCheck2 className="status_icon success" />
+                    <Typography className="status_text">Đã hoàn thành</Typography>
+                  </Stack>
+                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                </Box>
+
+                <Box>
+                  <Divider orientation="vertical" />
+                </Box>
+
+                <Box className="status_box">
+                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                    <IoMdClose className="status_icon fail" />
+                    <Typography className="status_text">Chưa hoàn thành</Typography>
+                  </Stack>
+                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                </Box>
+              </Stack>
+            </Stack>
           </StatisticTabContainer>
         </Grid>
 
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            <StatisticTabContent direction="row" spacing={3}>
-              <BsPeople className="statistic_tab_icon second_icon" />
-              <Box>
-                <Typography className="statistic_tab_number">126k</Typography>
-                <Typography>Tổng số người hiến máu</Typography>
-              </Box>
-            </StatisticTabContent>
+            <Stack className="tab_title" direction="row" alignItems="center">
+              <BsPeople className="tab_title--icon" />
+              <Typography className="tab_title--text">Số người lấy máu</Typography>
+            </Stack>
+
+            <Stack className="tab_content">
+              <Typography className="tab_content--number">{formatNumber(5000)}</Typography>
+
+              <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
+                <Box className="status_box">
+                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                    <BsCheck2 className="status_icon success" />
+                    <Typography className="status_text">Đã hiến máu</Typography>
+                  </Stack>
+                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                </Box>
+
+                <Box>
+                  <Divider orientation="vertical" />
+                </Box>
+
+                <Box className="status_box">
+                  <Stack className="status_title" direction="row" alignItems="center">
+                    <IoMdClose className="status_icon fail" />
+                    <Typography className="status_text">Chưa hiến máu</Typography>
+                  </Stack>
+                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                </Box>
+              </Stack>
+            </Stack>
           </StatisticTabContainer>
         </Grid>
 
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            <StatisticTabContent direction="row" spacing={3}>
-              <MdOutlineWaterDrop className="statistic_tab_icon third_icon" />
-              <Box>
-                <Typography className="statistic_tab_number">65</Typography>
-                <Typography>Tổng số máu nhận được</Typography>
-              </Box>
-            </StatisticTabContent>
+            <Stack className="tab_title" direction="row" alignItems="center">
+              <MdOutlineWaterDrop className="tab_title--icon" />
+              <Typography className="tab_title--text">Số (lit) máu nhận được</Typography>
+            </Stack>
+
+            <Stack className="tab_content">
+              <Typography className="tab_content--number">{formatNumber(500000)}</Typography>
+
+              <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
+                <Box className="status_box">
+                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                    <BsCheck2 className="status_icon success" />
+                    <Typography className="status_text">Đã nhận được</Typography>
+                  </Stack>
+                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                </Box>
+
+                <Box>
+                  <Divider orientation="vertical" />
+                </Box>
+
+                <Box className="status_box">
+                  <Stack className="status_title" direction="row" alignItems="center">
+                    <FcProcess className="status_icon fail" />
+                    <Typography className="status_text">Dự kiến nhận</Typography>
+                  </Stack>
+                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                </Box>
+              </Stack>
+            </Stack>
           </StatisticTabContainer>
         </Grid>
       </Grid>
 
-      {/* Charts */}
-      <ChartSection>
-        <Grid container spacing={3}>
-          <Grid item lg={8} md={12} sm={12} xs={12}>
-            <ChartContainer className="bar-chart" elevation={1}>
-              <YearSelectFilter year={barChartYear} />
-              <Bar options={barChartOptions} data={barChartData} />
-            </ChartContainer>
-          </Grid>
+      <Grid container rowSpacing={4} columnSpacing={{ lg: 2 }}>
+        <Grid item lg={9} xs={12}>
+          <IncomingEventStyle elevation={0}>
+            <Typography sx={{ fontWeight: 800, fontSize: '20px', marginBottom: '10px' }}>
+              Sự kiện hiến máu sắp diễn ra
+            </Typography>
 
-          <Grid item lg={4} md={12} sm={12} xs={12}>
-            <ChartContainer elevation={1}>
-              <YearSelectFilter year={doughnutCharYear} sx={{ mb: '30px' }} />
-              <Doughnut className="doughnut-chart" options={doughnutChartOptions} data={doughnutChartData} />
-            </ChartContainer>
-          </Grid>
+            <TableContainer component={Box}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead sx={{ borderBottom: '1px solid #EBEAED' }}>
+                  <TableRow>
+                    <TableCell sx={{ boxShadow: 'none !important', width: '30%', fontWeight: 'bold' }}>
+                      Sự kiện
+                    </TableCell>
+                    <TableCell sx={{ width: '40%', fontWeight: 'bold' }}>Địa điểm</TableCell>
+                    <TableCell sx={{ boxShadow: 'none !important', width: '30%', fontWeight: 'bold' }}>
+                      Thời gian
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell component="th" scope="row">
+                        {row.name}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {row.address}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        <Box>
+                          <Typography>
+                            {moment(row.startDate).format('DD/MM/yyyy')} - {moment(row.endDate).format('DD/MM/yyyy')}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '12px',
+                              color: `${theme.palette.success.main}`,
+                            }}
+                          >
+                            {moment(row.startDate).format('HH:mm')} - {moment(row.endDate).format('HH:mm')}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </IncomingEventStyle>
         </Grid>
-      </ChartSection>
+        <Grid item lg={3} xs={12}>
+          <BloodVolume>
+            <Stack className="blood_volume--content">
+              <Stack className="blood_volume--item" direction="row">
+                <TypeOBloodIcon className="blood-type" />
+                <Box>
+                  <Typography className="blood-volume-number">{formatNumber(60034)} lít</Typography>
+                  <Typography>Nhóm máu O</Typography>
+                </Box>
+              </Stack>
+
+              <Divider
+                flexItem={true}
+                orientation={useMediaQuery(theme.breakpoints.down('lg')) ? 'vertical' : 'horizontal'}
+                sx={{
+                  margin: '30px 0 30px',
+                  [theme.breakpoints.down('lg')]: {
+                    margin: '0 40px 0',
+                  },
+                }}
+              />
+
+              <Stack className="blood_volume--item" direction="row">
+                <TypeRHSubtractIcon className="blood-type" />
+                <Box>
+                  <Typography className="blood-volume-number">{formatNumber(60034)} lít</Typography>
+                  <Typography>Nhóm máu RH-</Typography>
+                </Box>
+              </Stack>
+            </Stack>
+          </BloodVolume>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
