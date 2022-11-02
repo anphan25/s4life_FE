@@ -1,16 +1,17 @@
 import { Controller } from 'react-hook-form';
-import { FormControl, TextField, styled, Stack, Box } from '@mui/material';
+import { FormControl, TextField, styled, Stack, Box, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
+import { FaFileCsv } from 'react-icons/fa';
 import Papa from 'papaparse';
 
 const DropZone = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
-  height: '80px',
-  color: '#707070',
-  border: '1px dashed #bdbdbd',
+  padding: '10px 0 10px',
+  border: `1px dashed ${theme.palette.primary.main}`,
+  backgroundColor: theme.palette.grey[200],
   fontSize: '14px',
   cursor: 'pointer',
 
@@ -35,6 +36,15 @@ const ErrorMessageList = styled(Box)(({ theme }) => ({
   '& ul': {
     listStyleType: 'none',
   },
+}));
+
+const ImportTextDisplayStyle = styled(Stack)(({ theme }) => ({
+  justifyContent: 'center',
+  gap: '8px',
+
+  '& .import_icon': { color: theme.palette.primary.main, fontSize: '32px' },
+  '& .import_description': { color: theme.palette.primary.main },
+  '& .import_require': { color: theme.palette.grey[600] },
 }));
 
 export const RHFImport = ({ control, label, name, onImport, ...props }) => {
@@ -175,7 +185,14 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
             control={control}
             render={({ field, fieldState: { error } }) => (
               <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
-                <p>{label}</p>
+                <ImportTextDisplayStyle>
+                  <Box>
+                    <FaFileCsv className="import_icon" />
+                  </Box>
+                  <Typography className="import_description">{label}</Typography>
+                  <Typography className="import_require">CSV tối đa (1MB)</Typography>
+                </ImportTextDisplayStyle>
+
                 <TextField
                   className="file_input"
                   type="file"
