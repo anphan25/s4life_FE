@@ -1,11 +1,12 @@
-import React from 'react';
 import { Button, Stack, DialogActions, styled, Box } from '@mui/material';
 import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs } from 'components';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
 import { importCSVHospitalData } from 'api/HospitalApi';
+import { AiOutlineDownload } from 'react-icons/ai';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import { storage } from 'config/firebaseConfig';
+import axios from 'axios';
 
 const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   marginTop: 'auto',
@@ -36,6 +37,10 @@ const HeaderMain = styled(Stack)(({ theme }) => ({
   },
 }));
 
+const DownloadLink = styled('a')(({ theme }) => ({
+  display: 'none',
+}));
+
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
@@ -47,6 +52,7 @@ const HospitalListPage = () => {
     page: 1,
     pageSize: 10,
   });
+  const downloadRef = useRef();
 
   const { handleSubmit, control } = useForm({});
 
@@ -130,6 +136,10 @@ const HospitalListPage = () => {
             label="Kéo thả hoặc nhấn vào để chọn file"
             onImport={getDataFromFile}
           />
+          <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
+            Tải file mẫu
+          </Button>
+          <DownloadLink ref={downloadRef} download />
           <DialogButtonGroup>
             <Button className="dialog_button" onClick={addHospitalDialogHandler}>
               Hủy
@@ -144,13 +154,42 @@ const HospitalListPage = () => {
               type="submit"
               variant="contained"
             >
-              Thêm bệnh viện từ file
+              Thêm
             </Button>
           </DialogButtonGroup>
         </Stack>
       </form>
     );
   };
+
+  const handleDownloadTemplate = async () => {
+    getDownloadURL(ref(storage, 'template_import/hospital_import_template.csv'))
+      .then((url) => {
+        downloadRef.current.setAttribute('href', url);
+        downloadRef.current.click();
+      })
+      .catch((error) => {
+        switch (error.code) {
+          case 'storage/object-not-found':
+            // File doesn't exist
+            break;
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break;
+          case 'storage/canceled':
+            // User canceled the upload
+            break;
+
+          // ...
+
+          case 'storage/unknown':
+            // Unknown error occurred, inspect the server response
+            break;
+        }
+      });
+  };
+
+  useEffect(() => {}, []);
 
   return (
     <div>
@@ -169,8 +208,8 @@ const HospitalListPage = () => {
         isOpen={isAddHospitalDialogOpen}
         onClose={addHospitalDialogHandler}
         children={addHospitalDialogContent()}
-        title="Thêm bệnh viện"
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '400px' } }}
+        title="Thêm bệnh viện từ file"
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
       <DataTable gridOptions={gridOptions} onPageChange={pageChangeHandler} onPageSizeChange={pageSizeChangeHandler} />
     </div>
