@@ -3,6 +3,7 @@ import { Box, styled } from '@mui/material';
 import { Sidebar } from './components/Sidebar';
 import Navbar from './components/Navbar';
 import { Outlet } from 'react-router-dom';
+import useToggle from 'hooks/useToggle';
 
 const MainContainer = styled('div')(({ theme }) => ({
   width: '100%',
@@ -10,18 +11,18 @@ const MainContainer = styled('div')(({ theme }) => ({
   color: theme.palette.grey[900],
   background: theme.palette.background.grey,
   display: 'flex',
-  overflowX: 'scroll',
-
-  '& .box-content': { width: '100%' },
+  overflow: 'hidden',
 }));
 
 export const DashboardLayout = () => {
+  const { onOpen, toggle, onClose } = useToggle();
+
   return (
     <MainContainer>
-      <Sidebar />
-      <Box className="box-content" sx={{ flex: 1, pb: 8 }}>
-        <Navbar />
-        <Box sx={{ height: 1, px: 5, pt: 6, pb: 18 }}>
+      <Sidebar toggle={toggle} onClose={onClose} />
+      <Box sx={{ flex: 1, pb: 8 }}>
+        <Navbar onOpen={onOpen} />
+        <Box sx={{ px: 5, pt: 6, pb: 14, overflow: 'scroll', height: '100%' }}>
           <Outlet />
         </Box>
       </Box>

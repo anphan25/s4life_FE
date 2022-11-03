@@ -1,20 +1,13 @@
 import { Badge, Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import { BellIcon } from 'assets';
 import { Dropdown } from 'components';
+import useToggle from 'hooks/useToggle';
 import { useState } from 'react';
 import { BiCheckDouble } from 'react-icons/bi';
 
 const NotificationPopover = () => {
   const [totalUnRead, setTotalUnRead] = useState(4);
-  const [open, setOpen] = useState(null);
-
-  const handleClose = () => {
-    setOpen(null);
-  };
-
-  const handleOpen = (event) => {
-    setOpen(event.currentTarget);
-  };
+  const { toggle, onToggle } = useToggle();
 
   const handleMarkAllAsRead = () => {
     setTotalUnRead(0);
@@ -22,12 +15,12 @@ const NotificationPopover = () => {
 
   return (
     <>
-      <IconButton color={open ? 'primary' : 'default'} sx={{ width: 48, height: 48 }} onClick={handleOpen}>
+      <IconButton color={toggle ? 'primary' : 'default'} onClick={onToggle}>
         <Badge color="error" variant="dot" invisible={totalUnRead === 0}>
           <BellIcon />
         </Badge>
       </IconButton>
-      <Dropdown anchorEl={open} open={Boolean(open)} onClose={handleClose} sx={{ width: 360, p: 0, mt: 8 }}>
+      <Dropdown anchorEl={toggle} open={Boolean(toggle)} onClose={onToggle} sx={{ width: 360, p: 0, mt: 8 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Notifications</Typography>
@@ -39,7 +32,7 @@ const NotificationPopover = () => {
           {totalUnRead > 0 && (
             <Tooltip title=" Mark all as read">
               <IconButton color="primary" onClick={handleMarkAllAsRead}>
-                <BiCheckDouble size={24} />
+                <BiCheckDouble />
               </IconButton>
             </Tooltip>
           )}

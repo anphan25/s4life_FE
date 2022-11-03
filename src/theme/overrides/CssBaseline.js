@@ -6,7 +6,7 @@ export default function CssBaseline(theme) {
       styleOverrides: {
         '*': {
           '*::-webkit-scrollbar': {
-            width: '0.5em',
+            width: '0.4em',
           },
           '*::-webkit-scrollbar-track': {
             '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',

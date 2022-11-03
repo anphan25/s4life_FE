@@ -1,13 +1,14 @@
-import { HiOutlineCalendar, HiOutlinePlus, HiUsers } from 'react-icons/hi';
 import { FaRegHospital } from 'react-icons/fa';
-import { TbClipboardList, TbLayout2 } from 'react-icons/tb';
-import { MenuList, styled } from '@mui/material';
+import { TbLayout2 } from 'react-icons/tb';
+import { HiX } from 'react-icons/hi';
+import { Drawer, IconButton, MenuList, styled } from '@mui/material';
 import { Logo } from 'components';
 import SubHeader from './SubHeader';
 import SidebarItem from './SidebarItem';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import useResponsive from 'hooks/useResponsive';
 
 const sidebarAdmin = [
   { name: 'Trang chủ', icon: <TbLayout2 />, to: '/' },
@@ -17,17 +18,22 @@ const sidebarAdmin = [
 const SidebarContainer = styled('aside')(({ theme }) => ({
   width: '250px',
   background: 'white',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 }));
 
-export const Sidebar = () => {
+export const Sidebar = ({ toggle, onClose }) => {
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
-  let user = useSelector((state) => state.auth.auth?.user);
+  //let user = useSelector((state) => state.auth.auth?.user);
+  const isDesktop = useResponsive('up', 'lg');
+  console.log(toggle);
 
-  return (
-    <SidebarContainer>
-      <Logo sx={{ p: 6 }} />
-      <MenuList sx={{ gap: 2, pt: 8 }}>
+  const renderContent = (
+    <>
+      <Logo sx={{ m: 6 }} />
+      <MenuList sx={{ gap: 2, width: '100%' }}>
         {sidebarAdmin.map((item, index) =>
           item.children ? (
             <SubHeader item={item} key={index} active={active} onActive={setActive} />
@@ -36,6 +42,20 @@ export const Sidebar = () => {
           )
         )}
       </MenuList>
-    </SidebarContainer>
+    </>
+  );
+
+  return (
+    <>
+      {!isDesktop && (
+        <Drawer open={toggle} onClose={onClose} PaperProps={{ sx: { width: '250px' } }}>
+          <IconButton color="error" sx={{ m: 1 }} onClick={onClose}>
+            <HiX />
+          </IconButton>
+          {renderContent}
+        </Drawer>
+      )}
+      {isDesktop && <SidebarContainer>{renderContent}</SidebarContainer>}
+    </>
   );
 };

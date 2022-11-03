@@ -1,11 +1,11 @@
-import { ListItemIcon, ListItemText, MenuItem, MenuItemProps, styled, Typography } from '@mui/material';
+import { ListItemIcon, ListItemText, MenuItem, styled, Typography } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 const SidebarItemStyle = styled(MenuItem, {
   shouldForwardProp: (prop) => prop !== 'active',
 })(({ theme, active }) => ({
-  gap: '1rem',
+  gap: '0.5rem',
   padding: '1rem 1.25rem',
   color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
 
@@ -37,9 +37,12 @@ const SidebarItemStyle = styled(MenuItem, {
   },
 
   '& .MuiListItemIcon-root': {
+    height: '1.5rem',
+    width: '1.5rem',
+    minWidth: '1.5rem',
     svg: {
-      height: '1.5rem',
-      width: '1.5rem',
+      height: '100%',
+      width: '100%',
       color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
     },
   },
