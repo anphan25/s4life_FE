@@ -20,12 +20,14 @@ const NotificationPopover = () => {
           <BellIcon />
         </Badge>
       </IconButton>
-      <Dropdown anchorEl={toggle} open={Boolean(toggle)} onClose={onToggle} sx={{ width: 360, p: 0, mt: 8 }}>
+      <Dropdown open={Boolean(toggle)} onClose={onToggle} sx={{ width: 360, p: 0, mt: 8 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="subtitle1">Notifications</Typography>
+            <Typography variant="subtitle1">
+              Thông bá<optgroup></optgroup>
+            </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              You have {totalUnRead} unread messages
+              Bạn có {totalUnRead} thông báo chưa xem
             </Typography>
           </Box>
 

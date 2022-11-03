@@ -1,4 +1,4 @@
-import { Button, Stack, DialogActions, styled, Box } from '@mui/material';
+import { Button, Stack, DialogActions, styled, Box, TablePagination } from '@mui/material';
 import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs } from 'components';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -7,6 +7,7 @@ import { AiOutlineDownload } from 'react-icons/ai';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import axios from 'axios';
+import { HiPlus } from 'react-icons/hi';
 
 const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   marginTop: 'auto',
@@ -198,7 +199,7 @@ const HospitalListPage = () => {
           heading="Danh sách bệnh viện"
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
         />
-        <Button sx={{ height: '50px' }} variant="contained" onClick={addHospitalDialogHandler}>
+        <Button startIcon={<HiPlus />} variant="contained" onClick={addHospitalDialogHandler}>
           Thêm bệnh viện
         </Button>
       </HeaderMain>

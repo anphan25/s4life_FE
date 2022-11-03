@@ -22,8 +22,6 @@ const containerDataGrid = {
 
   '& .MuiDataGrid-footerContainer': {
     '& .MuiInputBase-colorPrimary': { width: '60px', height: '40px' },
-
-    '& .MuiTablePagination-select': { paddingRight: '20px !important' },
   },
 };
 
@@ -34,20 +32,20 @@ const StyledGridOverlay = styled('div')(({ theme }) => ({
   justifyContent: 'center',
   height: '100%',
   '& .ant-empty-img-1': {
-    fill: theme.palette.mode === 'light' ? '#aeb8c2' : '#262626',
+    fill: '#aeb8c2',
   },
   '& .ant-empty-img-2': {
-    fill: theme.palette.mode === 'light' ? '#f5f5f7' : '#595959',
+    fill: '#f5f5f7',
   },
   '& .ant-empty-img-3': {
-    fill: theme.palette.mode === 'light' ? '#dce0e6' : '#434343',
+    fill: '#dce0e6',
   },
   '& .ant-empty-img-4': {
-    fill: theme.palette.mode === 'light' ? '#fff' : '#1c1c1c',
+    fill: '#fff',
   },
   '& .ant-empty-img-5': {
-    fillOpacity: theme.palette.mode === 'light' ? '0.8' : '0.08',
-    fill: theme.palette.mode === 'light' ? '#f5f5f5' : '#fff',
+    fillOpacity: '0.8',
+    fill: '#f5f5f5',
   },
 }));
 
@@ -81,14 +79,14 @@ function CustomNoRowsOverlay() {
           </g>
         </g>
       </svg>
-      <Box sx={{ mt: 1 }}>No Result</Box>
+      <Box sx={{ mt: 1 }}>Không tìm thấy</Box>
     </StyledGridOverlay>
   );
 }
 
 export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange }) => {
   return (
-    <Paper elevation={2} className="transaction-section" sx={tableContainerStyle}>
+    <Paper elevation={0} sx={tableContainerStyle}>
       <Box sx={containerDataGrid}>
         <DataGrid
           rowHeight={65}

@@ -28,7 +28,6 @@ export const Sidebar = ({ toggle, onClose }) => {
   const [active, setActive] = useState(location.pathname);
   //let user = useSelector((state) => state.auth.auth?.user);
   const isDesktop = useResponsive('up', 'lg');
-  console.log(toggle);
 
   const renderContent = (
     <>

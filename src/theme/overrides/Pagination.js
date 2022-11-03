@@ -3,15 +3,15 @@ export default function Pagination(theme) {
     MuiPaginationItem: {
       styleOverrides: {
         root: {
-          "&.Mui-selected": {
+          '&.Mui-selected': {
             fontWeight: theme.typography.fontWeightBold,
           },
         },
         textPrimary: {
-          "&.Mui-selected": {
+          '&.Mui-selected': {
             color: theme.palette.primary.main,
             //backgroundColor: alpha(theme.palette.primary.main, 0.08),
-            "&:hover, &.Mui-focusVisible": {
+            '&:hover, &.Mui-focusVisible': {
               //backgroundColor: `${alpha(theme.palette.primary.main, 0.24)} !important`,
             },
           },
@@ -23,7 +23,7 @@ export default function Pagination(theme) {
         rounded: {},
 
         outlinedPrimary: {
-          "&.Mui-selected": {
+          '&.Mui-selected': {
             //backgroundColor: alpha(theme.palette.primary.main, 0.08),
             //border: `1px solid ${alpha(theme.palette.primary.main, 0.24)}`,
           },
