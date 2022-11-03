@@ -10,17 +10,18 @@ import {
   Typography,
 } from '@mui/material';
 import { Dropdown } from 'components';
-import React, { useState } from 'react';
+import React from 'react';
 import { BiUser } from 'react-icons/bi';
 import { TbLogout } from 'react-icons/tb';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
+import useToggle from 'hooks/useToggle';
 
 const UserPopover = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(null);
+  const { toggle, onToggle } = useToggle();
   let user = useSelector((state) => state.auth.auth?.user);
 
   const menu = [
@@ -30,14 +31,6 @@ const UserPopover = () => {
     },
   ];
 
-  const handleClose = () => {
-    setOpen(null);
-  };
-
-  const handleOpen = (event) => {
-    setOpen(event.currentTarget);
-  };
-
   const handleLogout = () => {
     dispatch(logoutSuccess());
     navigate('/auth/login');
@@ -45,16 +38,10 @@ const UserPopover = () => {
 
   return (
     <>
-      <IconButton
-        sx={{
-          width: 48,
-          height: 48,
-        }}
-        onClick={handleOpen}
-      >
+      <IconButton onClick={onToggle}>
         <Avatar src={user?.picture_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
       </IconButton>
-      <Dropdown anchorEl={open} open={Boolean(open)} onClose={handleClose} sx={{ width: 280, p: 0, mt: 8 }}>
+      <Dropdown anchorEl={toggle} open={Boolean(toggle)} onClose={onToggle} sx={{ width: 280, p: 0, mt: 8 }}>
         <Box sx={{ p: 2 }}>
           <Typography noWrap fontSize={16} fontWeight={600}>
             {user?.full_name || ''}
@@ -76,7 +63,7 @@ const UserPopover = () => {
               key={option.name}
               to={option.to}
               component={Link}
-              onClick={handleClose}
+              onClick={onToggle}
               sx={{ p: 1.5, color: 'grey.700', borderRadius: '12px' }}
             >
               <ListItemIcon sx={{ fontSize: 24, color: 'grey.600' }}>{option.icon}</ListItemIcon>

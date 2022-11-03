@@ -3,7 +3,7 @@ import Router from 'router/Router';
 import { Theme } from 'theme';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import 'dayjs/locale/vi';
+import 'moment/locale/vi';
 
 function App() {
   return (

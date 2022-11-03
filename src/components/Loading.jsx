@@ -1,6 +1,6 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, Typography } from '@mui/material';
 import React from 'react';
-import { Logo } from 'assets';
+import { Logo } from 'components';
 
 const LoadingContainer = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -11,19 +11,14 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   flexDirection: 'column',
-  backgroundColor: '#f2f3f8',
-
-  img: {
-    marginLeft: 'calc(100vw - 100%)',
-    marginBottom: '30px',
-  },
+  backgroundColor: theme.palette.background,
 }));
 
 export const Loading = () => {
   return (
     <LoadingContainer>
-      <img src={Logo} alt="S4Life logo" />
-      <span>Loading ...</span>
+      <Logo />
+      <Typography fontWeight={600}>Đang tải ...</Typography>
     </LoadingContainer>
   );
 };

@@ -1,11 +1,29 @@
-import { Input, InputAdornment, useTheme } from '@mui/material';
+import { Button, ClickAwayListener, IconButton, Input, InputAdornment, Slide } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RiSearchLine } from 'react-icons/ri';
+import useResponsive from 'hooks/useResponsive';
+import useToggle from 'hooks/useToggle';
+import styled from '@emotion/styled';
+
+const SearchbarStyle = styled('div')(({ theme }) => ({
+  top: 96,
+  left: 0,
+  zIndex: 999,
+  backdropFilter: 'blur(6px)',
+  WebkitBackdropFilter: 'blur(6px)',
+  width: '100%',
+  display: 'flex',
+  position: 'absolute',
+  alignItems: 'center',
+  boxShadow: '0 8px 12px rgb(17 19 21 / 5%)',
+  backgroundColor: 'white',
+  padding: theme.spacing(1, 3),
+}));
 
 const Searchbar = () => {
-  const theme = useTheme();
-
+  const isMobile = useResponsive('down', 'sm');
+  const { toggle, onOpen, onClose } = useToggle();
   const navigate = useNavigate();
 
   const handleKeyDown = (event) => {
@@ -16,24 +34,59 @@ const Searchbar = () => {
   };
 
   return (
-    <Input
-      disableUnderline
-      placeholder={`Tìm kiếm...`}
-      onKeyDown={handleKeyDown}
-      startAdornment={
-        <InputAdornment position="start" sx={{ ml: 1 }}>
-          <RiSearchLine fontSize={24} />
-        </InputAdornment>
-      }
-      sx={{
-        mr: 1,
-        fontWeight: 500,
-        color: 'grey.900',
-        backgroundColor: 'grey.200',
-        width: 360,
-        fontSize: 14,
-      }}
-    />
+    <>
+      {isMobile ? (
+        <ClickAwayListener onClickAway={onClose}>
+          <div>
+            <IconButton onClick={onOpen}>
+              <RiSearchLine />
+            </IconButton>
+
+            <Slide direction="down" in={toggle} mountOnEnter unmountOnExit>
+              <SearchbarStyle>
+                <Input
+                  disableUnderline
+                  placeholder={`Tìm kiếm...`}
+                  onKeyDown={handleKeyDown}
+                  startAdornment={
+                    <InputAdornment position="start" sx={{ ml: 1 }}>
+                      <RiSearchLine fontSize={24} />
+                    </InputAdornment>
+                  }
+                  sx={{
+                    mr: 1,
+                    fontWeight: 500,
+                    color: 'grey.900',
+                    backgroundColor: 'grey.200',
+                    width: 360,
+                    fontSize: 14,
+                  }}
+                />
+              </SearchbarStyle>
+            </Slide>
+          </div>
+        </ClickAwayListener>
+      ) : (
+        <Input
+          disableUnderline
+          placeholder={`Tìm kiếm...`}
+          onKeyDown={handleKeyDown}
+          startAdornment={
+            <InputAdornment position="start" sx={{ ml: 1 }}>
+              <RiSearchLine fontSize={24} />
+            </InputAdornment>
+          }
+          sx={{
+            mr: 1,
+            fontWeight: 500,
+            color: 'grey.900',
+            backgroundColor: 'grey.200',
+            width: 360,
+            fontSize: 14,
+          }}
+        />
+      )}
+    </>
   );
 };
 
