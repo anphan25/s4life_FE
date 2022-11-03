@@ -3,9 +3,10 @@ export default function Menu(theme) {
     MuiMenuItem: {
       styleOverrides: {
         root: {
-          "&.Mui-selected": {
+          borderRadius: 6,
+          '&.Mui-selected': {
             backgroundColor: theme.palette.action.selected,
-            "&:hover": {
+            '&:hover': {
               backgroundColor: theme.palette.action.hover,
             },
           },
