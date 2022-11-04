@@ -2,7 +2,7 @@ import { Button, Stack, DialogActions, styled, Box, TablePagination } from '@mui
 import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs } from 'components';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { importCSVHospitalData } from 'api/HospitalApi';
+import { getHospitalsList, importCSVHospitalData } from 'api/HospitalApi';
 import { AiOutlineDownload } from 'react-icons/ai';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
@@ -66,28 +66,32 @@ const HospitalListPage = () => {
       },
       {
         headerName: 'Tên bệnh viện',
-        field: 'pictureUrl',
+        field: 'name',
         type: 'string',
-        width: 400,
+        // width: 400,
+        flex: 1,
       },
       {
         headerName: 'Địa chỉ',
-        field: 'fullName',
-        width: 300,
+        field: 'address',
+        // width: 300,
+        flex: 2,
       },
 
       {
         headerName: 'Email',
         field: 'email',
         type: 'string',
-        width: 150,
+        // width: 150,
+        flex: 1,
       },
 
       {
         headerName: 'Số điên thoại',
         field: 'phoneNumber',
         type: 'string',
-        width: 100,
+        // width: 100,
+        flex: 1,
       },
     ],
     pageState: pageState,
@@ -190,7 +194,22 @@ const HospitalListPage = () => {
       });
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setPageState({ ...pageState, isLoading: true });
+    getHospitalsList({ FilterMode: 'All', Page: 1, PageSize: 10 }).then((res) => {
+      const dataRow = res.items.map((data, i) => ({
+        no: i + 1,
+        id: data.id,
+        name: data.name || 'Chưa cập nhật',
+        address: data.address || 'Chưa cập nhật',
+        email: data.email || 'Chưa cập nhật',
+        phoneNumber: data.phoneNumber || 'Chưa cập nhật',
+      }));
+      console.log(dataRow);
+
+      setPageState({ ...pageState, isLoading: false, data: dataRow, total: res.total });
+    });
+  }, []);
 
   return (
     <div>
