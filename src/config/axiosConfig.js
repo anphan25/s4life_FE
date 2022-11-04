@@ -25,13 +25,13 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response.data,
+  (response) => response.data.result,
   async (error) => {
     if (error?.response?.status === 401) {
       await getAccessToken(store.getState().auth.auth?.refreshToken)
         .then((res) => {
-          error.config.headers['Authorization'] = `Bearer ${res.result.accessToken}`;
-          store.dispatch(setToken(res?.accessToken));
+          error.config.headers['Authorization'] = `Bearer ${res}`;
+          store.dispatch(setToken(res));
           return axiosInstance(error?.config);
         })
         .catch((err) => {

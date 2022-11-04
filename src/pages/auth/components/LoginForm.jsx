@@ -51,17 +51,17 @@ const LoginForm = () => {
 
       dispatch(
         loginSuccess({
-          accessToken: res.result.accessToken,
-          refreshToken: res.result.refreshToken,
-          user: jwtDecode(res.result.accessToken),
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+          user: jwtDecode(res.accessToken),
         })
       );
 
       localStorage.setItem(
         'authTokens',
         JSON.stringify({
-          accessToken: res.result.accessToken,
-          refreshToken: res.result.refreshToken,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
         })
       );
       navigate('/');
