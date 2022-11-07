@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { FaFileCsv } from 'react-icons/fa';
 import Papa from 'papaparse';
+import moment from 'moment';
 
 const DropZone = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
@@ -85,14 +86,46 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
     </ErrorMessageList>
   ));
 
-  const validateObject = (obj) => {
+  const daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
+
+  //Mode 1: get startTime, Mode 2: get endTime
+  const getTimeFromDay = (dayString, mode) => {
+    const timeArr = dayString.split('-');
+    const timeSplit = timeArr[mode - 1].trim().split(':');
+
+    return moment().hour(timeSplit[0]).minute(timeSplit[1]).second(0).format('HH:mm:ss');
+  };
+
+  const convertDataToObject = (obj) => {
     for (const prop in obj) {
       if (!obj[prop]) {
         delete obj[prop];
       }
     }
 
-    return obj;
+    const openingTime = daysOfWeek.map((day) => {
+      return obj[day]
+        ? {
+            day: day,
+            startTime: getTimeFromDay(obj[day], 1),
+            endTime: getTimeFromDay(obj[day], 2),
+            isEnabled: true,
+          }
+        : {
+            day: day,
+            isEnabled: false,
+          };
+    });
+
+    return {
+      name: obj['name'],
+      address: obj['address'],
+      longitude: obj['longitude'],
+      latitude: obj['latitude'],
+      email: obj['email'] || null,
+      phoneNumber: obj['phoneNumber'],
+      openingTime,
+    };
   };
 
   const convertCSVToJson = async () => {
@@ -108,14 +141,41 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
           case 'Tên': {
             return 'name';
           }
-          case 'Địa Chỉ': {
+          case 'Ðịa Chỉ': {
             return 'address';
           }
           case 'Email': {
             return 'email';
           }
-          case 'Số Điện Thoại': {
+          case 'Số Ðiện Thoại': {
             return 'phoneNumber';
+          }
+          case 'Kinh Ðộ': {
+            return 'longitude';
+          }
+          case 'Vĩ Ðộ': {
+            return 'latitude';
+          }
+          case 'Thứ 2': {
+            return 1;
+          }
+          case 'Thứ 3': {
+            return 2;
+          }
+          case 'Thứ 4': {
+            return 3;
+          }
+          case 'Thứ 5': {
+            return 4;
+          }
+          case 'Thứ 6': {
+            return 5;
+          }
+          case 'Thứ 7': {
+            return 6;
+          }
+          case 'Chủ Nhật': {
+            return 0;
           }
 
           default: {
@@ -129,12 +189,11 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
       comments: false,
       step: undefined,
       complete: function (results) {
-        console.log('results.data: ', results.data);
-        let hospitalData = results.data.filter((data) => {
-          if (data) {
-            return validateObject(data);
-          }
-        });
+        const hospitalData = results.data
+          .filter((data) => Object.keys(data).length > 1)
+          .map((filteredData) => convertDataToObject(filteredData));
+
+        console.log('hospitalData: ', hospitalData);
         onImport(hospitalData, false);
       },
       error: function (errors) {

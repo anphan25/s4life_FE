@@ -1,13 +1,16 @@
-import { Button, Stack, DialogActions, styled, Box, TablePagination } from '@mui/material';
-import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs } from 'components';
+import { Button, Stack, DialogActions, styled, Box, Typography } from '@mui/material';
+import { GridActionsCellItem } from '@mui/x-data-grid';
+import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar } from 'components';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData } from 'api/HospitalApi';
 import { AiOutlineDownload } from 'react-icons/ai';
-import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
-import axios from 'axios';
 import { HiPlus } from 'react-icons/hi';
+import { FcCancel } from 'react-icons/fc';
+import { formatDateTypeOne } from 'utils/formatDateTypeOne';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   marginTop: 'auto',
@@ -46,12 +49,20 @@ const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [importParams, setImportParams] = useState([]);
+  const [isDisableHospitalOpen, setIsDisableHospitalOpen] = useState(false);
+  const [disableHospitalName, setDisableHospitalName] = useState('');
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
     total: 0,
     page: 1,
     pageSize: 10,
+  });
+  const [alert, setAlert] = useState({
+    message: '',
+    status: false,
+    type: 'success',
   });
   const downloadRef = useRef();
 
@@ -62,7 +73,7 @@ const HospitalListPage = () => {
       {
         headerName: 'No',
         field: 'no',
-        width: 70,
+        width: 30,
       },
       {
         headerName: 'Tên bệnh viện',
@@ -93,6 +104,36 @@ const HospitalListPage = () => {
         // width: 100,
         flex: 1,
       },
+
+      {
+        headerName: 'Ngày thêm',
+        field: 'addDate',
+        type: 'string',
+        width: 150,
+      },
+      {
+        headerName: 'Người thêm',
+        field: 'addUser',
+        type: 'string',
+        width: 100,
+      },
+      {
+        field: 'actions',
+        type: 'actions',
+        width: 50,
+        sortable: false,
+        filterable: false,
+
+        getActions: (params) => [
+          <GridActionsCellItem
+            icon={<FcCancel />}
+            onClick={() => {
+              openDisableHospitalConfirm(params.row.name);
+            }}
+            label="Vô hiệu bệnh viện"
+          />,
+        ],
+      },
     ],
     pageState: pageState,
   };
@@ -107,6 +148,38 @@ const HospitalListPage = () => {
 
   const addHospitalDialogHandler = () => {
     setIsAddHospitalDialogOpen(!isAddHospitalDialogOpen);
+    setIsImportBtnDisabled(true);
+  };
+
+  const handleDisableHospitalDialog = () => {
+    setIsDisableHospitalOpen(!isDisableHospitalOpen);
+  };
+
+  const openDisableHospitalConfirm = (name) => {
+    handleDisableHospitalDialog();
+    setDisableHospitalName(name);
+  };
+
+  const disableHospitalDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Bạn có chắc chắn muốn vô hiệu hóa <b>{disableHospitalName}</b> không ?
+        </Typography>
+        <DialogButtonGroup>
+          <Button onClick={handleDisableHospitalDialog}>Hủy</Button>
+          <Button
+            onClick={async () => {
+              handleDisableHospitalDialog();
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Vô Hiệu Hóa
+          </Button>
+        </DialogButtonGroup>
+      </Box>
+    );
   };
 
   const getDataFromFile = (values, disabledBtn) => {
@@ -116,18 +189,30 @@ const HospitalListPage = () => {
   };
 
   const onSubmit = async () => {
-    console.log('csv data: ', importParams);
     if (importParams.length <= 0) {
       return;
     }
+    setAlert({});
+    setIsButtonLoading(true);
+    setImportParams([]);
 
     try {
       await importCSVHospitalData(importParams);
       addHospitalDialogHandler();
-      setImportParams([]);
-      setIsImportBtnDisabled(true);
+      fetchHospitalData();
+      setIsButtonLoading(false);
+      setAlert({
+        message: 'Thêm bệnh viện thành công',
+        status: true,
+        type: 'success',
+      });
     } catch (err) {
-      console.log(err);
+      setAlert({});
+      setAlert({
+        message: 'Thêm bệnh viện không thành công, vui lòng kiểm tra lại tệp tin csv',
+        status: true,
+        type: 'error',
+      });
     }
   };
 
@@ -149,7 +234,8 @@ const HospitalListPage = () => {
             <Button className="dialog_button" onClick={addHospitalDialogHandler}>
               Hủy
             </Button>
-            <Button
+            <LoadingButton
+              loading={isButtonLoading}
               disabled={isImportBtnDisabled}
               className="dialog_button"
               sx={{
@@ -160,7 +246,7 @@ const HospitalListPage = () => {
               variant="contained"
             >
               Thêm
-            </Button>
+            </LoadingButton>
           </DialogButtonGroup>
         </Stack>
       </form>
@@ -178,14 +264,6 @@ const HospitalListPage = () => {
           case 'storage/object-not-found':
             // File doesn't exist
             break;
-          case 'storage/unauthorized':
-            // User doesn't have permission to access the object
-            break;
-          case 'storage/canceled':
-            // User canceled the upload
-            break;
-
-          // ...
 
           case 'storage/unknown':
             // Unknown error occurred, inspect the server response
@@ -193,23 +271,28 @@ const HospitalListPage = () => {
         }
       });
   };
-
-  useEffect(() => {
-    setPageState({ ...pageState, isLoading: true });
-    getHospitalsList({ FilterMode: 'All', Page: 1, PageSize: 10 }).then((res) => {
+  const fetchHospitalData = () => {
+    setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+    getHospitalsList({ FilterMode: 'All', Page: pageState.page, PageSize: pageState.pageSize }).then((res) => {
       const dataRow = res.items.map((data, i) => ({
         no: i + 1,
         id: data.id,
-        name: data.name || 'Chưa cập nhật',
-        address: data.address || 'Chưa cập nhật',
-        email: data.email || 'Chưa cập nhật',
-        phoneNumber: data.phoneNumber || 'Chưa cập nhật',
+        name: data.name || '-',
+        address: data.address || '-',
+        email: data.email || '-',
+        phoneNumber: data.phoneNumber || '-',
+        addDate: formatDateTypeOne(data.addDate) || '-',
+        addUser: data.addUser || '-',
       }));
-      console.log(dataRow);
 
       setPageState({ ...pageState, isLoading: false, data: dataRow, total: res.total });
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    setPageState({ ...pageState, isLoading: true });
+    fetchHospitalData();
+  }, [pageState.pageSize, pageState.page]);
 
   return (
     <div>
@@ -223,6 +306,8 @@ const HospitalListPage = () => {
         </Button>
       </HeaderMain>
 
+      <DataTable gridOptions={gridOptions} onPageChange={pageChangeHandler} onPageSizeChange={pageSizeChangeHandler} />
+
       {/* Add Hospital Dialog */}
       <CustomDialog
         isOpen={isAddHospitalDialogOpen}
@@ -231,7 +316,17 @@ const HospitalListPage = () => {
         title="Thêm bệnh viện từ file"
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
-      <DataTable gridOptions={gridOptions} onPageChange={pageChangeHandler} onPageSizeChange={pageSizeChangeHandler} />
+
+      {/* Disable Hospital Dialog */}
+      <CustomDialog
+        isOpen={isDisableHospitalOpen}
+        onClose={handleDisableHospitalDialog}
+        title="Vô hiệu hóa bệnh viện"
+        children={disableHospitalDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
+
+      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </div>
   );
 };

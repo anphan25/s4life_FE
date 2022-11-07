@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Paper, styled } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -85,6 +85,17 @@ function CustomNoRowsOverlay() {
 }
 
 export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [value, setValue] = useState('');
+
+  // const handlePopoverOpen = (event) => {
+  //   const field = event.currentTarget.dataset.field;
+  //   const id = event.currentTarget.parentElement.dataset.id;
+  //   const row = data.rows.find((r) => r.id === id);
+  //   setValue(row[field]);
+  //   setAnchorEl(event.currentTarget);
+  // };
+
   return (
     <Paper elevation={0} sx={tableContainerStyle}>
       <Box sx={containerDataGrid}>
@@ -105,7 +116,21 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange }) => {
           components={{
             NoResultsOverlay: CustomNoRowsOverlay,
           }}
-          onRowClick={(rowData) => console.log(rowData)}
+          // cellFocusIn={(params) => {
+          //   console.log('cell prams: ', params);
+          // }}
+          // cellFocusOut={console.log('fuckkkk  ')}
+          componentsProps={{
+            cell: {
+              onMouseEnter: (event, value) => {
+                console.log('event: ', event);
+                console.log('value: ', value);
+              },
+              // onMouseLeave: handlePopoverClose,
+            },
+          }}
+          // onRowClick={(rowData) => console.log(rowData)}
+          disableSelectionOnClick
         ></DataGrid>
       </Box>
     </Paper>

@@ -9,6 +9,15 @@ const DialogContentStyle = styled(Box)(({ theme }) => ({
   padding: '10px 20px 20px',
 }));
 
+const TitleHeaderStyle = styled(Box)(({ theme }) => ({
+  lineHeight: 2.2,
+  fontSize: '20px',
+  fontWeight: 'bold',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '15px',
+  },
+}));
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -42,7 +51,7 @@ export const CustomDialog = ({ onClose, children, title, sx, isOpen, ...other })
             },
           }}
         >
-          <Typography sx={{ lineHeight: 2.2, fontSize: '20px', fontWeight: 'bold' }}>{title}</Typography>
+          <TitleHeaderStyle>{title}</TitleHeaderStyle>
 
           <GrClose onClick={onClose} className="close-icon" />
         </Stack>
