@@ -1,9 +1,9 @@
-import { Button, Stack, DialogActions, styled, Box, Typography } from '@mui/material';
+import { Button, Stack, DialogActions, styled, Box, Typography, Paper } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar } from 'components';
+import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab } from 'components';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { getHospitalsList, importCSVHospitalData } from 'api/HospitalApi';
+import { getHospitalsList, importCSVHospitalData, disableHospital } from 'api/HospitalApi';
 import { AiOutlineDownload } from 'react-icons/ai';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
@@ -52,18 +52,26 @@ const HospitalListPage = () => {
   const [isDisableHospitalOpen, setIsDisableHospitalOpen] = useState(false);
   const [disableHospitalName, setDisableHospitalName] = useState('');
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [disableHospitalId, setDisableHospitalId] = useState(null);
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
     total: 0,
     page: 1,
     pageSize: 10,
+    FilterTabMode: 1,
   });
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
+
+  const filterTabValues = [
+    { label: 'Đang hoạt động', value: 1 },
+    { label: 'Bị vô hiệu hóa', value: 2 },
+  ];
+
   const downloadRef = useRef();
 
   const { handleSubmit, control } = useForm({});
@@ -73,7 +81,7 @@ const HospitalListPage = () => {
       {
         headerName: 'No',
         field: 'no',
-        width: 30,
+        width: 10,
       },
       {
         headerName: 'Tên bệnh viện',
@@ -93,23 +101,21 @@ const HospitalListPage = () => {
         headerName: 'Email',
         field: 'email',
         type: 'string',
-        // width: 150,
-        flex: 1,
+        width: 120,
+        // flex: 0.5,
       },
 
       {
         headerName: 'Số điên thoại',
         field: 'phoneNumber',
         type: 'string',
-        // width: 100,
-        flex: 1,
+        width: 110,
       },
-
       {
         headerName: 'Ngày thêm',
         field: 'addDate',
         type: 'string',
-        width: 150,
+        width: 140,
       },
       {
         headerName: 'Người thêm',
@@ -128,6 +134,7 @@ const HospitalListPage = () => {
           <GridActionsCellItem
             icon={<FcCancel />}
             onClick={() => {
+              setDisableHospitalId(params.row.id);
               openDisableHospitalConfirm(params.row.name);
             }}
             label="Vô hiệu bệnh viện"
@@ -160,23 +167,37 @@ const HospitalListPage = () => {
     setDisableHospitalName(name);
   };
 
+  const handleFilterTabChange = (e, value) => {
+    setPageState((old) => ({ ...old, FilterTabMode: value }));
+  };
+
   const disableHospitalDialogContent = () => {
     return (
       <Box>
         <Typography>
           Bạn có chắc chắn muốn vô hiệu hóa <b>{disableHospitalName}</b> không ?
         </Typography>
-        <DialogButtonGroup>
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
           <Button onClick={handleDisableHospitalDialog}>Hủy</Button>
-          <Button
+          <LoadingButton
+            loading={isButtonLoading}
             onClick={async () => {
-              handleDisableHospitalDialog();
+              setAlert({});
+              setIsButtonLoading(true);
+              try {
+                await disableHospital(disableHospitalId);
+                handleDisableHospitalDialog();
+                // setDisableHospitalId(null);
+                setAlert({ message: `Vô hiệu hóa ${disableHospitalName} thành công`, status: true, type: 'success' });
+                await fetchHospitalData();
+                setIsButtonLoading(false);
+              } catch (e) {}
             }}
             variant="contained"
             autoFocus
           >
             Vô Hiệu Hóa
-          </Button>
+          </LoadingButton>
         </DialogButtonGroup>
       </Box>
     );
@@ -262,7 +283,12 @@ const HospitalListPage = () => {
       .catch((error) => {
         switch (error.code) {
           case 'storage/object-not-found':
-            // File doesn't exist
+            setAlert({});
+            setAlert({
+              message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
+              status: true,
+              type: 'error',
+            });
             break;
 
           case 'storage/unknown':
@@ -273,7 +299,12 @@ const HospitalListPage = () => {
   };
   const fetchHospitalData = () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
-    getHospitalsList({ FilterMode: 'All', Page: pageState.page, PageSize: pageState.pageSize }).then((res) => {
+    getHospitalsList({
+      FilterMode: 'All',
+      Page: pageState.page,
+      PageSize: pageState.pageSize,
+      status: pageState.FilterTabMode === 1,
+    }).then((res) => {
       const dataRow = res.items.map((data, i) => ({
         no: i + 1,
         id: data.id,
@@ -281,6 +312,7 @@ const HospitalListPage = () => {
         address: data.address || '-',
         email: data.email || '-',
         phoneNumber: data.phoneNumber || '-',
+        isActive: data.isActive,
         addDate: formatDateTypeOne(data.addDate) || '-',
         addUser: data.addUser || '-',
       }));
@@ -292,7 +324,7 @@ const HospitalListPage = () => {
   useEffect(() => {
     setPageState({ ...pageState, isLoading: true });
     fetchHospitalData();
-  }, [pageState.pageSize, pageState.page]);
+  }, [pageState.pageSize, pageState.page, pageState.FilterTabMode]);
 
   return (
     <div>
@@ -306,7 +338,21 @@ const HospitalListPage = () => {
         </Button>
       </HeaderMain>
 
-      <DataTable gridOptions={gridOptions} onPageChange={pageChangeHandler} onPageSizeChange={pageSizeChangeHandler} />
+      <Paper>
+        <Box>
+          <FilterTab
+            tabs={filterTabValues}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.FilterTabMode}
+            sx={{ margin: '0 0 0 25px', paddingTop: '10px' }}
+          />
+          <DataTable
+            gridOptions={gridOptions}
+            onPageChange={pageChangeHandler}
+            onPageSizeChange={pageSizeChangeHandler}
+          />
+        </Box>
+      </Paper>
 
       {/* Add Hospital Dialog */}
       <CustomDialog
