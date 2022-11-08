@@ -9,3 +9,7 @@ export async function importCSVHospitalData(params) {
 export async function getHospitalsList(params) {
   return await axiosInstance.get(`${apiPath}?${queryString.stringify(params)}`);
 }
+
+export async function disableHospital(hospitalId) {
+  return await axiosInstance.delete(`${apiPath}/${hospitalId}`);
+}
