@@ -16,3 +16,4 @@ export * from './DataTable';
 export * from './HeaderBreadcumbs';
 export * from './CustomSnackBar';
 export * from './FilterTab';
+export * from './SearchBar';
