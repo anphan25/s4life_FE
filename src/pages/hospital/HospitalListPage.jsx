@@ -1,6 +1,6 @@
 import { Button, Stack, DialogActions, styled, Box, Typography, Paper } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab } from 'components';
+import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab, SearchBar } from 'components';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital } from 'api/HospitalApi';
@@ -24,7 +24,7 @@ const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   },
 }));
 
-const HeaderMain = styled(Stack)(({ theme }) => ({
+const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
   justifyContent: 'space-between',
 
@@ -38,6 +38,24 @@ const HeaderMain = styled(Stack)(({ theme }) => ({
     flexDirection: 'column',
     justifyContent: 'start',
     gap: '20px',
+  },
+}));
+
+const FilterSectionStyle = styled(Stack)(({ theme }) => ({
+  marginBottom: '20px',
+  justifyContent: 'space-between',
+  flexDirection: 'row',
+
+  [theme.breakpoints.up('sm')]: {
+    alignItems: 'center',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    justifyContent: 'start',
+    gap: '20px',
+
+    '& .search-bar': { width: '100%' },
   },
 }));
 
@@ -60,6 +78,7 @@ const HospitalListPage = () => {
     page: 1,
     pageSize: 10,
     FilterTabMode: 1,
+    searchKey: '',
   });
   const [alert, setAlert] = useState({
     message: '',
@@ -87,13 +106,13 @@ const HospitalListPage = () => {
         headerName: 'Tên bệnh viện',
         field: 'name',
         type: 'string',
-        // width: 400,
+        minWidth: 150,
         flex: 1,
       },
       {
         headerName: 'Địa chỉ',
         field: 'address',
-        // width: 300,
+        minWidth: 200,
         flex: 2,
       },
 
@@ -101,8 +120,8 @@ const HospitalListPage = () => {
         headerName: 'Email',
         field: 'email',
         type: 'string',
-        width: 120,
-        // flex: 0.5,
+        minWidth: 100,
+        flex: 0.5,
       },
 
       {
@@ -129,15 +148,16 @@ const HospitalListPage = () => {
         width: 50,
         sortable: false,
         filterable: false,
-
         getActions: (params) => [
           <GridActionsCellItem
+            disabled={pageState.FilterTabMode === 2}
             icon={<FcCancel />}
             onClick={() => {
               setDisableHospitalId(params.row.id);
               openDisableHospitalConfirm(params.row.name);
             }}
             label="Vô hiệu bệnh viện"
+            showInMenu
           />,
         ],
       },
@@ -168,7 +188,11 @@ const HospitalListPage = () => {
   };
 
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, FilterTabMode: value }));
+    setPageState((old) => ({ ...old, FilterTabMode: value, page: 1 }));
+  };
+
+  const handleSearchHospitalName = (searchValue) => {
+    setPageState((old) => ({ ...old, page: 1, searchKey: searchValue.searchTerm }));
   };
 
   const disableHospitalDialogContent = () => {
@@ -303,7 +327,8 @@ const HospitalListPage = () => {
       FilterMode: 'All',
       Page: pageState.page,
       PageSize: pageState.pageSize,
-      status: pageState.FilterTabMode === 1,
+      Status: pageState.FilterTabMode === 1,
+      SearchKey: pageState.searchKey,
     }).then((res) => {
       const dataRow = res.items.map((data, i) => ({
         no: i + 1,
@@ -324,11 +349,11 @@ const HospitalListPage = () => {
   useEffect(() => {
     setPageState({ ...pageState, isLoading: true });
     fetchHospitalData();
-  }, [pageState.pageSize, pageState.page, pageState.FilterTabMode]);
+  }, [pageState.pageSize, pageState.page, pageState.FilterTabMode, pageState.searchKey]);
 
   return (
     <div>
-      <HeaderMain>
+      <HeaderMainStyle>
         <HeaderBreadcumbs
           heading="Danh sách bệnh viện"
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
@@ -336,23 +361,27 @@ const HospitalListPage = () => {
         <Button startIcon={<HiPlus />} variant="contained" onClick={addHospitalDialogHandler}>
           Thêm bệnh viện
         </Button>
-      </HeaderMain>
+      </HeaderMainStyle>
 
-      <Paper>
-        <Box>
-          <FilterTab
-            tabs={filterTabValues}
-            onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.FilterTabMode}
-            sx={{ margin: '0 0 0 25px', paddingTop: '10px' }}
-          />
-          <DataTable
-            gridOptions={gridOptions}
-            onPageChange={pageChangeHandler}
-            onPageSizeChange={pageSizeChangeHandler}
-          />
-        </Box>
-      </Paper>
+      <FilterSectionStyle>
+        <FilterTab
+          tabs={filterTabValues}
+          onChangeTab={handleFilterTabChange}
+          defaultValue={pageState.FilterTabMode}
+          // sx={{ margin: '0 0 0 25px', paddingTop: '10px' }}
+        />
+        <SearchBar className="search-bar" placeholder="Nhập tên bệnh viện" onSubmit={handleSearchHospitalName} />
+      </FilterSectionStyle>
+      {/* <Paper>
+        <Box> */}
+      <DataTable
+        gridOptions={gridOptions}
+        onPageChange={pageChangeHandler}
+        onPageSizeChange={pageSizeChangeHandler}
+        disableFilter={true}
+      />
+      {/* </Box>
+      </Paper> */}
 
       {/* Add Hospital Dialog */}
       <CustomDialog

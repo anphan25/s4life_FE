@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Paper, styled } from '@mui/material';
+import { Box, Paper, styled, Popover, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import LinearProgress from '@mui/material/LinearProgress';
 
 const tableContainerStyle = {
   width: '100%',
@@ -84,17 +83,25 @@ function CustomNoRowsOverlay() {
   );
 }
 
-export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange }) => {
+export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disableFilter }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [value, setValue] = useState('');
 
-  // const handlePopoverOpen = (event) => {
-  //   const field = event.currentTarget.dataset.field;
-  //   const id = event.currentTarget.parentElement.dataset.id;
-  //   const row = data.rows.find((r) => r.id === id);
-  //   setValue(row[field]);
-  //   setAnchorEl(event.currentTarget);
-  // };
+  const handlePopoverOpen = (event) => {
+    const field = event.currentTarget.dataset.field;
+    const id = event.currentTarget.parentElement.dataset.id;
+    const data = gridOptions.pageState.data;
+    const targetRow = data.find((row) => row.id === Number(id));
+    const targetCell = targetRow[field];
+
+    setValue(targetCell);
+    setAnchorEl(event.currentTarget);
+  };
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
 
   return (
     <Paper elevation={0} sx={tableContainerStyle}>
@@ -116,22 +123,34 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange }) => {
           components={{
             NoResultsOverlay: CustomNoRowsOverlay,
           }}
-          // cellFocusIn={(params) => {
-          //   console.log('cell prams: ', params);
-          // }}
-          // cellFocusOut={console.log('fuckkkk  ')}
+          disableColumnFilter={disableFilter}
           componentsProps={{
             cell: {
-              onMouseEnter: (event, value) => {
-                console.log('event: ', event);
-                console.log('value: ', value);
-              },
-              // onMouseLeave: handlePopoverClose,
+              onMouseEnter: handlePopoverOpen,
+              onMouseLeave: handlePopoverClose,
             },
           }}
-          // onRowClick={(rowData) => console.log(rowData)}
           disableSelectionOnClick
-        ></DataGrid>
+        />
+        <Popover
+          sx={{
+            pointerEvents: 'none',
+          }}
+          open={open}
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          onClose={handlePopoverClose}
+          disableRestoreFocus
+        >
+          <Typography sx={{ fontSize: '13px' }}>{`${value}`}</Typography>
+        </Popover>
       </Box>
     </Paper>
   );
