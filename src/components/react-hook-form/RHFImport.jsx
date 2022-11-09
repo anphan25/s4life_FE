@@ -193,7 +193,6 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
 
-        console.log('hospitalData: ', hospitalData);
         onImport(hospitalData, false);
       },
       error: function (errors) {

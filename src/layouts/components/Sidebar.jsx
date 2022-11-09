@@ -1,5 +1,6 @@
 import { FaRegHospital } from 'react-icons/fa';
 import { TbLayout2 } from 'react-icons/tb';
+import { MdOutlineEventNote } from 'react-icons/md';
 import { HiX } from 'react-icons/hi';
 import { Drawer, IconButton, MenuList, styled } from '@mui/material';
 import { Logo } from 'components';
@@ -13,6 +14,20 @@ import useResponsive from 'hooks/useResponsive';
 const sidebarAdmin = [
   { name: 'Trang chủ', icon: <TbLayout2 />, to: '/' },
   { name: 'Quản lý bệnh viện', icon: <FaRegHospital />, to: '/hospital/list' },
+  {
+    name: 'Quản lý sự kiện',
+    icon: <MdOutlineEventNote />,
+    children: [
+      {
+        name: 'Cố định',
+        to: '/event/list/',
+      },
+      {
+        name: 'Lưu động',
+        to: '/recipes/drinks',
+      },
+    ],
+  },
 ];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({
@@ -31,7 +46,7 @@ export const Sidebar = ({ toggle, onClose }) => {
 
   const renderContent = (
     <>
-      <Logo sx={{ m: 6 }} />
+      <Logo sx={{ margin: '80px 30px 5px 30px' }} />
       <MenuList sx={{ gap: 2, width: '100%' }}>
         {sidebarAdmin.map((item, index) =>
           item.children ? (

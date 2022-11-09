@@ -57,7 +57,7 @@ const SidebarItem = ({ item, active, onActive }) => {
       to={item.to}
       onClick={() => onActive(item.to)}
     >
-      <span></span>
+      {/* <span></span> */}
       <ListItemIcon>{item.icon}</ListItemIcon>
       <ListItemText>
         <Typography

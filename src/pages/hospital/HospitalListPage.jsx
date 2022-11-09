@@ -9,7 +9,7 @@ import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import { HiPlus } from 'react-icons/hi';
 import { FcCancel } from 'react-icons/fc';
-import { formatDateTypeOne } from 'utils/formatDateTypeOne';
+import { formatDate, convertErrorCodeToMessage } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
@@ -103,6 +103,10 @@ const HospitalListPage = () => {
         width: 10,
       },
       {
+        field: 'id',
+        hide: true,
+      },
+      {
         headerName: 'Tên bệnh viện',
         field: 'name',
         type: 'string',
@@ -135,12 +139,6 @@ const HospitalListPage = () => {
         field: 'addDate',
         type: 'string',
         width: 140,
-      },
-      {
-        headerName: 'Người thêm',
-        field: 'addUser',
-        type: 'string',
-        width: 100,
       },
       {
         field: 'actions',
@@ -338,8 +336,7 @@ const HospitalListPage = () => {
         email: data.email || '-',
         phoneNumber: data.phoneNumber || '-',
         isActive: data.isActive,
-        addDate: formatDateTypeOne(data.addDate) || '-',
-        addUser: data.addUser || '-',
+        addDate: formatDate(data.addDate, 1) || '-',
       }));
 
       setPageState({ ...pageState, isLoading: false, data: dataRow, total: res.total });
@@ -364,24 +361,16 @@ const HospitalListPage = () => {
       </HeaderMainStyle>
 
       <FilterSectionStyle>
-        <FilterTab
-          tabs={filterTabValues}
-          onChangeTab={handleFilterTabChange}
-          defaultValue={pageState.FilterTabMode}
-          // sx={{ margin: '0 0 0 25px', paddingTop: '10px' }}
-        />
+        <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.FilterTabMode} />
         <SearchBar className="search-bar" placeholder="Nhập tên bệnh viện" onSubmit={handleSearchHospitalName} />
       </FilterSectionStyle>
-      {/* <Paper>
-        <Box> */}
+
       <DataTable
         gridOptions={gridOptions}
         onPageChange={pageChangeHandler}
         onPageSizeChange={pageSizeChangeHandler}
         disableFilter={true}
       />
-      {/* </Box>
-      </Paper> */}
 
       {/* Add Hospital Dialog */}
       <CustomDialog
