@@ -47,8 +47,6 @@ const LoginForm = () => {
     try {
       const res = await loginUserPassword(data);
 
-      console.log('res: ', res);
-
       dispatch(
         loginSuccess({
           accessToken: res.accessToken,
