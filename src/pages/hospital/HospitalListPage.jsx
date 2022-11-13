@@ -269,28 +269,31 @@ const HospitalListPage = () => {
             label="Kéo thả hoặc nhấn vào để chọn file"
             onImport={getDataFromFile}
           />
-          <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
-            Tải file mẫu
-          </Button>
+
           <DownloadLink ref={downloadRef} download />
-          <DialogButtonGroup>
-            <Button className="dialog_button" onClick={addHospitalDialogHandler}>
-              Hủy
+          <Stack direction="row" justifyContent="space-between">
+            <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
+              Tải file mẫu
             </Button>
-            <LoadingButton
-              loading={isButtonLoading}
-              disabled={isImportBtnDisabled}
-              className="dialog_button"
-              sx={{
-                backgroundColor: 'error.main',
-                '&:hover': { backgroundColor: 'error.dark' },
-              }}
-              type="submit"
-              variant="contained"
-            >
-              Thêm
-            </LoadingButton>
-          </DialogButtonGroup>
+            <DialogButtonGroup>
+              <Button className="dialog_button" onClick={addHospitalDialogHandler}>
+                Hủy
+              </Button>
+              <LoadingButton
+                loading={isButtonLoading}
+                disabled={isImportBtnDisabled}
+                className="dialog_button"
+                sx={{
+                  backgroundColor: 'error.main',
+                  '&:hover': { backgroundColor: 'error.dark' },
+                }}
+                type="submit"
+                variant="contained"
+              >
+                Thêm
+              </LoadingButton>
+            </DialogButtonGroup>
+          </Stack>
         </Stack>
       </form>
     );
