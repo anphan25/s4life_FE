@@ -20,7 +20,7 @@ export const DashboardLayout = () => {
   return (
     <MainContainer>
       <Sidebar toggle={toggle} onClose={onClose} />
-      <Box sx={{ flex: 1, pb: 8 }}>
+      <Box sx={{ flex: 1, pb: 8, width: '100%' }}>
         <Navbar onOpen={onOpen} />
         <Box sx={{ px: 5, pt: 6, pb: 14, overflow: 'scroll', height: '100%' }}>
           <Outlet />
