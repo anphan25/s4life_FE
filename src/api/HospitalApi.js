@@ -13,3 +13,7 @@ export async function getHospitalsList(params) {
 export async function disableHospital(hospitalId) {
   return await axiosInstance.delete(`${apiPath}/${hospitalId}`);
 }
+
+export async function enableHospital(hospitalId) {
+  return await axiosInstance.patch(`${apiPath}/${hospitalId}/enable`);
+}

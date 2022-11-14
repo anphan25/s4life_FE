@@ -1,14 +1,14 @@
-import { Button, Stack, DialogActions, styled, Box, Typography, Paper } from '@mui/material';
+import { Button, Stack, DialogActions, styled, Box, Typography } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab, SearchBar } from 'components';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { getHospitalsList, importCSVHospitalData, disableHospital } from 'api/HospitalApi';
+import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api/HospitalApi';
 import { AiOutlineDownload } from 'react-icons/ai';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import { HiPlus } from 'react-icons/hi';
-import { FcCancel } from 'react-icons/fc';
+import { FcCancel, FcCheckmark } from 'react-icons/fc';
 import { formatDate, convertErrorCodeToMessage } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -68,9 +68,12 @@ const HospitalListPage = () => {
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [importParams, setImportParams] = useState([]);
   const [isDisableHospitalOpen, setIsDisableHospitalOpen] = useState(false);
+  const [isEnableHospitalOpen, setIsEnableHospitalOpen] = useState(false);
   const [disableHospitalName, setDisableHospitalName] = useState('');
+  const [enableHospitalName, setEnableHospitalName] = useState('');
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [disableHospitalId, setDisableHospitalId] = useState(null);
+  const [enableHospitalId, setEnableHospitalId] = useState(null);
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
@@ -129,7 +132,7 @@ const HospitalListPage = () => {
       },
 
       {
-        headerName: 'Số điên thoại',
+        headerName: 'Số điện thoại',
         field: 'phoneNumber',
         type: 'string',
         width: 110,
@@ -157,6 +160,16 @@ const HospitalListPage = () => {
             label="Vô hiệu bệnh viện"
             showInMenu
           />,
+          <GridActionsCellItem
+            disabled={pageState.FilterTabMode === 1}
+            icon={<FcCheckmark />}
+            onClick={() => {
+              setEnableHospitalId(params.row.id);
+              openEnableHospitalConfirm(params.row.name);
+            }}
+            label="Kích hoạt bệnh viện"
+            showInMenu
+          />,
         ],
       },
     ],
@@ -180,9 +193,18 @@ const HospitalListPage = () => {
     setIsDisableHospitalOpen(!isDisableHospitalOpen);
   };
 
+  const handleEnableHospitalDialog = () => {
+    setIsEnableHospitalOpen(!isEnableHospitalOpen);
+  };
+
   const openDisableHospitalConfirm = (name) => {
     handleDisableHospitalDialog();
     setDisableHospitalName(name);
+  };
+
+  const openEnableHospitalConfirm = (name) => {
+    handleEnableHospitalDialog();
+    setEnableHospitalName(name);
   };
 
   const handleFilterTabChange = (e, value) => {
@@ -209,7 +231,6 @@ const HospitalListPage = () => {
               try {
                 await disableHospital(disableHospitalId);
                 handleDisableHospitalDialog();
-                // setDisableHospitalId(null);
                 setAlert({ message: `Vô hiệu hóa ${disableHospitalName} thành công`, status: true, type: 'success' });
                 await fetchHospitalData();
                 setIsButtonLoading(false);
@@ -219,6 +240,37 @@ const HospitalListPage = () => {
             autoFocus
           >
             Vô Hiệu Hóa
+          </LoadingButton>
+        </DialogButtonGroup>
+      </Box>
+    );
+  };
+
+  const enableHospitalDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Bạn có chắc chắn muốn kích hoạt <b>{enableHospitalName}</b> không ?
+        </Typography>
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+          <Button onClick={handleEnableHospitalDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setAlert({});
+              setIsButtonLoading(true);
+              try {
+                await enableHospital(enableHospitalId);
+                handleEnableHospitalDialog();
+                setAlert({ message: `Kích hoạt ${enableHospitalName} thành công`, status: true, type: 'success' });
+                await fetchHospitalData();
+                setIsButtonLoading(false);
+              } catch (e) {}
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Kích hoạt
           </LoadingButton>
         </DialogButtonGroup>
       </Box>
@@ -388,8 +440,17 @@ const HospitalListPage = () => {
       <CustomDialog
         isOpen={isDisableHospitalOpen}
         onClose={handleDisableHospitalDialog}
-        title="Vô hiệu hóa bệnh viện"
+        title="Vô hiệu bệnh viện"
         children={disableHospitalDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
+
+      {/* Enable Hospital Dialog */}
+      <CustomDialog
+        isOpen={isEnableHospitalOpen}
+        onClose={handleEnableHospitalDialog}
+        title="Kích hoạt bệnh viện"
+        children={enableHospitalDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
 
