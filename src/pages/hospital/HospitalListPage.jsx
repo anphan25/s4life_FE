@@ -80,7 +80,7 @@ const HospitalListPage = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    FilterTabMode: 1,
+    filterTabMode: 1,
     searchKey: '',
   });
   const [alert, setAlert] = useState({
@@ -151,7 +151,7 @@ const HospitalListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            disabled={pageState.FilterTabMode === 2}
+            disabled={pageState.filterTabMode === 2}
             icon={<FcCancel />}
             onClick={() => {
               setDisableHospitalId(params.row.id);
@@ -161,7 +161,7 @@ const HospitalListPage = () => {
             showInMenu
           />,
           <GridActionsCellItem
-            disabled={pageState.FilterTabMode === 1}
+            disabled={pageState.filterTabMode === 1}
             icon={<FcCheckmark />}
             onClick={() => {
               setEnableHospitalId(params.row.id);
@@ -208,7 +208,7 @@ const HospitalListPage = () => {
   };
 
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, FilterTabMode: value, page: 1 }));
+    setPageState((old) => ({ ...old, filterTabMode: value, page: 1 }));
   };
 
   const handleSearchHospitalName = (searchValue) => {
@@ -380,7 +380,7 @@ const HospitalListPage = () => {
       FilterMode: 'All',
       Page: pageState.page,
       PageSize: pageState.pageSize,
-      Status: pageState.FilterTabMode === 1,
+      Status: pageState.filterTabMode === 1,
       SearchKey: pageState.searchKey,
     }).then((res) => {
       const dataRow = res.items.map((data, i) => ({
@@ -401,7 +401,7 @@ const HospitalListPage = () => {
   useEffect(() => {
     setPageState({ ...pageState, isLoading: true });
     fetchHospitalData();
-  }, [pageState.pageSize, pageState.page, pageState.FilterTabMode, pageState.searchKey]);
+  }, [pageState.pageSize, pageState.page, pageState.filterTabMode, pageState.searchKey]);
 
   return (
     <div>
@@ -416,7 +416,7 @@ const HospitalListPage = () => {
       </HeaderMainStyle>
 
       <FilterSectionStyle>
-        <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.FilterTabMode} />
+        <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterTabMode} />
         <SearchBar className="search-bar" placeholder="Nhập tên bệnh viện" onSubmit={handleSearchHospitalName} />
       </FilterSectionStyle>
 

@@ -1,35 +1,38 @@
-import { Box, Button, styled, Typography, Alert } from '@mui/material';
+import { styled, Typography, Alert } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { loginUserPassword } from 'api/AuthApi';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { RHFInput } from 'components';
 import { useDispatch, useSelector } from 'react-redux';
-import { authPending, loginFail, loginSuccess } from 'app/slices/AuthSlice';
+import { loginFail, loginSuccess } from 'app/slices/AuthSlice';
 import jwtDecode from 'jwt-decode';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useState } from 'react';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string().required('Vui lòng nhập tên đăng nhập'),
   password: Yup.string().required('Vui lòng nhập mật khẩu'),
 });
 
-const ButtonLogin = styled(Button)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: 'white',
-  marginTop: '24px',
+// const ButtonLogin = styled(LoadingButton)(({ theme }) => ({
+//   backgroundColor: theme.palette.primary.main,
+//   color: 'white',
+//   marginTop: '24px',
 
-  [theme.breakpoints.between('sm', 'md')]: { width: '133px', height: '56px' },
+//   [theme.breakpoints.between('sm', 'md')]: { width: '133px', height: '56px' },
 
-  [theme.breakpoints.between('xs', 'sm')]: { width: '100%', height: '56px' },
+//   [theme.breakpoints.between('xs', 'sm')]: { width: '100%', height: '56px' },
 
-  ':hover': {
-    backgroundColor: theme.palette.primary.main,
-    filter: 'brightness(90%)',
-  },
-}));
+//   ':hover': {
+//     backgroundColor: theme.palette.primary.main,
+//     filter: 'brightness(90%)',
+//   },
+// }));
 
 const LoginForm = () => {
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const defaultValues = {
     username: '',
     password: '',
@@ -44,6 +47,7 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data) => {
+    setIsButtonLoading(true);
     try {
       const res = await loginUserPassword(data);
 
@@ -62,9 +66,11 @@ const LoginForm = () => {
           refreshToken: res.refreshToken,
         })
       );
+      setIsButtonLoading(false);
       navigate('/');
     } catch (err) {
       dispatch(loginFail('Tên đăng nhập hoặc mật khẩu không đúng'));
+      setIsButtonLoading(false);
       console.log(err.message);
     }
   };
@@ -92,7 +98,9 @@ const LoginForm = () => {
           {error}
         </Alert>
       )}
-      <ButtonLogin type="submit">Đăng nhập</ButtonLogin>
+      <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
+        Đăng nhập
+      </LoadingButton>
     </form>
   );
 };
