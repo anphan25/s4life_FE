@@ -17,6 +17,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
+import { getVietnameseRole } from 'utils/getVietnameseRole';
+import { BsKey } from 'react-icons/bs';
 
 const UserPopover = () => {
   const dispatch = useDispatch();
@@ -26,8 +28,9 @@ const UserPopover = () => {
 
   const menu = [
     {
-      icon: <BiUser />,
-      name: 'Thông tin cá nhân',
+      icon: <BsKey />,
+      name: 'Đổi mật khẩu',
+      to: '/account',
     },
   ];
 
@@ -42,12 +45,12 @@ const UserPopover = () => {
         <Avatar src={user?.picture_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
       </IconButton>
       <Dropdown anchorEl={toggle} open={Boolean(toggle)} onClose={onToggle} sx={{ width: 280, p: 0, mt: 8 }}>
-        <Box sx={{ p: 2 }}>
-          <Typography noWrap fontSize={16} fontWeight={600}>
-            {user?.full_name || ''}
+        <Box sx={{ padding: '16px 33px 0' }}>
+          <Typography noWrap fontSize={20} fontWeight={600}>
+            {user?.username || ''}
           </Typography>
           <Typography noWrap fontSize={12} fontWeight={500}>
-            {user?.email || ''}
+            {getVietnameseRole(user?.role) || ''}
           </Typography>
         </Box>
 
@@ -56,6 +59,7 @@ const UserPopover = () => {
             sx={{
               mx: 2,
               color: 'grey.400',
+              margin: '0 0 8px',
             }}
           />
           {menu.map((option) => (

@@ -37,13 +37,26 @@ export default function Router() {
           index: true,
         },
         {
+          path: 'account',
+          children: [
+            {
+              index: true,
+              element: (
+                <ProtectedRouter roles={['Admin', 'Staff', 'Manager']}>
+                  <AccountPage />
+                </ProtectedRouter>
+              ),
+            },
+          ],
+        },
+        {
           path: 'event',
           children: [
             { element: <Navigate to="/event/list" replace />, index: true },
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
+                <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
                   <EventListPage />
                 </ProtectedRouter>
               ),
@@ -59,7 +72,7 @@ export default function Router() {
             {
               path: ':eventId',
               element: (
-                <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
+                <ProtectedRouter roles={['Manager', 'Staff']}>
                   <EventDetailPage />
                 </ProtectedRouter>
               ),
@@ -118,6 +131,14 @@ export default function Router() {
                 </ProtectedRouter>
               ),
             },
+            {
+              path: 'volunteers',
+              element: (
+                <ProtectedRouter roles={['Manager']}>
+                  <VolunteerListPage />
+                </ProtectedRouter>
+              ),
+            },
           ],
         },
         {
@@ -142,6 +163,9 @@ export default function Router() {
   ]);
 }
 
+//account
+const AccountPage = Loadable(lazy(() => import('pages/account/AccountPage')));
+
 //auth
 const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 
@@ -164,6 +188,7 @@ const StatisticsPage = Loadable(lazy(() => import('pages/statistics/StatisticsPa
 const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
 const AddEditUserPage = Loadable(lazy(() => import('pages/user/AddEditUserPage')));
 const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
+const VolunteerListPage = Loadable(lazy(() => import('pages/user/VolunteerListPage')));
 
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/HospitalListPage')));

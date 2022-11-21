@@ -1,5 +1,6 @@
 import { FaRegHospital } from 'react-icons/fa';
 import { TbLayout2 } from 'react-icons/tb';
+import { BiDonateBlood } from 'react-icons/bi';
 import { MdOutlineEventNote } from 'react-icons/md';
 import { HiX } from 'react-icons/hi';
 import { Drawer, IconButton, MenuList, styled } from '@mui/material';
@@ -24,14 +25,37 @@ const sidebarAdmin = [
       },
       {
         name: 'Lưu động',
-        to: '/recipes/drinks',
+        // to: '/recipes/drinks',
       },
     ],
   },
 ];
 
+const sidebarManager = [
+  { name: 'Trang chủ', icon: <TbLayout2 />, to: '/' },
+  {
+    name: 'Quản lý sự kiện',
+    icon: <MdOutlineEventNote />,
+    children: [
+      {
+        name: 'Cố định',
+        to: '/event/list/',
+      },
+      {
+        name: 'Lưu động',
+        // to: '/recipes/drinks',
+      },
+    ],
+  },
+  {
+    to: '/user/volunteers',
+    name: 'Danh sách tình nguyện viên',
+    icon: <BiDonateBlood />,
+  },
+];
+
 const SidebarContainer = styled('aside')(({ theme }) => ({
-  width: '250px',
+  width: '270px',
   background: 'white',
   display: 'flex',
   flexDirection: 'column',
@@ -41,20 +65,30 @@ const SidebarContainer = styled('aside')(({ theme }) => ({
 export const Sidebar = ({ toggle, onClose }) => {
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
-  //let user = useSelector((state) => state.auth.auth?.user);
+  let user = useSelector((state) => state.auth.auth?.user);
   const isDesktop = useResponsive('up', 'lg');
 
   const renderContent = (
     <>
       <Logo sx={{ margin: '80px 30px 5px 30px' }} />
       <MenuList sx={{ gap: 2, width: '100%' }}>
-        {sidebarAdmin.map((item, index) =>
-          item.children ? (
-            <SubHeader item={item} key={index} active={active} onActive={setActive} />
-          ) : (
-            <SidebarItem item={item} key={index} active={active} onActive={setActive} />
-          )
-        )}
+        {user?.role === 'Admin' &&
+          sidebarAdmin.map((item, index) =>
+            item.children ? (
+              <SubHeader item={item} key={index} active={active} onActive={setActive} />
+            ) : (
+              <SidebarItem item={item} key={index} active={active} onActive={setActive} />
+            )
+          )}
+
+        {user?.role === 'Manager' &&
+          sidebarManager.map((item, index) =>
+            item.children ? (
+              <SubHeader item={item} key={index} active={active} onActive={setActive} />
+            ) : (
+              <SidebarItem item={item} key={index} active={active} onActive={setActive} />
+            )
+          )}
       </MenuList>
     </>
   );
