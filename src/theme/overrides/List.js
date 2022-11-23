@@ -5,7 +5,6 @@ export default function List(theme) {
         root: {
           color: 'inherit',
           minWidth: 'auto',
-          marginRight: theme.spacing(2),
         },
       },
     },

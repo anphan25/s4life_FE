@@ -4,8 +4,9 @@ import { DataGrid } from '@mui/x-data-grid';
 
 const tableContainerStyle = {
   width: '100%',
-  padding: '20px 20px 10px',
-  borderRadius: '10px',
+  // padding: '0 20px 10px',
+  borderBottomLeftRadius: '10px',
+  borderBottomRightRadius: '10px',
 };
 
 const containerDataGrid = {
@@ -15,8 +16,8 @@ const containerDataGrid = {
   '& .MuiDataGrid-columnHeaders': {
     backgroundColor: '#F4F6F8',
     color: '#6A7079',
-    borderTopLeftRadius: '10px',
-    borderTopRightRadius: '10px',
+    // borderTopLeftRadius: '10px',
+    // borderTopRightRadius: '10px',
   },
 
   '& .MuiDataGrid-footerContainer': {
@@ -108,7 +109,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
   const open = Boolean(anchorEl);
 
   return (
-    <Paper elevation={0} sx={tableContainerStyle}>
+    <Paper sx={tableContainerStyle}>
       <Box sx={containerDataGrid}>
         <DataGrid
           rowHeight={65}

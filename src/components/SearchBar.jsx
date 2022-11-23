@@ -25,7 +25,7 @@ export const SearchBar = (props) => {
     }, 300);
   };
   return (
-    <FormControl>
+    <FormControl sx={props.sx}>
       <Input
         //disableUnderline
         onChange={handleSearchForm}
@@ -41,12 +41,6 @@ export const SearchBar = (props) => {
           </InputAdornment>
         }
         placeholder={props.placeholder}
-        sx={{
-          height: 48,
-          width: 300,
-          backgroundColor: '#FFFF',
-          border: '1px solid #E4E4E4',
-        }}
       />
     </FormControl>
   );

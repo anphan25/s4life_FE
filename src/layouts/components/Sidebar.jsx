@@ -47,11 +47,6 @@ const sidebarManager = [
       },
     ],
   },
-  {
-    to: '/user/volunteers',
-    name: 'Danh sách tình nguyện viên',
-    icon: <BiDonateBlood />,
-  },
 ];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({

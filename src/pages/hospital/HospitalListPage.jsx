@@ -1,4 +1,4 @@
-import { Button, Stack, DialogActions, styled, Box, Typography } from '@mui/material';
+import { Button, Stack, DialogActions, styled, Box, Typography, Paper } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab, SearchBar } from 'components';
 import { useState, useEffect, useRef } from 'react';
@@ -42,9 +42,9 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
 }));
 
 const FilterSectionStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-  flexDirection: 'row',
+  // marginBottom: '20px',
+  // justifyContent: 'space-between',
+  // flexDirection: 'row',
 
   [theme.breakpoints.up('sm')]: {
     alignItems: 'center',
@@ -54,8 +54,6 @@ const FilterSectionStyle = styled(Stack)(({ theme }) => ({
     flexDirection: 'column',
     justifyContent: 'start',
     gap: '20px',
-
-    '& .search-bar': { width: '100%' },
   },
 }));
 
@@ -104,6 +102,7 @@ const HospitalListPage = () => {
         headerName: 'No',
         field: 'no',
         width: 10,
+        align: 'center',
       },
       {
         field: 'id',
@@ -414,18 +413,35 @@ const HospitalListPage = () => {
           Thêm bệnh viện
         </Button>
       </HeaderMainStyle>
-
-      <FilterSectionStyle>
-        <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterTabMode} />
-        <SearchBar className="search-bar" placeholder="Nhập tên bệnh viện" onSubmit={handleSearchHospitalName} />
-      </FilterSectionStyle>
-
-      <DataTable
-        gridOptions={gridOptions}
-        onPageChange={pageChangeHandler}
-        onPageSizeChange={pageSizeChangeHandler}
-        disableFilter={true}
-      />
+      <Paper elevation={1} sx={{ borderRadius: '20px' }}>
+        <FilterSectionStyle>
+          <FilterTab
+            sx={{
+              width: '100%',
+              // marginBottom: '20px',
+              padding: '10px 20px 0',
+              borderTopLeftRadius: '20px',
+              borderTopRightRadius: '20px',
+              backgroundColor: '#F4F6F8',
+            }}
+            tabs={filterTabValues}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.filterTabMode}
+          />
+        </FilterSectionStyle>
+        <SearchBar
+          className="search-bar"
+          sx={{ margin: '20px' }}
+          placeholder="Nhập tên bệnh viện"
+          onSubmit={handleSearchHospitalName}
+        />
+        <DataTable
+          gridOptions={gridOptions}
+          onPageChange={pageChangeHandler}
+          onPageSizeChange={pageSizeChangeHandler}
+          disableFilter={true}
+        />
+      </Paper>
 
       {/* Add Hospital Dialog */}
       <CustomDialog
