@@ -131,14 +131,6 @@ export default function Router() {
                 </ProtectedRouter>
               ),
             },
-            {
-              path: 'volunteers',
-              element: (
-                <ProtectedRouter roles={['Manager']}>
-                  <VolunteerListPage />
-                </ProtectedRouter>
-              ),
-            },
           ],
         },
         {
@@ -188,7 +180,6 @@ const StatisticsPage = Loadable(lazy(() => import('pages/statistics/StatisticsPa
 const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
 const AddEditUserPage = Loadable(lazy(() => import('pages/user/AddEditUserPage')));
 const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
-const VolunteerListPage = Loadable(lazy(() => import('pages/user/VolunteerListPage')));
 
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/HospitalListPage')));

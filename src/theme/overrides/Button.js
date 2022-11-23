@@ -38,13 +38,5 @@ export default function Button(theme) {
         },
       },
     },
-    MuiIconButton: {
-      styleOverrides: {
-        root: {
-          width: 48,
-          height: 48,
-        },
-      },
-    },
   };
 }
