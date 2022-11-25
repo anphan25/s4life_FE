@@ -72,7 +72,7 @@ export default function Router() {
             {
               path: ':eventId',
               element: (
-                <ProtectedRouter roles={['Manager', 'Staff']}>
+                <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
                   <EventDetailPage />
                 </ProtectedRouter>
               ),

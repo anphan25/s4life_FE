@@ -84,7 +84,7 @@ function CustomNoRowsOverlay() {
   );
 }
 
-export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disableFilter }) => {
+export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disableFilter, ...props }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [value, setValue] = useState('');
 
@@ -112,6 +112,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
     <Paper sx={tableContainerStyle}>
       <Box sx={containerDataGrid}>
         <DataGrid
+          {...props}
           rowHeight={65}
           className="gridStyle"
           columns={gridOptions.columns}

@@ -42,10 +42,6 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
 }));
 
 const FilterSectionStyle = styled(Stack)(({ theme }) => ({
-  // marginBottom: '20px',
-  // justifyContent: 'space-between',
-  // flexDirection: 'row',
-
   [theme.breakpoints.up('sm')]: {
     alignItems: 'center',
   },
@@ -114,6 +110,9 @@ const HospitalListPage = () => {
         type: 'string',
         minWidth: 150,
         flex: 1,
+        renderCell: (nameValue) => {
+          return <Typography sx={{ fontWeight: 'bold' }}>{nameValue.value}</Typography>;
+        },
       },
       {
         headerName: 'Địa chỉ',
