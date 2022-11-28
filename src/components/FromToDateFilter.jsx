@@ -20,13 +20,13 @@ export const FromToDateFilter = ({ onChange, sx }) => {
   return (
     <Stack direction="row" spacing={'10px'} sx={sx}>
       <DesktopDatePicker
-        sx={{ width: '100%' }}
         maxDate={params.endDate}
         value={params.startDate}
         onChange={handleStartDateChange}
         renderInput={(params) => (
           <TextField
             {...params}
+            sx={{ width: '50%' }}
             inputProps={{
               ...params.inputProps,
               placeholder: 'Từ ngày',
@@ -36,13 +36,13 @@ export const FromToDateFilter = ({ onChange, sx }) => {
       />
 
       <DesktopDatePicker
-        sx={{ width: '100%' }}
         minDate={params.startDate}
         value={params.endDate}
         onChange={handleEndDateChange}
         renderInput={(params) => (
           <TextField
             {...params}
+            sx={{ width: '50%' }}
             inputProps={{
               ...params.inputProps,
               placeholder: 'Đến ngày',

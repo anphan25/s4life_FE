@@ -1,14 +1,13 @@
 import { FormControl, FormHelperText, FormLabel, TextField, styled } from '@mui/material';
 import React from 'react';
-import { DesktopDatePicker } from '@mui/x-date-pickers';
+import { TimePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
-import moment from 'moment';
 
-export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLabel, defaultValue, ...props }) => {
-  const HeaderMainStyle = styled('span')(({ theme }) => ({
-    color: theme.palette.error.main,
-  }));
+const HeaderMainStyle = styled('span')(({ theme }) => ({
+  color: theme.palette.error.main,
+}));
 
+export const RHFTimePicker = ({ name, control, label, placeholder, isRequiredLabel, ...props }) => {
   return (
     <Controller
       name={name}
@@ -19,14 +18,15 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
             {label}
             {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
           </FormLabel>
-          <DesktopDatePicker
+          <TimePicker
             id={name}
             {...props}
-            defaultValue
+            onChange={(newValue) => {
+              field.onChange(newValue);
+            }}
             renderInput={(params) => (
               <TextField
                 error={!!error}
-                value={moment(defaultValue).format('DD/MM/YYYY')}
                 {...params}
                 inputProps={{
                   ...params.inputProps,
