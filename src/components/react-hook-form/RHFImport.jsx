@@ -52,7 +52,7 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
 
-  const { acceptedFiles, fileRejections, getRootProps, getInputProps, isDragAccept } = useDropzone({
+  const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
       'text/csv': [],
     },
@@ -68,7 +68,7 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
         return 'Vui lòng chọn file định dạng csv';
       }
       case 'file-too-large': {
-        return 'Vui lòng chọn file có kích cỡ bé hơn hoặc bằng 500KB';
+        return 'Vui lòng chọn file có kích cỡ bé hơn hoặc bằng 1MB';
       }
 
       case 'required-filed-missing': {
@@ -346,7 +346,7 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
                     <FaFileCsv className="import_icon" />
                   </Box>
                   <Typography className="import_description">{label}</Typography>
-                  <Typography className="import_require">CSV tối đa (1MB)</Typography>
+                  <Typography className="import_require">CSV tối đa 1MB</Typography>
                 </ImportTextDisplayStyle>
 
                 <TextField

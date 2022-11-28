@@ -1,30 +1,61 @@
-import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField } from '@mui/material';
-import React, { useState } from 'react';
+import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField, styled } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { Controller } from 'react-hook-form';
 
-export const RHFAutoComplete = ({ name, label, control, isLazyLoad, onScrollToBottom, ...props }) => {
+export const RHFAutoComplete = ({
+  name,
+  label,
+  control,
+  isLazyLoad,
+  onScrollToBottom,
+  isRequiredLabel = false,
+  list,
+  ...props
+}) => {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [scrollTop, setScrollTop] = useState();
   const [size, setSize] = useState(10);
+
+  const HeaderMainStyle = styled('span')(({ theme }) => ({
+    color: theme.palette.error.main,
+  }));
+
+  useEffect(() => {
+    onScrollToBottom({ PageSize: size, Page: 1, SearchKey: '' });
+  }, [size]);
+
   return (
     <Controller
+      name={name}
+      control={control}
       render={({ field, fieldState: { error } }) => (
         <FormControl sx={{ mb: 2 }} fullWidth>
-          <FormLabel htmlFor={name}>{label}</FormLabel>
+          <FormLabel htmlFor={name}>
+            {label}
+            {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
+          </FormLabel>
           <Autocomplete
             id={name}
             {...props}
             {...field}
+            autoHighlight
+            options={list}
+            freeSolo
+            // isOptionEqualToValue={(option, value) => option.value === value.value}
             ListboxProps={{
               onScroll: (event) => {
                 if (isLazyLoad) {
                   const listboxNode = event.currentTarget;
 
                   if (Math.round(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
+                    setIsAtBottom(true);
                     setSize(size + 10);
                     onScrollToBottom(size, '');
 
                     if (isAtBottom) {
                       listboxNode.scrollTop = listboxNode.scrollHeight - 50 * 20;
+                      // setScrollTop(listboxNode.scrollHeight - 50 * 20);
+
                       setIsAtBottom(false);
                     }
                   }
@@ -32,9 +63,27 @@ export const RHFAutoComplete = ({ name, label, control, isLazyLoad, onScrollToBo
               },
             }}
             onInputChange={(e, value) => {
-              onScrollToBottom(size, value);
+              // if (isLazyLoad) {
+              //   setTimeout(() => {
+              //     onScrollToBottom({ PageSize: size, Page: 1, SearchKey: value });
+              //   }, [300]);
+              // }
             }}
-            renderInput={(params) => <TextField {...params} />}
+            value={list?.find((item) => item?.value === field?.value)}
+            onChange={(event, newValue) => {
+              field.onChange(newValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                // autoComplete="off"
+                error={!!error}
+                inputProps={{
+                  ...params.inputProps,
+                  autoComplete: 'off',
+                }}
+              />
+            )}
           />
           {!!error && (
             <FormHelperText error sx={{ mt: 1 }}>
@@ -43,63 +92,6 @@ export const RHFAutoComplete = ({ name, label, control, isLazyLoad, onScrollToBo
           )}
         </FormControl>
       )}
-      onChange={([, data]) => data}
-      name={name}
-      control={control}
     />
   );
 };
-
-{
-  /* <Autocomplete
-ListboxProps={{
-  onScroll: (event) => {
-    const listboxNode = event.currentTarget;
-    // const visibleHeight = listboxNode.offsetHeight;
-    // console.log('visibleHeight: ', visibleHeight);
-    console.log('listboxNode.clientHeight: ', listboxNode.clientHeight);
-    console.log('listboxNode.scrollTop: ', listboxNode.scrollTop);
-    console.log('listboxNode.scrollHeight: ', listboxNode.scrollHeight);
-
-    if (Math.round(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
-      topFilms.push(
-        { title: 'The Dark Knight7' },
-        { title: 'The Dark Knight8' },
-        { title: 'The Dark Knight9' },
-        { title: 'The Dark Knight10' },
-        { title: 'The Dark Knight11' },
-        { title: 'The Dark Knight12' },
-        { title: 'The Dark Knight13' },
-        { title: 'The Dark Knight14' },
-        { title: 'The Dark Knight15' },
-        { title: 'The Dark Knight16' },
-        { title: 'The Dark Knight17' },
-        { title: 'The Dark Knight18' },
-        { title: 'The Dark Knight19' },
-        { title: 'The Dark Knight20' },
-        { title: 'The Dark Knight21' },
-        { title: 'The Dark Knight22' },
-        { title: 'The Dark Knight23' },
-        { title: 'The Dark Knight24' },
-        { title: 'The Dark Knight25' },
-        { title: 'The Dark Knight26' },
-        { title: 'The Dark Knight27' }
-      );
-
-      setData(topFilms);
-      setScroll(true);
-    }
-
-    if (scroll) {
-      listboxNode.scrollTop = listboxNode.scrollHeight - 50 * 20;
-      setScroll(false);
-    }
-  },
-}}
-options={data}
-// value={topFilms}
-getOptionLabel={(option) => option.title || ''}
-onChange={(e, value) => {}}
-renderInput={(params) => <TextField {...params} placeholder="Theater" />}
-></Autocomplete> */
-}

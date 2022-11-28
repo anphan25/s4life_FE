@@ -1,27 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AiFillEdit } from 'react-icons/ai';
 import { FcCancel } from 'react-icons/fc';
 import { VscCalendar } from 'react-icons/vsc';
 import { MdOutlineWaterDrop, MdOutlineLocationOn } from 'react-icons/md';
-import {
-  Stack,
-  styled,
-  Grid,
-  Box,
-  Button,
-  Paper,
-  Typography,
-  Divider,
-  Menu,
-  MenuItem,
-  IconButton,
-  Chip,
-} from '@mui/material';
+import { Stack, styled, Grid, Box, Paper, Typography, Divider, Menu, MenuItem, IconButton, Chip } from '@mui/material';
 import { BsThreeDots } from 'react-icons/bs';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { HeaderBreadcumbs, DataTable } from 'components';
+import { HeaderBreadcumbs, DataTable, FilterTab, FromToDateFilter, SearchBar } from 'components';
 import { formatDate } from 'utils/formatDate';
 import moment from 'moment';
+import { getEventDetailByEventId } from 'api/EventApi';
+import { getEventRegistrations } from 'api/EventRegistrationApi';
+import { useParams } from 'react-router-dom';
+import { DEFAULT_EVENT_URL, MAX_INT, convertBloodTypeNeedLabel } from 'utils';
+import parse from 'html-react-parser';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -44,15 +36,39 @@ const EventImageStyle = styled(Box)(({ theme }) => ({
   '& .event-img': {
     width: '100%',
     height: 'auto',
-    maxHeight: '450px',
+    maxHeight: '500px',
     margin: '0 auto',
     borderRadius: '20px',
-    // border: '1px solid #F4F4F4',
   },
 }));
 
 const TitleItemStyle = styled('span')(({ theme }) => ({
   fontWeight: 'bold',
+}));
+
+const FilterSectionStyle = styled(Box)(({ theme }) => ({
+  justifyContent: 'space-between',
+  flexDirection: 'row',
+
+  [theme.breakpoints.up('sm')]: {
+    alignItems: 'center',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    justifyContent: 'start',
+    gap: '20px',
+  },
+}));
+
+const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
+  flexDirection: 'row',
+  margin: '20px',
+  gap: 10,
+
+  [theme.breakpoints.down('md')]: {
+    flexDirection: 'column',
+  },
 }));
 
 const TagStyleConvert = (status, theme) => {
@@ -99,64 +115,15 @@ const InfoItemWithIconStyle = styled(Grid)(({ theme }) => ({
   '& .info-item_title': { fontWeight: 'bold', marginBottom: '5px' },
 }));
 
-const dummyData = {
-  numberOfRegistration: 0,
-  id: '7a54ca29-10f8-4c10-a2c7-4aecc77438df',
-  name: 'Lấy máu khẩn cấp báchhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh',
-  description:
-    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis consequuntur, adipisci, praesentium, alias delectus nihil et quo laborum nobis tenetur dolorum quas atque saepe omnis placeat ea dicta non commodi. Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, sequi exercitationem corporis ad earum reprehenderit quisquam maxime adipisci, nostrum, aut fugit recusandae animi ea nobis pariatur rem sint perspiciatis obcaecati?. Lorem, Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quidem fuga vel obcaecati iusto, quo minima, ad quasi nemo odit sit in error ex debitis excepturi illo? Eaque, esse dignissimos!',
-  eventCode: 'test003',
-  eventType: 'Sự kiện cố định',
-  eventTypeId: 1,
-  area: null,
-  hospitalId: 5,
-  startDate: '2022-12-02T00:00:00',
-  workingTimeStart: '07:30:00',
-  endDate: '2022-12-02T00:00:00',
-  workingTimeEnd: '17:30:00',
-  eventLocations: [
-    {
-      id: 'ba6b618e-4f01-4afd-9acc-2fe33d1b61b7',
-      eventId: '7a54ca29-10f8-4c10-a2c7-4aecc77438df',
-      event: null,
-      locationId: '9bd7e609-9dd6-4da8-ad98-bb1b7e556649',
-      location: {
-        id: '9bd7e609-9dd6-4da8-ad98-bb1b7e556649',
-        name: 'Bệnh viện Chợ Rẫy',
-        address: '201B Nguyễn Chí Thanh, Phường 12, Quận 5, Thành phố Hồ Chí Minh',
-        wardId: 27310,
-        districtId: 774,
-        provinceId: 79,
-        latitude: '10.7576886',
-        longitude: '106.6573655',
-        eventLocations: null,
-      },
-    },
-  ],
-  contactInformation: '02838554137',
-  bloodTypeNeed: 'Nhóm máu O',
-  minParticipant: 1,
-  maxParticipant: 50,
-  status: 'Đã bị hủy',
-  addDate: '2022-11-24T11:55:05.2853638Z',
-  addUser: 'manager1',
-  editDate: null,
-  editUser: null,
-  isCancelled: false,
-  eventImages: [
-    {
-      id: '4484fa7e-22ef-47ed-976c-81f4f76ea1d1',
-      eventId: '7a54ca29-10f8-4c10-a2c7-4aecc77438df',
-      event: null,
-      imageUrl:
-        'https://scontent.fsgn5-6.fna.fbcdn.net/v/t39.30808-6/306553062_600501074853584_40290124352598590_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=e3f864&_nc_ohc=b8VoujFhznsAX-pwhyW&_nc_ht=scontent.fsgn5-6.fna&oh=00_AfApp8kJQ3zoZplAjkLw4zTPX4to62NYg4hrgs9yIg3IMA&oe=638397E5',
-    },
-  ],
-};
-
 const EventMenuOptions = [
   { label: 'Chỉnh sửa', icon: <AiFillEdit /> },
   { label: 'Hủy', icon: <FcCancel /> },
+];
+
+const filterTabValues = [
+  { label: 'Chưa tham gia', value: 2 },
+  { label: 'Đã tham gia', value: 3 },
+  { label: 'Đã hủy đăng ký', value: 1 },
 ];
 
 const isEventEditableOrCancelable = (status, numberOfRegistration) => {
@@ -172,8 +139,9 @@ const isEventEditableOrCancelable = (status, numberOfRegistration) => {
 };
 
 const EventDetailPage = () => {
-  const [detailData, setDetailData] = useState(dummyData);
+  const [detailData, setDetailData] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
+  const { eventId } = useParams();
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -187,9 +155,21 @@ const EventDetailPage = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-
+    status: 2, //Cancelled = 1 ,NotYetAttended = 2, Attended = 3,
+    searchPhoneNumber: '',
+    dateFrom: null,
     dateTo: null,
   });
+
+  const StatusTagStyle = styled(Chip)(({ theme }) => ({
+    borderRadius: '8px',
+    marginBottom: '15px',
+    padding: '8px 10px',
+    fontWeight: 'bold',
+    fontSize: '15px',
+    backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
+    color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
+  }));
 
   const gridOptions = {
     columns: [
@@ -205,14 +185,15 @@ const EventDetailPage = () => {
       },
       {
         headerName: 'Tên',
-        field: 'name',
+        field: 'fullName',
         type: 'string',
         minWidth: 150,
         flex: 1,
       },
+
       {
         headerName: 'CMND/CCCD',
-        field: 'idNumber',
+        field: 'nationalId',
         type: 'string',
         width: 200,
       },
@@ -229,10 +210,10 @@ const EventDetailPage = () => {
         width: 100,
       },
       {
-        headerName: 'Trạng thái',
-        field: 'status',
+        headerName: 'Ngày tham gia',
+        field: 'participationDate',
         type: 'string',
-        width: 150,
+        width: 200,
       },
       {
         field: 'actions',
@@ -265,15 +246,68 @@ const EventDetailPage = () => {
     setPageState((old) => ({ ...old, pageSize: newPageSize }));
   };
 
-  const StatusTagStyle = styled(Chip)(({ theme }) => ({
-    borderRadius: '8px',
-    marginBottom: '10px',
-    padding: '8px 10px',
-    fontWeight: 'bold',
-    fontSize: '15px',
-    backgroundColor: theme.palette[`${TagStyleConvert(detailData.status)}`].light,
-    color: theme.palette[`${TagStyleConvert(detailData.status)}`].main,
-  }));
+  const handleFilterTabChange = (e, value) => {
+    setPageState((old) => ({ ...old, status: value, page: 1 }));
+  };
+
+  const handleFromToDateFilter = (params) => {
+    setPageState((old) => ({ ...old, page: 1, dateFrom: params.startDate, dateTo: params.endDate }));
+  };
+
+  const handleSearchVolunteerPhoneNumber = (searchValue) => {
+    setPageState((old) => ({ ...old, page: 1, searchPhoneNumber: searchValue.searchTerm }));
+  };
+
+  const fetchEventDetailData = async () => {
+    const data = await getEventDetailByEventId(eventId);
+    setDetailData(data);
+  };
+
+  const fetchVolunteersOfEvent = async () => {
+    setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+
+    const data = await getEventRegistrations({
+      EventId: eventId,
+      Status: pageState.status,
+      Page: pageState.page,
+      PageSize: pageState.pageSize,
+      SearchPhoneNumber: pageState.searchKey,
+      DateFrom: pageState?.dateFrom
+        ? moment(pageState?.dateFrom?.toISOString()).utc().local().format('yyyy-MM-DD')
+        : '',
+      DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).utc().local().format('yyyy-MM-DD') : '',
+    });
+
+    const dataRow = data.items?.map((data, i) => ({
+      no: i + 1,
+      id: data.id,
+      fullName: data.fullName || '-',
+      nationalId: data.nationalId || '-',
+      phoneNumber: data.phoneNumber || '-',
+      bloodType: data.bloodType === 'Chưa biết' ? '-' : data.bloodType || '-',
+      participationDate: formatDate(data.participationDate, 2) || '-',
+    }));
+    setPageState({ ...pageState, isLoading: false, data: dataRow, total: data.total });
+  };
+
+  useEffect(() => {
+    try {
+      fetchEventDetailData();
+    } catch (err) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      fetchVolunteersOfEvent();
+    } catch (err) {}
+  }, [
+    pageState.page,
+    pageState.pageSize,
+    pageState.status,
+    pageState.dateFrom,
+    pageState.dateTo,
+    pageState.searchPhoneNumber,
+  ]);
 
   return (
     <Box>
@@ -282,8 +316,8 @@ const EventDetailPage = () => {
           heading="Chi tiết sự kiện"
           links={[
             { name: 'Trang chủ', to: '/' },
-            { name: 'Danh sách sự kiện', to: '/event/list/' },
-            { name: `${detailData.name}` },
+            { name: 'Danh sách sự kiện cố định', to: '/event/list/' },
+            { name: `${detailData?.name}` },
           ]}
         />
       </HeaderMainStyle>
@@ -312,7 +346,6 @@ const EventDetailPage = () => {
               onClose={handleClose}
               PaperProps={{
                 style: {
-                  // maxHeight: ITEM_HEIGHT * 4.5,
                   width: '20ch',
                 },
               }}
@@ -320,9 +353,8 @@ const EventDetailPage = () => {
               {EventMenuOptions.map((option) => (
                 <MenuItem
                   key={option}
-                  // selected={option === 'Pyxis'}
                   onClick={handleClose}
-                  disabled={!isEventEditableOrCancelable(detailData?.status, detailData.numberOfRegistration)}
+                  disabled={!isEventEditableOrCancelable(detailData?.status, detailData?.numberOfRegistration)}
                 >
                   <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                     {option.icon} <Typography>{option.label}</Typography>
@@ -333,7 +365,11 @@ const EventDetailPage = () => {
           </Stack>
 
           <EventImageStyle>
-            <img className="event-img" src={detailData.eventImages[0].imageUrl} alt="Ảnh sự kiện" />
+            <img
+              className="event-img"
+              src={detailData?.eventImages[0].imageUrl || DEFAULT_EVENT_URL}
+              alt="Ảnh sự kiện"
+            />
           </EventImageStyle>
 
           <Box>
@@ -344,12 +380,12 @@ const EventDetailPage = () => {
                 wordBreak: 'break-all',
               }}
             >
-              {detailData.name}
+              {detailData?.name}
             </Typography>
 
-            <StatusTagStyle label={detailData.status} />
+            <StatusTagStyle label={detailData?.status} />
 
-            <Typography sx={{ color: '#7E808A' }}>{detailData.description}</Typography>
+            <Typography>{parse(`${detailData?.description}`)}</Typography>
           </Box>
 
           <Grid rowSpacing={2} container>
@@ -359,8 +395,8 @@ const EventDetailPage = () => {
                   <MdOutlineLocationOn className="info-item_icon_item" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">{detailData.eventLocations[0].location.name}</Typography>
-                  <Typography>{detailData.eventLocations[0].location.address}</Typography>
+                  <Typography className="info-item_title">{detailData?.eventLocations[0].location.name}</Typography>
+                  <Typography>{detailData?.eventLocations[0].location.address}</Typography>
                 </Box>
               </Stack>
             </InfoItemWithIconStyle>
@@ -371,12 +407,12 @@ const EventDetailPage = () => {
                   <VscCalendar className="info-item_icon_item" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">{`${formatDate(detailData.startDate, 3)} - ${formatDate(
-                    detailData.endDate,
+                  <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)} - ${formatDate(
+                    detailData?.endDate,
                     3
                   )}`}</Typography>
-                  <Typography>{`${moment(detailData.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(
-                    detailData.workingTimeEnd,
+                  <Typography>{`${moment(detailData?.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(
+                    detailData?.workingTimeEnd,
                     'HH:mm'
                   ).format('HH:mm')} `}</Typography>
                 </Box>
@@ -389,7 +425,18 @@ const EventDetailPage = () => {
                   <MdOutlineWaterDrop className="info-item_icon_item" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">{detailData.bloodTypeNeed}</Typography>
+                  <Typography className="info-item_title">
+                    {detailData?.bloodTypeNeed
+                      ? detailData?.bloodTypeNeed.map((e) => (
+                          <Chip
+                            label={convertBloodTypeNeedLabel(e.bloodType, e.isRhNegative)}
+                            sx={{ marginLeft: '5px' }}
+                            variant="contained"
+                            color="primary"
+                          />
+                        ))
+                      : 'Tất cả nhóm máu'}
+                  </Typography>
                   <Typography>Nhóm máu cần lấy</Typography>
                 </Box>
               </Stack>
@@ -398,13 +445,10 @@ const EventDetailPage = () => {
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_avt">
-                  <img
-                    src="https://play-lh.googleusercontent.com/LJsqYrfyf-cxEo6rODvn2DxC-lKIUElbK2zR3mL0uDC8Exz0Xw1Nzdzu-M2Ek5LLotrO"
-                    alt="ảnh đại diện"
-                  />
+                  <img src={detailData?.hospital.avatarUrl} alt="ảnh đại diện" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">Bệnh viện Long An</Typography>
+                  <Typography className="info-item_title">{detailData?.hospital.name}</Typography>
                   <Typography>Đơn vị tổ chức</Typography>
                 </Box>
               </Stack>
@@ -414,37 +458,35 @@ const EventDetailPage = () => {
           <Grid rowSpacing={3} container>
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Liên hệ:</TitleItemStyle> {detailData.contactInformation}
+                <TitleItemStyle>Liên hệ:</TitleItemStyle> {detailData?.contactInformation}
               </Typography>
             </Grid>
 
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData.eventCode}
+                <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData?.eventCode}
               </Typography>
             </Grid>
 
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Loại sự kiện:</TitleItemStyle> {detailData.eventType}
+                <TitleItemStyle>Loại sự kiện:</TitleItemStyle> {detailData?.eventType}
               </Typography>
             </Grid>
 
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Số người đăng ký tối thiểu:</TitleItemStyle> {detailData.minParticipant}
-              </Typography>
-            </Grid>
+            {detailData?.maxParticipant === MAX_INT ? (
+              ''
+            ) : (
+              <Grid md={4} sm={6} xs={12} item>
+                <Typography>
+                  <TitleItemStyle>Số người đăng ký tối đa:</TitleItemStyle> {detailData?.maxParticipant}
+                </Typography>
+              </Grid>
+            )}
 
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Số người đăng ký tối đa:</TitleItemStyle> {detailData.maxParticipant}
-              </Typography>
-            </Grid>
-
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Số người đăng ký hiện tại:</TitleItemStyle> {detailData.numberOfRegistration}
+                <TitleItemStyle>Số người đăng ký hiện tại:</TitleItemStyle> {detailData?.numberOfRegistration}
               </Typography>
             </Grid>
           </Grid>
@@ -455,14 +497,39 @@ const EventDetailPage = () => {
         {/* Volunteer of event */}
         <Box>
           <Typography variant="h4" sx={{ marginBottom: '10px' }}>
-            Danh sách người tham gia
+            Danh sách người đăng ký
           </Typography>
-          <DataTable
-            gridOptions={gridOptions}
-            onPageChange={pageChangeHandler}
-            onPageSizeChange={pageSizeChangeHandler}
-            disableFilter={true}
-          />
+          <Paper elevation={1} sx={{ borderRadius: '20px' }}>
+            <FilterSectionStyle>
+              <FilterTab
+                sx={{
+                  padding: '10px 20px 0',
+                  borderTopLeftRadius: '20px',
+                  borderTopRightRadius: '20px',
+                  backgroundColor: '#F4F6F8',
+                }}
+                tabs={filterTabValues}
+                onChangeTab={handleFilterTabChange}
+                defaultValue={pageState.status}
+              />
+
+              <InputFilterSectionStyle>
+                <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
+                <SearchBar
+                  sx={{ width: '50%' }}
+                  className="search-bar"
+                  placeholder="Nhập số điện thoại..."
+                  onSubmit={handleSearchVolunteerPhoneNumber}
+                />
+              </InputFilterSectionStyle>
+            </FilterSectionStyle>
+            <DataTable
+              gridOptions={gridOptions}
+              onPageChange={pageChangeHandler}
+              onPageSizeChange={pageSizeChangeHandler}
+              disableFilter={true}
+            />
+          </Paper>
         </Box>
       </Paper>
     </Box>

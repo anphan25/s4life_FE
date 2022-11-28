@@ -1,15 +1,22 @@
 import React from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, styled, FormLabel } from '@mui/material';
 import { Controller } from 'react-hook-form';
 
-export const RHFCheckbox = ({ control, label, name, list, ...props }) => {
+const HeaderMainStyle = styled('span')(({ theme }) => ({
+  color: theme.palette.error.main,
+}));
+
+export const RHFCheckbox = ({ control, label, name, list, isRequiredLabel, ...props }) => {
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
         <FormControl sx={{ mb: 2 }} fullWidth>
-          <FormLabel htmlFor={name}>{label}</FormLabel>
+          <FormLabel htmlFor={name}>
+            {label}
+            {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
+          </FormLabel>
           <FormGroup>
             {list?.map((item) => (
               <FormControlLabel

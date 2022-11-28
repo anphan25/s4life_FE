@@ -27,7 +27,6 @@ export const SearchBar = (props) => {
   return (
     <FormControl sx={props.sx}>
       <Input
-        //disableUnderline
         onChange={handleSearchForm}
         value={searchTerm}
         startAdornment={

@@ -15,7 +15,6 @@ import { GridActionsCellItem } from '@mui/x-data-grid';
 import { FcCancel, FcInfo } from 'react-icons/fc';
 import { AiFillEdit } from 'react-icons/ai';
 import { getEvent } from 'api/EventApi';
-import { RHFDatePicker } from 'components';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -41,7 +40,6 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
 }));
 
 const FilterSectionStyle = styled(Box)(({ theme }) => ({
-  // margin: '20px',
   justifyContent: 'space-between',
   flexDirection: 'row',
 
@@ -100,7 +98,6 @@ const isEventEditableOrCancelable = (status, numberOfRegistration) => {
 const EventListPage = () => {
   let user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
-  const [isDetailEventDialogOpen, setIsDetailEventDialogOpen] = useState(false);
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
@@ -211,7 +208,9 @@ const EventListPage = () => {
                 <AiFillEdit className="action-icon" />
               </Box>
             }
-            onClick={() => {}}
+            onClick={() => {
+              navigate(`/event/${params.row.id}/edit`);
+            }}
             label="Sửa sự kiện"
             showInMenu
           />,
@@ -260,20 +259,8 @@ const EventListPage = () => {
     setPageState((old) => ({ ...old, page: 1, dateFrom: params.startDate, dateTo: params.endDate }));
   };
 
-  const handleDetailEventDialog = () => {
-    setIsDetailEventDialogOpen(!isDetailEventDialogOpen);
-  };
-
   const handleCancelEventDialog = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
-  };
-
-  const addEventDialogContent = () => {
-    return <Box></Box>;
-  };
-
-  const detailEventDialogContent = () => {
-    return <Box></Box>;
   };
 
   const cancelEventDialogContent = () => {
@@ -356,7 +343,7 @@ const EventListPage = () => {
             startIcon={<HiPlus />}
             variant="contained"
             onClick={() => {
-              navigate('');
+              navigate('/event/add');
             }}
           >
             Thêm sự kiện
@@ -379,9 +366,9 @@ const EventListPage = () => {
           />
 
           <InputFilterSectionStyle>
-            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '100%' }} />
+            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
             <SearchBar
-              sx={{ width: '100%' }}
+              sx={{ width: '50%' }}
               className="search-bar"
               placeholder="Nhập tên sự kiện"
               onSubmit={handleSearchEventName}
@@ -396,15 +383,6 @@ const EventListPage = () => {
           disableFilter={true}
         />
       </Paper>
-
-      {/* Detail Event Dialog */}
-      <CustomDialog
-        isOpen={isDetailEventDialogOpen}
-        onClose={handleDetailEventDialog}
-        title="Chi tiết sự kiện"
-        children={detailEventDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: '500px' } }}
-      />
 
       {/* Cancel Event Dialog */}
       <CustomDialog

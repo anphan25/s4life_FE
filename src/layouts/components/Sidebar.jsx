@@ -45,6 +45,10 @@ const sidebarManager = [
         name: 'Lưu động',
         // to: '/recipes/drinks',
       },
+      {
+        name: 'Theo lịch bệnh viện',
+        // to: '/recipes/drinks',
+      },
     ],
   },
 ];
