@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Stack, MenuItem, Paper, Grid } from '@mui/material';
 import { CustomSnackBar } from 'components';
 import { useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
+import { errorHandler } from 'utils';
 
 const AddEventSchema = Yup.object().shape({
   name: Yup.string().required('Vui lòng nhập tên').max(128, 'Tên không được dài quá 128 kí tự'),
@@ -137,33 +138,33 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
 
   const onSubmit = async (data) => {
     setIsButtonLoading(true);
-    try {
-      if (imgUploadFile) {
-        await uploadImage(data);
+    if (imgUploadFile) {
+      await uploadImage(data);
 
-        return;
-      }
-      setImgUploadFile(null);
-      data.imageUrls[0] = DEFAULT_EVENT_URL;
-      data.contactInformation = data.contactInformation + '';
-      data.bloodTypeNeed = data.bloodTypeNeed[0].bloodType !== 0 ? data.bloodTypeNeed : null;
-      data.minParticipant = 0;
-      data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
-      data.permanentEventType = 1;
-      data.locationIDs = new Array(data.locationIDs);
-      data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').format('HH:mm:ss');
-      data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').format('HH:mm:ss');
-
-      addEventHandler(data);
-    } catch (err) {
-      console.log(err);
+      return;
     }
+    setImgUploadFile(null);
+    data.imageUrls[0] = DEFAULT_EVENT_URL;
+    data.contactInformation = data.contactInformation + '';
+    data.bloodTypeNeed = data.bloodTypeNeed[0].bloodType !== 0 ? data.bloodTypeNeed : null;
+    data.minParticipant = 0;
+    data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
+    data.permanentEventType = 1;
+    data.locationIDs = new Array(data.locationIDs);
+    data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).format('HH:mm:ss');
+    data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).format('HH:mm:ss');
+
+    addEventHandler(data);
   };
 
-  const getLocationsData = async () => {
-    const data = await getLocations(locationParams);
-    setLocations(data.items);
-  };
+  const fetchLocationsData = useCallback(async () => {
+    try {
+      const data = await getLocations(locationParams);
+      setLocations(data.items);
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    }
+  }, []);
 
   const getMoreLocations = async (params) => {
     const data = await getLocations(params);
@@ -179,12 +180,15 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       setAlert({});
       await createEvent(param);
       setAlert({ message: `Thêm bệnh viện thành công`, status: true, type: 'success' });
-      setIsButtonLoading(false);
 
       setTimeout(() => {
         navigate('/event/list');
-      }, [1500]);
-    } catch (e) {}
+      }, [1000]);
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      setIsButtonLoading(false);
+    }
   };
 
   const { handleSubmit, control } = useForm({
@@ -194,10 +198,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   });
 
   useEffect(() => {
-    try {
-      getLocationsData();
-    } catch (err) {}
-  }, []);
+    fetchLocationsData();
+  }, [fetchLocationsData]);
 
   return (
     <>

@@ -92,7 +92,18 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
     const field = event.currentTarget.dataset.field;
     const id = event.currentTarget.parentElement.dataset.id;
     const data = gridOptions.pageState.data;
-    const targetRow = data.find((row) => row.id === id);
+    const targetRow = data.find((row) => {
+      let targetRow = '';
+      if (typeof row.id === 'string') {
+        if (row.id === id + '') targetRow = row;
+      }
+
+      if (typeof row.id === 'number') {
+        if (row.id === id * 1) targetRow = row;
+      }
+
+      return targetRow;
+    });
 
     if (field === 'id' || field === 'actions' || field === 'no' || field === 'addDate') {
       return;

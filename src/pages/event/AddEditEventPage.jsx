@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Stack, styled } from '@mui/material';
 import { HeaderBreadcumbs, CustomSnackBar } from 'components';
 import { getEventDetailByEventId } from 'api';
 import AddEditForm from './components/AddEditForm';
 import { useParams } from 'react-router-dom';
+import { errorHandler } from 'utils';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -25,22 +26,16 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
 const AddEditEventPage = () => {
   const { eventId } = useParams();
   const [eventEditData, setEventEditData] = useState();
+  const [alert, setAlert] = useState({
+    message: '',
+    status: false,
+    type: 'success',
+  });
 
   const isEdit = eventId ? true : false;
 
-  const fetchEventDetailData = async () => {
+  const fetchEventDetailData = useCallback(async () => {
     const data = await getEventDetailByEventId(eventId);
-    // editEventData.description = data.description;
-    // editEventData.name = data.name;
-    // editEventData.eventCode = data.eventCode;
-    // editEventData.contactInformation = data.contactInformation;
-    // editEventData.bloodTypeNeed = data.bloodTypeNeed;
-    // editEventData.locationIDs = data.eventLocations[0].id;
-    // editEventData.startDate = data.startDate;
-    // editEventData.endDate = data.endDate;
-    // editEventData.workingTimeStart = data.workingTimeStart;
-    // editEventData.workingTimeEnd = data.workingTimeEnd;
-    // editEventData.maxParticipant = data.maxParticipant;
 
     setEventEditData({
       description: data.description,
@@ -56,15 +51,18 @@ const AddEditEventPage = () => {
       maxParticipant: data.maxParticipant,
       imageUrls: data.eventImages[0].imageUrl,
     });
-  };
+  }, []);
 
   useEffect(() => {
     try {
       if (isEdit) {
         fetchEventDetailData();
       }
-    } catch (err) {}
-  }, []);
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+    }
+  }, [fetchEventDetailData]);
   return (
     <div>
       <HeaderMainStyle>
@@ -79,6 +77,8 @@ const AddEditEventPage = () => {
       </HeaderMainStyle>
 
       <AddEditForm isEdit={isEdit} eventEditData={eventEditData} />
+
+      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </div>
   );
 };

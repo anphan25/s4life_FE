@@ -1,7 +1,7 @@
 import { Button, Stack, DialogActions, styled, Box, Typography, Paper } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab, SearchBar } from 'components';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api/HospitalApi';
 import { AiOutlineDownload } from 'react-icons/ai';
@@ -9,7 +9,7 @@ import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import { HiPlus } from 'react-icons/hi';
 import { FcCancel, FcCheckmark } from 'react-icons/fc';
-import { formatDate, convertErrorCodeToMessage } from 'utils';
+import { formatDate, errorHandler } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
@@ -111,7 +111,7 @@ const HospitalListPage = () => {
         minWidth: 150,
         flex: 1,
         renderCell: (nameValue) => {
-          return <Typography sx={{ fontWeight: 'bold' }}>{nameValue.value}</Typography>;
+          return <Typography sx={{ fontWeight: '600' }}>{nameValue.value}</Typography>;
         },
       },
       {
@@ -228,11 +228,14 @@ const HospitalListPage = () => {
               setIsButtonLoading(true);
               try {
                 await disableHospital(disableHospitalId);
-                handleDisableHospitalDialog();
-                setAlert({ message: `Vô hiệu hóa ${disableHospitalName} thành công`, status: true, type: 'success' });
                 await fetchHospitalData();
+                setAlert({ message: `Vô hiệu hóa ${disableHospitalName} thành công`, status: true, type: 'success' });
+              } catch (error) {
+                setAlert({ message: errorHandler(error), type: 'error', status: true });
+              } finally {
+                handleDisableHospitalDialog();
                 setIsButtonLoading(false);
-              } catch (e) {}
+              }
             }}
             variant="contained"
             autoFocus
@@ -259,11 +262,14 @@ const HospitalListPage = () => {
               setIsButtonLoading(true);
               try {
                 await enableHospital(enableHospitalId);
-                handleEnableHospitalDialog();
-                setAlert({ message: `Kích hoạt ${enableHospitalName} thành công`, status: true, type: 'success' });
                 await fetchHospitalData();
+                setAlert({ message: `Kích hoạt ${enableHospitalName} thành công`, status: true, type: 'success' });
+              } catch (error) {
+                setAlert({ message: errorHandler(error), type: 'error', status: true });
+              } finally {
+                handleEnableHospitalDialog();
                 setIsButtonLoading(false);
-              } catch (e) {}
+              }
             }}
             variant="contained"
             autoFocus
@@ -291,21 +297,18 @@ const HospitalListPage = () => {
 
     try {
       await importCSVHospitalData(importParams);
-      addHospitalDialogHandler();
-      fetchHospitalData();
-      setIsButtonLoading(false);
+      await fetchHospitalData();
       setAlert({
         message: 'Thêm bệnh viện thành công',
         status: true,
         type: 'success',
       });
-    } catch (err) {
-      setAlert({});
-      setAlert({
-        message: 'Thêm bệnh viện không thành công, vui lòng kiểm tra lại tệp tin csv',
-        status: true,
-        type: 'error',
-      });
+    } catch (error) {
+      console.log('errorHandler(error) ', errorHandler(error));
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      addHospitalDialogHandler();
+      setIsButtonLoading(false);
     }
   };
 
@@ -372,16 +375,19 @@ const HospitalListPage = () => {
         }
       });
   };
-  const fetchHospitalData = () => {
+  const fetchHospitalData = useCallback(async () => {
+    setAlert({});
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
-    getHospitalsList({
-      FilterMode: 'All',
-      Page: pageState.page,
-      PageSize: pageState.pageSize,
-      Status: pageState.filterTabMode === 1,
-      SearchKey: pageState.searchKey,
-    }).then((res) => {
-      const dataRow = res.items.map((data, i) => ({
+    try {
+      const data = await getHospitalsList({
+        FilterMode: 'All',
+        Page: pageState.page,
+        PageSize: pageState.pageSize,
+        Status: pageState.filterTabMode === 1,
+        SearchKey: pageState.searchKey,
+      });
+
+      const dataRow = data.items.map((data, i) => ({
         no: i + 1,
         id: data.id,
         name: data.name || '-',
@@ -392,14 +398,17 @@ const HospitalListPage = () => {
         addDate: formatDate(data.addDate, 1) || '-',
       }));
 
-      setPageState({ ...pageState, isLoading: false, data: dataRow, total: res.total });
-    });
-  };
+      setPageState({ ...pageState, data: dataRow, total: data.total });
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      setPageState((old) => ({ ...old, isLoading: false }));
+    }
+  }, [pageState.pageSize, pageState.page, pageState.filterTabMode, pageState.searchKey]);
 
   useEffect(() => {
-    setPageState({ ...pageState, isLoading: true });
     fetchHospitalData();
-  }, [pageState.pageSize, pageState.page, pageState.filterTabMode, pageState.searchKey]);
+  }, [fetchHospitalData]);
 
   return (
     <div>

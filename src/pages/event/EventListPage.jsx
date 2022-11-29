@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Stack, styled, Button, Box, Paper, Typography, DialogActions } from '@mui/material';
 import { HiPlus } from 'react-icons/hi';
 import {
@@ -10,7 +10,6 @@ import {
   FromToDateFilter,
   CustomSnackBar,
 } from 'components';
-import { formatDate } from 'utils/formatDate';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { FcCancel, FcInfo } from 'react-icons/fc';
 import { AiFillEdit } from 'react-icons/ai';
@@ -19,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { cancelEvent } from 'api/EventApi';
+import { formatDate, errorHandler } from 'utils';
 
 import moment from 'moment';
 
@@ -143,7 +143,7 @@ const EventListPage = () => {
         flex: 1,
 
         renderCell: (nameValue) => {
-          return <Typography sx={{ fontWeight: 'bold' }}>{nameValue.value}</Typography>;
+          return <Typography sx={{ fontWeight: '600' }}>{nameValue.value}</Typography>;
         },
       },
       {
@@ -278,11 +278,14 @@ const EventListPage = () => {
               setIsButtonLoading(true);
               try {
                 await cancelEvent(cancelEventId);
-                handleCancelEventDialog();
+                await fetchEventListData();
                 setAlert({ message: `Hủy sự kiện ${cancelEventName} thành công`, status: true, type: 'success' });
-                await fetchData();
+              } catch (error) {
+                setAlert({ message: errorHandler(error), type: 'error', status: true });
+              } finally {
+                handleCancelEventDialog();
                 setIsButtonLoading(false);
-              } catch (e) {}
+              }
             }}
             variant="contained"
             autoFocus
@@ -294,42 +297,48 @@ const EventListPage = () => {
     );
   };
 
-  const fetchData = async () => {
+  const fetchEventListData = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+    setAlert({});
 
-    const data = await getEvent({
-      FilterMode: pageState.filterMode,
-      EventType: pageState.eventType,
-      Status: pageState.status,
-      Page: pageState.page,
-      PageSize: pageState.pageSize,
-      SearchKey: pageState.searchKey,
-      DateFrom: pageState?.dateFrom
-        ? moment(pageState?.dateFrom?.toISOString()).utc().local().format('yyyy-MM-DD')
-        : '',
-      DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).utc().local().format('yyyy-MM-DD') : '',
-    });
+    try {
+      const data = await getEvent({
+        FilterMode: pageState.filterMode,
+        EventType: pageState.eventType,
+        Status: pageState.status,
+        Page: pageState.page,
+        PageSize: pageState.pageSize,
+        SearchKey: pageState.searchKey,
+        DateFrom: pageState?.dateFrom
+          ? moment(pageState?.dateFrom?.toISOString()).utc().local().format('yyyy-MM-DD')
+          : '',
+        DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).utc().local().format('yyyy-MM-DD') : '',
+      });
 
-    const dataRow = data.items?.map((data, i) => ({
-      no: i + 1,
-      id: data.id,
-      name: data.name || '-',
-      eventCode: data.eventCode || '-',
-      address: data.eventLocations[0].location.name || '-',
-      time: `${formatDate(data.startDate, 2)} - ${formatDate(data.endDate, 2)}, ${moment(
-        data.workingTimeStart,
-        'HH:mm'
-      ).format('HH:mm')} - ${moment(data.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
-      numberOfRegistration: data.numberOfRegistration || 0,
-      status: data.status || '',
-    }));
-    setPageState({ ...pageState, isLoading: false, data: dataRow, total: data.total });
-  };
+      const dataRow = data.items?.map((data, i) => ({
+        no: i + 1,
+        id: data.id,
+        name: data.name || '-',
+        eventCode: data.eventCode || '-',
+        address: data.eventLocations[0].location.name || '-',
+        time: `${formatDate(data.startDate, 2)} - ${formatDate(data.endDate, 2)}, ${moment(
+          data.workingTimeStart,
+          'HH:mm'
+        ).format('HH:mm')} - ${moment(data.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
+        numberOfRegistration: data.numberOfRegistration || 0,
+        status: data.status || '',
+      }));
+      setPageState({ ...pageState, data: dataRow, total: data.total });
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      setPageState((old) => ({ ...old, isLoading: false }));
+    }
+  }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.status, pageState.dateFrom, pageState.dateTo]);
 
   useEffect(() => {
-    setPageState({ ...pageState, isLoading: true });
-    fetchData();
-  }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.status, pageState.dateFrom, pageState.dateTo]);
+    fetchEventListData();
+  }, [fetchEventListData]);
 
   return (
     <div>
