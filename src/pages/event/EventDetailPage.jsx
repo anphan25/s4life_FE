@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AiFillEdit } from 'react-icons/ai';
 import { FcCancel } from 'react-icons/fc';
 import { VscCalendar } from 'react-icons/vsc';
@@ -12,8 +12,9 @@ import moment from 'moment';
 import { getEventDetailByEventId } from 'api/EventApi';
 import { getEventRegistrations } from 'api/EventRegistrationApi';
 import { useParams } from 'react-router-dom';
-import { DEFAULT_EVENT_URL, MAX_INT, convertBloodTypeNeedLabel } from 'utils';
+import { DEFAULT_EVENT_URL, MAX_INT, convertBloodTypeNeedLabel, errorHandler } from 'utils';
 import parse from 'html-react-parser';
+import { store } from 'app/store';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -163,10 +164,11 @@ const EventDetailPage = () => {
 
   const StatusTagStyle = styled(Chip)(({ theme }) => ({
     borderRadius: '8px',
+    height: 'auto',
     marginBottom: '15px',
-    padding: '8px 10px',
+    padding: '4px 6px',
     fontWeight: 'bold',
-    fontSize: '15px',
+    fontSize: '12px',
     backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
     color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
   }));
@@ -174,7 +176,7 @@ const EventDetailPage = () => {
   const gridOptions = {
     columns: [
       {
-        headerName: 'No',
+        headerName: 'STT',
         field: 'no',
         width: 10,
         align: 'center',
@@ -224,7 +226,7 @@ const EventDetailPage = () => {
         getActions: (params) => [
           <GridActionsCellItem
             icon={
-              <Box sx={{ '& .action-icon': { color: '#FFC700' } }}>
+              <Box sx={{ '& .action-icon': { color: 'warning.main' } }}>
                 <AiFillEdit className="action-icon" />
               </Box>
             }
@@ -258,48 +260,46 @@ const EventDetailPage = () => {
     setPageState((old) => ({ ...old, page: 1, searchPhoneNumber: searchValue.searchTerm }));
   };
 
-  const fetchEventDetailData = async () => {
-    const data = await getEventDetailByEventId(eventId);
-    setDetailData(data);
-  };
+  const fetchEventDetailData = useCallback(async () => {
+    try {
+      const data = await getEventDetailByEventId(eventId);
+      setDetailData(data);
+    } catch (error) {
+      console.log('errorHandler(err) :', errorHandler(error));
+    }
+  }, [eventId]);
 
-  const fetchVolunteersOfEvent = async () => {
+  const fetchVolunteersOfEvent = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
 
-    const data = await getEventRegistrations({
-      EventId: eventId,
-      Status: pageState.status,
-      Page: pageState.page,
-      PageSize: pageState.pageSize,
-      SearchPhoneNumber: pageState.searchKey,
-      DateFrom: pageState?.dateFrom
-        ? moment(pageState?.dateFrom?.toISOString()).utc().local().format('yyyy-MM-DD')
-        : '',
-      DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).utc().local().format('yyyy-MM-DD') : '',
-    });
-
-    const dataRow = data.items?.map((data, i) => ({
-      no: i + 1,
-      id: data.id,
-      fullName: data.fullName || '-',
-      nationalId: data.nationalId || '-',
-      phoneNumber: data.phoneNumber || '-',
-      bloodType: data.bloodType === 'Chưa biết' ? '-' : data.bloodType || '-',
-      participationDate: formatDate(data.participationDate, 2) || '-',
-    }));
-    setPageState({ ...pageState, isLoading: false, data: dataRow, total: data.total });
-  };
-
-  useEffect(() => {
     try {
-      fetchEventDetailData();
-    } catch (err) {}
-  }, []);
+      const data = await getEventRegistrations({
+        EventId: eventId,
+        Status: pageState.status,
+        Page: pageState.page,
+        PageSize: pageState.pageSize,
+        SearchPhoneNumber: pageState.searchKey,
+        DateFrom: pageState?.dateFrom
+          ? moment(pageState?.dateFrom?.toISOString()).utc().local().format('yyyy-MM-DD')
+          : '',
+        DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).utc().local().format('yyyy-MM-DD') : '',
+      });
 
-  useEffect(() => {
-    try {
-      fetchVolunteersOfEvent();
-    } catch (err) {}
+      const dataRow = data.items?.map((data, i) => ({
+        no: i + 1,
+        id: data.id,
+        fullName: data.fullName || '-',
+        nationalId: data.nationalId || '-',
+        phoneNumber: data.phoneNumber || '-',
+        bloodType: data.bloodType === 'Chưa biết' ? '-' : data.bloodType || '-',
+        participationDate: formatDate(data.participationDate, 2) || '-',
+      }));
+      setPageState({ ...pageState, data: dataRow, total: data.total });
+    } catch (error) {
+      console.log('errorHandler(err) :', errorHandler(error));
+    } finally {
+      setPageState((old) => ({ ...old, isLoading: false }));
+    }
   }, [
     pageState.page,
     pageState.pageSize,
@@ -308,6 +308,25 @@ const EventDetailPage = () => {
     pageState.dateTo,
     pageState.searchPhoneNumber,
   ]);
+
+  useEffect(() => {
+    fetchEventDetailData().then(() => fetchVolunteersOfEvent());
+  }, [fetchEventDetailData, fetchVolunteersOfEvent]);
+
+  // useEffect(() => {
+  //   try {
+  //     fetchVolunteersOfEvent();
+  //   } catch (err) {
+  //     console.log('errorHandler(err) :', errorHandler(err));
+  //   }
+  // }, [
+  //   pageState.page,
+  //   pageState.pageSize,
+  //   pageState.status,
+  //   pageState.dateFrom,
+  //   pageState.dateTo,
+  //   pageState.searchPhoneNumber,
+  // ]);
 
   return (
     <Box>
@@ -385,7 +404,7 @@ const EventDetailPage = () => {
 
             <StatusTagStyle label={detailData?.status} />
 
-            <Typography>{parse(`${detailData?.description}`)}</Typography>
+            <Typography>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Typography>
           </Box>
 
           <Grid rowSpacing={2} container>

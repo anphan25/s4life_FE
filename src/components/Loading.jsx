@@ -2,16 +2,17 @@ import { Box, styled, Typography } from '@mui/material';
 import React from 'react';
 import { Logo } from 'components';
 
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  zIndex: '1000',
-  width: ' 100%',
+const LoadingContainer = styled('div')(({ theme }) => ({
+  right: 0,
+  bottom: 0,
+  zIndex: 99999,
+  width: '100%',
   height: '100%',
+  position: 'fixed',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   flexDirection: 'column',
-  backgroundColor: theme.palette.background,
 }));
 
 export const Loading = () => {

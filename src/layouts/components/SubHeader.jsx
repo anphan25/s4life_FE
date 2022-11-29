@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
-  gap: '1rem',
+  gap: '0.5rem',
   padding: '1rem 1.25rem',
   color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
 
@@ -36,9 +36,12 @@ const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
   },
 
   '& .MuiListItemIcon-root': {
+    height: '1.5rem',
+    width: '1.5rem',
+    minWidth: '1.5rem',
     svg: {
-      height: '1.5rem',
-      width: '1.5rem',
+      height: '100%',
+      width: '100%',
       color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
     },
   },
@@ -71,7 +74,7 @@ const SubHeader = ({ item, active, onActive }) => {
             to={child.to}
             onClick={() => onActive(child.to)}
           >
-            <Typography sx={{ fontSize: 14, fontWeight: 500, pl: 8 }}>{child.name}</Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 500, pl: 5 }}>{child.name}</Typography>
           </SidebarItem>
         ))}
     </>

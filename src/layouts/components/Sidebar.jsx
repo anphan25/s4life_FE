@@ -96,7 +96,7 @@ export const Sidebar = ({ toggle, onClose }) => {
     <>
       {!isDesktop && (
         <Drawer open={toggle} onClose={onClose} PaperProps={{ sx: { width: '250px' } }}>
-          <IconButton color="error" sx={{ m: 1 }} onClick={onClose}>
+          <IconButton color="error" sx={{ m: 1, width: 'fit-content' }} onClick={onClose}>
             <HiX />
           </IconButton>
           {renderContent}

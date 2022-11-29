@@ -92,7 +92,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
     const field = event.currentTarget.dataset.field;
     const id = event.currentTarget.parentElement.dataset.id;
     const data = gridOptions.pageState.data;
-    const targetRow = data.find((row) => row.id == id);
+    const targetRow = data.find((row) => row.id === id);
 
     if (field === 'id' || field === 'actions' || field === 'no' || field === 'addDate') {
       return;

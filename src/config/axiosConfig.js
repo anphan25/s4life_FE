@@ -2,6 +2,7 @@ import { getAccessToken } from 'api';
 import { store } from 'app/store';
 import { refreshFail, setToken } from 'app/slices/AuthSlice';
 import axios from 'axios';
+import { errorHandler } from 'utils';
 
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_BASE_API_URL,
@@ -35,10 +36,10 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(error?.config);
         })
         .catch((err) => {
-          console.log(err);
-          store.dispatch(refreshFail(err.message));
+          store.dispatch(refreshFail(errorHandler(err)));
         });
     }
+    return Promise.reject(error);
   }
 );
 

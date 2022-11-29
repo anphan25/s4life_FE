@@ -1,4 +1,4 @@
-import { styled, Typography, Alert } from '@mui/material';
+import { FormHelperText } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { loginUserPassword } from 'api/AuthApi';
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginFail, loginSuccess } from 'app/slices/AuthSlice';
 import jwtDecode from 'jwt-decode';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useState } from 'react';
+import { errorHandler } from 'utils';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string().required('Vui lòng nhập tên đăng nhập'),
@@ -32,7 +32,6 @@ const LoginSchema = Yup.object().shape({
 // }));
 
 const LoginForm = () => {
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const defaultValues = {
     username: '',
     password: '',
@@ -47,7 +46,6 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data) => {
-    setIsButtonLoading(true);
     try {
       const res = await loginUserPassword(data);
 
@@ -66,16 +64,12 @@ const LoginForm = () => {
           refreshToken: res.refreshToken,
         })
       );
-      setIsButtonLoading(false);
       navigate('/');
     } catch (err) {
-      dispatch(loginFail('Tên đăng nhập hoặc mật khẩu không đúng'));
-      setIsButtonLoading(false);
-      console.log(err.message);
+      dispatch(loginFail(errorHandler(err)));
     }
   };
   const { error, isLoading } = useSelector((state) => state.auth);
-  console.log(error);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -87,18 +81,12 @@ const LoginForm = () => {
         sx={{ marginBottom: '24px' }}
       />
       <RHFInput name="password" label="Mật khẩu" control={control} placeholder="Nhập mật khẩu" type="password" />
-      {/* <Box sx={{  }}>
-        <Typography sx={{ fontSize: '12px', color: '#FC5A5A' }}>Tên đăng nhập hoặc mật khẩu không đúng</Typography>
-      </Box> */}
       {error && (
-        <Alert
-          severity="error"
-          sx={{ mb: 1, backgroundColor: 'white', fontSize: '12px', marginLeft: '10px', float: 'left', width: '100%' }}
-        >
+        <FormHelperText error sx={{ mt: 0, mb: 2 }}>
           {error}
-        </Alert>
+        </FormHelperText>
       )}
-      <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
+      <LoadingButton variant="contained" type="submit" loading={isLoading}>
         Đăng nhập
       </LoadingButton>
     </form>
