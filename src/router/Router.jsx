@@ -142,6 +142,10 @@ export default function Router() {
           ),
         },
         {
+          path: 'demo',
+          element: <DemoPage />,
+        },
+        {
           path: '*',
           element: <ErrorLayout />,
           children: [
@@ -163,6 +167,9 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 
 //dashboard
 const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage')));
+
+//demo
+const DemoPage = Loadable(lazy(() => import('pages/demo/DemoPage')));
 
 //event
 const EventListPage = Loadable(lazy(() => import('pages/event/EventListPage')));
