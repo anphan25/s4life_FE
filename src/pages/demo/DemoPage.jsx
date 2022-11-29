@@ -1,5 +1,6 @@
 import { loginUserPassword, registerEvent } from 'api';
-import { Box, Typography, Button, Stack } from '@mui/material';
+import { Box, Typography, Button, Stack, TextField } from '@mui/material';
+import { convertErrorCodeToMessage } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useState } from 'react';
 import axios from 'axios';
@@ -8,6 +9,7 @@ import moment from 'moment';
 const DemoPage = () => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isButtonLoginLoading, setIsButtonLoginLoading] = useState(false);
+  const [eventId, setEventId] = useState(null);
   const [logs, setLogs] = useState([]);
 
   const configAxios = (token) => {
@@ -20,7 +22,7 @@ const DemoPage = () => {
     };
   };
 
-  const EVENT_ID = '65e1136a-0342-4d2c-9076-7aba80347208'; //Demo 3
+  const EVENT_ID = '9684b3a9-29ec-40a3-a25a-084a5b5515b9'; //Demo 4
   let staffAccessToken = '';
 
   const password = 'Tinhnguyenvientest001//';
@@ -55,6 +57,26 @@ const DemoPage = () => {
     { username: 'tinhnguyenvientest00133' },
     { username: 'tinhnguyenvientest00134' },
     { username: 'tinhnguyenvientest00135' },
+    { username: 'tinhnguyenvientest00136' },
+    { username: 'tinhnguyenvientest00137' },
+    { username: 'tinhnguyenvientest00138' },
+    { username: 'tinhnguyenvientest00139' },
+    { username: 'tinhnguyenvientest0014' },
+    { username: 'tinhnguyenvientest00140' },
+    { username: 'tinhnguyenvientest00141' },
+    { username: 'tinhnguyenvientest00142' },
+    { username: 'tinhnguyenvientest00143' },
+    { username: 'tinhnguyenvientest00144' },
+    { username: 'tinhnguyenvientest00145' },
+    { username: 'tinhnguyenvientest00146' },
+    { username: 'tinhnguyenvientest00147' },
+    { username: 'tinhnguyenvientest00148' },
+    { username: 'tinhnguyenvientest0015' },
+    { username: 'tinhnguyenvientest00150' },
+    { username: 'tinhnguyenvientest0016' },
+    { username: 'tinhnguyenvientest0017' },
+    { username: 'tinhnguyenvientest0018' },
+    { username: 'tinhnguyenvientest0019' },
   ];
 
   const staffAccount = { username: 'choraystaff1', password: 'Choraystaff//1' };
@@ -64,6 +86,7 @@ const DemoPage = () => {
 
     volunteerAccounts.forEach(async (acc) => {
       const res = await loginUserPassword({ username: acc.username, password: password });
+      console.log('res: ', res);
       acc.accessToken = res.accessToken;
     });
 
@@ -89,7 +112,12 @@ const DemoPage = () => {
             setLogs((old) => [...old, `POST eventRegistration: ${postRegister.status}`]);
           })
           .catch(function (err) {
-            setLogs((old) => [...old, `${err.config.method} ${err.config.url}: ${err.response.data.code}`]);
+            setLogs((old) => [
+              ...old,
+              `${err.config.method} ${err.config.url}: ${err.response?.data.code} - ${convertErrorCodeToMessage(
+                err.response?.data.code * 1
+              )}`,
+            ]);
           });
       });
 
@@ -108,6 +136,9 @@ const DemoPage = () => {
         acc.eventRegistrationId = eventRegistrationId;
 
         //Điền form
+        if (!eventRegistrationId) {
+          return;
+        }
         axios
           .patch(
             `http://s4life.site/api/v1/event-registrations`,
@@ -149,7 +180,12 @@ const DemoPage = () => {
             setLogs((old) => [...old, `PATCH eventRegistration: ${fillFormRes.status}`]);
           })
           .catch(function (err) {
-            setLogs((old) => [...old, `${err.config.method} ${err.config.url}: ${err.response.data.code}`]);
+            setLogs((old) => [
+              ...old,
+              `${err.config.method} ${err.config.url}: ${err.response.data.code} - ${convertErrorCodeToMessage(
+                err.response?.data.code * 1
+              )}`,
+            ]);
           });
 
         console.log('volunteerAccounts after fill form', volunteerAccounts);
@@ -181,7 +217,12 @@ const DemoPage = () => {
             setLogs((old) => [...old, `PATCH eventRegistration confirm: ${confirmRes.status}`]);
           })
           .catch(function (err) {
-            setLogs((old) => [...old, `${err.config.method} ${err.config.url}: ${err.response.data.code}`]);
+            setLogs((old) => [
+              ...old,
+              `${err.config.method} ${err.config.url}: ${err.response.data.code} - ${convertErrorCodeToMessage(
+                err.response?.data.code * 1
+              )}`,
+            ]);
           });
       });
 
