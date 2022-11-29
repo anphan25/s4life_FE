@@ -16,21 +16,6 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string().required('Vui lòng nhập mật khẩu'),
 });
 
-// const ButtonLogin = styled(LoadingButton)(({ theme }) => ({
-//   backgroundColor: theme.palette.primary.main,
-//   color: 'white',
-//   marginTop: '24px',
-
-//   [theme.breakpoints.between('sm', 'md')]: { width: '133px', height: '56px' },
-
-//   [theme.breakpoints.between('xs', 'sm')]: { width: '100%', height: '56px' },
-
-//   ':hover': {
-//     backgroundColor: theme.palette.primary.main,
-//     filter: 'brightness(90%)',
-//   },
-// }));
-
 const LoginForm = () => {
   const defaultValues = {
     username: '',
