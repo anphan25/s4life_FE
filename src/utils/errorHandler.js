@@ -1,5 +1,7 @@
 export function convertErrorCodeToMessage(code) {
   const message = {
+    1004: 'Thông tin đăng nhập không chính xác',
+
     //Hospital
     3001: 'Tọa độ không chính xác',
     3002: 'Không tìm thấy vị trí',
@@ -19,3 +21,22 @@ export function convertErrorCodeToMessage(code) {
   };
   return message[code];
 }
+
+export const errorHandler = (error) => {
+  const { request, response } = error;
+  console.log(request.status);
+  if (response.data?.code != null) {
+    const { code } = response.data;
+    var message = convertErrorCodeToMessage(code);
+    // console.log(convertErrorCodeToMessage(code));
+    return message;
+  } else {
+    switch (response.status) {
+      case 403:
+        return 'Tài khoản không có quyền truy cập';
+
+      default:
+        return 'Đã có lỗi xảy ra trong quá trình xử lí';
+    }
+  }
+};

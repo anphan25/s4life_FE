@@ -5,19 +5,19 @@ export const palette = {
     main: '#C13538',
   },
   info: {
-    light: alpha('#0068FF', 0.2),
+    light: alpha('#0068FF', 0.1),
     main: '#0068FF',
   },
   warning: {
-    light: alpha('#FFC700', 0.2),
+    light: alpha('#FFC700', 0.1),
     main: '#FFC700',
   },
   error: {
-    light: alpha('#FC5A5A', 0.2),
+    light: alpha('#FC5A5A', 0.1),
     main: '#FC5A5A',
   },
   success: {
-    light: alpha('#2BC155', 0.2),
+    light: alpha('#2BC155', 0.1),
     main: '#2BC155',
   },
   grey: {
