@@ -1,10 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Stack, styled, Box, InputLabel, TextField, Typography, FormControl } from '@mui/material';
+import { Stack, styled, Box, InputLabel, TextField, Typography, FormControl, Button } from '@mui/material';
 import { Controller } from 'react-hook-form';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from 'config/firebaseConfig';
 import { AiFillFileImage, AiOutlineClose } from 'react-icons/ai';
 import { useDropzone } from 'react-dropzone';
+import { BsUpload } from 'react-icons/bs';
 
 const ErrorMessageList = styled(Box)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -62,8 +61,10 @@ const CustomizeErrorMessage = (code) => {
   }
 };
 
-export const UploadImage = ({ label, name, control, onUpload, ...props }) => {
+//When have defaultValue, that means editing. If not it mean adding
+export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...props }) => {
   const uploadImgRef = useRef();
+  const editImgRef = useRef();
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
@@ -148,20 +149,23 @@ export const UploadImage = ({ label, name, control, onUpload, ...props }) => {
       >
         Hình ảnh
       </InputLabel>
-      {selectedFile && (
-        <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
-          <ClearFile
-            onClick={() => {
-              setSelectedFile(null);
-              // onImport([], true);
-            }}
-            title="Gỡ bỏ tệp tin"
-          />
-          <Box sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', width: '90%' }}>
-            {selectedFile.path}
-          </Box>
-        </Stack>
-      )}
+      {!defaultValue
+        ? selectedFile && (
+            <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
+              <ClearFile
+                onClick={() => {
+                  setSelectedFile(null);
+                  onUpload(acceptedFiles[0]);
+                  // onImport([], true);
+                }}
+                title="Gỡ bỏ tệp tin"
+              />
+              <Box sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', width: '90%' }}>
+                {selectedFile.path}
+              </Box>
+            </Stack>
+          )
+        : ''}
       <Stack
         id="picEvent"
         justifyContent="center"
@@ -175,63 +179,121 @@ export const UploadImage = ({ label, name, control, onUpload, ...props }) => {
 
           '& .dropzone-div': { width: '100%', height: '100%', borderRadius: '15px' },
 
+          '& .editing': { display: 'none' },
+
           '& .img-preview': {
             width: '100%',
             height: '100%',
-            // objectFit: 'cover',
-            // borderRadius: '15px',
 
-            '& img': { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '15px' },
+            '& img': { width: '100%', height: '100%', borderRadius: '15px' },
           },
         }}
       >
-        {!selectedFile ? (
-          <DropZone className="dropzone-div" {...getRootProps({ onClick: (e) => e.preventDefault() })}>
-            <Controller
-              name={name}
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
-                  <ImportTextDisplayStyle>
-                    <Box>
-                      <AiFillFileImage className="upload_icon" />
-                    </Box>
-                    <Typography className="upload_description">{label}</Typography>
-                    <Typography className="upload_require">Ảnh tối đa 3MB</Typography>
-                  </ImportTextDisplayStyle>
+        {/* Have defaultValues it means editing */}
+        {!defaultValue ? (
+          !selectedFile ? (
+            <DropZone className="dropzone-div" {...getRootProps({ onClick: (e) => e.preventDefault() })}>
+              <Controller
+                name={name}
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
+                    <ImportTextDisplayStyle>
+                      <Box>
+                        <AiFillFileImage className="upload_icon" />
+                      </Box>
+                      <Typography className="upload_description">{label}</Typography>
+                      <Typography className="upload_require">Ảnh tối đa 3MB</Typography>
+                    </ImportTextDisplayStyle>
 
-                  <TextField
-                    className="file_input"
-                    type="file"
-                    inputRef={uploadImgRef}
-                    id={name}
-                    // {...field}
-                    // {...props}
-                    {...getInputProps()}
-                  />
-                </FormControl>
-              )}
-            />
-          </DropZone>
+                    <TextField
+                      className="file_input"
+                      type="file"
+                      inputRef={uploadImgRef}
+                      id={name}
+                      // {...field}
+                      // {...props}
+                      {...getInputProps()}
+                    />
+                  </FormControl>
+                )}
+              />
+            </DropZone>
+          ) : (
+            <Box className="img-preview">{thumbs}</Box>
+          )
         ) : (
-          //   <img
-          //     ref={imgRef}
-          //     // src="https://go2joy.s3.ap-southeast-1.amazonaws.com/blog/wp-content/uploads/2022/04/30104619/thit-ga-chien-mam-toi-72-mon.jpg"
-          //     alt=""
-          //   />
+          <Box sx={{ width: '100%', height: '100%' }}>
+            <DropZone className="dropzone-div editing" {...getRootProps({ onClick: (e) => e.preventDefault() })}>
+              <Controller
+                name={name}
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
+                    <ImportTextDisplayStyle>
+                      <Box>
+                        <AiFillFileImage className="upload_icon" />
+                      </Box>
+                      <Typography className="upload_description">{label}</Typography>
+                      <Typography className="upload_require">Ảnh tối đa 3MB</Typography>
+                    </ImportTextDisplayStyle>
 
-          <Box className="img-preview">{thumbs}</Box>
+                    <TextField
+                      className="file_input"
+                      type="file"
+                      inputRef={editImgRef}
+                      id={name}
+                      // {...field}
+                      // {...props}
+                      {...getInputProps()}
+                    />
+                  </FormControl>
+                )}
+              />
+            </DropZone>
+
+            <Stack
+              id="picFood"
+              justifyContent="center"
+              alignItems="center"
+              sx={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#F4F4F4',
+                borderRadius: '15px',
+                position: 'relative',
+
+                '& img': {
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '15px',
+                },
+              }}
+            >
+              <Box className="img-preview">{files.length > 0 ? thumbs : <img src={defaultValue} alt="" />}</Box>
+              <Button
+                sx={{
+                  width: '100px',
+                  height: '40px',
+                  fontSize: '10px',
+                  position: 'absolute',
+                  opacity: '50%',
+
+                  '&:hover': { opacity: '100%' },
+                }}
+                variant="contained"
+                startIcon={<BsUpload />}
+                onClick={() => {
+                  editImgRef.current.click();
+                }}
+              >
+                chọn ảnh
+              </Button>
+            </Stack>
+          </Box>
         )}
       </Stack>
-
-      {/* <TextField
-        sx={{ display: 'none' }}
-        type="file"
-        inputRef={uploadImgRef}
-        onChange={() => {
-          imagePreviewHandler(uploadImgRef.current?.files);
-        }}
-      /> */}
 
       {fileRejections && (
         <Box>

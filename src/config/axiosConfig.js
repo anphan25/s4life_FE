@@ -39,7 +39,7 @@ axiosInstance.interceptors.response.use(
           store.dispatch(refreshFail(errorHandler(err)));
         });
     }
-    // return Promise.reject(error);
+    return Promise.reject(error);
   }
 );
 

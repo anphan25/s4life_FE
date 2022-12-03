@@ -2,6 +2,7 @@ import { FaRegHospital } from 'react-icons/fa';
 import { TbLayout2 } from 'react-icons/tb';
 import { BiDonateBlood } from 'react-icons/bi';
 import { MdOutlineEventNote } from 'react-icons/md';
+import { FiUsers } from 'react-icons/fi';
 import { HiX } from 'react-icons/hi';
 import { Drawer, IconButton, MenuList, styled } from '@mui/material';
 import { Logo } from 'components';
@@ -28,6 +29,11 @@ const sidebarAdmin = [
         // to: '/recipes/drinks',
       },
     ],
+  },
+  {
+    name: 'Quản lý người dùng',
+    icon: <FiUsers />,
+    to: '/user/list',
   },
 ];
 

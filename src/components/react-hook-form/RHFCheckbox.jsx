@@ -6,7 +6,7 @@ const HeaderMainStyle = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
 }));
 
-export const RHFCheckbox = ({ control, label, name, list, isRequiredLabel, ...props }) => {
+export const RHFCheckbox = ({ control, label, name, list, isRequiredLabel, onCheck, ...props }) => {
   return (
     <Controller
       name={name}
@@ -21,7 +21,15 @@ export const RHFCheckbox = ({ control, label, name, list, isRequiredLabel, ...pr
             {list?.map((item) => (
               <FormControlLabel
                 {...props}
-                control={<Checkbox {...field} />}
+                control={
+                  <Checkbox
+                    {...field}
+                    onChange={(e, newValue) => {
+                      onCheck(newValue);
+                      field.onChange(newValue);
+                    }}
+                  />
+                }
                 label={item}
                 key={item}
                 sx={{ whiteSpace: 'noWrap' }}
