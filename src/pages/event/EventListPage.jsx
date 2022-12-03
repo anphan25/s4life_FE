@@ -317,16 +317,16 @@ const EventListPage = () => {
 
       const dataRow = data.items?.map((data, i) => ({
         no: i + 1,
-        id: data.id,
-        name: data.name || '-',
-        eventCode: data.eventCode || '-',
-        address: data.eventLocations[0].location.name || '-',
-        time: `${formatDate(data.startDate, 2)} - ${formatDate(data.endDate, 2)}, ${moment(
-          data.workingTimeStart,
+        id: data?.id,
+        name: data?.name || '-',
+        eventCode: data?.eventCode || '-',
+        address: data.eventLocations[0]?.location?.name || '-',
+        time: `${formatDate(data?.startDate, 2)} - ${formatDate(data?.endDate, 2)}, ${moment(
+          data?.workingTimeStart,
           'HH:mm'
-        ).format('HH:mm')} - ${moment(data.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
-        numberOfRegistration: data.numberOfRegistration || 0,
-        status: data.status || '',
+        ).format('HH:mm')} - ${moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
+        numberOfRegistration: data?.numberOfRegistration || 0,
+        status: data?.status || '',
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {

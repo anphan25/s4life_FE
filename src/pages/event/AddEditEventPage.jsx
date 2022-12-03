@@ -37,12 +37,14 @@ const AddEditEventPage = () => {
   const fetchEventDetailData = useCallback(async () => {
     const data = await getEventDetailByEventId(eventId);
 
+    console.log('detail data: ', data);
+
     setEventEditData({
       description: data.description,
       name: data.name,
       eventCode: data.eventCode,
       contactInformation: data.contactInformation,
-      locationIDs: data.eventLocations[0].id,
+      locationIDs: { id: data.eventLocations[0].locationId, name: data.eventLocations[0].location.name },
       bloodTypeNeed: data.bloodTypeNeed,
       startDate: data.startDate,
       endDate: data.endDate,

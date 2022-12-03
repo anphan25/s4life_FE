@@ -22,11 +22,11 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
           <DesktopDatePicker
             id={name}
             {...props}
-            defaultValue
+            // defaultValue
             renderInput={(params) => (
               <TextField
                 error={!!error}
-                value={moment(defaultValue).format('DD/MM/YYYY')}
+                // value={moment(defaultValue).format('DD/MM/YYYY')}
                 {...params}
                 inputProps={{
                   ...params.inputProps,

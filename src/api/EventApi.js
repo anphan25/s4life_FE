@@ -15,6 +15,10 @@ export async function createEvent(params) {
   return await axiosInstance.post(apiPath, params);
 }
 
+export async function editEvent(params) {
+  return await axiosInstance.patch(apiPath, params);
+}
+
 export async function cancelEvent(eventId) {
   return await axiosInstance.patch(`${apiPath}/${eventId}/cancel`);
 }

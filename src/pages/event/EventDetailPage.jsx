@@ -2,16 +2,31 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FcCancel } from 'react-icons/fc';
 import { VscCalendar } from 'react-icons/vsc';
 import { MdOutlineWaterDrop, MdOutlineLocationOn } from 'react-icons/md';
-import { Stack, styled, Grid, Box, Paper, Typography, Divider, Menu, MenuItem, IconButton, Chip } from '@mui/material';
+import {
+  Stack,
+  styled,
+  Grid,
+  Box,
+  Paper,
+  Typography,
+  Divider,
+  Menu,
+  MenuItem,
+  IconButton,
+  Chip,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import { BsThreeDots } from 'react-icons/bs';
 import { AiFillEdit } from 'react-icons/ai';
-import { HeaderBreadcumbs, CustomSnackBar } from 'components';
+import { HeaderBreadcumbs, CustomSnackBar, CustomDialog } from 'components';
 import moment from 'moment';
-import { getEventDetailByEventId } from 'api/EventApi';
-import { useParams } from 'react-router-dom';
-import { DEFAULT_EVENT_URL, MAX_INT, convertBloodTypeNeedLabel, errorHandler, formatDate } from 'utils';
+import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
+import { useParams, useNavigate } from 'react-router-dom';
+import { DEFAULT_EVENT_IMAGE_URL, MAX_INT, convertBloodTypeNeedLabel, errorHandler, formatDate } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './components/VolunteerListOfEvent';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -88,10 +103,17 @@ const InfoItemWithIconStyle = styled(Grid)(({ theme }) => ({
   '& .info-item_title': { fontWeight: 'bold', marginBottom: '5px' },
 }));
 
-const EventMenuOptions = [
-  { label: 'Chỉnh sửa', icon: <AiFillEdit /> },
-  { label: 'Hủy', icon: <FcCancel /> },
-];
+const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
+  marginTop: 'auto',
+  padding: '10px 0px 10px !important',
+
+  [theme.breakpoints.down('sm')]: {
+    margin: '0 auto',
+    '& .dialog_button': {
+      fontSize: '10px',
+    },
+  },
+}));
 
 const isEventEditableOrCancelable = (status, numberOfRegistration) => {
   if (status === 'Đã kết thúc' || status === 'Đã bị hủy') {
@@ -107,13 +129,18 @@ const isEventEditableOrCancelable = (status, numberOfRegistration) => {
 
 const EventDetailPage = () => {
   const [detailData, setDetailData] = useState();
+
+  const [cancelEventId, setCancelEventId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const { eventId } = useParams();
+  const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -133,12 +160,48 @@ const EventDetailPage = () => {
     color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
   }));
 
+  const handleCancelEventDialog = () => {
+    setIsCancelEventOpen(!isCancelEventOpen);
+  };
+
+  const cancelEventDialogContent = () => {
+    return (
+      <Box>
+        <Typography>Bạn có chắc chắn muốn hủy sự kiện này không ?</Typography>
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+          <Button onClick={handleCancelEventDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setAlert({});
+              setIsButtonLoading(true);
+              try {
+                await cancelEvent(cancelEventId);
+                await fetchEventDetailData();
+                setAlert({ message: `Hủy sự kiện thành công`, status: true, type: 'success' });
+              } catch (error) {
+                setAlert({ message: errorHandler(error), type: 'error', status: true });
+              } finally {
+                handleCancelEventDialog();
+                setIsButtonLoading(false);
+              }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Hủy sự kiện
+          </LoadingButton>
+        </DialogButtonGroup>
+      </Box>
+    );
+  };
+
   const fetchEventDetailData = useCallback(async () => {
     try {
       const data = await getEventDetailByEventId(eventId);
       setDetailData(data);
     } catch (error) {
-      console.log('errorHandler(err) :', errorHandler(error));
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
     }
   }, [eventId]);
 
@@ -187,24 +250,48 @@ const EventDetailPage = () => {
                 },
               }}
             >
-              {EventMenuOptions.map((option) => (
-                <MenuItem
-                  key={option.label}
-                  onClick={handleClose}
-                  disabled={!isEventEditableOrCancelable(detailData?.status, detailData?.numberOfRegistration)}
+              {/* {EventMenuOptions.map((option) => ( */}
+              <MenuItem
+                key={1}
+                onClick={() => {
+                  handleClose();
+                  navigate(`/event/${eventId}/edit`);
+                }}
+                disabled={!isEventEditableOrCancelable(detailData?.status, detailData?.numberOfRegistration)}
+              >
+                <Stack
+                  key={1}
+                  onClick={() => {
+                    handleClose();
+                    navigate(`/event/${eventId}/edit`);
+                  }}
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: 'center' }}
                 >
-                  <Stack key={option.label} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                    {option.icon} <Typography>{option.label}</Typography>
-                  </Stack>
-                </MenuItem>
-              ))}
+                  <AiFillEdit /> <Typography>Sửa sự kiện</Typography>
+                </Stack>
+              </MenuItem>
+
+              <MenuItem
+                key={2}
+                onClick={() => {
+                  handleClose();
+                  handleCancelEventDialog();
+                }}
+                disabled={!isEventEditableOrCancelable(detailData?.status, detailData?.numberOfRegistration)}
+              >
+                <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                  <FcCancel /> <Typography>Hủy sự kiện</Typography>
+                </Stack>
+              </MenuItem>
             </Menu>
           </Stack>
 
           <EventImageStyle>
             <img
               className="event-img"
-              src={detailData?.eventImages[0].imageUrl || DEFAULT_EVENT_URL}
+              src={detailData?.eventImages[0].imageUrl || DEFAULT_EVENT_IMAGE_URL}
               alt="Ảnh sự kiện"
             />
           </EventImageStyle>
@@ -222,7 +309,7 @@ const EventDetailPage = () => {
 
             <StatusTagStyle label={detailData?.status} />
 
-            <Typography>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Typography>
+            <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Box>
           </Box>
 
           <Grid rowSpacing={2} container>
@@ -262,18 +349,19 @@ const EventDetailPage = () => {
                   <MdOutlineWaterDrop className="info-item_icon_item" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">
+                  <Box className="info-item_title">
                     {detailData?.bloodTypeNeed
-                      ? detailData?.bloodTypeNeed.map((e) => (
+                      ? detailData?.bloodTypeNeed.map((e, i) => (
                           <Chip
-                            label={convertBloodTypeNeedLabel(e.bloodType, e.isRhNegative)}
+                            key={i}
+                            label={convertBloodTypeNeedLabel(e.bloodTypeId, e.isRhNegative)}
                             sx={{ marginLeft: '5px' }}
                             variant="contained"
                             color="primary"
                           />
                         ))
                       : 'Tất cả nhóm máu'}
-                  </Typography>
+                  </Box>
                   <Typography>Nhóm máu cần lấy</Typography>
                 </Box>
               </Stack>
@@ -334,6 +422,15 @@ const EventDetailPage = () => {
         {/* Volunteer of event */}
         <VolunteerListOfEvent />
       </Paper>
+
+      {/* Cancel Event Dialog */}
+      <CustomDialog
+        isOpen={isCancelEventOpen}
+        onClose={handleCancelEventDialog}
+        title="Hủy sự kiện"
+        children={cancelEventDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </Box>

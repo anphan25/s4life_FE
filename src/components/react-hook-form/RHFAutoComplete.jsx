@@ -28,7 +28,7 @@ export const RHFAutoComplete = ({
     <Controller
       name={name}
       control={control}
-      render={({ field, fieldState: { error } }) => (
+      render={({ field: { onChange, value }, fieldState: { error } }) => (
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
@@ -37,11 +37,10 @@ export const RHFAutoComplete = ({
           <Autocomplete
             id={name}
             {...props}
-            {...field}
+            // {...field}
             autoHighlight
             options={list}
             freeSolo
-            // isOptionEqualToValue={(option, value) => option.value === value.value}
             ListboxProps={{
               onScroll: (event) => {
                 if (isLazyLoad) {
@@ -69,15 +68,19 @@ export const RHFAutoComplete = ({
               //   }, [300]);
               // }
             }}
-            value={list?.find((item) => item?.value === field?.value)}
-            onChange={(event, newValue) => {
-              field.onChange(newValue);
-            }}
+            // defaultChecked={value}
+            // isOptionEqualToValue={(option, value) => option.value == value.value}
+            value={value || null}
+            filterSelectedOptions
+            // defaultValue={list.find((item) => item?.value === value)}
+            // getOptionSelected={(option) => option?.value === value}
+            // isOptionEqualToValue={(option) => option?.value === value}
+            onChange={(event, newValue) => onChange(newValue)}
             renderInput={(params) => (
               <TextField
                 {...params}
-                // autoComplete="off"
                 error={!!error}
+                onChange={onChange}
                 inputProps={{
                   ...params.inputProps,
                   autoComplete: 'off',

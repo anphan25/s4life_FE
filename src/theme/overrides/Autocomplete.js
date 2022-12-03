@@ -5,18 +5,19 @@ export default function Autocomplete(theme) {
     MuiAutocomplete: {
       styleOverrides: {
         root: {
-          "& .MuiOutlinedInput-root": {
-            padding: "0",
+          '& .MuiOutlinedInput-root': {
+            padding: '0',
           },
+          '& .Mui-disabled': { backgroundColor: '#F0F0F0', borderRadius: '12px' },
         },
         paper: {
-          boxShadow: "none",
+          boxShadow: 'none',
         },
         listbox: {
-          padding: "16px",
-          "& .MuiAutocomplete-option": {
-            padding: "12px",
-            borderRadius: "16px",
+          padding: '16px',
+          '& .MuiAutocomplete-option': {
+            padding: '12px',
+            borderRadius: '16px',
           },
         },
       },

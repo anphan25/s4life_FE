@@ -102,7 +102,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Admin', 'Staff', 'Manager']}>
+                <ProtectedRouter roles={['Admin']}>
                   <UserListPage />
                 </ProtectedRouter>
               ),

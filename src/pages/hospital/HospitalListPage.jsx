@@ -304,7 +304,6 @@ const HospitalListPage = () => {
         type: 'success',
       });
     } catch (error) {
-      console.log('errorHandler(error) ', errorHandler(error));
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
       addHospitalDialogHandler();
