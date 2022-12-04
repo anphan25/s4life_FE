@@ -23,7 +23,7 @@ import { HeaderBreadcumbs, CustomSnackBar, CustomDialog } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
-import { DEFAULT_EVENT_IMAGE_URL, MAX_INT, convertBloodTypeNeedLabel, errorHandler, formatDate } from 'utils';
+import { DEFAULT_EVENT_IMAGE_URL, MAX_INT, convertBloodTypeLabel, errorHandler, formatDate } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './components/VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -354,7 +354,7 @@ const EventDetailPage = () => {
                       ? detailData?.bloodTypeNeed.map((e, i) => (
                           <Chip
                             key={i}
-                            label={convertBloodTypeNeedLabel(e.bloodTypeId, e.isRhNegative)}
+                            label={convertBloodTypeLabel(e.bloodTypeId, e.isRhNegative)}
                             sx={{ marginLeft: '5px' }}
                             variant="contained"
                             color="primary"

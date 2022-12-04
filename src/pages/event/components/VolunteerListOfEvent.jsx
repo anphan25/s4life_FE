@@ -1,12 +1,25 @@
-import { Stack, styled, Box, Paper, Typography } from '@mui/material';
-import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar } from 'components';
+import {
+  Stack,
+  styled,
+  Box,
+  Paper,
+  Typography,
+  Button,
+  DialogActions,
+  FormControl,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog } from 'components';
 import { useState, useCallback, useEffect } from 'react';
 import { errorHandler, formatDate } from 'utils';
 import { useParams } from 'react-router-dom';
-import { getEventRegistrations } from 'api/EventRegistrationApi';
+import { getEventRegistrations, updateBloodType } from 'api';
 import moment from 'moment';
 import { AiFillEdit } from 'react-icons/ai';
 import { GridActionsCellItem } from '@mui/x-data-grid';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { BLOOD_TYPE, convertBloodTypeLabel } from 'utils';
 
 const FilterSectionStyle = styled(Box)(({ theme }) => ({
   justifyContent: 'space-between',
@@ -33,10 +46,23 @@ const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   },
 }));
 
+const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
+  marginTop: 'auto',
+  padding: '10px 0px 10px !important',
+
+  [theme.breakpoints.down('sm')]: {
+    margin: '0 auto',
+    '& .dialog_button': {
+      fontSize: '10px',
+    },
+  },
+}));
+
 const filterTabValues = [
   { label: 'Chưa tham gia', value: 2 },
   { label: 'Đã tham gia', value: 3 },
   { label: 'Đã hủy đăng ký', value: 1 },
+  { label: 'Không đủ điều kiện sức khỏe', value: 4 },
 ];
 
 const VolunteerListOfEvent = () => {
@@ -57,6 +83,9 @@ const VolunteerListOfEvent = () => {
     status: false,
     type: 'success',
   });
+  const [isUpdateBloodTypeDialogOpen, setIsUpdateBloodTypeDialogOpen] = useState(false);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [bloodType, setBloodType] = useState('');
 
   const gridOptions = {
     columns: [
@@ -110,12 +139,15 @@ const VolunteerListOfEvent = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
+            disabled={pageState.status !== 3}
             icon={
               <Box sx={{ '& .action-icon': { color: 'warning.main' } }}>
                 <AiFillEdit className="action-icon" />
               </Box>
             }
-            onClick={() => {}}
+            onClick={() => {
+              handleUpdateBloodTypeDialog();
+            }}
             label="Cập nhật nhóm máu"
             showInMenu
           />,
@@ -145,6 +177,60 @@ const VolunteerListOfEvent = () => {
     setPageState((old) => ({ ...old, page: 1, searchPhoneNumber: searchValue.searchTerm }));
   };
 
+  const handleUpdateBloodTypeDialog = () => {
+    setIsUpdateBloodTypeDialogOpen(!isUpdateBloodTypeDialogOpen);
+  };
+
+  const updateBloodTypeDialogContent = () => {
+    return (
+      <Box>
+        <Typography sx={{ marginBottom: '10px' }}>Chọn nhóm máu bạn muốn cập nhật</Typography>
+
+        <Box>
+          <FormControl fullWidth>
+            <Select
+              id="demo-simple-select"
+              value={bloodType}
+              onChange={(e, newValue) => {
+                setBloodType(e.target.value);
+              }}
+            >
+              {BLOOD_TYPE.map((option) => (
+                <MenuItem value={option}>{convertBloodTypeLabel(option.bloodTypeId, option.isRhNegative)}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+          <Button onClick={handleUpdateBloodTypeDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setAlert({});
+              setIsButtonLoading(true);
+              try {
+                await updateBloodType({
+                  userInformationId: '',
+                  volunteerBloodType: { eventRegistrationId: '', bloodType: { bloodTypeId: 1 }, isRhNegative: true },
+                });
+                await fetchVolunteersOfEvent();
+                setAlert({ message: `Cập nhật nhóm máu thành công`, status: true, type: 'success' });
+              } catch (error) {
+                setAlert({ message: errorHandler(error), type: 'error', status: true });
+              } finally {
+                handleUpdateBloodTypeDialog();
+                setIsButtonLoading(false);
+              }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Cập nhật
+          </LoadingButton>
+        </DialogButtonGroup>
+      </Box>
+    );
+  };
   const fetchVolunteersOfEvent = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
     setAlert({});
@@ -226,6 +312,15 @@ const VolunteerListOfEvent = () => {
           disableFilter={true}
         />
       </Paper>
+
+      {/* Update Blood Type Dialog */}
+      <CustomDialog
+        isOpen={isUpdateBloodTypeDialogOpen}
+        onClose={handleUpdateBloodTypeDialog}
+        title="Cập nhật nhóm máu"
+        children={updateBloodTypeDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </Box>

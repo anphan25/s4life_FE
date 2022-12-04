@@ -14,25 +14,20 @@ import {
   RHFCheckbox,
 } from 'components';
 import { getLocations, createEvent, editEvent } from 'api';
-import { MAX_INT, convertBloodTypeNeedLabel, errorHandler, DEFAULT_EVENT_IMAGE_URL, PHONE_NUMBER_PATTERN } from 'utils';
+import {
+  MAX_INT,
+  convertBloodTypeLabel,
+  errorHandler,
+  DEFAULT_EVENT_IMAGE_URL,
+  PHONE_NUMBER_PATTERN,
+  BLOOD_TYPE,
+} from 'utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ref, uploadBytesResumable, getDownloadURL, getStorage, deleteObject } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
-import { RiCoinsLine } from 'react-icons/ri';
-
-const BLOOD_TYPE_OPTIONS = [
-  { bloodTypeId: 1, isRhNegative: true },
-  { bloodTypeId: 1, isRhNegative: false },
-  { bloodTypeId: 2, isRhNegative: true },
-  { bloodTypeId: 2, isRhNegative: false },
-  { bloodTypeId: 3, isRhNegative: true },
-  { bloodTypeId: 3, isRhNegative: false },
-  { bloodTypeId: 4, isRhNegative: true },
-  { bloodTypeId: 4, isRhNegative: false },
-];
 
 const AddEditForm = ({ isEdit, eventEditData }) => {
   const [locations, setLocations] = useState([]);
@@ -319,15 +314,15 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     isLazyLoad={false}
                     onScrollToBottom={() => {}}
                     disabled={isEdit ? true : !isEmergency}
-                    list={BLOOD_TYPE_OPTIONS}
+                    list={BLOOD_TYPE}
                     name="bloodTypeNeed"
                     label="Nhóm máu cần gấp"
                     control={control}
                     placeholder="Chọn nhóm máu"
-                    getOptionLabel={(option) => convertBloodTypeNeedLabel(option.bloodTypeId, option.isRhNegative)}
+                    getOptionLabel={(option) => convertBloodTypeLabel(option.bloodTypeId, option.isRhNegative)}
                     renderOption={(props, option) => (
                       <MenuItem key={uuidv4()} value={option} {...props}>
-                        {convertBloodTypeNeedLabel(option.bloodTypeId, option.isRhNegative)}
+                        {convertBloodTypeLabel(option.bloodTypeId, option.isRhNegative)}
                       </MenuItem>
                     )}
                   />
