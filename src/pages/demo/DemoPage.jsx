@@ -22,7 +22,7 @@ const DemoPage = () => {
     };
   };
 
-  const EVENT_ID = '9684b3a9-29ec-40a3-a25a-084a5b5515b9'; //Demo 4
+  const EVENT_ID = '5f198c28-1576-4786-9874-3ef8adff9949'; //Demo 4
   let staffAccessToken = '';
 
   const password = 'Tinhnguyenvientest001//';
@@ -44,39 +44,39 @@ const DemoPage = () => {
     { username: 'tinhnguyenvientest00121' }, //Đã đăng ký
     { username: 'tinhnguyenvientest00122' }, //Đã đăng ký
     { username: 'tinhnguyenvientest00123' }, //Đã đăng ký
-    { username: 'tinhnguyenvientest00124' },
-    { username: 'tinhnguyenvientest00125' },
-    { username: 'tinhnguyenvientest00126' },
-    { username: 'tinhnguyenvientest00127' },
-    { username: 'tinhnguyenvientest00128' },
-    { username: 'tinhnguyenvientest00129' },
-    { username: 'tinhnguyenvientest0013' },
-    { username: 'tinhnguyenvientest00130' },
-    { username: 'tinhnguyenvientest00131' },
-    { username: 'tinhnguyenvientest00132' },
-    { username: 'tinhnguyenvientest00133' },
-    { username: 'tinhnguyenvientest00134' },
-    { username: 'tinhnguyenvientest00135' },
-    { username: 'tinhnguyenvientest00136' },
-    { username: 'tinhnguyenvientest00137' },
-    { username: 'tinhnguyenvientest00138' },
-    { username: 'tinhnguyenvientest00139' },
-    { username: 'tinhnguyenvientest0014' },
-    { username: 'tinhnguyenvientest00140' },
-    { username: 'tinhnguyenvientest00141' },
-    { username: 'tinhnguyenvientest00142' },
-    { username: 'tinhnguyenvientest00143' },
-    { username: 'tinhnguyenvientest00144' },
-    { username: 'tinhnguyenvientest00145' },
-    { username: 'tinhnguyenvientest00146' },
-    { username: 'tinhnguyenvientest00147' },
-    { username: 'tinhnguyenvientest00148' },
-    { username: 'tinhnguyenvientest0015' },
-    { username: 'tinhnguyenvientest00150' },
-    { username: 'tinhnguyenvientest0016' },
-    { username: 'tinhnguyenvientest0017' },
-    { username: 'tinhnguyenvientest0018' },
-    { username: 'tinhnguyenvientest0019' },
+    // { username: 'tinhnguyenvientest00124' },
+    // { username: 'tinhnguyenvientest00125' },
+    // { username: 'tinhnguyenvientest00126' },
+    // { username: 'tinhnguyenvientest00127' },
+    // { username: 'tinhnguyenvientest00128' },
+    // { username: 'tinhnguyenvientest00129' },
+    // { username: 'tinhnguyenvientest0013' },
+    // { username: 'tinhnguyenvientest00130' },
+    // { username: 'tinhnguyenvientest00131' },
+    // { username: 'tinhnguyenvientest00132' },
+    // { username: 'tinhnguyenvientest00133' },
+    // { username: 'tinhnguyenvientest00134' },
+    // { username: 'tinhnguyenvientest00135' },
+    // { username: 'tinhnguyenvientest00136' },
+    // { username: 'tinhnguyenvientest00137' },
+    // { username: 'tinhnguyenvientest00138' },
+    // { username: 'tinhnguyenvientest00139' },
+    // { username: 'tinhnguyenvientest0014' },
+    // { username: 'tinhnguyenvientest00140' },
+    // { username: 'tinhnguyenvientest00141' },
+    // { username: 'tinhnguyenvientest00142' },
+    // { username: 'tinhnguyenvientest00143' },
+    // { username: 'tinhnguyenvientest00144' },
+    // { username: 'tinhnguyenvientest00145' },
+    // { username: 'tinhnguyenvientest00146' },
+    // { username: 'tinhnguyenvientest00147' },
+    // { username: 'tinhnguyenvientest00148' },
+    // { username: 'tinhnguyenvientest0015' },
+    // { username: 'tinhnguyenvientest00150' },
+    // { username: 'tinhnguyenvientest0016' },
+    // { username: 'tinhnguyenvientest0017' },
+    // { username: 'tinhnguyenvientest0018' },
+    // { username: 'tinhnguyenvientest0019' },
   ];
 
   const staffAccount = { username: 'choraystaff1', password: 'Choraystaff//1' };
@@ -98,28 +98,28 @@ const DemoPage = () => {
     try {
       setIsButtonLoading(true);
       //Đăng ký event
-      volunteerAccounts.forEach(async (acc) => {
-        axios
-          .post(
-            `http://s4life.site/api/v1/event-registrations`,
-            {
-              eventId: EVENT_ID,
-              participationDate: moment(new Date('2022-11-30')).local().format('YYYY-MM-DD'),
-            },
-            configAxios(acc.accessToken)
-          )
-          .then((postRegister) => {
-            setLogs((old) => [...old, `POST eventRegistration: ${postRegister.status}`]);
-          })
-          .catch(function (err) {
-            setLogs((old) => [
-              ...old,
-              `${err.config.method} ${err.config.url}: ${err.response?.data.code} - ${convertErrorCodeToMessage(
-                err.response?.data.code * 1
-              )}`,
-            ]);
-          });
-      });
+      // volunteerAccounts.forEach(async (acc) => {
+      //   axios
+      //     .post(
+      //       `http://s4life.site/api/v1/event-registrations`,
+      //       {
+      //         eventId: EVENT_ID,
+      //         participationDate: moment(new Date('2022-12-4')).local().format('YYYY-MM-DD'),
+      //       },
+      //       configAxios(acc.accessToken)
+      //     )
+      //     .then((postRegister) => {
+      //       setLogs((old) => [...old, `POST eventRegistration: ${postRegister.status}`]);
+      //     })
+      //     .catch(function (err) {
+      //       setLogs((old) => [
+      //         ...old,
+      //         `${err.config.method} ${err.config.url}: ${err.response?.data.code} - ${convertErrorCodeToMessage(
+      //           err.response?.data.code * 1
+      //         )}`,
+      //       ]);
+      //     });
+      // });
 
       volunteerAccounts.forEach(async (acc, i) => {
         //Lấy event registration id
