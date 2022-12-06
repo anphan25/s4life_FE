@@ -235,8 +235,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   const defaultValues = {
     name: '',
     description: '',
-    startDate: isEmergency ? moment().utc() : moment().utc().add(1, 'days'),
-    endDate: isEmergency ? moment().utc() : moment().utc().add(1, 'days'),
+    startDate: isEmergency ? moment() : moment().add(1, 'days'),
+    endDate: isEmergency ? moment() : moment().add(1, 'days'),
     workingTimeStart: new Date(),
     workingTimeEnd: new Date(),
     bloodTypeNeed: [],
@@ -255,19 +255,19 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   };
 
   const minDateHandler = () => {
-    isEmergency ? moment().utc() : moment().utc().add(1, 'days');
+    isEmergency ? moment() : moment().add(1, 'days');
 
     if (isEdit) {
       if (editDefaultValues.isEmergency) {
-        return moment().utc();
+        return moment();
       }
-      return moment().utc().add(1, 'days');
+      return moment().add(1, 'days');
     }
 
     if (isEmergency) {
-      return moment().utc();
+      return moment();
     }
-    return moment().utc().add(1, 'days');
+    return moment().add(1, 'days');
   };
 
   useEffect(() => {
