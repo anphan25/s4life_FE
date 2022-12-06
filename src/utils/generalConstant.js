@@ -12,3 +12,4 @@ export const BLOOD_TYPE = [
   { bloodTypeId: 4, isRhNegative: true },
   { bloodTypeId: 4, isRhNegative: false },
 ];
+export const EDIT_CANCEL_EVENT_VALID_PERIOD = 3;

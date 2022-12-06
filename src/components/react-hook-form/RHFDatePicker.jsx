@@ -2,7 +2,6 @@ import { FormControl, FormHelperText, FormLabel, TextField, styled } from '@mui/
 import React from 'react';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
-import moment from 'moment';
 
 export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLabel, defaultValue, ...props }) => {
   const HeaderMainStyle = styled('span')(({ theme }) => ({

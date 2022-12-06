@@ -86,6 +86,11 @@ const VolunteerListOfEvent = () => {
   const [isUpdateBloodTypeDialogOpen, setIsUpdateBloodTypeDialogOpen] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [bloodType, setBloodType] = useState('');
+  const [updateBloodTypeParams, setUpdateBloodTypeParams] = useState({
+    userInformationId: '',
+    bloodTypeId: '',
+    isRhNegative: '',
+  });
 
   const gridOptions = {
     columns: [
@@ -146,6 +151,28 @@ const VolunteerListOfEvent = () => {
               </Box>
             }
             onClick={() => {
+              setBloodType('');
+              setUpdateBloodTypeParams({
+                userInformationId: '',
+                bloodTypeId: '',
+                isRhNegative: '',
+              });
+
+              if (params.row.bloodTypeId != null) {
+                setBloodType(
+                  JSON.stringify({ bloodTypeId: params.row.bloodTypeId, isRhNegative: params.row.isRhNegative })
+                );
+
+                setUpdateBloodTypeParams((old) => ({
+                  ...old,
+                  bloodTypeId: params.row.bloodTypeId,
+                  isRhNegative: params.row.isRhNegative,
+                }));
+              }
+              setUpdateBloodTypeParams((old) => ({
+                ...old,
+                userInformationId: params.row.userInformationId,
+              }));
               handleUpdateBloodTypeDialog();
             }}
             label="Cập nhật nhóm máu"
@@ -189,14 +216,20 @@ const VolunteerListOfEvent = () => {
         <Box>
           <FormControl fullWidth>
             <Select
-              id="demo-simple-select"
-              value={bloodType}
+              value={bloodType || ''}
               onChange={(e, newValue) => {
                 setBloodType(e.target.value);
+                setUpdateBloodTypeParams((old) => ({
+                  ...old,
+                  bloodTypeId: JSON.parse(e.target.value).bloodTypeId,
+                  isRhNegative: JSON.parse(e.target.value).isRhNegative,
+                }));
               }}
             >
-              {BLOOD_TYPE.map((option) => (
-                <MenuItem value={option}>{convertBloodTypeLabel(option.bloodTypeId, option.isRhNegative)}</MenuItem>
+              {BLOOD_TYPE.map((option, i) => (
+                <MenuItem key={i} value={JSON.stringify(option)}>
+                  {convertBloodTypeLabel(option.bloodTypeId, option.isRhNegative)}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -204,14 +237,20 @@ const VolunteerListOfEvent = () => {
         <DialogButtonGroup sx={{ marginTop: '10px' }}>
           <Button onClick={handleUpdateBloodTypeDialog}>Hủy</Button>
           <LoadingButton
+            disabled={bloodType ? false : true}
             loading={isButtonLoading}
             onClick={async () => {
               setAlert({});
               setIsButtonLoading(true);
               try {
                 await updateBloodType({
-                  userInformationId: '',
-                  volunteerBloodType: { eventRegistrationId: '', bloodType: { bloodTypeId: 1 }, isRhNegative: true },
+                  userInformationId: updateBloodTypeParams.userInformationId,
+                  updateMode: 1,
+                  volunteerBloodType: {
+                    eventId: eventId,
+                    bloodType: updateBloodTypeParams.bloodTypeId,
+                    isRhNegative: updateBloodTypeParams.isRhNegative,
+                  },
                 });
                 await fetchVolunteersOfEvent();
                 setAlert({ message: `Cập nhật nhóm máu thành công`, status: true, type: 'success' });
@@ -220,6 +259,12 @@ const VolunteerListOfEvent = () => {
               } finally {
                 handleUpdateBloodTypeDialog();
                 setIsButtonLoading(false);
+                setBloodType('');
+                setUpdateBloodTypeParams({
+                  userInformationId: '',
+                  bloodTypeId: '',
+                  isRhNegative: '',
+                });
               }
             }}
             variant="contained"
@@ -250,11 +295,14 @@ const VolunteerListOfEvent = () => {
 
       const dataRow = data.items?.map((data, i) => ({
         no: i + 1,
-        id: data.id,
+        id: data.id, //eventRegistrationId
+        userInformationId: data.userInformationId,
         fullName: data.fullName || '-',
         nationalId: data.nationalId || '-',
         phoneNumber: data.phoneNumber || '-',
-        bloodType: data.bloodType === 'Chưa biết' ? '-' : data.bloodType || '-',
+        bloodType: data.bloodTypeId ? convertBloodTypeLabel(data.bloodTypeId, data.isRhNegative) : '-',
+        bloodTypeId: data.bloodTypeId,
+        isRhNegative: data.isRhNegative,
         participationDate: formatDate(data.participationDate, 2) || '-',
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });

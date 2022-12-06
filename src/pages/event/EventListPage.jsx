@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Stack, styled, Button, Box, Paper, Typography, DialogActions } from '@mui/material';
+import { Stack, styled, Button, Box, Paper, Typography, DialogActions, Tooltip } from '@mui/material';
 import { HiPlus } from 'react-icons/hi';
 import {
   DataTable,
@@ -11,14 +11,15 @@ import {
   CustomSnackBar,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { FcCancel, FcInfo } from 'react-icons/fc';
+import { FcCancel, FcInfo, FcHighPriority } from 'react-icons/fc';
 import { AiFillEdit } from 'react-icons/ai';
+import { FiAlertTriangle } from 'react-icons/fi';
 import { getEvent } from 'api/EventApi';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { cancelEvent } from 'api/EventApi';
-import { formatDate, errorHandler } from 'utils';
+import { formatDate, errorHandler, EDIT_CANCEL_EVENT_VALID_PERIOD } from 'utils';
 
 import moment from 'moment';
 
@@ -83,12 +84,12 @@ const filterTabValues = [
   { label: 'Đã hủy', value: 4 },
 ];
 
-const isEventEditableOrCancelable = (status, numberOfRegistration) => {
-  if (status === 'Đã kết thúc' || status === 'Đã bị hủy') {
+const isEventEditableOrCancelable = (row) => {
+  if (row.numberOfRegistration > 0) {
     return false;
   }
 
-  if (numberOfRegistration > 0) {
+  if (moment(row.startDate).get('date') <= moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')) {
     return false;
   }
 
@@ -102,6 +103,7 @@ const EventListPage = () => {
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
 
   const [pageState, setPageState] = useState({
     isLoading: false,
@@ -122,7 +124,10 @@ const EventListPage = () => {
     status: false,
     type: 'success',
   });
-
+  console.log(
+    " moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date'): ",
+    moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')
+  );
   const gridOptions = {
     columns: [
       {
@@ -137,8 +142,8 @@ const EventListPage = () => {
       },
       {
         headerName: 'Sự kiện',
-        field: 'name',
         type: 'string',
+        field: 'name',
         minWidth: 150,
         flex: 1,
 
@@ -169,6 +174,7 @@ const EventListPage = () => {
           const dateTime = timeValue.value.split(', ');
           const date = dateTime[0];
           const time = dateTime[1];
+
           return (
             <Box>
               <Typography
@@ -202,22 +208,32 @@ const EventListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            disabled={!isEventEditableOrCancelable(params.row.status, params.row.numberOfRegistration)}
+            disabled={params.row.status === 'Đã kết thúc' || params.row.status === 'Đã bị hủy' ? true : false}
             icon={
               <Box sx={{ '& .action-icon': { color: '#FFC700' } }}>
                 <AiFillEdit className="action-icon" />
               </Box>
             }
             onClick={() => {
+              if (!isEventEditableOrCancelable(params.row)) {
+                handleEditCancelDialog();
+                return;
+              }
+
               navigate(`/event/${params.row.id}/edit`);
             }}
             label="Sửa sự kiện"
             showInMenu
           />,
           <GridActionsCellItem
-            disabled={!isEventEditableOrCancelable(params.row.status, params.row.numberOfRegistration)}
+            disabled={params.row.status === 'Đã kết thúc' || params.row.status === 'Đã bị hủy' ? true : false}
             icon={<FcCancel />}
             onClick={() => {
+              if (!isEventEditableOrCancelable(params.row)) {
+                handleEditCancelDialog();
+                return;
+              }
+
               handleCancelEventDialog();
               setCancelEventName(params.row.name);
               setCancelEventId(params.row.id);
@@ -263,6 +279,10 @@ const EventListPage = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
 
+  const handleEditCancelDialog = () => {
+    setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
+  };
+
   const cancelEventDialogContent = () => {
     return (
       <Box>
@@ -292,6 +312,27 @@ const EventListPage = () => {
           >
             Hủy sự kiện
           </LoadingButton>
+        </DialogButtonGroup>
+      </Box>
+    );
+  };
+
+  const alertEditCancelDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký
+        </Typography>
+
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleEditCancelDialog();
+            }}
+          >
+            Ok
+          </Button>
         </DialogButtonGroup>
       </Box>
     );
@@ -375,9 +416,9 @@ const EventListPage = () => {
           />
 
           <InputFilterSectionStyle>
-            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
+            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '100%' }} />
             <SearchBar
-              sx={{ width: '50%' }}
+              sx={{ width: '100%' }}
               className="search-bar"
               placeholder="Nhập tên sự kiện"
               onSubmit={handleSearchEventName}
@@ -399,6 +440,15 @@ const EventListPage = () => {
         onClose={handleCancelEventDialog}
         title="Hủy sự kiện"
         children={cancelEventDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
+
+      {/* Alert Edit/Cancel Event Dialog */}
+      <CustomDialog
+        isOpen={isEditCancelAlertOpen}
+        onClose={handleEditCancelDialog}
+        title=""
+        children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
 

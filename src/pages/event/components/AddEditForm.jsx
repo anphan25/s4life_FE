@@ -97,11 +97,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     data.minParticipant = 0;
     data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
     data.permanentEventType = 1;
-    data.locationIDs = new Array(data.locationIDs.id);
+    data.locationIDs = new Array(data.locationIDs[0].id);
     data.startDate = moment(data.startDate);
     data.endDate = moment(data.endDate);
-    data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).format('HH:mm:ss');
-    data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).format('HH:mm:ss');
+    data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
+    data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
 
     if (imgUploadFile) {
       await uploadImage(data);
@@ -109,6 +109,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       return;
     }
     setImgUploadFile(null);
+
+    console.log('final data: ', data);
 
     addEditEventHandler(data);
   };
@@ -170,12 +172,13 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       contactInformation: eventEditData?.contactInformation || '',
       startDate: eventEditData?.startDate,
       endDate: eventEditData?.endDate,
-      workingTimeStart: moment(eventEditData?.workingTimeStart, 'HH:mm:ss').seconds(0),
-      workingTimeEnd: moment(eventEditData?.workingTimeEnd, 'HH:mm:ss').seconds(0),
+      workingTimeStart: moment(eventEditData?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0),
+      workingTimeEnd: moment(eventEditData?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0),
       maxParticipant: eventEditData?.maxParticipant || 0,
       imageUrls: eventEditData?.imageUrls,
       bloodTypeNeed: eventEditData?.bloodTypeNeed || [],
       locationIDs: eventEditData?.locationIDs || [],
+      isEmergency: eventEditData?.isEmergency,
     }),
     [eventEditData]
   );
@@ -188,7 +191,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại liên hệ không hợp lệ', excludeEmptyString: false })
       .required('Vui lòng nhập số điện thoại liên hệ'),
     startDate: Yup.date()
-      // .test((value) => {})
       .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc')
       .required('Vui lòng nhập ngày bắt đầu'),
     endDate: Yup.date()
@@ -214,24 +216,31 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .transform((value) => (isNaN(value) ? 0 : value))
       .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
       .max(MAX_INT, 'Số nhập vào quá lớn'),
-    locationIDs: Yup.object()
-      .shape({
-        id: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
-        name: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+    locationIDs: Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+          // name: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+        })
+      )
+      .transform(function (value, originalvalue) {
+        if (originalvalue?.length < 1 || originalvalue === null) return [];
+        return [{ id: originalvalue?.id }];
       })
-      .nullable()
-      .required('Vui lòng chọn địa điểm tổ chức'),
+      .min(1, 'Vui lòng chọn địa điểm tổ chức'),
+    // .nullable()
+    // .required('Vui lòng chọn địa điểm tổ chức'),
   });
 
   const defaultValues = {
     name: '',
     description: '',
-    startDate: isEmergency ? moment().local() : moment().local().add(1, 'day'),
-    endDate: isEmergency ? moment().local() : moment().local().add(1, 'day'),
+    startDate: isEmergency ? moment().utc() : moment().utc().add(1, 'days'),
+    endDate: isEmergency ? moment().utc() : moment().utc().add(1, 'days'),
     workingTimeStart: new Date(),
     workingTimeEnd: new Date(),
     bloodTypeNeed: [],
-    locationIDs: { id: '', name: '' },
+    locationIDs: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
 
@@ -243,6 +252,22 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
 
   const onChangeCheckBox = (newValue) => {
     setIsEmergency(newValue);
+  };
+
+  const minDateHandler = () => {
+    isEmergency ? moment().utc() : moment().utc().add(1, 'days');
+
+    if (isEdit) {
+      if (editDefaultValues.isEmergency) {
+        return moment().utc();
+      }
+      return moment().utc().add(1, 'days');
+    }
+
+    if (isEmergency) {
+      return moment().utc();
+    }
+    return moment().utc().add(1, 'days');
   };
 
   useEffect(() => {
@@ -362,7 +387,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     control={control}
                     label="Ngày bắt đầu"
                     placeholder="Nhập ngày bắt đầu"
-                    minDate={isEmergency || moment().local().add(1, 'day')}
+                    minDate={minDateHandler()}
                   />
                   <RHFDatePicker
                     disablePast
@@ -371,7 +396,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     control={control}
                     label="Ngày kết thúc"
                     placeholder="Nhập ngày kết thúc"
-                    minDate={isEmergency || moment().local().add(1, 'day')}
+                    minDate={minDateHandler()}
                   />
                 </Stack>
 

@@ -425,7 +425,6 @@ const HospitalListPage = () => {
           <FilterTab
             sx={{
               width: '100%',
-              // marginBottom: '20px',
               padding: '10px 20px 0',
               borderTopLeftRadius: '20px',
               borderTopRightRadius: '20px',

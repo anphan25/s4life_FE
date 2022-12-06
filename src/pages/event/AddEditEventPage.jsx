@@ -37,8 +37,6 @@ const AddEditEventPage = () => {
   const fetchEventDetailData = useCallback(async () => {
     const data = await getEventDetailByEventId(eventId);
 
-    console.log('detail data: ', data);
-
     setEventEditData({
       description: data.description,
       name: data.name,
@@ -52,6 +50,7 @@ const AddEditEventPage = () => {
       workingTimeEnd: data.workingTimeEnd,
       maxParticipant: data.maxParticipant,
       imageUrls: data.eventImages[0].imageUrl,
+      isEmergency: data.isEmergency,
     });
   }, []);
 

@@ -160,6 +160,18 @@ const EventDetailPage = () => {
     color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
   }));
 
+  const EmergencyTagStyle = styled(Chip)(({ theme }) => ({
+    borderRadius: '8px',
+    height: 'auto',
+    marginBottom: '15px',
+    marginLeft: '10px',
+    padding: '4px 6px',
+    fontWeight: 'bold',
+    fontSize: '12px',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.grey[100],
+  }));
+
   const handleCancelEventDialog = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
@@ -307,7 +319,10 @@ const EventDetailPage = () => {
               {detailData?.name}
             </Typography>
 
-            <StatusTagStyle label={detailData?.status} />
+            <Stack direction="rowSpacing" sx={{ marginTop: '10px' }}>
+              <StatusTagStyle label={detailData?.status} />
+              {detailData?.isEmergency && <EmergencyTagStyle label="Sự kiện khẩn cấp"></EmergencyTagStyle>}
+            </Stack>
 
             <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Box>
           </Box>

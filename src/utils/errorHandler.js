@@ -56,6 +56,18 @@ export function convertErrorCodeToMessage(code) {
     7101: 'Thời gia dự kiến tham gia không hợp lệ',
     7003: 'Từ chối quyền truy cập thông tin đăng ký',
     7004: 'Không tìm thấy thông tin đăng ký ',
+    7141: 'Từ chối yêu cầu cập nhật nhóm máu',
+
+    //User Informations
+    8000: 'Thay đổi thông tin cá nhân thành công',
+    8001: 'Nhóm máu không hợp lệ',
+    8011: 'Thông tin tình nguyện viên không hợp lệ',
+    8003: 'Từ chối yêu cầu truy cập thông tin người dùng',
+    8013: 'Yêu cầu cập nhật không phù hợp',
+    8004: 'Không tìm thấy thông tin người dùng',
+    8015: 'Cập nhật nhóm máu đang được xử lý',
+    8016: 'Tình nguyện viên chưa hiến máu',
+    8100: 'Cập nhật nhóm máu thành công',
   };
   return message[code];
 }
