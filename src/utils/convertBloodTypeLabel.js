@@ -1,4 +1,4 @@
-export const convertBloodTypeNeedLabel = (bloodTypeId, isRhNegative) => {
+export const convertBloodTypeLabel = (bloodTypeId, isRhNegative) => {
   switch (bloodTypeId) {
     case 1: {
       return `A${isRhNegative ? '-' : '+'}`;

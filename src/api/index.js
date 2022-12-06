@@ -4,3 +4,4 @@ export * from './HospitalApi';
 export * from './LocationApi';
 export * from './EventApi';
 export * from './EventRegistrationApi';
+export * from './UserInformationApi';

@@ -23,7 +23,7 @@ import { HeaderBreadcumbs, CustomSnackBar, CustomDialog } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
-import { DEFAULT_EVENT_IMAGE_URL, MAX_INT, convertBloodTypeNeedLabel, errorHandler, formatDate } from 'utils';
+import { DEFAULT_EVENT_IMAGE_URL, MAX_INT, convertBloodTypeLabel, errorHandler, formatDate } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './components/VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -158,6 +158,18 @@ const EventDetailPage = () => {
     fontSize: '12px',
     backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
     color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
+  }));
+
+  const EmergencyTagStyle = styled(Chip)(({ theme }) => ({
+    borderRadius: '8px',
+    height: 'auto',
+    marginBottom: '15px',
+    marginLeft: '10px',
+    padding: '4px 6px',
+    fontWeight: 'bold',
+    fontSize: '12px',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.grey[100],
   }));
 
   const handleCancelEventDialog = () => {
@@ -307,7 +319,10 @@ const EventDetailPage = () => {
               {detailData?.name}
             </Typography>
 
-            <StatusTagStyle label={detailData?.status} />
+            <Stack direction="rowSpacing" sx={{ marginTop: '10px' }}>
+              <StatusTagStyle label={detailData?.status} />
+              {detailData?.isEmergency && <EmergencyTagStyle label="Sự kiện khẩn cấp"></EmergencyTagStyle>}
+            </Stack>
 
             <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Box>
           </Box>
@@ -354,7 +369,7 @@ const EventDetailPage = () => {
                       ? detailData?.bloodTypeNeed.map((e, i) => (
                           <Chip
                             key={i}
-                            label={convertBloodTypeNeedLabel(e.bloodTypeId, e.isRhNegative)}
+                            label={convertBloodTypeLabel(e.bloodTypeId, e.isRhNegative)}
                             sx={{ marginLeft: '5px' }}
                             variant="contained"
                             color="primary"
