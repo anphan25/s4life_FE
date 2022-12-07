@@ -332,6 +332,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                 <Stack spacing={2} direction="row">
                   <RHFInput
                     isRequiredLabel={true}
+                    disabled={isEdit}
                     name="eventCode"
                     label="Mã sự kiện"
                     control={control}
