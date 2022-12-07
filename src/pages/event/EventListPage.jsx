@@ -89,7 +89,10 @@ const isEventEditableOrCancelable = (row) => {
     return false;
   }
 
-  if (moment(row.startDate).get('date') <= moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')) {
+  if (
+    moment(row.startDate).utcOffset(7).get('date') <=
+    moment().utcOffset(7).add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')
+  ) {
     return false;
   }
 
@@ -124,10 +127,7 @@ const EventListPage = () => {
     status: false,
     type: 'success',
   });
-  console.log(
-    " moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date'): ",
-    moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')
-  );
+
   const gridOptions = {
     columns: [
       {
@@ -366,6 +366,8 @@ const EventListPage = () => {
           data?.workingTimeStart,
           'HH:mm'
         ).format('HH:mm')} - ${moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
+        startDate: data?.startDate,
+        endDate: data?.endDate,
         numberOfRegistration: data?.numberOfRegistration || 0,
         status: data?.status || '',
       }));
