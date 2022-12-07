@@ -98,8 +98,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
     data.permanentEventType = 1;
     data.locationIDs = new Array(data.locationIDs[0].id);
-    data.startDate = moment(data.startDate);
-    data.endDate = moment(data.endDate);
+    data.startDate = moment(data.startDate).utcOffset(7);
+    data.endDate = moment(data.endDate).utcOffset(7);
     data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
     data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
 
@@ -109,6 +109,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       return;
     }
     setImgUploadFile(null);
+
+    console.log('dirtyField: ', dirtyFields);
 
     console.log('final data: ', data);
 
@@ -143,8 +145,18 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
 
     try {
       if (isEdit) {
-        param.id = eventId;
-        await editEvent(param);
+        const editParams = {};
+        editParams['id'] = eventId;
+
+        for (const [key, value] of Object.entries(dirtyFields)) {
+          editParams[key] = param[key];
+        }
+
+        console.log('editParams: ', editParams);
+
+        // return;
+
+        await editEvent(editParams);
       } else {
         await createEvent(param);
       }
@@ -220,7 +232,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .of(
         Yup.object().shape({
           id: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
-          // name: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
         })
       )
       .transform(function (value, originalvalue) {
@@ -228,8 +239,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
         return [{ id: originalvalue?.id }];
       })
       .min(1, 'Vui lòng chọn địa điểm tổ chức'),
-    // .nullable()
-    // .required('Vui lòng chọn địa điểm tổ chức'),
   });
 
   const defaultValues = {
@@ -244,10 +253,16 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
 
-  const { handleSubmit, control, reset } = useForm({
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { dirtyFields },
+  } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues: isEdit ? editDefaultValues : defaultValues,
     mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const onChangeCheckBox = (newValue) => {
@@ -325,7 +340,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   <RHFInput
                     isRequiredLabel={true}
                     name="contactInformation"
-                    // type="number"
                     label="Số điện thoại liên hệ"
                     control={control}
                     placeholder="Nhập số điện thoại liên hệ"
