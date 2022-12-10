@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Stack, styled, Button, Box, Paper, Typography, DialogActions, Tooltip } from '@mui/material';
+import { Stack, styled, Button, Box, Paper, Typography, DialogActions } from '@mui/material';
 import { HiPlus } from 'react-icons/hi';
 import {
   DataTable,
@@ -11,9 +11,8 @@ import {
   CustomSnackBar,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { FcCancel, FcInfo, FcHighPriority } from 'react-icons/fc';
+import { FcCancel, FcInfo } from 'react-icons/fc';
 import { AiFillEdit } from 'react-icons/ai';
-import { FiAlertTriangle } from 'react-icons/fi';
 import { getEvent } from 'api/EventApi';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -252,7 +251,7 @@ const EventListPage = () => {
         ],
       },
     ],
-    pageState: pageState,
+    pageState,
   };
 
   const pageChangeHandler = (newPage) => {

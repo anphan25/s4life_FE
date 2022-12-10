@@ -90,6 +90,12 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
 
   const onSubmit = async (data) => {
     setIsButtonLoading(true);
+    console.log('raw starteDate: ', data.startDate);
+    console.log("moment(new Date('2022-12-04')): ", moment(new Date('2022-12-04')).format('DD/MM/yyyy HH:mm:ss'));
+    console.log('moment(data.startDate): ', moment(data.startDate).format('DD/MM/yyyy HH:mm:ss'));
+    console.log('moment(data.startDate).utcOffset(7): ', moment(data.startDate).utcOffset(7));
+    console.log('moment(data.startDate).format("DD/MM/yyyy"): ', moment(data.startDate).format('DD/MM/yyyy'));
+    console.log('moment(data.startDate).utc(): ', moment(data.startDate).utc().format('DD/MM/yyyy HH:mm:ss'));
 
     data.imageUrls = isEdit ? new Array(eventEditData?.imageUrls) : new Array(DEFAULT_EVENT_IMAGE_URL);
     data.contactInformation = data.contactInformation.replace(/ +/g, '');
@@ -98,8 +104,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
     data.permanentEventType = 1;
     data.locationIDs = new Array(data.locationIDs[0].id);
-    data.startDate = moment(data.startDate).utcOffset(7);
-    data.endDate = moment(data.endDate).utcOffset(7);
+    data.startDate = moment(data.startDate).format('yyyy-MM-DD');
+    data.endDate = moment(data.endDate).format('yyyy-MM-DD');
     data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
     data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
 
