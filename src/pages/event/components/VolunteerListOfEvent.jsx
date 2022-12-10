@@ -287,8 +287,8 @@ const VolunteerListOfEvent = () => {
         Page: pageState?.page,
         PageSize: pageState.pageSize,
         SearchPhoneNumber: pageState?.searchKey,
-        DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom?.toISOString()).format('yyyy-MM-DD') : '',
-        DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).format('yyyy-MM-DD') : '',
+        DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
+        DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
       });
 
       const dataRow = data.items?.map((data, i) => ({

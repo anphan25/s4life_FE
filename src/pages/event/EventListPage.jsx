@@ -88,10 +88,7 @@ const isEventEditableOrCancelable = (row) => {
     return false;
   }
 
-  if (
-    moment(row.startDate).utcOffset(7).get('date') <=
-    moment().utcOffset(7).add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')
-  ) {
+  if (moment(row.startDate).get('date') <= moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')) {
     return false;
   }
 
@@ -349,10 +346,8 @@ const EventListPage = () => {
         Page: pageState.page,
         PageSize: pageState.pageSize,
         SearchKey: pageState.searchKey,
-        DateFrom: pageState?.dateFrom
-          ? moment(pageState?.dateFrom?.toISOString()).utc().local().format('yyyy-MM-DD')
-          : '',
-        DateTo: pageState?.dateTo ? moment(pageState?.dateTo?.toISOString()).utc().local().format('yyyy-MM-DD') : '',
+        DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
+        DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
       });
 
       const dataRow = data.items?.map((data, i) => ({
