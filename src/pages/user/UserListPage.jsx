@@ -34,7 +34,6 @@ const filterTabValues = [
   { label: 'Tình nguyện viên', value: 1 },
   { label: 'Quản lý bệnh viện', value: 2 },
   { label: 'Nhân viên bệnh viện', value: 3 },
-  { label: 'Quản trị viên', value: 4 },
 ];
 
 const UserListPage = () => {
@@ -44,7 +43,7 @@ const UserListPage = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    filterMode: 1, //1: Volunteer, 2: Manager, 3: Staff, 4: Admin
+    filterMode: 1, //1: Volunteer, 2: Manager, 3: Staff
     searchKey: '',
   });
 
@@ -256,9 +255,10 @@ const UserListPage = () => {
 
         <InputFilterSectionStyle>
           <SearchBar
+            input="number"
             sx={{ width: '100%' }}
             className="search-bar"
-            placeholder={pageState.filterMode === 1 ? 'Nhập CMND/CCCD' : 'Nhập tên tài khoản'}
+            placeholder={pageState.filterMode === 1 ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
             onSubmit={handleSearchEventName}
           />
         </InputFilterSectionStyle>
