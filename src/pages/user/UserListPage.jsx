@@ -91,7 +91,13 @@ const UserListPage = () => {
         headerName: 'Ngày sinh',
         type: 'string',
         field: 'dateOfBirth',
-        width: 150,
+        width: 100,
+      },
+      {
+        headerName: 'Số điện thoại',
+        field: 'phoneNumber',
+        type: 'string',
+        width: 120,
       },
       {
         headerName: 'Nhóm máu',
@@ -120,6 +126,7 @@ const UserListPage = () => {
         id: 1,
         name: 'Trần Hải nam',
         address: '60 Hùng Vương Tân An, Long An',
+        phoneNumber: '09031841124',
         nationalId: '21124122112',
         dateOfBirth: new Date(),
         bloodTypeId: 1,
@@ -210,6 +217,7 @@ const UserListPage = () => {
               name: data?.name || '-',
               address: data?.address || '-',
               nationalId: data?.nationalId || '-',
+              phoneNumber: data?.phoneNumber || '-',
               bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
               dateOfBirth: formatDate(data?.dateOfBirth, 2) || '-',
             }))

@@ -286,22 +286,22 @@ const VolunteerListOfEvent = () => {
         Status: pageState?.status,
         Page: pageState?.page,
         PageSize: pageState.pageSize,
-        SearchPhoneNumber: pageState?.searchKey,
+        SearchPhoneNumber: pageState?.searchPhoneNumber,
         DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
         DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
       });
 
       const dataRow = data.items?.map((data, i) => ({
         no: i + 1,
-        id: data.id, //eventRegistrationId
-        userInformationId: data.userInformationId,
-        fullName: data.fullName || '-',
-        nationalId: data.nationalId || '-',
-        phoneNumber: data.phoneNumber || '-',
-        bloodType: data.bloodTypeId ? convertBloodTypeLabel(data.bloodTypeId, data.isRhNegative) : '-',
-        bloodTypeId: data.bloodTypeId,
-        isRhNegative: data.isRhNegative,
-        participationDate: formatDate(data.participationDate, 2) || '-',
+        id: data?.id, //eventRegistrationId
+        userInformationId: data?.userInformationId,
+        fullName: data?.fullName || '-',
+        nationalId: data?.nationalId || '-',
+        phoneNumber: data?.phoneNumber || '-',
+        bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
+        bloodTypeId: data?.bloodTypeId,
+        isRhNegative: data?.isRhNegative,
+        participationDate: formatDate(data?.participationDate, 2) || '-',
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
