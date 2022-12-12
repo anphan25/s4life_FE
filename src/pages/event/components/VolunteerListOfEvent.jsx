@@ -344,6 +344,7 @@ const VolunteerListOfEvent = () => {
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
             <SearchBar
+              type="number"
               sx={{ width: '50%' }}
               className="search-bar"
               placeholder="Nhập số điện thoại..."

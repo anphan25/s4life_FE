@@ -2,8 +2,7 @@ import { InputAdornment, Input, FormControl } from '@mui/material';
 import React, { useState, useRef } from 'react';
 import { FiSearch } from 'react-icons/fi';
 
-export const SearchBar = (props) => {
-  const { onSubmit } = props;
+export const SearchBar = ({ sx, onSubmit, ...others }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const typingTimeoutRef = useRef(null);
 
@@ -25,8 +24,9 @@ export const SearchBar = (props) => {
     }, 300);
   };
   return (
-    <FormControl sx={props.sx}>
+    <FormControl sx={sx}>
       <Input
+        {...others}
         onChange={handleSearchForm}
         value={searchTerm}
         startAdornment={
@@ -39,7 +39,6 @@ export const SearchBar = (props) => {
             />
           </InputAdornment>
         }
-        placeholder={props.placeholder}
       />
     </FormControl>
   );
