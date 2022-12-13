@@ -48,7 +48,7 @@ const ImportTextDisplayStyle = styled(Stack)(({ theme }) => ({
   '& .import_require': { color: theme.palette.grey[600] },
 }));
 
-export const RHFImport = ({ control, label, name, onImport, ...props }) => {
+export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
 
@@ -85,6 +85,10 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
 
       case 'invalid-starttime-endTime': {
         return 'Thởi gian bắt đầu phải trước thời gian kết thúc';
+      }
+
+      case 'too-much-record': {
+        return 'Khi chỉnh sửa chỉ cần 1 dòng thông tin';
       }
 
       default: {
@@ -160,6 +164,14 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
 
   const validateCSVFileContent = (dataList) => {
     // tempErrorFileContent = [];
+    if (isEdit) {
+      if (dataList.length > 1) {
+        displayInvalidFileContent('too-much-record');
+
+        return;
+      }
+    }
+
     dataList.forEach((data) => {
       for (const property in data) {
         if (!data[property] && property !== 'email') {
@@ -281,6 +293,7 @@ export const RHFImport = ({ control, label, name, onImport, ...props }) => {
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
 
+        console.log('hospitalData: ', hospitalData);
         // debugger;
         validateCSVFileContent(hospitalData);
 

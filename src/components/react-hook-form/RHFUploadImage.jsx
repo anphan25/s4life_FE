@@ -62,7 +62,7 @@ const CustomizeErrorMessage = (code) => {
 };
 
 //When have defaultValue, that means editing. If not it mean adding
-export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...props }) => {
+export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, ...props }) => {
   const uploadImgRef = useRef();
   const editImgRef = useRef();
   const [files, setFiles] = useState([]);
@@ -91,8 +91,6 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
     <img
       src={file.preview}
       key={file.name}
-      //   style={img}
-      // Revoke data uri after image is loaded
       onLoad={() => {
         URL.revokeObjectURL(file.preview);
       }}
@@ -147,7 +145,7 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
         }}
         htmlFor="picFood"
       >
-        Hình ảnh
+        {label}
       </InputLabel>
       {!defaultValue
         ? selectedFile && (
@@ -156,7 +154,6 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
                 onClick={() => {
                   setSelectedFile(null);
                   onUpload(acceptedFiles[0]);
-                  // onImport([], true);
                 }}
                 title="Gỡ bỏ tệp tin"
               />
@@ -167,17 +164,19 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
           )
         : ''}
       <Stack
-        id="picEvent"
+        id="avtUrl"
         justifyContent="center"
         alignItems="center"
         sx={{
-          height: '270px',
-          width: '100%',
+          height: props.height,
+          width: props.width,
           backgroundColor: '#F4F4F4',
-          borderRadius: '15px',
+          margin: '0 auto',
+          borderRadius: props.borderRadius,
           position: 'relative',
+          border: props.borderRadius === '100%' ? '2px solid #C13538' : '',
 
-          '& .dropzone-div': { width: '100%', height: '100%', borderRadius: '15px' },
+          '& .dropzone-div': { width: '100%', height: '100%', borderRadius: props.borderRadius },
 
           '& .editing': { display: 'none' },
 
@@ -185,7 +184,7 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
             width: '100%',
             height: '100%',
 
-            '& img': { width: '100%', height: '100%', borderRadius: '15px' },
+            '& img': { width: '100%', height: '100%', borderRadius: props.borderRadius, objectFit: 'cover' },
           },
         }}
       >
@@ -211,8 +210,6 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
                       type="file"
                       inputRef={uploadImgRef}
                       id={name}
-                      // {...field}
-                      // {...props}
                       {...getInputProps()}
                     />
                   </FormControl>
@@ -260,14 +257,14 @@ export const UploadImage = ({ label, name, control, onUpload, defaultValue, ...p
                 width: '100%',
                 height: '100%',
                 backgroundColor: '#F4F4F4',
-                borderRadius: '15px',
+                borderRadius: props.borderRadius,
                 position: 'relative',
 
                 '& img': {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  borderRadius: '15px',
+                  borderRadius: props.borderRadius,
                 },
               }}
             >

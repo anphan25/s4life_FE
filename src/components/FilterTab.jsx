@@ -1,9 +1,10 @@
 import { Tabs, Tab, Stack } from '@mui/material';
 
-export const FilterTab = ({ tabs, sx, defaultValue, onChangeTab }) => {
+export const FilterTab = ({ tabs, sx, defaultValue, onChangeTab, ...props }) => {
   return (
     <Stack sx={sx}>
       <Tabs
+        {...props}
         variant="scrollable"
         scrollButtons="auto"
         onChange={onChangeTab}

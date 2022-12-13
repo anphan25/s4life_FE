@@ -328,9 +328,11 @@ const HospitalListPage = () => {
               Tải file mẫu
             </Button>
             <DialogButtonGroup>
-              <Button className="dialog_button" onClick={addHospitalDialogHandler}>
-                Hủy
-              </Button>
+              <Box>
+                <Button className="dialog_button" onClick={addHospitalDialogHandler}>
+                  Hủy
+                </Button>
+              </Box>
               <LoadingButton
                 loading={isButtonLoading}
                 disabled={isImportBtnDisabled}
@@ -371,6 +373,8 @@ const HospitalListPage = () => {
           case 'storage/unknown':
             // Unknown error occurred, inspect the server response
             break;
+          default: {
+          }
         }
       });
   };
