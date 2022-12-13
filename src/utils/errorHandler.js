@@ -3,6 +3,7 @@ export function convertErrorCodeToMessage(code) {
     //Login
     1003: 'Quyền truy cập bị giới hạn',
     1004: 'Thông tin đăng nhập không chính xác',
+    1005: 'Mật khẩu không chính xác',
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
     1034: 'Tài khoản đã bị vô hiệu',

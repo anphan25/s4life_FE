@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
 import { getVietnameseRole } from 'utils/getVietnameseRole';
-import { BsKey } from 'react-icons/bs';
+import { RiAccountCircleLine } from 'react-icons/ri';
 
 const UserPopover = () => {
   const dispatch = useDispatch();
@@ -28,8 +28,8 @@ const UserPopover = () => {
 
   const menu = [
     {
-      icon: <BsKey />,
-      name: 'Đổi mật khẩu',
+      icon: <RiAccountCircleLine />,
+      name: 'Thông tin tài khoản',
       to: '/account',
     },
   ];

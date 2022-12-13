@@ -4,3 +4,4 @@ export * from './formatNumber';
 export * from './getFontValue';
 export * from './generalConstant';
 export * from './convertBloodTypeLabel';
+export * from './convertDayLabel';

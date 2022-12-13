@@ -10,7 +10,7 @@ import {
   RHFAutoComplete,
   RHFDatePicker,
   RHFTimePicker,
-  UploadImage,
+  RHFUploadImage,
   RHFCheckbox,
 } from 'components';
 import { getLocations, createEvent, editEvent } from 'api';
@@ -316,8 +316,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   defaultValue={eventEditData?.description}
                 />
 
-                <UploadImage
+                <RHFUploadImage
                   label="Ảnh sự kiện"
+                  borderRadius="15px"
+                  width="100%"
+                  height="270px"
                   name="imageUrls"
                   control={control}
                   onUpload={handleUploadEventImg}

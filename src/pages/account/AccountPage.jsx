@@ -1,31 +1,60 @@
-import { Paper, styled, Stack, Tabs, Tab, Box, Typography } from '@mui/material';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { RHFInput } from 'components';
-import * as Yup from 'yup';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Paper, Box, Stack, styled } from '@mui/material';
+import { FilterTab } from 'components';
+import HospitalInfo from './components/HospitalInfo';
+import ChangePassword from './components/ChangePassword';
+import { getHospitalById } from 'api/HospitalApi';
+import { useSelector } from 'react-redux';
 
-const ChangePasswordStackStyle = styled(Stack)(({ theme }) => ({ padding: '20px', gap: '20px' }));
-const TitleStyle = styled(Typography)(({ theme }) => ({
-  fontSize: '20px',
-  fontWeight: '600',
-  //   marginBottom: '',
+const LeftSideStyle = styled(Stack)(({ theme }) => ({
+  padding: '20px',
+  width: '25%',
+
+  '& .tab-name': {
+    padding: '8px 15px',
+    fontWeight: '600',
+    borderRadius: '8px',
+    fontSize: '15px',
+  },
+
+  '& .MuiTab-root': { textAlign: 'right' },
 }));
 
-const onSubmit = async () => {};
+const RightSideStyle = styled(Box)(({ theme }) => ({
+  width: '75%',
+}));
 
-const AccountInfo = () => {
-  const { handleSubmit, control, reset } = useForm({
-    // resolver: yupResolver(RegisterSchema),
-  });
+const filterManagerStaffTabValues = [
+  { label: 'Thông tin bệnh viện', value: 1 },
+  { label: 'Đổi mật khẩu', value: 2 },
+];
+
+const adminTabValue = [{ label: 'Đổi mật khẩu', value: 2 }];
+
+const AccountPage = () => {
+  let user = useSelector((state) => state.auth.auth?.user);
+  const [tab, setTab] = useState(user.role === 'Admin' ? 2 : 1);
+
+  const handleFilterTabChange = (e, value) => {
+    setTab(value);
+  };
 
   return (
-    <ChangePasswordStackStyle>
-      <TitleStyle>Đổi mật khẩu</TitleStyle>
+    <Paper elevation={1}>
+      <Stack direction="row">
+        <LeftSideStyle>
+          <FilterTab
+            orientation="vertical"
+            tabs={user.role === 'Admin' ? adminTabValue : filterManagerStaffTabValues}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={tab}
+          />
+        </LeftSideStyle>
 
-      <form onSubmit={handleSubmit(onSubmit)}></form>
-    </ChangePasswordStackStyle>
+        <RightSideStyle>{tab === 1 ? <HospitalInfo /> : <ChangePassword />}</RightSideStyle>
+      </Stack>
+    </Paper>
   );
 };
 
-export default AccountInfo;
+export default AccountPage;
