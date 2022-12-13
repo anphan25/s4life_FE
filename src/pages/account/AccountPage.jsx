@@ -24,16 +24,16 @@ const RightSideStyle = styled(Box)(({ theme }) => ({
   width: '75%',
 }));
 
-const filterManagerStaffTabValues = [
+const managerTabValues = [
   { label: 'Thông tin bệnh viện', value: 1 },
   { label: 'Đổi mật khẩu', value: 2 },
 ];
 
-const adminTabValue = [{ label: 'Đổi mật khẩu', value: 2 }];
+const adminStaffTabValue = [{ label: 'Đổi mật khẩu', value: 2 }];
 
 const AccountPage = () => {
   let user = useSelector((state) => state.auth.auth?.user);
-  const [tab, setTab] = useState(user.role === 'Admin' ? 2 : 1);
+  const [tab, setTab] = useState(user.role === 'Admin' || user.role === 'Staff' ? 2 : 1);
 
   const handleFilterTabChange = (e, value) => {
     setTab(value);
@@ -45,7 +45,7 @@ const AccountPage = () => {
         <LeftSideStyle>
           <FilterTab
             orientation="vertical"
-            tabs={user.role === 'Admin' ? adminTabValue : filterManagerStaffTabValues}
+            tabs={user.role === 'Admin' || user.role === 'Staff' ? adminStaffTabValue : managerTabValues}
             onChangeTab={handleFilterTabChange}
             defaultValue={tab}
           />
