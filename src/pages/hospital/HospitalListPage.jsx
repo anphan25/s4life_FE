@@ -392,13 +392,13 @@ const HospitalListPage = () => {
 
       const dataRow = data.items.map((data, i) => ({
         no: i + 1,
-        id: data.id,
-        name: data.name || '-',
-        address: data.address || '-',
-        email: data.email || '-',
-        phoneNumber: data.phoneNumber || '-',
-        isActive: data.isActive,
-        addDate: formatDate(data.addDate, 1) || '-',
+        id: data?.id,
+        name: data?.name || '-',
+        address: data?.address || '-',
+        email: data?.email || '-',
+        phoneNumber: data?.phoneNumber || '-',
+        isActive: data?.isActive,
+        addDate: formatDate(data?.addDate, 2) || '-',
       }));
 
       setPageState({ ...pageState, data: dataRow, total: data.total });
