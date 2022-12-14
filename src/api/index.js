@@ -5,3 +5,4 @@ export * from './LocationApi';
 export * from './EventApi';
 export * from './EventRegistrationApi';
 export * from './UserInformationApi';
+export * from './UserApi';
