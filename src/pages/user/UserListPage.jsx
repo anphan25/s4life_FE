@@ -45,10 +45,9 @@ const UserListPage = () => {
     page: 1,
     pageSize: 10,
     filterMode: 1, //1: Volunteer, 2: Staff, 3: Manager
-    searchKey: '',
     hospitalId: '',
   });
-
+  const [searchParam, setSearchParam] = useState('');
   const [hospitalData, setHospitalData] = useState([]);
 
   const [alert, setAlert] = useState({
@@ -173,11 +172,13 @@ const UserListPage = () => {
   };
 
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, filterMode: value, page: 1, pageSize: 10, searchKey: '' }));
+    setPageState((old) => ({ ...old, filterMode: value, page: 1, pageSize: 10 }));
+    setSearchParam('');
   };
 
   const handleUserSearch = (searchValue) => {
-    setPageState((old) => ({ ...old, page: 1, searchKey: searchValue.searchTerm }));
+    setPageState((old) => ({ ...old, page: 1 }));
+    setSearchParam(searchValue.searchTerm);
   };
 
   const fetchUserListData = useCallback(async () => {
@@ -187,7 +188,7 @@ const UserListPage = () => {
     try {
       const getVolunteerParam = {
         Role: pageState.filterMode,
-        SearchKey: pageState.searchKey,
+        SearchKey: searchParam,
         Page: pageState.page,
         PageSize: pageState.pageSize,
       };
@@ -195,7 +196,7 @@ const UserListPage = () => {
       const getManagerStaffParam = {
         Role: pageState.filterMode,
         HospitalId: pageState.hospitalId,
-        SearchKey: pageState.searchKey,
+        SearchKey: searchParam,
         Page: pageState.page,
         PageSize: pageState.pageSize,
       };
@@ -228,7 +229,7 @@ const UserListPage = () => {
     } finally {
       setPageState((old) => ({ ...old, isLoading: false }));
     }
-  }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.filterMode, pageState.hospitalId]);
+  }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId]);
 
   useEffect(() => {
     fetchUserListData();
@@ -262,6 +263,7 @@ const UserListPage = () => {
           {/* {pageState.filterMode !== 1 && <LazyLoadAutocomplete placeholder="Chọn bệnh viện" loadMore={() => {}} />} */}
           <SearchBar
             sx={{ width: '100%' }}
+            type={pageState.filterMode === 1 ? 'number' : 'text'}
             className="search-bar"
             placeholder={pageState.filterMode === 1 ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
             onSubmit={handleUserSearch}
