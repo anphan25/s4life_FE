@@ -69,6 +69,9 @@ export function convertErrorCodeToMessage(code) {
     8015: 'Cập nhật nhóm máu đang được xử lý',
     8016: 'Tình nguyện viên chưa hiến máu',
     8100: 'Cập nhật nhóm máu thành công',
+
+    //Internal Error
+    5555: 'Có lỗi xảy ra, Vui lòng liên hệ quản trị viên',
   };
   return message[code];
 }

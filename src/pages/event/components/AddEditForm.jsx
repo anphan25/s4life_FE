@@ -151,11 +151,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
         for (const [key, value] of Object.entries(dirtyFields)) {
           editParams[key] = param[key];
         }
-
-        console.log('editParams: ', editParams);
-
-        // return;
-
         await editEvent(editParams);
       } else {
         await createEvent(param);
@@ -186,7 +181,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       endDate: eventEditData?.endDate,
       workingTimeStart: moment(eventEditData?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0),
       workingTimeEnd: moment(eventEditData?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0),
-      maxParticipant: eventEditData?.maxParticipant || 0,
+      maxParticipant: eventEditData?.maxParticipant === MAX_INT ? null : eventEditData?.maxParticipant,
       imageUrls: eventEditData?.imageUrls,
       bloodTypeNeed: eventEditData?.bloodTypeNeed || [],
       locationIDs: eventEditData?.locationIDs || [],
@@ -225,7 +220,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .min(isEmergency ? 1 : 0, 'Vui lòng chọn nhóm máu cần gấp'),
     isEmergency: Yup.boolean(),
     maxParticipant: Yup.number()
-      .transform((value) => (isNaN(value) ? 0 : value))
+      // .transform((value) => (isNaN(value) ? 0 : value))
+      .transform((value) => {
+        if (isNaN(value)) return MAX_INT;
+        return value;
+      })
       .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
       .max(MAX_INT, 'Số nhập vào quá lớn'),
     locationIDs: Yup.array()

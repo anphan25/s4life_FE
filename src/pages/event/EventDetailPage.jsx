@@ -23,10 +23,18 @@ import { HeaderBreadcumbs, CustomSnackBar, CustomDialog } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
-import { DEFAULT_EVENT_IMAGE_URL, MAX_INT, convertBloodTypeLabel, errorHandler, formatDate } from 'utils';
+import {
+  DEFAULT_EVENT_IMAGE_URL,
+  MAX_INT,
+  convertBloodTypeLabel,
+  errorHandler,
+  formatDate,
+  isEventEditableOrCancelable,
+} from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './components/VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { useSelector } from 'react-redux';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -94,8 +102,9 @@ const InfoItemWithIconStyle = styled(Grid)(({ theme }) => ({
   '& .info-item_avt': {
     width: '50px',
     height: '50px',
+    borderRadius: '100%',
 
-    '& img': { width: '100%', height: '100%', objectFit: 'cover' },
+    '& img': { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '100%' },
   },
 
   '& .info-item_icon_item': { width: '100%', height: '100%' },
@@ -115,32 +124,21 @@ const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   },
 }));
 
-const isEventEditableOrCancelable = (status, numberOfRegistration) => {
-  if (status === 'Đã kết thúc' || status === 'Đã bị hủy') {
-    return false;
-  }
-
-  if (numberOfRegistration > 0) {
-    return false;
-  }
-
-  return true;
-};
-
 const EventDetailPage = () => {
   const [detailData, setDetailData] = useState();
-
   const [cancelEventId, setCancelEventId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const { eventId } = useParams();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
+  const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
   const navigate = useNavigate();
+  let user = useSelector((state) => state.auth.auth?.user);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -176,6 +174,10 @@ const EventDetailPage = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
 
+  const handleEditCancelDialog = () => {
+    setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
+  };
+
   const cancelEventDialogContent = () => {
     return (
       <Box>
@@ -203,6 +205,30 @@ const EventDetailPage = () => {
           >
             Hủy sự kiện
           </LoadingButton>
+        </DialogButtonGroup>
+      </Box>
+    );
+  };
+
+  const alertEditCancelDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký
+        </Typography>
+        <Typography sx={{ marginTop: '10px' }}>
+          Vui lòng liên hệ quản trị viên nếu bạn muốn hủy vô điều kiện.
+        </Typography>
+
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleEditCancelDialog();
+            }}
+          >
+            Ok
+          </Button>
         </DialogButtonGroup>
       </Box>
     );
@@ -262,36 +288,51 @@ const EventDetailPage = () => {
                 },
               }}
             >
-              {/* {EventMenuOptions.map((option) => ( */}
               <MenuItem
                 key={1}
+                disabled={
+                  detailData?.status === 'Đã kết thúc' ||
+                  detailData?.status === 'Đã bị hủy' ||
+                  detailData?.isEmergency ||
+                  user.role === 'Admin'
+                }
                 onClick={() => {
                   handleClose();
+                  if (
+                    !isEventEditableOrCancelable(detailData?.numberOfRegistration, detailData?.startDate, user.role, 1)
+                  ) {
+                    handleEditCancelDialog();
+
+                    return;
+                  }
+
                   navigate(`/event/${eventId}/edit`);
                 }}
-                disabled={!isEventEditableOrCancelable(detailData?.status, detailData?.numberOfRegistration)}
               >
-                <Stack
-                  key={1}
-                  onClick={() => {
-                    handleClose();
-                    navigate(`/event/${eventId}/edit`);
-                  }}
-                  direction="row"
-                  spacing={1}
-                  sx={{ alignItems: 'center' }}
-                >
+                <Stack key={1} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <AiFillEdit /> <Typography>Sửa sự kiện</Typography>
                 </Stack>
               </MenuItem>
 
               <MenuItem
                 key={2}
+                disabled={
+                  detailData?.status === 'Đã kết thúc' ||
+                  detailData?.status === 'Đã bị hủy' ||
+                  (detailData?.isEmergency && user.role === 'Manager')
+                }
                 onClick={() => {
                   handleClose();
+
+                  if (
+                    !isEventEditableOrCancelable(detailData?.numberOfRegistration, detailData?.startDate, user.role, 2)
+                  ) {
+                    handleEditCancelDialog();
+
+                    return;
+                  }
                   handleCancelEventDialog();
                 }}
-                disabled={!isEventEditableOrCancelable(detailData?.status, detailData?.numberOfRegistration)}
               >
                 <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <FcCancel /> <Typography>Hủy sự kiện</Typography>
@@ -319,7 +360,7 @@ const EventDetailPage = () => {
               {detailData?.name}
             </Typography>
 
-            <Stack direction="rowSpacing" sx={{ marginTop: '10px' }}>
+            <Stack direction="row" sx={{ marginTop: '10px' }}>
               <StatusTagStyle label={detailData?.status} />
               {detailData?.isEmergency && <EmergencyTagStyle label="Sự kiện khẩn cấp"></EmergencyTagStyle>}
             </Stack>
@@ -444,6 +485,15 @@ const EventDetailPage = () => {
         onClose={handleCancelEventDialog}
         title="Hủy sự kiện"
         children={cancelEventDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
+
+      {/* Alert Edit/Cancel Event Dialog */}
+      <CustomDialog
+        isOpen={isEditCancelAlertOpen}
+        onClose={handleEditCancelDialog}
+        title=""
+        children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
 

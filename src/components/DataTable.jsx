@@ -105,9 +105,16 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
       return targetRow;
     });
 
-    if (field === 'id' || field === 'actions' || field === 'no' || field === 'addDate') {
+    if (
+      field === 'id' ||
+      field === 'actions' ||
+      field === 'no' ||
+      field === 'addDate' ||
+      typeof targetRow[field] === 'boolean'
+    ) {
       return;
     }
+
     const targetCell = targetRow[field];
 
     setValue(targetCell);
