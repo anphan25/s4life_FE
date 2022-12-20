@@ -6,10 +6,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { RHFInput } from 'components';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginFail, loginSuccess } from 'app/slices/AuthSlice';
+import { loginFail, loginSuccess, clearMessage } from 'app/slices/AuthSlice';
 import jwtDecode from 'jwt-decode';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { errorHandler } from 'utils';
+import { useState } from 'react';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string().required('Vui lòng nhập tên đăng nhập'),
@@ -21,6 +22,7 @@ const LoginForm = () => {
     username: '',
     password: '',
   };
+  const [isBtnLoading, setIsBtnLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -32,13 +34,22 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     try {
+      dispatch(clearMessage());
+      setIsBtnLoading(true);
       const res = await loginUserPassword(data);
+      const currentUser = jwtDecode(res.accessToken);
+
+      if (currentUser?.role === 'Staff') {
+        dispatch(loginFail(errorHandler({ response: { status: 403 } })));
+
+        return;
+      }
 
       dispatch(
         loginSuccess({
           accessToken: res.accessToken,
           refreshToken: res.refreshToken,
-          user: jwtDecode(res.accessToken),
+          user: currentUser,
         })
       );
 
@@ -52,9 +63,11 @@ const LoginForm = () => {
       navigate('/');
     } catch (err) {
       dispatch(loginFail(errorHandler(err)));
+    } finally {
+      setIsBtnLoading(false);
     }
   };
-  const { error, isLoading } = useSelector((state) => state.auth);
+  const { error } = useSelector((state) => state.auth);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -71,7 +84,7 @@ const LoginForm = () => {
           {error}
         </FormHelperText>
       )}
-      <LoadingButton variant="contained" type="submit" loading={isLoading}>
+      <LoadingButton variant="contained" type="submit" loading={isBtnLoading}>
         Đăng nhập
       </LoadingButton>
     </form>
