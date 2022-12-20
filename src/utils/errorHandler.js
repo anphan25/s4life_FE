@@ -7,6 +7,7 @@ export function convertErrorCodeToMessage(code) {
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
     1034: 'Tài khoản đã bị vô hiệu',
+    1999: 'Nhân viên bệnh viện không có quyền để truy cập',
 
     //Register
     2031: 'Bệnh viện không tồn tại',
@@ -87,6 +88,9 @@ export const errorHandler = (error) => {
     switch (response?.status) {
       case 403:
         return 'Tài khoản không có quyền truy cập';
+
+      case 500:
+        return 'Đã có lỗi xảy ra, Vui lòng liên hệ quản trị viên.';
 
       default:
         return 'Đã có lỗi xảy ra trong quá trình xử lí';
