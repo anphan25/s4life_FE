@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { cancelEvent } from 'api/EventApi';
-import { formatDate, errorHandler, EDIT_CANCEL_EVENT_VALID_PERIOD } from 'utils';
+import { formatDate, errorHandler, isEventEditableOrCancelable } from 'utils';
 
 import moment from 'moment';
 
@@ -83,18 +83,6 @@ const filterTabValues = [
   { label: 'Đã hủy', value: 4 },
 ];
 
-const isEventEditableOrCancelable = (row) => {
-  if (row.numberOfRegistration > 0) {
-    return false;
-  }
-
-  if (moment(row.startDate).get('date') <= moment().add(EDIT_CANCEL_EVENT_VALID_PERIOD, 'days').get('date')) {
-    return false;
-  }
-
-  return true;
-};
-
 const EventListPage = () => {
   let user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
@@ -147,6 +135,7 @@ const EventListPage = () => {
           return <Typography sx={{ fontWeight: '600' }}>{nameValue.value}</Typography>;
         },
       },
+
       {
         headerName: 'Mã sự kiện',
         field: 'eventCode',
@@ -189,7 +178,12 @@ const EventListPage = () => {
           );
         },
       },
-
+      {
+        headerName: 'Khẩn cấp',
+        type: 'boolean',
+        field: 'isEmergency',
+        width: 80,
+      },
       {
         headerName: 'Số người đăng kí',
         field: 'numberOfRegistration',
@@ -204,14 +198,19 @@ const EventListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            disabled={params.row.status === 'Đã kết thúc' || params.row.status === 'Đã bị hủy' ? true : false}
+            disabled={
+              params.row.status === 'Đã kết thúc' ||
+              params.row.status === 'Đã bị hủy' ||
+              params.row.isEmergency ||
+              user.role === 'Admin'
+            }
             icon={
               <Box sx={{ '& .action-icon': { color: '#FFC700' } }}>
                 <AiFillEdit className="action-icon" />
               </Box>
             }
             onClick={() => {
-              if (!isEventEditableOrCancelable(params.row)) {
+              if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 1)) {
                 handleEditCancelDialog();
                 return;
               }
@@ -222,10 +221,14 @@ const EventListPage = () => {
             showInMenu
           />,
           <GridActionsCellItem
-            disabled={params.row.status === 'Đã kết thúc' || params.row.status === 'Đã bị hủy' ? true : false}
+            disabled={
+              params.row.status === 'Đã kết thúc' ||
+              params.row.status === 'Đã bị hủy' ||
+              (params.row.isEmergency && user.role === 'Manager')
+            }
             icon={<FcCancel />}
             onClick={() => {
-              if (!isEventEditableOrCancelable(params.row)) {
+              if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)) {
                 handleEditCancelDialog();
                 return;
               }
@@ -317,7 +320,10 @@ const EventListPage = () => {
     return (
       <Box>
         <Typography>
-          Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký
+          Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
+        </Typography>
+        <Typography sx={{ marginTop: '10px' }}>
+          Vui lòng liên hệ quản trị viên nếu bạn muốn hủy vô điều kiện.
         </Typography>
 
         <DialogButtonGroup sx={{ marginTop: '10px' }}>
@@ -364,6 +370,7 @@ const EventListPage = () => {
         endDate: data?.endDate,
         numberOfRegistration: data?.numberOfRegistration || 0,
         status: data?.status || '',
+        isEmergency: data?.isEmergency,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {

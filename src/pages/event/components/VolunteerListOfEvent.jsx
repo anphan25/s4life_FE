@@ -20,6 +20,7 @@ import { AiFillEdit } from 'react-icons/ai';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { BLOOD_TYPE, convertBloodTypeLabel } from 'utils';
+import { useSelector } from 'react-redux';
 
 const FilterSectionStyle = styled(Box)(({ theme }) => ({
   justifyContent: 'space-between',
@@ -91,6 +92,7 @@ const VolunteerListOfEvent = () => {
     bloodTypeId: '',
     isRhNegative: '',
   });
+  let user = useSelector((state) => state.auth.auth?.user);
 
   const gridOptions = {
     columns: [
@@ -144,7 +146,7 @@ const VolunteerListOfEvent = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            disabled={pageState.status !== 3}
+            disabled={pageState.status !== 3 || user.role !== 'Manager'}
             icon={
               <Box sx={{ '& .action-icon': { color: 'warning.main' } }}>
                 <AiFillEdit className="action-icon" />
@@ -246,7 +248,7 @@ const VolunteerListOfEvent = () => {
                 await updateBloodType({
                   userInformationId: updateBloodTypeParams.userInformationId,
                   updateMode: 1,
-                  volunteerBloodType: {
+                  volunteerBloodTypeUpdationInformation: {
                     eventId: eventId,
                     bloodType: updateBloodTypeParams.bloodTypeId,
                     isRhNegative: updateBloodTypeParams.isRhNegative,
