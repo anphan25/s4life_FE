@@ -1,5 +1,7 @@
 export function convertErrorCodeToMessage(code) {
   const message = {
+    //Firebase
+    10001: 'Tải ảnh thất bại, Vui lòng liên hệ quản trị viên',
     //Login
     1003: 'Quyền truy cập bị giới hạn',
     1004: 'Thông tin đăng nhập không chính xác',

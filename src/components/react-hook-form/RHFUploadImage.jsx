@@ -70,7 +70,8 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
   const [errorFileContent, setErrorFileContent] = useState([]);
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': [],
+      'image/jpeg': [],
+      'image/png': [],
     },
     maxSize: 3000000,
     maxFiles: 1,
@@ -240,8 +241,6 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
                       type="file"
                       inputRef={editImgRef}
                       id={name}
-                      // {...field}
-                      // {...props}
                       {...getInputProps()}
                     />
                   </FormControl>
