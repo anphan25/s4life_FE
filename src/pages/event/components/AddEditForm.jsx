@@ -199,18 +199,27 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại liên hệ không hợp lệ', excludeEmptyString: false })
       .required('Vui lòng nhập số điện thoại liên hệ'),
     startDate: Yup.date()
-      .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc')
-      .required('Vui lòng nhập ngày bắt đầu'),
+      .required('Vui lòng nhập ngày bắt đầu')
+      .nullable()
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
+      .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc'),
     endDate: Yup.date()
       .min(Yup.ref('startDate'), 'Ngày kết thúc phải trước ngày bắt đầu')
-      .required('Vui lòng nhập ngày kết thúc'),
+      .required('Vui lòng nhập ngày kết thúc')
+      .nullable()
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
     workingTimeStart: Yup.date()
       .max(Yup.ref('workingTimeEnd'), 'Giờ bắt đầu phải trước giờ kết thúc')
-      .required('Vui lòng nhập giờ bắt đầu làm việc'),
+      .required('Vui lòng nhập giờ bắt đầu làm việc')
+      .nullable()
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
     workingTimeEnd: Yup.date()
       .min(Yup.ref('workingTimeStart'), 'Giờ kết thúc phải trước giờ bắt đầu')
       .required('Vui lòng nhập giờ kết thúc làm việc'),
-    eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
+    eventCode: Yup.string()
+      .required('Vui lòng nhập mã sự kiện')
+      .nullable()
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
     bloodTypeNeed: Yup.array()
       .of(
         Yup.object().shape({
