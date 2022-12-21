@@ -45,16 +45,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     type: 'success',
   });
 
-  console.log('eventEditData: ', eventEditData);
-
   const uploadImage = async (data) => {
     const filePath = `event-images/`;
 
     const name = uuidv4();
     const storageRef = await ref(storage, `${filePath}/${name}`);
-    const metadata = {
-      contentType: imgUploadFile.type,
-    };
 
     if (!imgUploadFile) {
       return;
@@ -65,7 +60,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       'state_changed',
       (snapshot) => {},
       (error) => {
-        console.log(error);
+        setAlert({ message: errorHandler({ response: { data: { code: 10001 } } }), type: 'error', status: true });
       },
       () => {
         if (isEdit && data?.imageUrls[0] !== DEFAULT_EVENT_IMAGE_URL) {
@@ -76,7 +71,9 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
           // Delete the file
           deleteObject(desertRef)
             .then(() => {})
-            .catch((error) => {});
+            .catch((error) => {
+              setAlert({ message: errorHandler({ response: { data: { code: 10001 } } }), type: 'error', status: true });
+            });
         }
         getDownloadURL(uploadTask.snapshot.ref)
           .then((downloadURL) => {
@@ -110,11 +107,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       return;
     }
     setImgUploadFile(null);
-
-    console.log('dirtyField: ', dirtyFields);
-
-    console.log('final data: ', data);
-
     addEditEventHandler(data);
   };
 
@@ -148,6 +140,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       if (isEdit) {
         const editParams = {};
         editParams['id'] = eventId;
+        editParams['imageUrls'] = param.imageUrls;
 
         for (const [key, value] of Object.entries(dirtyFields)) {
           editParams[key] = param[key];
@@ -176,6 +169,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   const editDefaultValues = useMemo(
     () => ({
       name: eventEditData?.name || '',
+      description: eventEditData?.description || '',
       eventCode: eventEditData?.eventCode || '',
       contactInformation: eventEditData?.contactInformation || '',
       startDate: eventEditData?.startDate,
@@ -215,11 +209,10 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
     workingTimeEnd: Yup.date()
       .min(Yup.ref('workingTimeStart'), 'Giờ kết thúc phải trước giờ bắt đầu')
-      .required('Vui lòng nhập giờ kết thúc làm việc'),
-    eventCode: Yup.string()
-      .required('Vui lòng nhập mã sự kiện')
+      .required('Vui lòng nhập giờ kết thúc làm việc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
+    eventCode: Yup.string(),
     bloodTypeNeed: Yup.array()
       .of(
         Yup.object().shape({
@@ -230,7 +223,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .min(isEmergency ? 1 : 0, 'Vui lòng chọn nhóm máu cần gấp'),
     isEmergency: Yup.boolean(),
     maxParticipant: Yup.number()
-      // .transform((value) => (isNaN(value) ? 0 : value))
       .transform((value) => {
         if (isNaN(value)) return MAX_INT;
         return value;
@@ -293,11 +285,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     }
     return moment().add(1, 'days');
   };
-  const startDateParamChange = (e, value) => {
-    // console.log('start: ', e.target.value);
-    console.log('hehehe');
-    // setStartDateState(e.target.value);
-  };
 
   useEffect(() => {
     if (isEdit && eventEditData) {
@@ -326,7 +313,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   label="Mô tả"
                   control={control}
                   placeholder="Nhập mô tả"
-                  defaultValue={eventEditData?.description}
                 />
 
                 <RHFUploadImage
@@ -437,20 +423,23 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
 
                 <Stack direction="row" spacing={2}>
                   <RHFTimePicker
+                    mask="__:__"
                     isRequiredLabel={true}
                     name="workingTimeStart"
                     control={control}
                     label="Giờ bắt đầu"
                     placeholder="Nhập giờ bắt đầu"
+                    disableMinutes={false}
                     minTime={
                       isEmergency && moment(startDateState).isSame(moment(), 'dates') && moment().add(1, 'hours')
                     }
-                    shouldDisableTime={() => {
+                    shouldDisableTime={(timeValue, clockType) => {
                       return false;
                     }}
                   />
 
                   <RHFTimePicker
+                    mask="__:__"
                     isRequiredLabel={true}
                     name="workingTimeEnd"
                     control={control}

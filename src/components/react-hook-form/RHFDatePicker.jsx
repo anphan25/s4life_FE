@@ -1,6 +1,6 @@
 import { FormControl, FormHelperText, FormLabel, TextField, styled } from '@mui/material';
 import React from 'react';
-import { DesktopDatePicker, DatePicker } from '@mui/x-date-pickers';
+import { DatePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
 
 export const RHFDatePicker = ({

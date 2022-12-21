@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import { FormControl, FormHelperText, InputLabel, styled, Box } from '@mui/material';
+import { FormControl, FormHelperText, InputLabel, styled } from '@mui/material';
 import { Controller } from 'react-hook-form';
+import { useState } from 'react';
 
 export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, field, defaultValue, ...props }) => {
   const editorRef = useRef(null);
@@ -14,7 +15,7 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
     <Controller
       name={name}
       control={control}
-      render={({ field, fieldState: { error } }) => (
+      render={({ field: { onChange, ...field }, fieldState: { error } }) => (
         <FormControl sx={{ mb: 2 }} fullWidth>
           <InputLabel
             sx={{
@@ -35,13 +36,9 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
             className="editor"
             id={name}
             {...field}
-            // {...props}
+            {...props}
             initialValue={defaultValue || ''}
-            onChange={(e) => {
-              if (editorRef.current) {
-                field.onChange(editorRef.current.getContent());
-              }
-            }}
+            onEditorChange={onChange}
             onInit={(evt, editor) => (editorRef.current = editor)}
             apiKey={process.env.REACT_APP_TINYMCE_API_KEY}
             init={{
@@ -61,7 +58,6 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
                 'insertdatetime',
                 'media',
                 'wordcount',
-                // 'quickbars',
                 'autoresize',
               ],
               toolbar:

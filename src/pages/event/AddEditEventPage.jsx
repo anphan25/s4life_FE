@@ -5,7 +5,6 @@ import { getEventDetailByEventId } from 'api';
 import AddEditForm from './components/AddEditForm';
 import { useParams } from 'react-router-dom';
 import { errorHandler } from 'utils';
-import moment from 'moment';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
