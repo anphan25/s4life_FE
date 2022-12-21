@@ -3,7 +3,16 @@ import React from 'react';
 import { DesktopDatePicker, DatePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
 
-export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLabel, defaultValue, ...props }) => {
+export const RHFDatePicker = ({
+  name,
+  control,
+  label,
+  placeholder,
+  isRequiredLabel,
+  defaultValue,
+  onChange,
+  ...props
+}) => {
   const HeaderMainStyle = styled('span')(({ theme }) => ({
     color: theme.palette.error.main,
   }));
@@ -21,6 +30,11 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
           <DatePicker
             id={name}
             {...props}
+            {...field}
+            onChange={(value) => {
+              field.onChange(value);
+              onChange(value);
+            }}
             renderInput={(params) => (
               <TextField
                 error={!!error}
@@ -31,7 +45,6 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
                 }}
               />
             )}
-            {...field}
           />
 
           {!!error && (

@@ -21,9 +21,6 @@ export const RHFTimePicker = ({ name, control, label, placeholder, isRequiredLab
           <TimePicker
             id={name}
             {...props}
-            // onChange={(newValue) => {
-            //   field.onChange(newValue);
-            // }}
             renderInput={(params) => (
               <TextField
                 error={!!error}

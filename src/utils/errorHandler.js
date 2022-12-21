@@ -7,7 +7,6 @@ export function convertErrorCodeToMessage(code) {
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
     1034: 'Tài khoản đã bị vô hiệu',
-    1999: 'Nhân viên bệnh viện không có quyền để truy cập',
 
     //Register
     2031: 'Bệnh viện không tồn tại',
@@ -23,7 +22,6 @@ export function convertErrorCodeToMessage(code) {
 
     //Event
     4001: 'Không thể tạo sự kiện hiến máu tuần này',
-    4011: 'Thời gian sự kiện không hợp lệ',
     4002: 'Thiếu ngày bắt đầu và ngày kết thúc',
     4003: 'Sửa và hủy sự kiện phải trước ngày bắt đầu 3 ngày',
     4004: 'Sự kiện không tìm thấy',

@@ -37,6 +37,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   const [isEmergency, setIsEmergency] = useState(false);
   const navigate = useNavigate();
   const { eventId } = useParams();
+  const [startDateState, setStartDateState] = useState();
 
   const [alert, setAlert] = useState({
     message: '',
@@ -283,6 +284,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     }
     return moment().add(1, 'days');
   };
+  const startDateParamChange = (e, value) => {
+    // console.log('start: ', e.target.value);
+    console.log('hehehe');
+    // setStartDateState(e.target.value);
+  };
 
   useEffect(() => {
     if (isEdit && eventEditData) {
@@ -291,7 +297,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     if (!isEdit) {
       reset(defaultValues);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, eventEditData]);
 
   useEffect(() => {
@@ -405,6 +410,9 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     label="Ngày bắt đầu"
                     placeholder="Nhập ngày bắt đầu"
                     minDate={minDateHandler()}
+                    onChange={(value) => {
+                      setStartDateState(value);
+                    }}
                   />
                   <RHFDatePicker
                     disablePast
@@ -414,6 +422,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     label="Ngày kết thúc"
                     placeholder="Nhập ngày kết thúc"
                     minDate={minDateHandler()}
+                    onChange={() => {}}
                   />
                 </Stack>
 
@@ -424,6 +433,12 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     control={control}
                     label="Giờ bắt đầu"
                     placeholder="Nhập giờ bắt đầu"
+                    minTime={
+                      isEmergency && moment(startDateState).isSame(moment(), 'dates') && moment().add(1, 'hours')
+                    }
+                    shouldDisableTime={() => {
+                      return false;
+                    }}
                   />
 
                   <RHFTimePicker
