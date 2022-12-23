@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
 import { CustomSnackBar } from 'components';
 import { useForm } from 'react-hook-form';
@@ -37,7 +37,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   const [isEmergency, setIsEmergency] = useState(false);
   const navigate = useNavigate();
   const { eventId } = useParams();
-  const startDateInputRef = useRef(null);
 
   const [alert, setAlert] = useState({
     message: '',
@@ -443,7 +442,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     label="Ngày bắt đầu"
                     placeholder="Nhập ngày bắt đầu"
                     minDate={minDateHandler()}
-                    inputRef={startDateInputRef}
                   />
                   <RHFDatePicker
                     disablePast
@@ -464,7 +462,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     control={control}
                     label="Giờ bắt đầu"
                     placeholder="Nhập giờ bắt đầu"
-                    disableMinutes={false}
                   />
 
                   <RHFTimePicker
