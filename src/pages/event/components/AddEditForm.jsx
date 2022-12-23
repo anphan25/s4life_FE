@@ -465,12 +465,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     label="Giờ bắt đầu"
                     placeholder="Nhập giờ bắt đầu"
                     disableMinutes={false}
-                    minTime={
-                      isEmergency && moment(startDateState).isSame(moment(), 'dates') && moment().add(1, 'hours')
-                    }
-                    shouldDisableTime={(timeValue, clockType) => {
-                      return false;
-                    }}
                   />
 
                   <RHFTimePicker
