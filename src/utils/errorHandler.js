@@ -36,7 +36,9 @@ export function convertErrorCodeToMessage(code) {
     4041: 'Khu vực tổ chức sự kiện không hợp lệ',
     4051: 'Không nằm trong khung thời gian sự kiện',
     4061: 'Không sửa được sự kiện theo lịch làm việc của bệnh viện',
-    4071: 'Thời gian bắt đầu và thời gian kết thúc phải cách nhau 1 giờ',
+    4081: 'Sự kiện hiến máu khẩn cấp phải bao gồm nhóm máu cần',
+    4091: 'Yêu cầu tạo sự kiện hiến máu không hợp lệ',
+    4101: 'Thời gian bắt đầu và thời gian kết thúc phải cách nhau 1 giờ',
 
     //Blood Donation Approval
 

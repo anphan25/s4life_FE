@@ -1,4 +1,5 @@
 import { Tabs, Tab, Stack } from '@mui/material';
+import React from 'react';
 
 export const FilterTab = ({ tabs, sx, defaultValue, onChangeTab, ...props }) => {
   return (

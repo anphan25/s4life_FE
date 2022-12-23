@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Stack, MenuItem, Paper, Grid, Button, Box } from '@mui/material';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
 import { CustomSnackBar } from 'components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -37,7 +37,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
   const [isEmergency, setIsEmergency] = useState(false);
   const navigate = useNavigate();
   const { eventId } = useParams();
-  const [startDateState, setStartDateState] = useState();
+  const startDateInputRef = useRef(null);
 
   const [alert, setAlert] = useState({
     message: '',
@@ -91,7 +91,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
 
     data.imageUrls = isEdit ? new Array(eventEditData?.imageUrls) : new Array(DEFAULT_EVENT_IMAGE_URL);
     data.contactInformation = data.contactInformation.replace(/ +/g, '');
-    data.bloodTypeNeed = data.bloodTypeNeed.length > 0 ? data.bloodTypeNeed : null;
+    data.bloodTypeNeed = data.bloodTypeNeed.length > 0 && isEmergency ? data.bloodTypeNeed : null;
     data.minParticipant = 0;
     data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
     data.permanentEventType = 1;
@@ -185,6 +185,19 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     [eventEditData]
   );
 
+  //Custom Validation
+  Yup.addMethod(Yup.date, 'validTimeDuration', function (errorMessage) {
+    return this.test(`test-valid-time-duration`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const workingTimeStart = context.parent.workingTimeStart;
+      const workingTimeEnd = context.parent.workingTimeEnd;
+      return (
+        moment(workingTimeStart).format('HH:mm') <= moment(workingTimeEnd).subtract(1, 'hours').format('HH:mm') ||
+        createError({ path, message: errorMessage })
+      );
+    });
+  });
+
   const AddEventSchema = Yup.object().shape({
     name: Yup.string().required('Vui lòng nhập tên').max(128, 'Tên không được dài quá 128 kí tự'),
     description: Yup.string().required('Vui lòng nhập mô tả').max(512, 'Mô tả không được dài quá 512 kí tự'),
@@ -206,12 +219,32 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .max(Yup.ref('workingTimeEnd'), 'Giờ bắt đầu phải trước giờ kết thúc')
       .required('Vui lòng nhập giờ bắt đầu làm việc')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
+      .test(
+        'min startTime of emergency event',
+        `Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại 1 giờ`,
+        (value) => {
+          if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
+            return moment(value).format('HH:mm') >= moment().add(1, 'hour').format('HH:mm');
+          }
+
+          return true;
+        }
+      )
+      .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
     workingTimeEnd: Yup.date()
       .min(Yup.ref('workingTimeStart'), 'Giờ kết thúc phải trước giờ bắt đầu')
       .required('Vui lòng nhập giờ kết thúc làm việc')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
+      .test('min startTime of emergency event', `Thời gian kết thúc phải lớn hơn thời gian hiện tại`, (value) => {
+        if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
+          return moment(value).format('HH:mm') > moment().format('HH:mm');
+        }
+
+        return true;
+      })
+      .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
     eventCode: Yup.string(),
     bloodTypeNeed: Yup.array()
       .of(
@@ -247,8 +280,8 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     description: '',
     startDate: isEmergency ? moment() : moment().add(1, 'days'),
     endDate: isEmergency ? moment() : moment().add(1, 'days'),
-    workingTimeStart: new Date(),
-    workingTimeEnd: new Date(),
+    workingTimeStart: moment(),
+    workingTimeEnd: moment(),
     bloodTypeNeed: [],
     locationIDs: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
@@ -378,6 +411,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     onCheck={onChangeCheckBox}
                   />
                 </Stack>
+                {isEmergency && (
+                  <Typography sx={{ color: 'primary.main' }}>
+                    *Lưu ý: Sự kiện khẩn cấp sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính xác
+                  </Typography>
+                )}
 
                 <RHFAutoComplete
                   isRequiredLabel={true}
@@ -405,9 +443,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     label="Ngày bắt đầu"
                     placeholder="Nhập ngày bắt đầu"
                     minDate={minDateHandler()}
-                    onChange={(value) => {
-                      setStartDateState(value);
-                    }}
+                    inputRef={startDateInputRef}
                   />
                   <RHFDatePicker
                     disablePast
@@ -417,7 +453,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     label="Ngày kết thúc"
                     placeholder="Nhập ngày kết thúc"
                     minDate={minDateHandler()}
-                    onChange={() => {}}
                   />
                 </Stack>
 
@@ -478,9 +513,10 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
           </Grid>
         </Grid>
       </form>
+
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </>
   );
 };
 
-export default AddEditForm;
+export default React.memo(AddEditForm);
