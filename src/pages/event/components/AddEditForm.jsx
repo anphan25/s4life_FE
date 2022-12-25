@@ -31,7 +31,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 
-const AddEditForm = ({ isEdit, eventEditData }) => {
+const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
   const [locations, setLocations] = useState([]);
   const [locationDetail, setLocationDetail] = useState(
     isEdit
@@ -39,12 +39,11 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
           longitude: eventEditData?.locations?.longitude * 1,
           latitude: eventEditData?.locations?.latitude * 1,
         }
-      : null
+      : ''
   );
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isEmergency, setIsEmergency] = useState(false);
-  const [placeId, setPlaceId] = useState('');
   const navigate = useNavigate();
   const { eventId } = useParams();
 
@@ -382,12 +381,9 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   defaultValue={
                     isEdit
                       ? {
-                          name: eventEditData?.locations.name || '',
-                          address: eventEditData?.locations.address || '',
+                          name: eventEditData?.locations?.name,
+                          address: eventEditData?.locations?.address,
                           placeId: '',
-                          // name: 'Huhuhuhuhu',
-                          // address: 'huhuhuh',
-                          // placeId: '',
                         }
                       : ''
                   }
@@ -400,7 +396,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   onInput={handleLocationSearch}
                   onSelect={handleSelectLocation}
                   getOptionLabel={(option) => {
-                    // if (isEdit) return eventEditData?.locations.name;
                     return option.name || '';
                   }}
                   renderOption={(props, option) => (
@@ -471,7 +466,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     isLazyLoad={false}
                     onScrollToBottom={() => {}}
                     disabled={isEdit ? true : !isEmergency}
-                    // options={BLOOD_TYPE}
                     list={BLOOD_TYPE}
                     name="bloodTypeNeed"
                     label="Nhóm máu cần gấp"
@@ -501,23 +495,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     </Typography>
                   </Box>
                 )}
-
-                {/* <RHFAutoComplete
-                  isRequiredLabel={true}
-                  isLazyLoad={true}
-                  list={locations || []}
-                  name="locationIDs"
-                  label="Địa điểm tổ chức"
-                  control={control}
-                  onScrollToBottom={getMoreLocations}
-                  placeholder="Chọn địa điểm tổ chức"
-                  getOptionLabel={(option) => option.name || ''}
-                  renderOption={(props, option) => (
-                    <MenuItem key={uuidv4()} value={option} {...props}>
-                      {option.name}
-                    </MenuItem>
-                  )}
-                /> */}
 
                 <Stack spacing={2} direction="row">
                   <RHFDatePicker

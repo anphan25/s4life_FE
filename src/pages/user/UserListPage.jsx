@@ -1,10 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Paper, Box, styled, Stack } from '@mui/material';
-import { DataTable, FilterTab, SearchBar, CustomSnackBar, LazyLoadAutocompleteFilter } from 'components';
+import { Paper, Box, styled, Stack, MenuItem, Button } from '@mui/material';
+import { HiPlus } from 'react-icons/hi';
+import {
+  DataTable,
+  FilterTab,
+  SearchBar,
+  CustomSnackBar,
+  CustomDialog,
+  RHFPasswordInput,
+  HeaderBreadcumbs,
+  RHFInput,
+  RHFAutoComplete,
+  RHFSelect,
+} from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { FcKey } from 'react-icons/fc';
-import { errorHandler, convertBloodTypeLabel, formatDate } from 'utils';
-import { getUsers, getHospitalsList } from 'api';
+import { errorHandler, convertBloodTypeLabel, formatDate, PASSWORD_PATTERN } from 'utils';
+import { getUsers, changePassword } from 'api';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 
 const FilterSectionStyle = styled(Box)(({ theme }) => ({
   justifyContent: 'space-between',
@@ -31,6 +47,23 @@ const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   },
 }));
 
+const HeaderMainStyle = styled(Stack)(({ theme }) => ({
+  marginBottom: '20px',
+  justifyContent: 'space-between',
+
+  flexDirection: 'row',
+
+  [theme.breakpoints.up('sm')]: {
+    alignItems: 'center',
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    justifyContent: 'start',
+    gap: '20px',
+  },
+}));
+
 const filterTabValues = [
   { label: 'Tình nguyện viên', value: 1 },
   { label: 'Quản lý bệnh viện', value: 3 },
@@ -48,13 +81,23 @@ const UserListPage = () => {
     hospitalId: '',
   });
   const [searchParam, setSearchParam] = useState('');
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [hospitalData, setHospitalData] = useState([]);
+  const [changePassWordUserName, setChangePassWordUserName] = useState();
+  const [changePassWordId, setChangePassWordId] = useState();
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
+
+  const roleList = [
+    { label: 'Nhân viên', value: 2 },
+    { label: 'Quản lý viên', value: 3 },
+  ];
 
   const volunteerGridOptions = {
     columns: [
@@ -107,17 +150,6 @@ const UserListPage = () => {
         type: 'string',
         width: 100,
       },
-
-      // {
-      //   field: 'actions',
-      //   type: 'actions',
-      //   width: 50,
-      //   sortable: false,
-      //   filterable: false,
-      //   getActions: (params) => [
-      //     <GridActionsCellItem icon={<FcKey />} onClick={() => {}} label="Đổi mật khẩu" showInMenu />,
-      //   ],
-      // },
     ],
     pageState: pageState,
   };
@@ -156,7 +188,16 @@ const UserListPage = () => {
         sortable: false,
         filterable: false,
         getActions: (params) => [
-          <GridActionsCellItem icon={<FcKey />} onClick={() => {}} label="Đổi mật khẩu" showInMenu />,
+          <GridActionsCellItem
+            icon={<FcKey />}
+            onClick={() => {
+              setChangePassWordUserName(params.row.userName);
+              setChangePassWordId(params.row.id);
+              handleChangePasswordDialog();
+            }}
+            label="Đổi mật khẩu"
+            showInMenu
+          />,
         ],
       },
     ],
@@ -179,6 +220,152 @@ const UserListPage = () => {
   const handleUserSearch = (searchValue) => {
     setPageState((old) => ({ ...old, page: 1 }));
     setSearchParam(searchValue.searchTerm);
+  };
+
+  const handleChangePasswordDialog = () => {
+    setIsChangePasswordOpen(!isChangePasswordOpen);
+  };
+
+  const handleAddUserDialog = () => {
+    setIsAddUserOpen(!isAddUserOpen);
+  };
+
+  const ChangePasswordSchema = Yup.object().shape({
+    newPassword: Yup.string()
+      .required('Vui lòng nhập mật khẩu hiện tại.')
+      .matches(PASSWORD_PATTERN, {
+        message:
+          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
+        excludeEmptyString: false,
+      })
+      .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
+    confirmPassword: Yup.string()
+      .required('Vui lòng nhập mật khẩu hiện tại')
+      .matches(PASSWORD_PATTERN, {
+        message:
+          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
+        excludeEmptyString: false,
+      })
+      .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
+  });
+
+  const { handleSubmit: handleChangePasswordSubmit, control: changePasswordControl } = useForm({
+    resolver: yupResolver(ChangePasswordSchema),
+    mode: 'onChange',
+  });
+
+  const { handleSubmit: handleAddUserSubmit, control: addUserControl } = useForm({
+    // resolver: yupResolver(ChangePasswordSchema),
+    mode: 'onChange',
+  });
+
+  const onChangePasswordSubmit = async (data) => {
+    setAlert({});
+    setIsButtonLoading(true);
+
+    try {
+      data.changeMode = 1;
+      data.userId = changePassWordId;
+      await changePassword(data);
+      setAlert({
+        message: 'Thay đổi mật khẩu thành công.',
+        status: true,
+        type: 'success',
+      });
+      data.currentPassword = '';
+      data.changePassword = '';
+      data.confirmPassword = '';
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      handleChangePasswordDialog();
+      setIsButtonLoading(false);
+    }
+  };
+
+  const onAddUserSubmit = async () => {};
+
+  const changePasswordDialogContent = () => {
+    return (
+      <Box>
+        <form onSubmit={handleChangePasswordSubmit(onChangePasswordSubmit)}>
+          <RHFPasswordInput
+            label="Mật khẩu mới"
+            name="newPassword"
+            control={changePasswordControl}
+            placeholder="Nhập mật khẩu mới"
+            isRequiredLabel={true}
+          />
+          <RHFPasswordInput
+            label="Nhập lại mật khẩu"
+            name="confirmPassword"
+            control={changePasswordControl}
+            placeholder="Nhập lại mật khẩu"
+            isRequiredLabel={true}
+          />
+          <Stack>
+            <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
+              <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
+                Cập nhật
+              </LoadingButton>
+            </Box>
+          </Stack>
+        </form>
+      </Box>
+    );
+  };
+
+  const addUserDialogContent = () => {
+    return (
+      <Box>
+        <form onSubmit={handleAddUserSubmit(onAddUserSubmit)}>
+          <Stack direction="row" spacing={2}>
+            {/* <RHFAutoComplete
+              control={addUserControl}
+              label="Bệnh viện"
+              isRequiredLabel={true}
+              list={[]}
+              onScrollToBottom={() => {}}
+            />
+            <RHFSelect name="role" label="Chọn vai trò" control={addUserControl} isRequiredLabel={true}>
+              {roleList.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </RHFSelect> */}
+          </Stack>
+          <RHFInput
+            label="tên tài khoản"
+            name="username"
+            control={addUserControl}
+            placeholder="Nhập mật khẩu"
+            isRequiredLabel={true}
+          />
+          <RHFInput
+            label="Mật khẩu"
+            name="password"
+            control={addUserControl}
+            placeholder="Nhập mật khẩu"
+            isRequiredLabel={true}
+          />
+          <RHFPasswordInput
+            label="Nhập lại mật khẩu"
+            name="confirmPassword"
+            control={addUserControl}
+            placeholder="Nhập lại mật khẩu"
+            isRequiredLabel={true}
+          />
+          <Stack>
+            <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
+              <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
+                Cập nhật
+              </LoadingButton>
+            </Box>
+          </Stack>
+        </form>
+      </Box>
+    );
   };
 
   const fetchUserListData = useCallback(async () => {
@@ -245,42 +432,72 @@ const UserListPage = () => {
   // }, []);
 
   return (
-    <Paper elevation={1} sx={{ borderRadius: '20px' }}>
-      <FilterSectionStyle>
-        <FilterTab
-          sx={{
-            padding: '10px 20px 0',
-            borderTopLeftRadius: '20px',
-            borderTopRightRadius: '20px',
-            backgroundColor: '#F4F6F8',
-          }}
-          tabs={filterTabValues}
-          onChangeTab={handleFilterTabChange}
-          defaultValue={pageState.filterMode}
+    <>
+      <HeaderMainStyle>
+        <HeaderBreadcumbs
+          heading="Danh sách người dùng"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách người dùng' }]}
         />
 
-        <InputFilterSectionStyle>
-          {/* {pageState.filterMode !== 1 && <LazyLoadAutocomplete placeholder="Chọn bệnh viện" loadMore={() => {}} />} */}
-          <SearchBar
-            sx={{ width: '100%' }}
-            type={pageState.filterMode === 1 ? 'number' : 'text'}
-            className="search-bar"
-            placeholder={pageState.filterMode === 1 ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
-            onSubmit={handleUserSearch}
+        <Button startIcon={<HiPlus />} variant="contained" onClick={handleAddUserDialog}>
+          Thêm người dùng
+        </Button>
+      </HeaderMainStyle>
+      <Paper elevation={1} sx={{ borderRadius: '20px' }}>
+        <FilterSectionStyle>
+          <FilterTab
+            sx={{
+              padding: '10px 20px 0',
+              borderTopLeftRadius: '20px',
+              borderTopRightRadius: '20px',
+              backgroundColor: '#F4F6F8',
+            }}
+            tabs={filterTabValues}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.filterMode}
           />
-        </InputFilterSectionStyle>
-      </FilterSectionStyle>
 
-      <DataTable
-        density="comfortable"
-        gridOptions={pageState.filterMode === 1 ? volunteerGridOptions : managerStaffGridOptions}
-        onPageChange={pageChangeHandler}
-        onPageSizeChange={pageSizeChangeHandler}
-        disableFilter={true}
-      />
+          <InputFilterSectionStyle>
+            {/* {pageState.filterMode !== 1 && <LazyLoadAutocomplete placeholder="Chọn bệnh viện" loadMore={() => {}} />} */}
+            <SearchBar
+              sx={{ width: '100%' }}
+              type={pageState.filterMode === 1 ? 'number' : 'text'}
+              className="search-bar"
+              placeholder={pageState.filterMode === 1 ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
+              onSubmit={handleUserSearch}
+            />
+          </InputFilterSectionStyle>
+        </FilterSectionStyle>
 
-      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-    </Paper>
+        <DataTable
+          density="comfortable"
+          gridOptions={pageState.filterMode === 1 ? volunteerGridOptions : managerStaffGridOptions}
+          onPageChange={pageChangeHandler}
+          onPageSizeChange={pageSizeChangeHandler}
+          disableFilter={true}
+        />
+
+        {/* Change Password Dialog */}
+        <CustomDialog
+          isOpen={isChangePasswordOpen}
+          onClose={handleChangePasswordDialog}
+          title={`Đổi mật khẩu cho tài khoản ${changePassWordUserName}`}
+          children={changePasswordDialogContent()}
+          sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        />
+
+        {/* Add User Dialog */}
+        <CustomDialog
+          isOpen={isAddUserOpen}
+          onClose={handleAddUserDialog}
+          title={`Tạo tài khoản`}
+          children={addUserDialogContent()}
+          sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        />
+
+        {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+      </Paper>
+    </>
   );
 };
 

@@ -5,9 +5,15 @@ import MapGL, { Marker, FlyToInterpolator } from '@goongmaps/goong-map-react';
 import Pin from './Pin';
 
 const GoongMap = ({ locationDetail }) => {
+  // console.log('locationDetail: ', locationDetail);
+  const latitudeNumber = locationDetail?.latitude * 1;
+  const longitudeNumber = locationDetail?.longitude * 1;
+
+  console.log(`${latitudeNumber} - ${longitudeNumber}`);
+
   const [viewport, setViewport] = useState({
-    latitude: locationDetail?.latitude || 10.756407,
-    longitude: locationDetail?.longitude || 106.6636929,
+    latitude: latitudeNumber || 10.756407,
+    longitude: longitudeNumber || 106.6636929,
     zoom: 14,
     bearing: 0,
     pitch: 0,
@@ -15,8 +21,8 @@ const GoongMap = ({ locationDetail }) => {
     transitionInterpolator: new FlyToInterpolator(),
   });
   const [marker, setMarker] = useState({
-    latitude: locationDetail?.latitude || 10.756407,
-    longitude: locationDetail?.longitude || 106.6636929,
+    latitude: latitudeNumber || 10.756407,
+    longitude: longitudeNumber || 106.6636929,
   });
 
   const handleViewAndMarker = () => {
@@ -24,11 +30,11 @@ const GoongMap = ({ locationDetail }) => {
       return;
     }
     setMarker({
-      latitude: locationDetail?.latitude,
-      longitude: locationDetail?.longitude,
+      latitude: latitudeNumber,
+      longitude: longitudeNumber,
     });
 
-    setViewport((pre) => ({ ...pre, latitude: locationDetail?.latitude, longitude: locationDetail?.longitude }));
+    setViewport((pre) => ({ ...pre, latitude: latitudeNumber, longitude: longitudeNumber }));
   };
 
   const handleViewportChange = (viewport) => {

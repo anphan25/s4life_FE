@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginUserPassword } from 'api/AuthApi';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { RHFInput } from 'components';
+import { RHFInput, RHFPasswordInput } from 'components';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginFail, loginSuccess, clearMessage } from 'app/slices/AuthSlice';
 import jwtDecode from 'jwt-decode';
@@ -78,7 +78,13 @@ const LoginForm = () => {
         placeholder="Nhập tên đăng nhập"
         sx={{ marginBottom: '24px' }}
       />
-      <RHFInput name="password" label="Mật khẩu" control={control} placeholder="Nhập mật khẩu" type="password" />
+      <RHFPasswordInput
+        name="password"
+        label="Mật khẩu"
+        control={control}
+        placeholder="Nhập mật khẩu"
+        type="password"
+      />
       {error && (
         <FormHelperText error sx={{ mt: 0, mb: 2 }}>
           {error}
