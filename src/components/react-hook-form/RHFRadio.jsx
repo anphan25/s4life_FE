@@ -2,7 +2,7 @@ import { FormControl, FormControlLabel, styled, FormHelperText, FormLabel, Radio
 import React from 'react';
 import { Controller } from 'react-hook-form';
 
-const HeaderMainStyle = styled('span')(({ theme }) => ({
+const RequireLabel = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
 }));
 
@@ -15,7 +15,7 @@ export const RHFRadio = ({ control, label, name, options, isRequiredLabel, ...pr
         <FormControl sx={{ mb: 1.5 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
+            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
           </FormLabel>
           <RadioGroup {...field} {...props} row>
             {options.map((option) => (

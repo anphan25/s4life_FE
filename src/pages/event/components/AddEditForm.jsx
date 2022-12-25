@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
+import { Stack, MenuItem, Paper, Grid, Button, Box, Typography, TextField } from '@mui/material';
 import { CustomSnackBar } from 'components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,8 +12,9 @@ import {
   RHFTimePicker,
   RHFUploadImage,
   RHFCheckbox,
+  RHFAsyncAutoComplete,
 } from 'components';
-import { getLocations, createEvent, editEvent } from 'api';
+import { getLocations, createEvent, editEvent, getLocationByPlaceId, getLocationByInput } from 'api';
 import {
   MAX_INT,
   convertBloodTypeLabel,
@@ -28,9 +29,11 @@ import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
+import GoongMap from './GoongMap';
 
 const AddEditForm = ({ isEdit, eventEditData }) => {
   const [locations, setLocations] = useState([]);
+  const [locationDetail, setLocationDetail] = useState(null);
   const [locationParams, setLocationParams] = useState({ Page: 1, PageSize: 10, SearchKey: '' });
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
@@ -93,7 +96,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     data.bloodTypeNeed = data.bloodTypeNeed.length > 0 && isEmergency ? data.bloodTypeNeed : null;
     data.minParticipant = 0;
     data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
-    data.permanentEventType = 1;
+    // data.permanentEventType = 1;
     data.locationIDs = new Array(data.locationIDs[0].id);
     data.startDate = moment(data.startDate).format('yyyy-MM-DD');
     data.endDate = moment(data.endDate).format('yyyy-MM-DD');
@@ -109,27 +112,60 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     addEditEventHandler(data);
   };
 
-  const fetchLocationsData = useCallback(async () => {
-    try {
-      const data = await getLocations(locationParams);
+  // const fetchLocationsData = useCallback(async () => {
+  //   try {
+  //     const data = await getLocations(locationParams);
 
-      setLocations(
-        data.items.map((item) => {
-          return { id: item.id, name: item.name };
-        })
-      );
-    } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
-    }
-  }, []);
+  //     setLocations(
+  //       data.items.map((item) => {
+  //         return { id: item.id, name: item.name };
+  //       })
+  //     );
+  //   } catch (error) {
+  //     setAlert({ message: errorHandler(error), type: 'error', status: true });
+  //   }
+  // }, []);
 
-  const getMoreLocations = async (params) => {
-    const data = await getLocations(params);
-    setLocations(data.items);
-  };
+  // const getMoreLocations = async (params) => {
+  //   const data = await getLocations(params);
+  //   setLocations(data.items);
+  // };
 
   const handleUploadEventImg = (file) => {
     setImgUploadFile(file);
+  };
+
+  const handleLocationSearch = async (value) => {
+    if (!value) {
+      return;
+    }
+    const sessionToken = uuidv4();
+    const response = await getLocationByInput(value, sessionToken);
+
+    const mappingResult = response?.data?.predictions?.map((item) => ({
+      name: item.structured_formatting.main_text,
+      description: item.description,
+      placeId: item.place_id,
+    }));
+
+    console.log('mappingResult', mappingResult);
+    setLocations(mappingResult);
+  };
+
+  const handleSelectLocation = async (placeId) => {
+    if (!placeId) {
+      return;
+    }
+    const sessionToken = uuidv4();
+
+    const response = await getLocationByPlaceId(placeId, sessionToken);
+    const result = response?.data?.result;
+
+    setLocationDetail({
+      formatted_address: result?.formatted_address,
+      latitude: result?.geometry?.location?.lat,
+      longitude: result?.geometry?.location?.lng,
+    });
   };
 
   const addEditEventHandler = async (param) => {
@@ -246,6 +282,10 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
     eventCode: Yup.string(),
     bloodTypeNeed: Yup.array()
+      .transform((value) => {
+        if (!value) return [];
+        return value;
+      })
       .of(
         Yup.object().shape({
           bloodType: Yup.number(),
@@ -272,6 +312,17 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
         return [{ id: originalvalue?.id }];
       })
       .min(1, 'Vui lòng chọn địa điểm tổ chức'),
+    // location: Yup.array()
+    //   .of(
+    //     Yup.object().shape({
+    //       id: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+    //     })
+    //   )
+    //   .transform(function (value, originalvalue) {
+    //     if (originalvalue?.length < 1 || originalvalue === null) return [];
+    //     return [{ id: originalvalue?.id }];
+    //   })
+    //   .min(1, 'Vui lòng chọn địa điểm tổ chức'),
   });
 
   const defaultValues = {
@@ -327,9 +378,9 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     }
   }, [isEdit, eventEditData]);
 
-  useEffect(() => {
-    fetchLocationsData();
-  }, [fetchLocationsData]);
+  // useEffect(() => {
+  //   fetchLocationsData();
+  // }, [fetchLocationsData]);
 
   return (
     <>
@@ -346,7 +397,49 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   control={control}
                   placeholder="Nhập mô tả"
                 />
-
+                <RHFAsyncAutoComplete
+                  isRequiredLabel={true}
+                  name="location"
+                  label="Địa điểm"
+                  list={locations || []}
+                  control={control}
+                  placeholder="Chọn địa điểm"
+                  onInput={handleLocationSearch}
+                  onSelect={handleSelectLocation}
+                  getOptionLabel={(option) => option.name || ''}
+                  renderOption={(props, option) => (
+                    <MenuItem key={uuidv4()} value={option} {...props}>
+                      <Stack>
+                        <Box>
+                          <Typography fontWeight="bold">{option.name}</Typography>
+                        </Box>
+                        <Box>
+                          <Typography
+                            sx={{
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              color: 'grey.600',
+                              textOverflow: 'ellipsis',
+                              width: '90%',
+                            }}
+                          >
+                            {option.description}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </MenuItem>
+                  )}
+                  // renderInput={(params) => <TextField {...params} label="Startpunkt" variant="outlined" />}
+                />
+                <Box sx={{ width: '100%', height: '400px' }}>
+                  <GoongMap locationDetail={locationDetail} />
+                </Box>
+              </Stack>
+            </Paper>
+          </Grid>
+          <Grid xs={12} md={6} item>
+            <Paper elevation={1} sx={{ borderRadius: '20px', padding: '30px' }}>
+              <Stack spacing={2}>
                 <RHFUploadImage
                   label="Ảnh sự kiện"
                   borderRadius="15px"
@@ -357,12 +450,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   onUpload={handleUploadEventImg}
                   defaultValue={editDefaultValues?.imageUrls}
                 />
-              </Stack>
-            </Paper>
-          </Grid>
-          <Grid xs={12} md={6} item>
-            <Paper elevation={1} sx={{ borderRadius: '20px', padding: '30px' }}>
-              <Stack spacing={2}>
+
                 <Stack spacing={2} direction="row">
                   <RHFInput
                     isRequiredLabel={true}
@@ -388,6 +476,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     isLazyLoad={false}
                     onScrollToBottom={() => {}}
                     disabled={isEdit ? true : !isEmergency}
+                    // options={BLOOD_TYPE}
                     list={BLOOD_TYPE}
                     name="bloodTypeNeed"
                     label="Nhóm máu cần gấp"
@@ -411,12 +500,14 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   />
                 </Stack>
                 {isEmergency && (
-                  <Typography sx={{ color: 'primary.main' }}>
-                    *Lưu ý: Sự kiện khẩn cấp sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính xác
-                  </Typography>
+                  <Box>
+                    <Typography sx={{ color: 'error.main' }}>
+                      *Lưu ý: Sự kiện khẩn cấp sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính xác
+                    </Typography>
+                  </Box>
                 )}
 
-                <RHFAutoComplete
+                {/* <RHFAutoComplete
                   isRequiredLabel={true}
                   isLazyLoad={true}
                   list={locations || []}
@@ -431,7 +522,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                       {option.name}
                     </MenuItem>
                   )}
-                />
+                /> */}
 
                 <Stack spacing={2} direction="row">
                   <RHFDatePicker

@@ -16,7 +16,7 @@ export const RHFAutoComplete = ({
   const [scrollTop, setScrollTop] = useState();
   const [size, setSize] = useState(10);
 
-  const HeaderMainStyle = styled('span')(({ theme }) => ({
+  const RequireLabel = styled('span')(({ theme }) => ({
     color: theme.palette.error.main,
   }));
 
@@ -32,15 +32,15 @@ export const RHFAutoComplete = ({
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
+            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
           </FormLabel>
           <Autocomplete
             id={name}
             {...props}
             // {...field}
             autoHighlight
-            options={list}
             freeSolo
+            options={list}
             ListboxProps={{
               onScroll: (event) => {
                 if (isLazyLoad) {
@@ -61,16 +61,17 @@ export const RHFAutoComplete = ({
                 }
               },
             }}
-            onInputChange={(e, value) => {
-              // if (isLazyLoad) {
-              //   setTimeout(() => {
-              //     onScrollToBottom({ PageSize: size, Page: 1, SearchKey: value });
-              //   }, [300]);
-              // }
-            }}
+            // onInputChange={(e, value) => {
+            //   // if (isLazyLoad) {
+            //   //   setTimeout(() => {
+            //   //     onScrollToBottom({ PageSize: size, Page: 1, SearchKey: value });
+            //   //   }, [300]);
+            //   // }
+            // }}
             // defaultChecked={value}
             // isOptionEqualToValue={(option, value) => option.value == value.value}
-            value={value || null}
+            // value={value || null}
+            value={list.find((item) => item === value)}
             filterSelectedOptions
             // defaultValue={list.find((item) => item?.value === value)}
             // getOptionSelected={(option) => option?.value === value}
