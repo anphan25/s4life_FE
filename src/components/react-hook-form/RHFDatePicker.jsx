@@ -4,7 +4,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
 
 export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLabel, defaultValue, ...props }) => {
-  const HeaderMainStyle = styled('span')(({ theme }) => ({
+  const RequireLabel = styled('span')(({ theme }) => ({
     color: theme.palette.error.main,
   }));
 
@@ -16,7 +16,7 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
+            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
           </FormLabel>
           <DatePicker
             id={name}

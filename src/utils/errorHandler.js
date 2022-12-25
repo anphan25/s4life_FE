@@ -29,7 +29,6 @@ export function convertErrorCodeToMessage(code) {
     4004: 'Sự kiện không tìm thấy',
     4005: 'Yêu cầu lọc không phù hợp',
     4009: 'Ngày bắt đầu không thể trước ngày kết thúc',
-    4011: 'Thời gian sự kiện không hợp lệ',
     4013: 'Từ chối quyền truy cập sự kiện',
     4021: 'Sự kiện đã bị hủy hoặc đã kết thúc',
     4031: 'Không thể chỉnh sửa, sự kiện đã có người đăng ký',

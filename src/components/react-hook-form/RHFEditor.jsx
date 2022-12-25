@@ -2,12 +2,11 @@ import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { FormControl, FormHelperText, InputLabel, styled } from '@mui/material';
 import { Controller } from 'react-hook-form';
-import { useState } from 'react';
 
 export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, field, defaultValue, ...props }) => {
   const editorRef = useRef(null);
 
-  const HeaderMainStyle = styled('span')(({ theme }) => ({
+  const RequireLabel = styled('span')(({ theme }) => ({
     color: theme.palette.error.main,
   }));
 
@@ -30,7 +29,7 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
             htmlFor={name}
           >
             {label}
-            {isRequiredLabel ? <HeaderMainStyle>*</HeaderMainStyle> : ''}
+            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
           </InputLabel>
           <Editor
             className="editor"
@@ -43,7 +42,7 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
             apiKey={process.env.REACT_APP_TINYMCE_API_KEY}
             init={{
               placeholder,
-              height: 400,
+              min_height: 300,
               menubar: false,
               plugins: [
                 'advlist',

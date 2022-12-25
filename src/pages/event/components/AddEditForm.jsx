@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
 import { CustomSnackBar } from 'components';
 import { useForm } from 'react-hook-form';
@@ -12,8 +12,9 @@ import {
   RHFTimePicker,
   RHFUploadImage,
   RHFCheckbox,
+  RHFAsyncAutoComplete,
 } from 'components';
-import { getLocations, createEvent, editEvent } from 'api';
+import { createEvent, editEvent, getLocationByPlaceId, getLocationByInput } from 'api';
 import {
   MAX_INT,
   convertBloodTypeLabel,
@@ -28,13 +29,22 @@ import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
+import GoongMap from './GoongMap';
 
 const AddEditForm = ({ isEdit, eventEditData }) => {
   const [locations, setLocations] = useState([]);
-  const [locationParams, setLocationParams] = useState({ Page: 1, PageSize: 10, SearchKey: '' });
+  const [locationDetail, setLocationDetail] = useState(
+    isEdit
+      ? {
+          longitude: eventEditData?.locations?.longitude * 1,
+          latitude: eventEditData?.locations?.latitude * 1,
+        }
+      : null
+  );
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isEmergency, setIsEmergency] = useState(false);
+  const [placeId, setPlaceId] = useState('');
   const navigate = useNavigate();
   const { eventId } = useParams();
 
@@ -93,12 +103,13 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     data.bloodTypeNeed = data.bloodTypeNeed.length > 0 && isEmergency ? data.bloodTypeNeed : null;
     data.minParticipant = 0;
     data.maxParticipant = data.maxParticipant ? data.maxParticipant : MAX_INT;
-    data.permanentEventType = 1;
-    data.locationIDs = new Array(data.locationIDs[0].id);
     data.startDate = moment(data.startDate).format('yyyy-MM-DD');
     data.endDate = moment(data.endDate).format('yyyy-MM-DD');
     data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
     data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
+    delete data.locations[0]['placeId'];
+    data.locations[0]['latitude'] = locationDetail?.latitude + '';
+    data.locations[0]['longitude'] = locationDetail?.longitude + '';
 
     if (imgUploadFile) {
       await uploadImage(data);
@@ -109,27 +120,39 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     addEditEventHandler(data);
   };
 
-  const fetchLocationsData = useCallback(async () => {
-    try {
-      const data = await getLocations(locationParams);
-
-      setLocations(
-        data.items.map((item) => {
-          return { id: item.id, name: item.name };
-        })
-      );
-    } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
-    }
-  }, []);
-
-  const getMoreLocations = async (params) => {
-    const data = await getLocations(params);
-    setLocations(data.items);
-  };
-
   const handleUploadEventImg = (file) => {
     setImgUploadFile(file);
+  };
+
+  const handleLocationSearch = async (value) => {
+    if (!value) {
+      return;
+    }
+    const sessionToken = uuidv4();
+    const response = await getLocationByInput(value, sessionToken);
+
+    const mappingResult = response?.data?.predictions?.map((item) => ({
+      name: item.structured_formatting.main_text,
+      address: item.description,
+      placeId: item.place_id,
+    }));
+
+    setLocations(mappingResult);
+  };
+
+  const handleSelectLocation = async (placeId) => {
+    if (!placeId) {
+      return;
+    }
+    const sessionToken = uuidv4();
+
+    const response = await getLocationByPlaceId(placeId, sessionToken);
+    const result = response?.data?.result;
+
+    setLocationDetail({
+      latitude: result?.geometry?.location?.lat,
+      longitude: result?.geometry?.location?.lng,
+    });
   };
 
   const addEditEventHandler = async (param) => {
@@ -164,25 +187,6 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       setIsButtonLoading(false);
     }
   };
-
-  const editDefaultValues = useMemo(
-    () => ({
-      name: eventEditData?.name || '',
-      description: eventEditData?.description || '',
-      eventCode: eventEditData?.eventCode || '',
-      contactInformation: eventEditData?.contactInformation || '',
-      startDate: eventEditData?.startDate,
-      endDate: eventEditData?.endDate,
-      workingTimeStart: moment(eventEditData?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0),
-      workingTimeEnd: moment(eventEditData?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0),
-      maxParticipant: eventEditData?.maxParticipant === MAX_INT ? null : eventEditData?.maxParticipant,
-      imageUrls: eventEditData?.imageUrls,
-      bloodTypeNeed: eventEditData?.bloodTypeNeed || [],
-      locationIDs: eventEditData?.locationIDs || [],
-      isEmergency: eventEditData?.isEmergency,
-    }),
-    [eventEditData]
-  );
 
   //Custom Validation
   Yup.addMethod(Yup.date, 'validTimeDuration', function (errorMessage) {
@@ -244,8 +248,12 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
         return true;
       })
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
-    eventCode: Yup.string(),
+    eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     bloodTypeNeed: Yup.array()
+      .transform((value) => {
+        if (!value) return [];
+        return value;
+      })
       .of(
         Yup.object().shape({
           bloodType: Yup.number(),
@@ -261,15 +269,18 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
       })
       .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
       .max(MAX_INT, 'Số nhập vào quá lớn'),
-    locationIDs: Yup.array()
+    locations: Yup.array()
       .of(
         Yup.object().shape({
-          id: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+          name: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+          address: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
+          placeId: Yup.string(),
         })
       )
-      .transform(function (value, originalvalue) {
-        if (originalvalue?.length < 1 || originalvalue === null) return [];
-        return [{ id: originalvalue?.id }];
+      .transform(function (value, originalValue) {
+        console.log('originalValue', originalValue);
+        if (originalValue?.length < 1 || !originalValue) return [];
+        return [{ name: originalValue?.name, address: originalValue?.address, placeId: originalValue?.placeId }];
       })
       .min(1, 'Vui lòng chọn địa điểm tổ chức'),
   });
@@ -282,9 +293,29 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     workingTimeStart: moment(),
     workingTimeEnd: moment(),
     bloodTypeNeed: [],
-    locationIDs: [],
+    locations: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
+
+  const editDefaultValues = useMemo(
+    () => ({
+      name: eventEditData?.name || '',
+      description: eventEditData?.description || '',
+      eventCode: eventEditData?.eventCode || '',
+      contactInformation: eventEditData?.contactInformation || '',
+      startDate: eventEditData?.startDate,
+      endDate: eventEditData?.endDate,
+      workingTimeStart: moment(eventEditData?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0),
+      workingTimeEnd: moment(eventEditData?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0),
+      maxParticipant: eventEditData?.maxParticipant === MAX_INT ? null : eventEditData?.maxParticipant,
+      imageUrls: eventEditData?.imageUrls,
+      bloodTypeNeed: eventEditData?.bloodTypeNeed || [],
+      locations:
+        { name: eventEditData?.locations?.name, address: eventEditData?.locations?.address, placeId: '' } || [],
+      isEmergency: eventEditData?.isEmergency,
+    }),
+    [eventEditData]
+  );
 
   const {
     handleSubmit,
@@ -327,9 +358,9 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
     }
   }, [isEdit, eventEditData]);
 
-  useEffect(() => {
-    fetchLocationsData();
-  }, [fetchLocationsData]);
+  console.log('eventEditData: ', eventEditData);
+  console.log('editDefaultValues: ', editDefaultValues);
+  console.log('eventEditData?.locations?.name: ', eventEditData?.locations?.name);
 
   return (
     <>
@@ -343,10 +374,67 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   isRequiredLabel={true}
                   name="description"
                   label="Mô tả"
+                  defaultValue={eventEditData?.description}
                   control={control}
                   placeholder="Nhập mô tả"
                 />
-
+                <RHFAsyncAutoComplete
+                  defaultValue={
+                    isEdit
+                      ? {
+                          name: eventEditData?.locations.name || '',
+                          address: eventEditData?.locations.address || '',
+                          placeId: '',
+                          // name: 'Huhuhuhuhu',
+                          // address: 'huhuhuh',
+                          // placeId: '',
+                        }
+                      : ''
+                  }
+                  isRequiredLabel={true}
+                  name="locations"
+                  label="Địa điểm"
+                  list={locations || []}
+                  control={control}
+                  placeholder="Chọn địa điểm"
+                  onInput={handleLocationSearch}
+                  onSelect={handleSelectLocation}
+                  getOptionLabel={(option) => {
+                    // if (isEdit) return eventEditData?.locations.name;
+                    return option.name || '';
+                  }}
+                  renderOption={(props, option) => (
+                    <MenuItem key={uuidv4()} value={option} {...props}>
+                      <Stack>
+                        <Box>
+                          <Typography fontWeight="bold">{option?.name}</Typography>
+                        </Box>
+                        <Box>
+                          <Typography
+                            sx={{
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              color: 'grey.600',
+                              textOverflow: 'ellipsis',
+                              width: '90%',
+                            }}
+                          >
+                            {option?.address}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </MenuItem>
+                  )}
+                />
+                <Box sx={{ width: '100%', height: '361px' }}>
+                  <GoongMap locationDetail={locationDetail} />
+                </Box>
+              </Stack>
+            </Paper>
+          </Grid>
+          <Grid xs={12} md={6} item>
+            <Paper elevation={1} sx={{ borderRadius: '20px', padding: '30px' }}>
+              <Stack spacing={2}>
                 <RHFUploadImage
                   label="Ảnh sự kiện"
                   borderRadius="15px"
@@ -357,12 +445,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   onUpload={handleUploadEventImg}
                   defaultValue={editDefaultValues?.imageUrls}
                 />
-              </Stack>
-            </Paper>
-          </Grid>
-          <Grid xs={12} md={6} item>
-            <Paper elevation={1} sx={{ borderRadius: '20px', padding: '30px' }}>
-              <Stack spacing={2}>
+
                 <Stack spacing={2} direction="row">
                   <RHFInput
                     isRequiredLabel={true}
@@ -388,6 +471,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                     isLazyLoad={false}
                     onScrollToBottom={() => {}}
                     disabled={isEdit ? true : !isEmergency}
+                    // options={BLOOD_TYPE}
                     list={BLOOD_TYPE}
                     name="bloodTypeNeed"
                     label="Nhóm máu cần gấp"
@@ -411,12 +495,14 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                   />
                 </Stack>
                 {isEmergency && (
-                  <Typography sx={{ color: 'primary.main' }}>
-                    *Lưu ý: Sự kiện khẩn cấp sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính xác
-                  </Typography>
+                  <Box>
+                    <Typography sx={{ color: 'error.main' }}>
+                      *Lưu ý: Sự kiện khẩn cấp sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính xác
+                    </Typography>
+                  </Box>
                 )}
 
-                <RHFAutoComplete
+                {/* <RHFAutoComplete
                   isRequiredLabel={true}
                   isLazyLoad={true}
                   list={locations || []}
@@ -431,7 +517,7 @@ const AddEditForm = ({ isEdit, eventEditData }) => {
                       {option.name}
                     </MenuItem>
                   )}
-                />
+                /> */}
 
                 <Stack spacing={2} direction="row">
                   <RHFDatePicker

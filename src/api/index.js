@@ -6,3 +6,4 @@ export * from './EventApi';
 export * from './EventRegistrationApi';
 export * from './UserInformationApi';
 export * from './UserApi';
+export * from './GoongApi';
