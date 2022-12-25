@@ -1,7 +1,7 @@
 import { CssBaseline } from '@mui/material';
 import Router from 'router/Router';
 import { Theme } from 'theme';
-// import '@goongmaps/goong-js/dist/goong-js.css';
+import '@goongmaps/goong-js/dist/goong-js.css';
 
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';

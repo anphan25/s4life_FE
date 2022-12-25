@@ -42,7 +42,12 @@ const AddEditEventPage = () => {
       name: data.name,
       eventCode: data.eventCode,
       contactInformation: data.contactInformation,
-      locationIDs: { id: data.eventLocations[0].locationId, name: data.eventLocations[0].location.name },
+      locations: {
+        name: data.eventLocations[0].location.name,
+        address: data.eventLocations[0].location.address,
+        latitude: data.eventLocations[0].location.latitude,
+        longitude: data.eventLocations[0].location.longitude,
+      },
       bloodTypeNeed: data.bloodTypeNeed,
       startDate: data.startDate,
       endDate: data.endDate,
@@ -77,7 +82,7 @@ const AddEditEventPage = () => {
         />
       </HeaderMainStyle>
 
-      <AddEditForm isEdit={isEdit} eventEditData={eventEditData} />
+      {eventEditData ? <AddEditForm isEdit={isEdit} eventEditData={eventEditData} /> : ''}
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </div>

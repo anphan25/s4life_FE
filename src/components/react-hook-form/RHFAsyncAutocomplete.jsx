@@ -1,5 +1,5 @@
 import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField, styled } from '@mui/material';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Controller } from 'react-hook-form';
 
 export const RHFAsyncAutoComplete = ({
@@ -47,11 +47,9 @@ export const RHFAsyncAutoComplete = ({
                 onInput(value);
               }, 400);
             }}
-            // value={value || null}
             value={list.find((item) => item === value)}
             filterSelectedOptions
             onChange={(event, newValue) => {
-              console.log('newValue', newValue);
               onChange(newValue);
               onSelect(newValue?.placeId);
             }}
