@@ -82,11 +82,11 @@ const AddEditEventPage = () => {
         />
       </HeaderMainStyle>
 
-      {eventEditData ? <AddEditForm isEdit={isEdit} eventEditData={eventEditData} /> : ''}
+      {eventEditData && isEdit ? <AddEditForm isEdit={isEdit} eventEditData={eventEditData} /> : <AddEditForm />}
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
     </div>
   );
 };
 
-export default AddEditEventPage;
+export default React.memo(AddEditEventPage);
