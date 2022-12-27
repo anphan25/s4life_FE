@@ -10,6 +10,7 @@ export const RHFAsyncAutoComplete = ({
   onInput,
   onSelect,
   list,
+  paramsCompare,
   ...props
 }) => {
   const RequireLabel = styled('span')(({ theme }) => ({
@@ -36,22 +37,24 @@ export const RHFAsyncAutoComplete = ({
             filterOptions={(x) => x}
             freeSolo
             includeInputInList
-            onInputChange={(e, value) => {
+            onInputChange={(e, newValue) => {
               if (!onInput) return;
+              if (!newValue) return;
+              console.log('newValue input', newValue);
 
               if (typingTimeoutRef.current) {
                 clearTimeout(typingTimeoutRef.current);
               }
 
               typingTimeoutRef.current = setTimeout(() => {
-                onInput(value);
+                onInput(newValue);
               }, 400);
             }}
-            value={list.find((item) => item === value)}
+            value={list?.find((item) => value && item[paramsCompare] === value[paramsCompare]) || ''}
             filterSelectedOptions
             onChange={(event, newValue) => {
               onChange(newValue);
-              onSelect(newValue?.placeId);
+              onSelect(newValue);
             }}
             renderInput={(params) => (
               <TextField

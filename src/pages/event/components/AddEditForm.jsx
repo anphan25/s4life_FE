@@ -31,19 +31,19 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 
-const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
+const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
-  const [locationDetail, setLocationDetail] = useState(
-    isEdit
-      ? {
-          longitude: eventEditData?.locations?.longitude * 1,
-          latitude: eventEditData?.locations?.latitude * 1,
-        }
-      : ''
-  );
+  const [locationDetail, setLocationDetail] = useState({
+    name: '',
+    address: '',
+    placeId: '',
+    latitude: 0,
+    longitude: 0,
+  });
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isEmergency, setIsEmergency] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
   const navigate = useNavigate();
   const { eventId } = useParams();
 
@@ -107,8 +107,8 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
     data.workingTimeStart = moment(data?.workingTimeStart, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
     data.workingTimeEnd = moment(data?.workingTimeEnd, 'HH:mm:ss').seconds(0).millisecond(0).format('HH:mm:ss');
     delete data.locations[0]['placeId'];
-    data.locations[0]['latitude'] = locationDetail?.latitude + '';
-    data.locations[0]['longitude'] = locationDetail?.longitude + '';
+    data.locations[0]['latitude'] = locationDetail.latitude + '';
+    data.locations[0]['longitude'] = locationDetail.longitude + '';
 
     if (imgUploadFile) {
       await uploadImage(data);
@@ -134,12 +134,14 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
       name: item.structured_formatting.main_text,
       address: item.description,
       placeId: item.place_id,
+      latitude: 0,
+      longitude: 0,
     }));
 
     setLocations(mappingResult);
   };
 
-  const handleSelectLocation = async (placeId) => {
+  const handleSelectLocation = async ({ placeId }) => {
     if (!placeId) {
       return;
     }
@@ -148,10 +150,11 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
     const response = await getLocationByPlaceId(placeId, sessionToken);
     const result = response?.data?.result;
 
-    setLocationDetail({
+    setLocationDetail((pre) => ({
+      ...pre,
       latitude: result?.geometry?.location?.lat,
       longitude: result?.geometry?.location?.lng,
-    });
+    }));
   };
 
   const addEditEventHandler = async (param) => {
@@ -222,24 +225,20 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
       .required('Vui lòng nhập giờ bắt đầu làm việc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .test(
-        'min startTime of emergency event',
-        `Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại 1 giờ`,
-        (value) => {
-          if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
-            return moment(value).format('HH:mm') >= moment().add(1, 'hour').format('HH:mm');
-          }
-
-          return true;
+      .test('min startTime of emergency event', `Giờ bắt đầu phải lớn hơn giờ hiện tại`, (value) => {
+        if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
+          return moment(value).format('HH:mm') >= moment().format('HH:mm');
         }
-      )
+
+        return true;
+      })
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
     workingTimeEnd: Yup.date()
       .min(Yup.ref('workingTimeStart'), 'Giờ kết thúc phải trước giờ bắt đầu')
       .required('Vui lòng nhập giờ kết thúc làm việc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .test('min startTime of emergency event', `Thời gian kết thúc phải lớn hơn thời gian hiện tại`, (value) => {
+      .test('min startTime of emergency event', `Giờ kết thúc phải lớn hơn thời gian hiện tại`, (value) => {
         if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
           return moment(value).format('HH:mm') > moment().format('HH:mm');
         }
@@ -274,12 +273,21 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
           name: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
           address: Yup.string().required('Vui lòng chọn địa điểm tổ chức'),
           placeId: Yup.string(),
+          latitude: Yup.number().required('Vui lòng chọn địa điểm tổ chức'),
+          longitude: Yup.number().required('Vui lòng chọn địa điểm tổ chức'),
         })
       )
       .transform(function (value, originalValue) {
-        console.log('originalValue', originalValue);
         if (originalValue?.length < 1 || !originalValue) return [];
-        return [{ name: originalValue?.name, address: originalValue?.address, placeId: originalValue?.placeId }];
+        return [
+          {
+            name: originalValue?.name,
+            address: originalValue?.address,
+            placeId: originalValue?.placeId,
+            latitude: originalValue?.latitude,
+            longitude: originalValue?.longitude,
+          },
+        ];
       })
       .min(1, 'Vui lòng chọn địa điểm tổ chức'),
   });
@@ -309,8 +317,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
       maxParticipant: eventEditData?.maxParticipant === MAX_INT ? null : eventEditData?.maxParticipant,
       imageUrls: eventEditData?.imageUrls,
       bloodTypeNeed: eventEditData?.bloodTypeNeed || [],
-      locations:
-        { name: eventEditData?.locations?.name, address: eventEditData?.locations?.address, placeId: '' } || [],
+      locations: eventEditData?.locations || [],
       isEmergency: eventEditData?.isEmergency,
     }),
     [eventEditData]
@@ -323,7 +330,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
     formState: { dirtyFields },
   } = useForm({
     resolver: yupResolver(AddEventSchema),
-    defaultValues: isEdit ? editDefaultValues : defaultValues,
+    defaultValues: isEdit && eventEditData ? editDefaultValues : defaultValues,
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
@@ -350,16 +357,22 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
 
   useEffect(() => {
     if (isEdit && eventEditData) {
+      setLocations([]);
+      setLocationDetail((pre) => ({
+        ...pre,
+        name: eventEditData?.locations?.name,
+        address: eventEditData?.locations?.address,
+        latitude: eventEditData?.locations?.latitude,
+        longitude: eventEditData?.locations?.longitude,
+      }));
+      setLocations([eventEditData?.locations]);
       reset(editDefaultValues);
     }
     if (!isEdit) {
+      setLocations([]);
       reset(defaultValues);
     }
   }, [isEdit, eventEditData]);
-
-  console.log('eventEditData: ', eventEditData);
-  console.log('editDefaultValues: ', editDefaultValues);
-  console.log('eventEditData?.locations?.name: ', eventEditData?.locations?.name);
 
   return (
     <>
@@ -373,63 +386,11 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
                   isRequiredLabel={true}
                   name="description"
                   label="Mô tả"
-                  defaultValue={eventEditData?.description}
+                  defaultValue={editDefaultValues?.description}
                   control={control}
                   placeholder="Nhập mô tả"
                 />
-                <RHFAsyncAutoComplete
-                  defaultValue={
-                    isEdit
-                      ? {
-                          name: eventEditData?.locations?.name,
-                          address: eventEditData?.locations?.address,
-                          placeId: '',
-                        }
-                      : ''
-                  }
-                  isRequiredLabel={true}
-                  name="locations"
-                  label="Địa điểm"
-                  list={locations || []}
-                  control={control}
-                  placeholder="Chọn địa điểm"
-                  onInput={handleLocationSearch}
-                  onSelect={handleSelectLocation}
-                  getOptionLabel={(option) => {
-                    return option.name || '';
-                  }}
-                  renderOption={(props, option) => (
-                    <MenuItem key={uuidv4()} value={option} {...props}>
-                      <Stack>
-                        <Box>
-                          <Typography fontWeight="bold">{option?.name}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography
-                            sx={{
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap',
-                              color: 'grey.600',
-                              textOverflow: 'ellipsis',
-                              width: '90%',
-                            }}
-                          >
-                            {option?.address}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </MenuItem>
-                  )}
-                />
-                <Box sx={{ width: '100%', height: '361px' }}>
-                  <GoongMap locationDetail={locationDetail} />
-                </Box>
-              </Stack>
-            </Paper>
-          </Grid>
-          <Grid xs={12} md={6} item>
-            <Paper elevation={1} sx={{ borderRadius: '20px', padding: '30px' }}>
-              <Stack spacing={2}>
+
                 <RHFUploadImage
                   label="Ảnh sự kiện"
                   borderRadius="15px"
@@ -440,7 +401,67 @@ const AddEditForm = ({ isEdit = false, eventEditData = {} }) => {
                   onUpload={handleUploadEventImg}
                   defaultValue={editDefaultValues?.imageUrls}
                 />
+              </Stack>
+            </Paper>
+          </Grid>
+          <Grid xs={12} md={6} item>
+            <Paper elevation={1} sx={{ borderRadius: '20px', padding: '30px' }}>
+              <Stack spacing={2}>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <Box sx={{ width: '75%' }}>
+                    <RHFAsyncAutoComplete
+                      paramsCompare="address"
+                      isRequiredLabel={true}
+                      name="locations"
+                      label="Địa điểm"
+                      list={locations}
+                      control={control}
+                      placeholder="Chọn địa điểm"
+                      onInput={handleLocationSearch}
+                      onSelect={handleSelectLocation}
+                      getOptionLabel={(option) => {
+                        return option?.name || '';
+                      }}
+                      renderOption={(props, option) => (
+                        <MenuItem key={uuidv4()} value={option} {...props}>
+                          <Stack>
+                            <Box>
+                              <Typography fontWeight="bold">{option?.name}</Typography>
+                            </Box>
+                            <Box>
+                              <Typography
+                                sx={{
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  color: 'grey.600',
+                                  textOverflow: 'ellipsis',
+                                  width: '90%',
+                                }}
+                              >
+                                {option?.address}
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </MenuItem>
+                      )}
+                    />
+                  </Box>
 
+                  <Box sx={{ width: '25%', marginTop: '11px' }}>
+                    <Button
+                      onClick={() => {
+                        setIsMapOpen(!isMapOpen);
+                      }}
+                    >
+                      {isMapOpen ? 'Tắt bản đồ' : 'Mở bản đồ'}
+                    </Button>
+                  </Box>
+                </Stack>
+                {isMapOpen && (
+                  <Box sx={{ width: '100%', height: '361px' }}>
+                    <GoongMap locationDetail={locationDetail} />
+                  </Box>
+                )}
                 <Stack spacing={2} direction="row">
                   <RHFInput
                     isRequiredLabel={true}

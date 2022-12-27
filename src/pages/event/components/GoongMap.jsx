@@ -1,19 +1,18 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import MapGL, { Marker, FlyToInterpolator } from '@goongmaps/goong-map-react';
-
 import Pin from './Pin';
 
-const GoongMap = ({ locationDetail }) => {
-  // console.log('locationDetail: ', locationDetail);
-  const latitudeNumber = locationDetail?.latitude * 1;
-  const longitudeNumber = locationDetail?.longitude * 1;
+const DEFAULT_LATITUDE = 10.756407;
+const DEFAULT_LONGITUDE = 106.6636929;
 
-  console.log(`${latitudeNumber} - ${longitudeNumber}`);
+const GoongMap = ({ locationDetail }) => {
+  const latitudeNumber = locationDetail?.latitude * 1 || null;
+  const longitudeNumber = locationDetail?.longitude * 1 || null;
 
   const [viewport, setViewport] = useState({
-    latitude: latitudeNumber || 10.756407,
-    longitude: longitudeNumber || 106.6636929,
+    latitude: latitudeNumber || DEFAULT_LATITUDE,
+    longitude: longitudeNumber || DEFAULT_LONGITUDE,
     zoom: 14,
     bearing: 0,
     pitch: 0,
@@ -21,8 +20,8 @@ const GoongMap = ({ locationDetail }) => {
     transitionInterpolator: new FlyToInterpolator(),
   });
   const [marker, setMarker] = useState({
-    latitude: latitudeNumber || 10.756407,
-    longitude: longitudeNumber || 106.6636929,
+    latitude: latitudeNumber || DEFAULT_LATITUDE,
+    longitude: longitudeNumber || DEFAULT_LONGITUDE,
   });
 
   const handleViewAndMarker = () => {
@@ -30,16 +29,27 @@ const GoongMap = ({ locationDetail }) => {
       return;
     }
     setMarker({
-      latitude: latitudeNumber,
-      longitude: longitudeNumber,
+      latitude: latitudeNumber || DEFAULT_LATITUDE,
+      longitude: longitudeNumber || DEFAULT_LONGITUDE,
     });
 
-    setViewport((pre) => ({ ...pre, latitude: latitudeNumber, longitude: longitudeNumber }));
+    setViewport((pre) => ({
+      ...pre,
+      latitude: latitudeNumber || DEFAULT_LATITUDE,
+      longitude: longitudeNumber || DEFAULT_LONGITUDE,
+    }));
   };
 
   const handleViewportChange = (viewport) => {
     setViewport(viewport);
   };
+
+  const onMarkerDragEnd = useCallback((event) => {
+    setMarker({
+      longitude: event.lngLat[0],
+      latitude: event.lngLat[1],
+    });
+  }, []);
 
   useEffect(() => {
     handleViewAndMarker();
@@ -55,7 +65,7 @@ const GoongMap = ({ locationDetail }) => {
         onViewportChange={handleViewportChange}
         goongApiAccessToken={process.env.REACT_APP_GOONG_MAPTILES_ACCESS_KEY}
       >
-        <Marker {...marker}>
+        <Marker {...marker} draggable onDragEnd={onMarkerDragEnd}>
           <Pin size={20} />
         </Marker>
       </MapGL>
