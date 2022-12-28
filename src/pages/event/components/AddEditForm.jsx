@@ -294,6 +294,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
 
   const defaultValues = {
     name: '',
+    eventCode: '',
     description: '',
     startDate: isEmergency ? moment() : moment().add(1, 'days'),
     endDate: isEmergency ? moment() : moment().add(1, 'days'),
@@ -328,6 +329,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     control,
     reset,
     formState: { dirtyFields },
+    setValue,
   } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues: isEdit && eventEditData ? editDefaultValues : defaultValues,
@@ -337,6 +339,13 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
 
   const onChangeCheckBox = (newValue) => {
     setIsEmergency(newValue);
+  };
+
+  const handleDragMarker = (locationValue) => {
+    console.log('drag nè: ', locationValue[0]);
+    if (!locationValue) return;
+    setValue('locations', locationValue[0], { shouldDirty: true });
+    setLocations(locationValue);
   };
 
   const minDateHandler = () => {
@@ -459,7 +468,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                 </Stack>
                 {isMapOpen && (
                   <Box sx={{ width: '100%', height: '361px' }}>
-                    <GoongMap locationDetail={locationDetail} />
+                    <GoongMap locationDetail={locationDetail} onDrag={handleDragMarker} />
                   </Box>
                 )}
                 <Stack spacing={2} direction="row">
