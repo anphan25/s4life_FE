@@ -57,6 +57,7 @@ const sidebarManager = [
       },
     ],
   },
+  { name: 'Thông tin bệnh viện', icon: <FaRegHospital />, to: '/hospital/info' },
 ];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({

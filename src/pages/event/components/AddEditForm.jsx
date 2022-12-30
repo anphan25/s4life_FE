@@ -225,26 +225,12 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập giờ bắt đầu làm việc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .test('min startTime of emergency event', `Giờ bắt đầu phải lớn hơn giờ hiện tại`, (value) => {
-        if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
-          return moment(value).format('HH:mm') >= moment().format('HH:mm');
-        }
-
-        return true;
-      })
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
     workingTimeEnd: Yup.date()
       .min(Yup.ref('workingTimeStart'), 'Giờ kết thúc phải trước giờ bắt đầu')
       .required('Vui lòng nhập giờ kết thúc làm việc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .test('min startTime of emergency event', `Giờ kết thúc phải lớn hơn thời gian hiện tại`, (value) => {
-        if (isEmergency && moment(value).format('DD/MM/yyyy') === moment().format('DD/MM/yyyy')) {
-          return moment(value).format('HH:mm') > moment().format('HH:mm');
-        }
-
-        return true;
-      })
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
     eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     bloodTypeNeed: Yup.array()
@@ -296,10 +282,10 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     name: '',
     eventCode: '',
     description: '',
-    startDate: isEmergency ? moment() : moment().add(1, 'days'),
-    endDate: isEmergency ? moment() : moment().add(1, 'days'),
+    startDate: moment().add(1, 'days'),
+    endDate: moment().add(1, 'days'),
     workingTimeStart: moment(),
-    workingTimeEnd: moment(),
+    workingTimeEnd: moment().add(1, 'hours'),
     bloodTypeNeed: [],
     locations: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
@@ -328,6 +314,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     handleSubmit,
     control,
     reset,
+    resetField,
     formState: { dirtyFields },
     setValue,
   } = useForm({
@@ -342,25 +329,19 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   };
 
   const handleDragMarker = (locationValue) => {
-    console.log('drag nè: ', locationValue[0]);
     if (!locationValue) return;
     setValue('locations', locationValue[0], { shouldDirty: true });
     setLocations(locationValue);
   };
 
+  const resetDatetimeField = () => {
+    resetField('startDate');
+    resetField('endDate');
+    resetField('workingTimeStart');
+    resetField('workingTimeEnd');
+  };
+
   const minDateHandler = () => {
-    isEmergency ? moment() : moment().add(1, 'days');
-
-    if (isEdit) {
-      if (editDefaultValues.isEmergency) {
-        return moment();
-      }
-      return moment().add(1, 'days');
-    }
-
-    if (isEmergency) {
-      return moment();
-    }
     return moment().add(1, 'days');
   };
 
@@ -382,6 +363,10 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       reset(defaultValues);
     }
   }, [isEdit, eventEditData]);
+
+  useEffect(() => {
+    resetDatetimeField();
+  }, [isEmergency]);
 
   return (
     <>
@@ -512,7 +497,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                   <RHFCheckbox
                     disabled={isEdit}
                     control={control}
-                    list={['Sự kiện khẩn cấp']}
+                    list={['Sự kiện khẩn cấp 24h']}
                     label=""
                     name="isEmergency"
                     onCheck={onChangeCheckBox}
@@ -521,7 +506,9 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                 {isEmergency && (
                   <Box>
                     <Typography sx={{ color: 'error.main' }}>
-                      *Lưu ý: Sự kiện khẩn cấp sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính xác
+                      *Lưu ý: <br />- Sự kiện khẩn cấp 24h sẽ không thể chỉnh sửa. Hãy đảm bảo các thông tin là chính
+                      xác.
+                      <br /> - Sự kiện khẩn cấp 24h sẽ bắt đầu ngay khi tạo và kéo dài 24h.
                     </Typography>
                   </Box>
                 )}
@@ -529,7 +516,8 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                 <Stack spacing={2} direction="row">
                   <RHFDatePicker
                     disablePast
-                    isRequiredLabel={true}
+                    disabled={isEmergency}
+                    isRequiredLabel={!isEmergency}
                     name="startDate"
                     control={control}
                     label="Ngày bắt đầu"
@@ -538,7 +526,8 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                   />
                   <RHFDatePicker
                     disablePast
-                    isRequiredLabel={true}
+                    disabled={isEmergency}
+                    isRequiredLabel={!isEmergency}
                     name="endDate"
                     control={control}
                     label="Ngày kết thúc"
@@ -549,8 +538,9 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
 
                 <Stack direction="row" spacing={2}>
                   <RHFTimePicker
+                    disabled={isEmergency}
                     mask="__:__"
-                    isRequiredLabel={true}
+                    isRequiredLabel={!isEmergency}
                     name="workingTimeStart"
                     control={control}
                     label="Giờ bắt đầu"
@@ -558,8 +548,9 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                   />
 
                   <RHFTimePicker
+                    disabled={isEmergency}
                     mask="__:__"
-                    isRequiredLabel={true}
+                    isRequiredLabel={!isEmergency}
                     name="workingTimeEnd"
                     control={control}
                     label="Giờ kết thúc"

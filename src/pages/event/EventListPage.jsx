@@ -156,24 +156,47 @@ const EventListPage = () => {
         field: 'time',
         width: 250,
         renderCell: (timeValue) => {
-          const dateTime = timeValue.value.split(', ');
-          const date = dateTime[0];
-          const time = dateTime[1];
+          const valueObject = JSON.parse(timeValue.value);
+          const startDate = valueObject?.startDate;
+          const endDate = valueObject?.endDate;
+          const workingTimeStart = valueObject?.workingTimeStart;
+          const workingTimeEnd = valueObject?.workingTimeEnd;
+          const isEmergency = valueObject?.isEmergency;
 
           return (
             <Box>
-              <Typography
-                sx={{
-                  backgroundColor: '#F4F4F4',
-                  fontWeight: 600,
-                  padding: '3px 5px 3px',
-                  borderRadius: '8px',
-                  marginBottom: '5px',
-                }}
-              >
-                {date}
-              </Typography>
-              <Typography sx={{ color: '#2BC155' }}>{time}</Typography>
+              {isEmergency ? (
+                <Typography
+                  sx={{
+                    backgroundColor: '#F4F4F4',
+                    fontWeight: 600,
+                    padding: '3px 5px 3px',
+                    borderRadius: '8px',
+                    marginBottom: '5px',
+                  }}
+                >
+                  {startDate} {workingTimeStart}
+                  <br />
+                  {endDate} {workingTimeEnd}
+                </Typography>
+              ) : (
+                <>
+                  <Typography
+                    sx={{
+                      backgroundColor: '#F4F4F4',
+                      fontWeight: 600,
+                      padding: '3px 5px 3px',
+                      borderRadius: '8px',
+                      marginBottom: '5px',
+                    }}
+                  >
+                    {startDate} - {endDate}
+                  </Typography>
+                  <Typography sx={{ color: '#2BC155' }}>
+                    {workingTimeStart} - {workingTimeEnd}
+                  </Typography>
+                </>
+              )}
             </Box>
           );
         },
@@ -362,10 +385,13 @@ const EventListPage = () => {
         name: data?.name || '-',
         eventCode: data?.eventCode || '-',
         address: data.eventLocations[0]?.location?.name || '-',
-        time: `${formatDate(data?.startDate, 2)} - ${formatDate(data?.endDate, 2)}, ${moment(
-          data?.workingTimeStart,
-          'HH:mm'
-        ).format('HH:mm')} - ${moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
+        time: JSON.stringify({
+          startDate: formatDate(data?.startDate, 2),
+          endDate: formatDate(data?.endDate, 2),
+          workingTimeStart: moment(data?.workingTimeStart, 'HH:mm').format('HH:mm'),
+          workingTimeEnd: moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm'),
+          isEmergency: data?.isEmergency,
+        }),
         startDate: data?.startDate,
         endDate: data?.endDate,
         numberOfRegistration: data?.numberOfRegistration || 0,

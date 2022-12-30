@@ -40,7 +40,6 @@ export const RHFAsyncAutoComplete = ({
             onInputChange={(e, newValue) => {
               if (!onInput) return;
               if (!newValue) return;
-              console.log('newValue input', newValue);
 
               if (typingTimeoutRef.current) {
                 clearTimeout(typingTimeoutRef.current);
