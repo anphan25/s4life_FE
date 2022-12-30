@@ -2,6 +2,11 @@ import { FormControl, FormHelperText, FormLabel, TextField, styled } from '@mui/
 import React from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
+import { Icon } from 'components';
+
+function DateIcon() {
+  return <Icon icon="calendar" />;
+}
 
 export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLabel, defaultValue, ...props }) => {
   const RequireLabel = styled('span')(({ theme }) => ({
@@ -24,6 +29,9 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
             {...field}
             onChange={(value) => {
               field.onChange(value);
+            }}
+            components={{
+              OpenPickerIcon: DateIcon,
             }}
             renderInput={(params) => (
               <TextField

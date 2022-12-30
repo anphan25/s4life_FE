@@ -6,7 +6,7 @@ export default function CssBaseline(theme) {
       styleOverrides: {
         '*': {
           '*::-webkit-scrollbar': {
-            width: '0.4em',
+            width: '8px',
           },
           '*::-webkit-scrollbar-track': {
             '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',
@@ -26,6 +26,10 @@ export default function CssBaseline(theme) {
         body: {
           width: '100%',
           height: '100%',
+        },
+        a: {
+          color: 'inherit',
+          textDecoration: 'none',
         },
         '#root': {
           width: '100%',

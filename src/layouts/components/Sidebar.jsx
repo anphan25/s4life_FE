@@ -1,11 +1,5 @@
-import { FaRegHospital } from 'react-icons/fa';
-import { TbLayout2 } from 'react-icons/tb';
-import { BiDonateBlood } from 'react-icons/bi';
-import { MdOutlineEventNote } from 'react-icons/md';
-import { FiUsers } from 'react-icons/fi';
-import { HiX } from 'react-icons/hi';
 import { Drawer, IconButton, MenuList, styled } from '@mui/material';
-import { Logo } from 'components';
+import { Icon, Logo } from 'components';
 import SubHeader from './SubHeader';
 import SidebarItem from './SidebarItem';
 import { useLocation } from 'react-router-dom';
@@ -14,11 +8,11 @@ import { useSelector } from 'react-redux';
 import useResponsive from 'hooks/useResponsive';
 
 const sidebarAdmin = [
-  { name: 'Trang chủ', icon: <TbLayout2 />, to: '/' },
-  { name: 'Quản lý bệnh viện', icon: <FaRegHospital />, to: '/hospital/list' },
+  { name: 'Trang chủ', icon: <Icon icon="solid-grid-web-7" />, to: '/' },
+  { name: 'Quản lý bệnh viện', icon: <Icon icon="solid-hospital" />, to: '/hospital/list' },
   {
     name: 'Quản lý sự kiện',
-    icon: <MdOutlineEventNote />,
+    icon: <Icon icon="solid-coupon-star" />,
     children: [
       {
         name: 'Cố định',
@@ -32,16 +26,16 @@ const sidebarAdmin = [
   },
   {
     name: 'Quản lý người dùng',
-    icon: <FiUsers />,
+    icon: <Icon icon="solid-users" />,
     to: '/user/list',
   },
 ];
 
 const sidebarManager = [
-  { name: 'Trang chủ', icon: <TbLayout2 />, to: '/' },
+  { name: 'Trang chủ', icon: <Icon icon="solid-grid-web-7" />, to: '/' },
   {
     name: 'Quản lý sự kiện',
-    icon: <MdOutlineEventNote />,
+    icon: <Icon icon="solid-coupon-star" />,
     children: [
       {
         name: 'Cố định',
@@ -57,11 +51,11 @@ const sidebarManager = [
       },
     ],
   },
-  { name: 'Thông tin bệnh viện', icon: <FaRegHospital />, to: '/hospital/info' },
+  { name: 'Thông tin bệnh viện', icon: <Icon icon="solid-hospital" />, to: '/hospital/info' },
 ];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({
-  width: '270px',
+  width: '250px',
   background: 'white',
   display: 'flex',
   flexDirection: 'column',
@@ -76,7 +70,7 @@ export const Sidebar = ({ toggle, onClose }) => {
 
   const renderContent = (
     <>
-      <Logo sx={{ margin: '80px 30px 5px 30px' }} />
+      <Logo sx={{ margin: '40px auto' }} />
       <MenuList sx={{ gap: 2, width: '100%' }}>
         {user?.role === 'Admin' &&
           sidebarAdmin.map((item, index) =>
@@ -104,7 +98,7 @@ export const Sidebar = ({ toggle, onClose }) => {
       {!isDesktop && (
         <Drawer open={toggle} onClose={onClose} PaperProps={{ sx: { width: '250px' } }}>
           <IconButton color="error" sx={{ m: 1, width: 'fit-content' }} onClick={onClose}>
-            <HiX />
+            <Icon icon="times" size={20} />
           </IconButton>
           {renderContent}
         </Drawer>

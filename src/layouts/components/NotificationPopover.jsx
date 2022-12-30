@@ -15,7 +15,7 @@ const NotificationPopover = () => {
 
   return (
     <>
-      <IconButton color={toggle ? 'primary' : 'default'} onClick={onToggle}>
+      <IconButton sx={{ width: '56px' }} color={toggle ? 'primary' : 'default'} onClick={onToggle}>
         <Badge color="error" variant="dot" invisible={totalUnRead === 0}>
           <BellIcon />
         </Badge>
@@ -24,7 +24,7 @@ const NotificationPopover = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">
-              Thông bá<optgroup></optgroup>
+              Thông báo<optgroup></optgroup>
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Bạn có {totalUnRead} thông báo chưa xem

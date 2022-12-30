@@ -79,10 +79,12 @@ export function convertErrorCodeToMessage(code) {
 }
 
 export const errorHandler = (error) => {
-  const { request, response } = error;
-
-  if (response?.data?.code != null) {
-    const { code } = response.data;
+  console.log('error :', error);
+  if (error?.response?.status === 401) return;
+  const { response } = error;
+  console.log('status :', response?.status);
+  if (response?.data !== null) {
+    const code = response.data?.code;
     var message = convertErrorCodeToMessage(code);
     return message;
   } else {

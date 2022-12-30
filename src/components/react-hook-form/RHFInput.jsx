@@ -15,7 +15,7 @@ export const RHFInput = ({ control, label, name, isRequiredLabel, ...props }) =>
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
           <TextField id={name} {...field} {...props} error={!!error} helperText={error?.message?.toString()} />
         </FormControl>

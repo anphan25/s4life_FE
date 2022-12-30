@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
-  gap: '0.5rem',
+  gap: '0.75rem',
   padding: '1rem 1.25rem',
-  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
+  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
 
   ':hover': {
     color: theme.palette.primary.main,
@@ -14,7 +14,7 @@ const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
     fontWeight: 600,
 
     '& .MuiListItemIcon-root': {
-      svg: { color: theme.palette.primary.main },
+      svg: { fill: theme.palette.primary.main },
     },
   },
 
@@ -36,13 +36,13 @@ const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
   },
 
   '& .MuiListItemIcon-root': {
-    height: '1.5rem',
-    width: '1.5rem',
+    height: '1.75rem',
+    width: '1.75rem',
     minWidth: '1.5rem',
     svg: {
       height: '100%',
       width: '100%',
-      color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
+      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
     },
   },
 }));
@@ -61,7 +61,7 @@ const SubHeader = ({ item, active, onActive }) => {
         <span />
         <ListItemIcon>{item.icon}</ListItemIcon>
         <ListItemText>
-          <Typography sx={{ fontSize: 14, fontWeight: 600 }}>{item.name}</Typography>
+          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>{item.name}</Typography>
         </ListItemText>
         <ListItemIcon>{!showSubHeader ? <HiChevronDown /> : <HiChevronUp />}</ListItemIcon>
       </SidebarItem>
@@ -74,7 +74,9 @@ const SubHeader = ({ item, active, onActive }) => {
             to={child.to}
             onClick={() => onActive(child.to)}
           >
-            <Typography sx={{ fontSize: 14, fontWeight: 500, pl: 5 }}>{child.name}</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: active === child.to ? 600 : 500, pl: 5 }}>
+              {child.name}
+            </Typography>
           </SidebarItem>
         ))}
     </>

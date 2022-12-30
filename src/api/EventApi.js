@@ -3,16 +3,16 @@ import queryString from 'query-string';
 
 const apiPath = '/events';
 
-export async function getEvent(params) {
-  return await axiosInstance.get(`${apiPath}?${queryString.stringify(params)}`);
+export function getEvents(params) {
+  return axiosInstance.get(`${apiPath}?${queryString.stringify(params)}`);
 }
 
-export async function getEventDetailByEventId(eventId) {
-  return await axiosInstance.get(`${apiPath}/${eventId}`);
+export function getEventDetailByEventId(eventId) {
+  return axiosInstance.get(`${apiPath}/${eventId}`);
 }
 
-export async function createEvent(params) {
-  return await axiosInstance.post(apiPath, params);
+export function createEvent(params) {
+  return axiosInstance.post(apiPath, params);
 }
 
 export async function editEvent(params) {

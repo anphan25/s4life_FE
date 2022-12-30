@@ -7,7 +7,7 @@ export default function Input(theme) {
           padding: '0',
           fontWeight: 400,
           borderRadius: '12px',
-          border: `1px solid #D0D0D0`,
+          border: `2px solid #D0D0D0`,
           '&.Mui-disabled': {
             '& svg': { color: theme.palette.grey[600] },
           },

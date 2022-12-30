@@ -2,7 +2,6 @@ import { getAccessToken } from 'api';
 import { store } from 'app/store';
 import { refreshFail, setToken } from 'app/slices/AuthSlice';
 import axios from 'axios';
-import { errorHandler } from 'utils';
 
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_BASE_API_URL,
@@ -27,18 +26,21 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => response.data.result,
-  async (error) => {
-    if (error?.response?.status === 401) {
-      await getAccessToken(store.getState().auth.auth?.refreshToken)
-        .then((res) => {
-          error.config.headers['Authorization'] = `Bearer ${res}`;
+  (error) => {
+    const prevRequest = error?.config;
+    if (error?.response?.status === 401 && !prevRequest?.sent) {
+      return getAccessToken(store.getState().auth.auth?.refreshToken)
+        .then(async (res) => {
           store.dispatch(setToken(res));
-          return axiosInstance(error?.config);
+          return await axiosInstance({
+            ...prevRequest,
+            headers: { ...prevRequest.headers, Authorization: `Bearer ${res}` },
+            sent: true,
+          });
         })
-        .catch((err) => {
-          store.dispatch(refreshFail(errorHandler(err)));
-        });
+        .catch((err) => store.dispatch(refreshFail()));
     }
+
     return Promise.reject(error);
   }
 );

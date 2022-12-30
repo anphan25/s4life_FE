@@ -51,8 +51,7 @@ export const authSlice = createSlice({
         })
       );
     },
-    refreshFail: (state, action) => {
-      state.error = action.payload;
+    refreshFail: (state) => {
       state.auth = null;
       localStorage.removeItem('authTokens');
     },

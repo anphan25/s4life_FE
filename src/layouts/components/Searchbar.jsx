@@ -80,7 +80,6 @@ const Searchbar = () => {
             mr: 1,
             fontWeight: 500,
             color: 'grey.900',
-            backgroundColor: 'grey.200',
             width: 360,
             fontSize: 14,
           }}

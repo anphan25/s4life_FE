@@ -26,7 +26,7 @@ const Navbar = ({ onOpen }) => {
     <NavbarStyle>
       <Stack direction="row" gap={3}>
         {!isDesktop && (
-          <IconButton color={'default'} onClick={onOpen}>
+          <IconButton sx={{ width: '48px' }} color={'default'} onClick={onOpen}>
             <HiMenuAlt2 />
           </IconButton>
         )}
