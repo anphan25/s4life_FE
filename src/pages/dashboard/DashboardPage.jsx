@@ -271,7 +271,7 @@ const DashboardPage = () => {
         </Grid>
       </Grid>
 
-      <Grid container rowSpacing={4} columnSpacing={{ lg: 2 }}>
+      <Grid container columnSpacing={{ lg: 2 }}>
         <Grid item lg={9} xs={12}>
           <IncomingEventStyle elevation={0}>
             <Typography sx={{ fontWeight: 800, fontSize: '20px', marginBottom: '10px' }}>

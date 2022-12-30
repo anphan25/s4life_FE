@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Stack, Box, styled, Typography, Button, DialogActions, Divider, Grid } from '@mui/material';
+import { Stack, Box, styled, Typography, Button, DialogActions, Divider, Grid, Paper } from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport } from 'components';
 import { FiEdit2 } from 'react-icons/fi';
+import { RiImageEditFill } from 'react-icons/ri';
 import { BsClock } from 'react-icons/bs';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { errorHandler, convertDayLabel } from 'utils';
@@ -20,11 +21,18 @@ const TitleStyle = styled(Typography)(({ theme }) => ({
   fontWeight: '600',
 }));
 
-const HospitalImgStyle = styled(Box)(({ theme }) => ({
+const HospitalImgStyle = styled('div')(({ theme }) => ({
   width: '200px',
   height: '200px',
   borderRadius: '100%',
-  border: `2px solid ${theme.palette.primary.main}`,
+  padding: '10px',
+  border: `1px dashed rgba(145, 158, 171, 0.32)`,
+  position: 'relative',
+  display: 'flex',
+  cursor: 'pointer',
+  overflow: 'hidden',
+  alignItems: 'center',
+  justifyContent: 'center',
 
   '& img': {
     width: '100%',
@@ -32,6 +40,27 @@ const HospitalImgStyle = styled(Box)(({ theme }) => ({
     objectFit: 'cover',
     borderRadius: '100%',
   },
+}));
+
+const PlaceholderStyle = styled('div')(({ theme }) => ({
+  opacity: 0,
+  width: 'calc(100% - 17px)',
+  height: 'calc(100% - 17px)',
+  borderRadius: '100%',
+  color: theme.palette.grey[100],
+  fontSize: '40px',
+  display: 'flex',
+  position: 'absolute',
+  alignItems: 'center',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  zIndex: 999,
+  backgroundColor: theme.palette.grey[900],
+  transition: theme.transitions.create('opacity', {
+    easing: theme.transitions.easing.easeInOut,
+    duration: theme.transitions.duration.shorter,
+  }),
+  '&:hover': { opacity: 0.72 },
 }));
 
 const TitleInfoStyle = styled('span')(({ theme }) => ({
@@ -58,8 +87,11 @@ const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
 const DownloadLink = styled('a')(({ theme }) => ({
   display: 'none',
 }));
-const HospitalInfo = () => {
+
+const HospitalInfoPage = () => {
   const [isUpdateHospitalOpen, setIsUpdateHospitalOpen] = useState(false);
+  const [isUpdateHospitalImgOpen, setIsUpdateHospitalImgOpen] = useState(false);
+
   const [alert, setAlert] = useState({
     message: '',
     status: false,
@@ -68,22 +100,34 @@ const HospitalInfo = () => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [importParams, setImportParams] = useState([]);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
+  const [isUpdateImgBtnDisabled, setIsUpdateImgBtnDisabled] = useState(true);
+
   const [hospitalData, setHospitalData] = useState();
   const [imgUploadFile, setImgUploadFile] = useState(null);
   let user = useSelector((state) => state.auth.auth?.user);
 
-  const { handleSubmit, control, reset } = useForm({});
+  const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
+  const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
 
   const downloadRef = useRef();
 
   const handleUpdateHospitalDialog = () => {
     setIsUpdateHospitalOpen(!isUpdateHospitalOpen);
     setIsImportBtnDisabled(true);
+    setImportParams([]);
   };
-  const handleUploadEventImg = (file) => {
+
+  const handleUpdateHospitalImgDialog = () => {
+    setIsUpdateHospitalImgOpen(!isUpdateHospitalImgOpen);
+    setIsUpdateImgBtnDisabled(true);
+    setImgUploadFile(null);
+  };
+
+  const handleUploadEHospitalImg = (file) => {
     setImgUploadFile(file);
+
     if (file) {
-      setIsImportBtnDisabled(false);
+      setIsUpdateImgBtnDisabled(false);
     }
   };
 
@@ -123,56 +167,144 @@ const HospitalInfo = () => {
             data.avatarUrl = downloadURL;
           })
           .then(() => {
-            updateHospitalHandler(data);
+            updateHospitalImgHandler(data);
           });
       }
     );
   };
 
-  const updateHospitalHandler = async (data) => {
+  const updateHospitalInfoHandler = async (data) => {
     setAlert({});
+    setIsButtonLoading(true);
+    setImportParams([]);
+    try {
+      await editHospital(data);
+      await fetchHospitalInfo();
+      setAlert({
+        message: 'Cập nhật thành công',
+        status: true,
+        type: 'success',
+      });
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      setIsButtonLoading(false);
+      handleUpdateHospitalDialog();
+    }
+  };
+
+  const updateHospitalImgHandler = async (data) => {
+    setAlert({});
+    setImgUploadFile(null);
 
     try {
       await editHospital(data);
       await fetchHospitalInfo();
       setAlert({
-        message: 'Sửa bệnh viện thành công',
+        message: 'Cập nhật thành công',
         status: true,
         type: 'success',
       });
-      reset();
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
-      handleUpdateHospitalDialog();
       setIsButtonLoading(false);
+      handleUpdateHospitalImgDialog();
     }
   };
 
-  const onSubmit = async (data) => {
-    setAlert({});
+  const updateHospitalDialogContent = () => {
+    return (
+      <Paper>
+        <form onSubmit={handleSubmitHospitalInfo(onSubmitHospitalInfo)}>
+          <Stack justifyContent="center" spacing={2}>
+            <RHFImport
+              control={hospitalInfoControl}
+              name="hospitalFile"
+              label="Kéo thả hoặc nhấn vào để chọn file"
+              onImport={getDataFromFile}
+              isEdit={true}
+            />
+          </Stack>
+
+          <DownloadLink ref={downloadRef} download />
+
+          <Stack direction="row" justifyContent="space-between">
+            <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
+              Tải file mẫu
+            </Button>
+            <DialogButtonGroup sx={{ marginTop: '10px' }}>
+              <Button onClick={handleUpdateHospitalDialog}>Hủy</Button>
+              <LoadingButton
+                loading={isButtonLoading}
+                disabled={isImportBtnDisabled}
+                type="submit"
+                variant="contained"
+                autoFocus
+              >
+                Cập nhật
+              </LoadingButton>
+            </DialogButtonGroup>
+          </Stack>
+        </form>
+      </Paper>
+    );
+  };
+
+  const updateHospitalImgDialogContent = () => {
+    return (
+      <Paper>
+        <form onSubmit={handleSubmitHospitalImg(onSubmitHospitalImg)}>
+          <Stack justifyContent="center" spacing={2}>
+            <RHFUploadImage
+              label=""
+              name="avatarFile"
+              control={hospitalImgControl}
+              onUpload={handleUploadEHospitalImg}
+              defaultValue={hospitalData?.avatarUrl}
+              borderRadius="100%"
+              width="220px"
+              height="220px"
+            />
+          </Stack>
+          <Stack direction="row" justifyContent="flex-end">
+            <DialogButtonGroup sx={{ marginTop: '10px' }}>
+              <Button onClick={handleUpdateHospitalImgDialog}>Hủy</Button>
+              <LoadingButton
+                loading={isButtonLoading}
+                disabled={isUpdateImgBtnDisabled}
+                type="submit"
+                variant="contained"
+                autoFocus
+              >
+                Lưu
+              </LoadingButton>
+            </DialogButtonGroup>
+          </Stack>
+        </form>
+      </Paper>
+    );
+  };
+
+  const onSubmitHospitalInfo = async (data) => {
+    if (importParams.length < 1) return;
+
+    data.name = importParams[0].name;
+    data.address = importParams[0].address;
+    data.latitude = importParams[0].latitude;
+    data.longitude = importParams[0].longitude;
+    data.email = importParams[0].email;
+    data.phoneNumber = importParams[0].phoneNumber;
+    data.openingTime = importParams[0].openingTime;
+
+    updateHospitalInfoHandler(data);
+  };
+
+  const onSubmitHospitalImg = async (data) => {
+    if (!imgUploadFile) return;
+
     setIsButtonLoading(true);
-    setImportParams([]);
-
-    delete data.hospitalFile;
-    if (importParams.length > 0) {
-      data.name = importParams[0].name;
-      data.address = importParams[0].address;
-      data.latitude = importParams[0].latitude;
-      data.longitude = importParams[0].longitude;
-      data.email = importParams[0].email;
-      data.phoneNumber = importParams[0].phoneNumber;
-      data.openingTime = importParams[0].openingTime;
-    }
-
-    if (imgUploadFile) {
-      await uploadImage(data);
-
-      return;
-    }
-    setImgUploadFile(null);
-
-    updateHospitalHandler(data);
+    await uploadImage(data);
   };
 
   const handleDownloadTemplate = async () => {
@@ -206,8 +338,18 @@ const HospitalInfo = () => {
     setImportParams(values);
     setIsImportBtnDisabled(disabledBtn);
   };
+
+  const moveToIndex = (arr, from, to) => {
+    arr.splice(to, 0, arr.splice(from, 1)[0]);
+  };
+
   const fetchHospitalInfo = useCallback(async () => {
     const hospitalData = await getHospitalById(user?.hospital_id);
+
+    hospitalData.openingTime.sort((a, b) => a.day - b.day);
+
+    moveToIndex(hospitalData.openingTime, 0, hospitalData.openingTime.length - 1);
+
     setHospitalData(hospitalData);
   }, []);
 
@@ -215,56 +357,8 @@ const HospitalInfo = () => {
     fetchHospitalInfo();
   }, [fetchHospitalInfo]);
 
-  const updateHospitalDialogContent = () => {
-    return (
-      <Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack justifyContent="center" spacing={2}>
-            <RHFUploadImage
-              label=""
-              name="avatarUrl"
-              control={control}
-              onUpload={handleUploadEventImg}
-              defaultValue={hospitalData?.avatarUrl}
-              borderRadius="100%"
-              width="220px"
-              height="220px"
-            />
-            <RHFImport
-              control={control}
-              name="hospitalFile"
-              label="Kéo thả hoặc nhấn vào để chọn file"
-              onImport={getDataFromFile}
-              isEdit={true}
-            />
-          </Stack>
-
-          <DownloadLink ref={downloadRef} download />
-
-          <Stack direction="row" justifyContent="space-between">
-            <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
-              Tải file mẫu
-            </Button>
-            <DialogButtonGroup sx={{ marginTop: '10px' }}>
-              <Button onClick={handleUpdateHospitalDialog}>Hủy</Button>
-              <LoadingButton
-                loading={isButtonLoading}
-                disabled={isImportBtnDisabled}
-                type="submit"
-                variant="contained"
-                autoFocus
-              >
-                Cập nhật
-              </LoadingButton>
-            </DialogButtonGroup>
-          </Stack>
-        </form>
-      </Box>
-    );
-  };
-
   return (
-    <Box sx={{ padding: '20px' }}>
+    <Paper sx={{ padding: '30px', borderRadius: '20px' }} elevation={1}>
       <Stack direction="row" justifyContent="space-between" alignContent="center">
         <TitleStyle>Thông tin bệnh viện</TitleStyle>
         <Button variant="contained" startIcon={<FiEdit2 />} onClick={handleUpdateHospitalDialog}>
@@ -273,6 +367,12 @@ const HospitalInfo = () => {
       </Stack>
       <Stack direction="row" spacing={3} sx={{ marginTop: '20px' }}>
         <HospitalImgStyle>
+          <PlaceholderStyle onClick={handleUpdateHospitalImgDialog}>
+            <Box>
+              <RiImageEditFill />
+            </Box>
+            <Typography variant="caption">Cập nhật ảnh</Typography>
+          </PlaceholderStyle>
           <img src={hospitalData?.avatarUrl} alt="Ảnh bệnh viện" />
         </HospitalImgStyle>
         <Stack spacing={2}>
@@ -325,9 +425,9 @@ const HospitalInfo = () => {
       </Stack>
 
       <Box sx={{ marginTop: '15px' }}>
-        <Grid container>
+        <Grid container rowSpacing={2}>
           {hospitalData?.openingTime?.map((item, i) => (
-            <Grid key={i} item xs={12} md={6}>
+            <Grid key={i} item xs={12} sm={6} md={4}>
               <Stack key={i} direction="row" spacing={4} sx={{ marginBottom: '10px' }} alignItems="center">
                 <Typography fontWeight="bold">{convertDayLabel(item?.day)}:</Typography>
                 <Box>
@@ -351,7 +451,7 @@ const HospitalInfo = () => {
         </Grid>
       </Box>
 
-      {/* Cancel Event Dialog */}
+      {/* Update Hospital Info Dialog */}
       <CustomDialog
         isOpen={isUpdateHospitalOpen}
         onClose={handleUpdateHospitalDialog}
@@ -360,9 +460,18 @@ const HospitalInfo = () => {
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '700px' } }}
       />
 
+      {/* Update Hospital Img Dialog */}
+      <CustomDialog
+        isOpen={isUpdateHospitalImgOpen}
+        onClose={handleUpdateHospitalImgDialog}
+        title="Cập nhật ảnh bệnh viện"
+        children={updateHospitalImgDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '30%', maxHeight: '700px' } }}
+      />
+
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-    </Box>
+    </Paper>
   );
 };
 
-export default HospitalInfo;
+export default HospitalInfoPage;

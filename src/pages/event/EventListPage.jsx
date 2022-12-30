@@ -175,7 +175,9 @@ const EventListPage = () => {
                     marginBottom: '5px',
                   }}
                 >
-                  {startDate} {workingTimeStart} <br /> {endDate} {workingTimeEnd}
+                  {startDate} {workingTimeStart}
+                  <br />
+                  {endDate} {workingTimeEnd}
                 </Typography>
               ) : (
                 <>

@@ -133,13 +133,28 @@ export default function Router() {
             },
           ],
         },
+
         {
-          path: 'hospital/list',
-          element: (
-            <ProtectedRouter roles={['Admin']}>
-              <HospitalListPage />
-            </ProtectedRouter>
-          ),
+          path: 'hospital',
+          children: [
+            { element: <Navigate to="/hospital/list" replace />, index: true },
+            {
+              path: 'list',
+              element: (
+                <ProtectedRouter roles={['Admin']}>
+                  <HospitalListPage />
+                </ProtectedRouter>
+              ),
+            },
+            {
+              path: 'info',
+              element: (
+                <ProtectedRouter roles={['Manager']}>
+                  <HospitalInfoPage />
+                </ProtectedRouter>
+              ),
+            },
+          ],
         },
         {
           path: '*',
@@ -183,3 +198,4 @@ const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')))
 
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/HospitalListPage')));
+const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/HospitalInfoPage')));
