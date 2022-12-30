@@ -36,7 +36,7 @@ const UserPopover = () => {
 
   const handleLogout = () => {
     dispatch(logoutSuccess());
-    navigate('/auth/login');
+    navigate('/login');
   };
 
   return (

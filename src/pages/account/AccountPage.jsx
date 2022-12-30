@@ -28,7 +28,7 @@ const adminTabValue = [{ label: 'Đổi mật khẩu', value: 1 }];
 
 const AccountPage = () => {
   let user = useSelector((state) => state.auth.auth?.user);
-  const [tab, setTab] = useState(user.role === 'Admin' || user.role === 'Staff' ? 2 : 1);
+  const [tab, setTab] = useState(1);
 
   const handleFilterTabChange = (e, value) => {
     setTab(value);
