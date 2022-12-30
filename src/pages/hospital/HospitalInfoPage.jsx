@@ -230,8 +230,8 @@ const HospitalInfoPage = () => {
           <DownloadLink ref={downloadRef} download />
 
           <Stack direction="row" justifyContent="space-between">
-            <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
-              Tải file mẫu
+            <Button sx={{ width: '250px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadInfo}>
+              Tải thông tin bệnh viện
             </Button>
             <DialogButtonGroup sx={{ marginTop: '10px' }}>
               <Button onClick={handleUpdateHospitalDialog}>Hủy</Button>
@@ -307,30 +307,81 @@ const HospitalInfoPage = () => {
     await uploadImage(data);
   };
 
-  const handleDownloadTemplate = async () => {
-    getDownloadURL(ref(storage, 'template_import/hospital_import_template.csv'))
-      .then((url) => {
-        downloadRef.current.setAttribute('href', url);
-        downloadRef.current.click();
-      })
-      .catch((error) => {
-        switch (error.code) {
-          case 'storage/object-not-found':
-            setAlert({});
-            setAlert({
-              message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
-              status: true,
-              type: 'error',
-            });
-            break;
+  function downloadBlob(content, filename, contentType) {
+    // Create a blob
+    var blob = new Blob([content], { type: contentType });
+    var url = URL.createObjectURL(blob);
 
-          case 'storage/unknown':
-            // Unknown error occurred, inspect the server response
-            break;
-          default: {
-          }
-        }
-      });
+    downloadRef.current.setAttribute('href', url);
+    downloadRef.current.setAttribute('download', filename);
+    downloadRef.current.click();
+  }
+
+  function arrayToCsv(data) {
+    return data
+      .map(
+        (row) =>
+          row
+            .map(String) // convert every value to String
+            .map((v) => v.replaceAll('"', '""')) // escape double colons
+            .map((v) => `"${v}"`) // quote it
+            .join(',') // comma-separated
+      )
+      .join('\r\n'); // rows starting on new lines
+  }
+
+  //Format to HH:mm:ss - HH:mm:ss
+  const formatWorkingTimeValue = (dayObject) => {
+    return `${dayObject.startTime} - ${dayObject.endTime}`;
+  };
+
+  const getWorkingTimeOfADay = (arr, day) => {
+    const dayValue = arr.find((d) => d.day === day);
+
+    if (!dayValue.isEnabled) return '';
+
+    return formatWorkingTimeValue(dayValue);
+  };
+
+  const handleDownloadInfo = () => {
+    //Init data
+    const arrData = [
+      [
+        'Tên*',
+        'Ðịa Chỉ*',
+        'Kinh Ðộ*',
+        'Vĩ Ðộ*',
+        'Số Ðiện Thoại*',
+        'Email',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 4',
+        'Thứ 5',
+        'Thứ 6',
+        'Thứ 7',
+        'Chủ Nhật',
+      ],
+      [
+        hospitalData.name || '',
+        hospitalData.address || '',
+        hospitalData.longitude || '',
+        hospitalData.latitude || '',
+        hospitalData.phoneNumber || '',
+        hospitalData.email || '',
+        getWorkingTimeOfADay(hospitalData.openingTime, 1),
+        getWorkingTimeOfADay(hospitalData.openingTime, 2),
+        getWorkingTimeOfADay(hospitalData.openingTime, 3),
+        getWorkingTimeOfADay(hospitalData.openingTime, 4),
+        getWorkingTimeOfADay(hospitalData.openingTime, 5),
+        getWorkingTimeOfADay(hospitalData.openingTime, 6),
+        getWorkingTimeOfADay(hospitalData.openingTime, 0),
+      ],
+    ];
+
+    //Convert Data to CSV
+    let csv = arrayToCsv(arrData);
+    //Download
+    downloadBlob(csv, 'hospital_info', 'text/csv;charset=utf-8;');
   };
 
   const getDataFromFile = (values, disabledBtn) => {
