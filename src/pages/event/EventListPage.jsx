@@ -377,10 +377,13 @@ const EventListPage = () => {
           name: data?.name || '-',
           eventCode: data?.eventCode || '-',
           address: data.eventLocations[0]?.location?.name || '-',
-          time: `${formatDate(data?.startDate, 2)} - ${formatDate(data?.endDate, 2)}, ${moment(
-            data?.workingTimeStart,
-            'HH:mm'
-          ).format('HH:mm')} - ${moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
+          time: JSON.stringify({
+            startDate: formatDate(data?.startDate, 2),
+            endDate: formatDate(data?.endDate, 2),
+            workingTimeStart: moment(data?.workingTimeStart, 'HH:mm').format('HH:mm'),
+            workingTimeEnd: moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm'),
+            isEmergency: data?.isEmergency,
+          }),
           startDate: data?.startDate,
           endDate: data?.endDate,
           numberOfRegistration: data?.numberOfRegistration || 0,
@@ -420,7 +423,6 @@ const EventListPage = () => {
       </HeaderMainStyle>
 
       <Box sx={{ backgroundColor: 'white', borderRadius: 20 }}>
-        {' '}
         <FilterSectionStyle>
           <FilterTab
             sx={{

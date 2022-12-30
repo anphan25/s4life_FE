@@ -110,6 +110,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
       field === 'actions' ||
       field === 'no' ||
       field === 'addDate' ||
+      field === 'time' ||
       typeof targetRow[field] === 'boolean'
     ) {
       return;
