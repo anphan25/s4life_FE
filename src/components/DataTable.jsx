@@ -10,7 +10,7 @@ const tableContainerStyle = {
 };
 
 const containerDataGrid = {
-  height: '600px',
+  height: '610px',
   width: '100%',
 
   '& .MuiDataGrid-columnHeaders': {
@@ -127,7 +127,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
   const open = Boolean(anchorEl);
 
   return (
-    <Paper sx={tableContainerStyle}>
+    <Paper elevation={0} sx={tableContainerStyle}>
       <Box sx={containerDataGrid}>
         <DataGrid
           {...props}

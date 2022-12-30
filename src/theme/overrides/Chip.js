@@ -1,4 +1,4 @@
-import { CloseIcon } from "./CustomIcons";
+import { CloseIcon } from './CustomIcons';
 
 export default function Chip(theme) {
   return {
@@ -10,23 +10,23 @@ export default function Chip(theme) {
       styleOverrides: {
         outlined: {
           borderColor: theme.palette.grey[300],
-          "&.MuiChip-colorPrimary": {
+          '&.MuiChip-colorPrimary': {
             borderColor: theme.palette.primary.main,
           },
-          "&.MuiChip-colorSecondary": {
+          '&.MuiChip-colorSecondary': {
             borderColor: theme.palette.secondary.main,
           },
         },
         avatarColorSuccess: {
-          color: "#fff",
+          color: '#fff',
           backgroundColor: theme.palette.success.main,
         },
         avatarColorWarning: {
-          color: "#fff",
+          color: '#fff',
           backgroundColor: theme.palette.warning.main,
         },
         avatarColorError: {
-          color: "#fff",
+          color: '#fff',
           backgroundColor: theme.palette.error.main,
         },
       },

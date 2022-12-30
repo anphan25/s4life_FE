@@ -156,15 +156,15 @@ export default function Router() {
             },
           ],
         },
-        {
-          path: '*',
-          element: <ErrorLayout />,
-          children: [
-            { path: 'permission-denied', element: <PermissionDeniedPage /> },
-            { path: 'not-found', element: <NotFoundPage /> },
-            { path: '*', element: <Navigate to="/not-found" replace /> },
-          ],
-        },
+      ],
+    },
+    {
+      path: '*',
+      element: <ErrorLayout />,
+      children: [
+        { path: 'permission-denied', element: <PermissionDeniedPage /> },
+        { path: 'not-found', element: <NotFoundPage /> },
+        { path: '*', element: <Navigate to="/not-found" replace /> },
       ],
     },
   ]);

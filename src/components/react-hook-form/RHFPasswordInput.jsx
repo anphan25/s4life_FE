@@ -1,7 +1,7 @@
 import { FormControl, TextField, FormLabel, styled, IconButton, InputAdornment } from '@mui/material';
+import { Icon } from 'components';
 import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { MdVisibilityOff, MdVisibility } from 'react-icons/md';
 
 const RequireLabel = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
@@ -10,7 +10,6 @@ const RequireLabel = styled('span')(({ theme }) => ({
 export const RHFPasswordInput = ({ control, label, name, isRequiredLabel, ...props }) => {
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword(!showPassword);
-  const handleMouseDownPassword = () => setShowPassword(!showPassword);
   return (
     <Controller
       name={name}
@@ -31,12 +30,8 @@ export const RHFPasswordInput = ({ control, label, name, isRequiredLabel, ...pro
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                  >
-                    {showPassword ? <MdVisibility /> : <MdVisibilityOff />}
+                  <IconButton onClick={handleClickShowPassword}>
+                    <Icon icon={!showPassword ? 'eye' : 'eye-slash'} size={20} />
                   </IconButton>
                 </InputAdornment>
               ),

@@ -1,10 +1,5 @@
-import React, { forwardRef, useState } from 'react';
-import { Snackbar } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
-
-const Alert = forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+import React, { useState } from 'react';
+import { alpha, Snackbar, Alert } from '@mui/material';
 
 export const CustomSnackBar = (props) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -20,7 +15,12 @@ export const CustomSnackBar = (props) => {
   return (
     <>
       <Snackbar
-        sx={{ marginTop: '60px', backgroundColor: '#2BC155', color: 'white', borderRadius: '10px' }}
+        sx={{
+          marginTop: '60px',
+          borderRadius: '12px',
+          boxShadow: `0 8px 16px 0 ${alpha('#A1A5B7', 0.08)}`,
+          backgroundColor: 'grey.100',
+        }}
         open={isOpen}
         autoHideDuration={5000}
         anchorOrigin={{
@@ -28,13 +28,9 @@ export const CustomSnackBar = (props) => {
           horizontal: 'right',
         }}
         onClose={handleClose}
-        key={'top' + 'right'}
+        key={`topright`}
       >
-        <Alert
-          onClose={handleClose}
-          severity={props.type}
-          sx={{ width: '100%', color: 'white', alignItems: 'center', height: '50px', borderRadius: '10px' }}
-        >
+        <Alert onClose={handleClose} severity={props.type} sx={{ width: '100%' }}>
           {props.message}
         </Alert>
       </Snackbar>

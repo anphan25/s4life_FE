@@ -1,7 +1,7 @@
 export * from './Loading';
 export * from './Dropdown';
 export * from './Logo';
-
+export * from './Icon';
 export * from './react-hook-form/RHFEditor';
 export * from './react-hook-form/RHFInput';
 export * from './react-hook-form/RHFCheckbox';

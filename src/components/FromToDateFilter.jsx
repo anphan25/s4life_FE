@@ -1,6 +1,11 @@
 import { Stack, TextField, Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { DatePicker, DesktopDatePicker } from '@mui/x-date-pickers';
+import { Icon } from './Icon';
+
+function DateIcon() {
+  return <Icon icon="calendar" />;
+}
 
 export const FromToDateFilter = ({ onChange, sx }) => {
   const [params, setParams] = useState({ startDate: null, endDate: null });
@@ -23,6 +28,9 @@ export const FromToDateFilter = ({ onChange, sx }) => {
         maxDate={params.endDate}
         value={params.startDate}
         onChange={handleStartDateChange}
+        components={{
+          OpenPickerIcon: DateIcon,
+        }}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -39,6 +47,9 @@ export const FromToDateFilter = ({ onChange, sx }) => {
         minDate={params.startDate}
         value={params.endDate}
         onChange={handleEndDateChange}
+        components={{
+          OpenPickerIcon: DateIcon,
+        }}
         renderInput={(params) => (
           <TextField
             {...params}

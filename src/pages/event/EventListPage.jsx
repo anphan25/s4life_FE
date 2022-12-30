@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Stack, styled, Button, Box, Paper, Typography, DialogActions } from '@mui/material';
+import { Stack, styled, Button, Box, Typography, DialogActions } from '@mui/material';
 import { HiPlus } from 'react-icons/hi';
 import {
   DataTable,
@@ -9,17 +9,15 @@ import {
   CustomDialog,
   FromToDateFilter,
   CustomSnackBar,
+  Icon,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { FcCancel, FcInfo } from 'react-icons/fc';
-import { AiFillEdit } from 'react-icons/ai';
-import { getEvent } from 'api/EventApi';
+import { getEvents, cancelEvent } from 'api/EventApi';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { cancelEvent } from 'api/EventApi';
 import { formatDate, errorHandler, isEventEditableOrCancelable } from 'utils';
-
 import moment from 'moment';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
@@ -84,7 +82,7 @@ const filterTabValues = [
 ];
 
 const EventListPage = () => {
-  let user = useSelector((state) => state.auth.auth?.user);
+  const user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [cancelEventName, setCancelEventName] = useState('');
@@ -94,8 +92,8 @@ const EventListPage = () => {
 
   const [pageState, setPageState] = useState({
     isLoading: false,
-    data: [],
     total: 0,
+    data: [],
     page: 1,
     pageSize: 10,
     filterMode: 2, // 1: All, 2: FilterAndSearch, 3: EventRegisterable, 4: MostRecent
@@ -228,8 +226,8 @@ const EventListPage = () => {
               user.role === 'Admin'
             }
             icon={
-              <Box sx={{ '& .action-icon': { color: '#FFC700' } }}>
-                <AiFillEdit className="action-icon" />
+              <Box sx={{ '& .action-icon': { color: 'error.main' } }}>
+                <Icon name="solidEdit" />
               </Box>
             }
             onClick={() => {
@@ -364,46 +362,37 @@ const EventListPage = () => {
   };
 
   const fetchEventListData = useCallback(async () => {
-    setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+    setPageState((old) => ({ ...old, isLoading: true }));
     setAlert({});
 
-    try {
-      const data = await getEvent({
-        FilterMode: pageState.filterMode,
-        EventType: pageState.eventType,
-        Status: pageState.status,
-        Page: pageState.page,
-        PageSize: pageState.pageSize,
-        SearchKey: pageState.searchKey,
-        DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
-        DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
-      });
-
-      const dataRow = data.items?.map((data, i) => ({
-        no: i + 1,
-        id: data?.id,
-        name: data?.name || '-',
-        eventCode: data?.eventCode || '-',
-        address: data.eventLocations[0]?.location?.name || '-',
-        time: JSON.stringify({
-          startDate: formatDate(data?.startDate, 2),
-          endDate: formatDate(data?.endDate, 2),
-          workingTimeStart: moment(data?.workingTimeStart, 'HH:mm').format('HH:mm'),
-          workingTimeEnd: moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm'),
+    getEvents({
+      ...pageState,
+      DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
+      DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
+    })
+      .then((res) => {
+        const dataRow = res.items?.map((data, i) => ({
+          no: i + 1,
+          id: data?.id,
+          name: data?.name || '-',
+          eventCode: data?.eventCode || '-',
+          address: data.eventLocations[0]?.location?.name || '-',
+          time: `${formatDate(data?.startDate, 2)} - ${formatDate(data?.endDate, 2)}, ${moment(
+            data?.workingTimeStart,
+            'HH:mm'
+          ).format('HH:mm')} - ${moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm')}`,
+          startDate: data?.startDate,
+          endDate: data?.endDate,
+          numberOfRegistration: data?.numberOfRegistration || 0,
+          status: data?.status || '',
           isEmergency: data?.isEmergency,
-        }),
-        startDate: data?.startDate,
-        endDate: data?.endDate,
-        numberOfRegistration: data?.numberOfRegistration || 0,
-        status: data?.status || '',
-        isEmergency: data?.isEmergency,
-      }));
-      setPageState({ ...pageState, data: dataRow, total: data.total });
-    } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
-    } finally {
-      setPageState((old) => ({ ...old, isLoading: false }));
-    }
+        }));
+        setPageState({ ...pageState, data: dataRow, total: res.total });
+      })
+      .catch((error) => {
+        setAlert({ message: errorHandler(error), type: 'error', status: true });
+      })
+      .finally(() => setPageState((old) => ({ ...old, isLoading: false })));
   }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.status, pageState.dateFrom, pageState.dateTo]);
 
   useEffect(() => {
@@ -430,7 +419,8 @@ const EventListPage = () => {
         )}
       </HeaderMainStyle>
 
-      <Paper elevation={1} sx={{ borderRadius: '20px' }}>
+      <Box sx={{ backgroundColor: 'white', borderRadius: 20 }}>
+        {' '}
         <FilterSectionStyle>
           <FilterTab
             sx={{
@@ -461,7 +451,7 @@ const EventListPage = () => {
           onPageSizeChange={pageSizeChangeHandler}
           disableFilter={true}
         />
-      </Paper>
+      </Box>
 
       {/* Cancel Event Dialog */}
       <CustomDialog

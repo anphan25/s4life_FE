@@ -9,6 +9,7 @@ export default function Tabs(theme) {
           borderTopRightRadius: 16,
           '&.Mui-selected': {
             color: theme.palette.primary.main,
+            fontWeight: 700,
           },
           '&:not(:last-of-type)': {
             marginRight: theme.spacing(5),

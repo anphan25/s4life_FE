@@ -11,7 +11,7 @@ export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
       key={link.name}
       sx={{
         fontSize: 14,
-        color: 'primary.main',
+        fontWeight: 500,
       }}
     >
       {link.name !== currentLink && link.to ? (
@@ -19,7 +19,7 @@ export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
       ) : (
         <Typography
           sx={{
-            fontSize: 'inherit',
+            fontSize: 14,
             maxWidth: 260,
             overflow: 'hidden',
             whiteSpace: 'nowrap',
