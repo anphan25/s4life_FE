@@ -5,13 +5,15 @@ import { Link } from 'react-router-dom';
 const SidebarItemStyle = styled(MenuItem, {
   shouldForwardProp: (prop) => prop !== 'active',
 })(({ theme, active }) => ({
-  gap: '0.75rem',
-  padding: '1rem 1.25rem',
-  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
+  gap: '20px',
+  padding: '14px 20px',
+  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+  background: active === 'true' ? theme.palette.primary.light : 'white',
+  borderRadius: 0,
 
   ':hover': {
     color: theme.palette.primary.main,
-    background: 'white',
+    background: theme.palette.primary.light,
     fontWeight: 600,
 
     '& .MuiListItemIcon-root': {
@@ -37,13 +39,13 @@ const SidebarItemStyle = styled(MenuItem, {
   },
 
   '& .MuiListItemIcon-root': {
-    height: '1.75rem',
-    width: '1.75rem',
+    height: '24px',
+    width: '24px',
     minWidth: '1.5rem',
     svg: {
       height: '100%',
       width: '100%',
-      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
+      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
     },
   },
 }));
@@ -61,7 +63,7 @@ const SidebarItem = ({ item, active, onActive }) => {
       <ListItemText>
         <Typography
           sx={{
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: active === item.to ? 600 : 500,
           }}
         >

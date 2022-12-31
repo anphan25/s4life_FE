@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from '@mui/material';
+import { styled, Typography } from '@mui/material';
 import React from 'react';
 import { Logo } from 'components';
 

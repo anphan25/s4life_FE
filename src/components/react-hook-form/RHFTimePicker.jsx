@@ -16,7 +16,7 @@ export const RHFTimePicker = ({ name, control, label, placeholder, isRequiredLab
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
           <TimePicker
             id={name}

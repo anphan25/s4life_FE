@@ -1,9 +1,8 @@
-import { Dialog, DialogTitle, Divider, Typography, Stack, styled, Box } from '@mui/material';
+import { Dialog, DialogTitle, Divider, Stack, styled, Box } from '@mui/material';
 import { GrClose } from 'react-icons/gr';
 import React from 'react';
 
 import Slide from '@mui/material/Slide';
-import { TransitionProps } from '@mui/material/transitions';
 
 const DialogContentStyle = styled(Box)(({ theme }) => ({
   padding: '10px 20px 20px',

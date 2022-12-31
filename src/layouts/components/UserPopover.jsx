@@ -1,34 +1,23 @@
-import {
-  Avatar,
-  Box,
-  Divider,
-  IconButton,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { Dropdown } from 'components';
-import React from 'react';
-import { BiUser } from 'react-icons/bi';
-import { TbLogout } from 'react-icons/tb';
+import { Avatar, Box, Divider, ListItemIcon, ListItemText, MenuItem, Stack, Typography } from '@mui/material';
+import { Dropdown, Icon } from 'components';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
 import { getVietnameseRole } from 'utils/getVietnameseRole';
-import { RiAccountCircleLine } from 'react-icons/ri';
+import { getHospital } from 'app/slices/HospitalSlice';
 
 const UserPopover = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toggle, onToggle } = useToggle();
-  let user = useSelector((state) => state.auth.auth?.user);
+  const user = useSelector((state) => state.auth.auth?.user);
+  const hospital = useSelector((state) => state.hospital?.data);
 
   const menu = [
     {
-      icon: <RiAccountCircleLine />,
+      icon: <Icon icon="user" />,
       name: 'Thông tin tài khoản',
       to: '/account',
     },
@@ -39,17 +28,32 @@ const UserPopover = () => {
     navigate('/login');
   };
 
+  useEffect(() => {
+    if (user != null) {
+      dispatch(getHospital(user?.hospital_id));
+    }
+  }, [dispatch, user]);
+
   return (
     <>
-      <IconButton onClick={onToggle}>
-        <Avatar src={user?.picture_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
-      </IconButton>
+      <Box sx={{ cursor: 'pointer' }} onClick={onToggle}>
+        {user?.role === 'Manager' ? (
+          <Stack gap={'12px'} direction={'row'} alignItems="center">
+            <Avatar src={hospital?.avatarUrl || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
+            <Typography fontSize={14} fontWeight={600}>
+              {hospital?.name || ''}
+            </Typography>
+          </Stack>
+        ) : (
+          <Avatar src={user?.picture_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
+        )}
+      </Box>
       <Dropdown anchorEl={toggle} open={Boolean(toggle)} onClose={onToggle} sx={{ width: 280, p: 0, mt: 8 }}>
         <Box sx={{ padding: '16px 33px 0' }}>
           <Typography noWrap fontSize={20} fontWeight={600}>
             {user?.username || ''}
           </Typography>
-          <Typography noWrap fontSize={12} fontWeight={500}>
+          <Typography noWrap fontSize={14} fontWeight={500}>
             {getVietnameseRole(user?.role) || ''}
           </Typography>
         </Box>
@@ -70,9 +74,9 @@ const UserPopover = () => {
               onClick={onToggle}
               sx={{ p: 1.5, color: 'grey.700', borderRadius: '12px' }}
             >
-              <ListItemIcon sx={{ fontSize: 24, color: 'grey.600' }}>{option.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: 'grey.700' }}>{option.icon}</ListItemIcon>
               <ListItemText>
-                <Typography sx={{ fontSize: 14, fontWeight: 600 }}>{option.name}</Typography>
+                <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{option.name}</Typography>
               </ListItemText>
             </MenuItem>
           ))}
@@ -84,11 +88,11 @@ const UserPopover = () => {
             }}
           />
           <MenuItem onClick={handleLogout} sx={{ p: 1.5, color: 'error.main', borderRadius: '12px' }}>
-            <ListItemIcon sx={{ fontSize: 24, color: 'error.main' }}>
-              <TbLogout />
+            <ListItemIcon sx={{ color: 'error.main' }}>
+              <Icon icon="log-out" />
             </ListItemIcon>
             <ListItemText>
-              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Đăng xuất</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 500 }}>Đăng xuất</Typography>
             </ListItemText>
           </MenuItem>
         </Stack>

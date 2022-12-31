@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Stack, Box, styled, Typography, Button, DialogActions, Divider, Grid, Paper } from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport } from 'components';
 import { FiEdit2 } from 'react-icons/fi';
@@ -11,10 +11,11 @@ import { AiOutlineDownload } from 'react-icons/ai';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
-import { getHospitalById, editHospital } from 'api';
-import { useSelector } from 'react-redux';
+import { editHospital } from 'api';
+import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_HOSPITAL_IMAGE_URL } from 'utils';
+import { getHospital } from 'app/slices/HospitalSlice';
 
 const TitleStyle = styled(Typography)(({ theme }) => ({
   fontSize: '20px',
@@ -101,10 +102,10 @@ const HospitalInfoPage = () => {
   const [importParams, setImportParams] = useState([]);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [isUpdateImgBtnDisabled, setIsUpdateImgBtnDisabled] = useState(true);
-
-  const [hospitalData, setHospitalData] = useState();
   const [imgUploadFile, setImgUploadFile] = useState(null);
-  let user = useSelector((state) => state.auth.auth?.user);
+  const dispatch = useDispatch();
+  const hospitalData = useSelector((state) => state.hospital?.data);
+  const user = useSelector((state) => state.auth.auth?.user);
 
   const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
   const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
@@ -178,8 +179,7 @@ const HospitalInfoPage = () => {
     setIsButtonLoading(true);
     setImportParams([]);
     try {
-      await editHospital(data);
-      await fetchHospitalInfo();
+      editHospital(data).then((value) => dispatch(getHospital(user?.hospital_id)));
       setAlert({
         message: 'Cập nhật thành công',
         status: true,
@@ -198,8 +198,7 @@ const HospitalInfoPage = () => {
     setImgUploadFile(null);
 
     try {
-      await editHospital(data);
-      await fetchHospitalInfo();
+      editHospital(data).then((value) => dispatch(getHospital(user?.hospital_id)));
       setAlert({
         message: 'Cập nhật thành công',
         status: true,
@@ -389,24 +388,6 @@ const HospitalInfoPage = () => {
     setImportParams(values);
     setIsImportBtnDisabled(disabledBtn);
   };
-
-  const moveToIndex = (arr, from, to) => {
-    arr.splice(to, 0, arr.splice(from, 1)[0]);
-  };
-
-  const fetchHospitalInfo = useCallback(async () => {
-    const hospitalData = await getHospitalById(user?.hospital_id);
-
-    hospitalData.openingTime.sort((a, b) => a.day - b.day);
-
-    moveToIndex(hospitalData.openingTime, 0, hospitalData.openingTime.length - 1);
-
-    setHospitalData(hospitalData);
-  }, []);
-
-  useEffect(() => {
-    fetchHospitalInfo();
-  }, [fetchHospitalInfo]);
 
   return (
     <Paper sx={{ padding: '30px', borderRadius: '20px' }} elevation={1}>

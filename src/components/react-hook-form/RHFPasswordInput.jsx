@@ -18,7 +18,7 @@ export const RHFPasswordInput = ({ control, label, name, isRequiredLabel, ...pro
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
           <TextField
             id={name}

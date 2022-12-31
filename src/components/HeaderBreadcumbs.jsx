@@ -1,7 +1,6 @@
-import { Box, Typography, Breadcrumbs as MUIBreadcrumbs } from '@mui/material';
+import { Box, Typography, Breadcrumbs as MUIBreadcrumbs, Icon } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HiChevronRight } from 'react-icons/hi';
 
 export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
   const currentLink = links[links.length - 1].name;
@@ -41,7 +40,7 @@ export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
             {heading}
           </Typography>
 
-          <MUIBreadcrumbs sx={{ color: 'primary.main' }} separator={<HiChevronRight />} {...props}>
+          <MUIBreadcrumbs sx={{ color: 'primary.main' }} separator={<Icon icon="solid-angle-right-small" />} {...props}>
             {listActiveLast}
           </MUIBreadcrumbs>
         </Box>

@@ -3,18 +3,18 @@ import useResponsive from 'hooks/useResponsive';
 import NotificationPopover from './NotificationPopover';
 import Searchbar from './Searchbar';
 import UserPopover from './UserPopover';
-import { HiMenuAlt2 } from 'react-icons/hi';
+import { Icon } from 'components';
 
 const NavbarStyle = styled(Box)(({ theme }) => ({
   width: '100%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: theme.spacing(3, 4),
+  height: '80px',
   backgroundColor: 'white',
+  padding: theme.spacing(3),
 
   [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(3),
     width: '100vw',
   },
 }));
@@ -27,7 +27,7 @@ const Navbar = ({ onOpen }) => {
       <Stack direction="row" gap={3}>
         {!isDesktop && (
           <IconButton sx={{ width: '48px' }} color={'default'} onClick={onOpen}>
-            <HiMenuAlt2 />
+            <Icon icon="solid-menu-left-alt" />
           </IconButton>
         )}
         <Searchbar />

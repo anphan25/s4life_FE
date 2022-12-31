@@ -15,16 +15,11 @@ import {
   TableBody,
   useMediaQuery,
 } from '@mui/material';
-import { MdOutlineEventNote, MdOutlineWaterDrop } from 'react-icons/md';
-import { BsPeople } from 'react-icons/bs';
-import { FcProcess } from 'react-icons/fc';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
-import { BsCheck2 } from 'react-icons/bs';
-import { IoMdClose } from 'react-icons/io';
 import { formatNumber } from 'utils/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
-import dayjs from 'dayjs';
+import { Icon } from 'components';
 
 const PageTitle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
@@ -46,12 +41,12 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
 
   '& .tab_title': {
     '& .tab_title--icon': {
-      width: '30px',
-      height: '30px',
-      backgroundColor: theme.palette.error.light,
-      color: theme.palette.error.main,
+      width: '36px',
+      height: '36px',
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.primary.main,
       borderRadius: '100%',
-      padding: '6px',
+      padding: '8px',
       marginRight: '10px',
     },
 
@@ -75,7 +70,7 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
   '& .status_box': {
     '& .status_title': {
       marginBottom: '8px',
-      '& .status_icon': { marginRight: '8px' },
+      '& .status_icon': { marginRight: '8px', fontSize: '16px' },
       '& .fail': { color: theme.palette.error.main },
       '& .success': { color: theme.palette.success.main },
       '& .status_text': { fontWeight: 600, fontSize: '14px' },
@@ -155,10 +150,10 @@ const DashboardPage = () => {
         <Typography variant="h4" gutterBottom fontWeight={600}>
           Trang chủ
         </Typography>
-        <Paper className="quarter_box" elevation={0} sx={{ padding: '10px' }}>
-          <Typography>
-            {dayjs('2001-09-05T00:00:00').locale('vi').format('MMMM, YYYY')} -{' '}
-            {dayjs('2001-12-05T00:00:00').locale('vi').format('MMMM, YYYY')}
+        <Paper elevation={0} sx={{ padding: '.65rem 1.25rem', borderRadius: '.475rem' }}>
+          <Typography sx={{ textTransform: 'capitalize', fontSize: 12, fontWeight: 600 }}>
+            {moment('2001-09-05T00:00:00').locale('vi').format('MMMM, YYYY')} -{' '}
+            {moment('2001-12-05T00:00:00').locale('vi').format('MMMM, YYYY')}
           </Typography>
         </Paper>
       </PageTitle>
@@ -168,7 +163,7 @@ const DashboardPage = () => {
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
             <Stack className="tab_title" direction="row" alignItems="center">
-              <MdOutlineEventNote className="tab_title--icon" />
+              <Icon icon="solid-calendar-star" className="tab_title--icon" />
               <Typography className="tab_title--text">Số sự kiện</Typography>
             </Stack>
 
@@ -178,7 +173,7 @@ const DashboardPage = () => {
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">
                   <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <BsCheck2 className="status_icon success" />
+                    <Icon icon="solid-check" className="status_icon success" />
                     <Typography className="status_text">Đã hoàn thành</Typography>
                   </Stack>
                   <Typography className="status_number">{formatNumber(5000)}</Typography>
@@ -190,7 +185,7 @@ const DashboardPage = () => {
 
                 <Box className="status_box">
                   <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <IoMdClose className="status_icon fail" />
+                    <Icon icon="solid-times" className="status_icon fail" />
                     <Typography className="status_text">Chưa hoàn thành</Typography>
                   </Stack>
                   <Typography className="status_number">{formatNumber(5000)}</Typography>
@@ -203,7 +198,7 @@ const DashboardPage = () => {
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
             <Stack className="tab_title" direction="row" alignItems="center">
-              <BsPeople className="tab_title--icon" />
+              <Icon icon="solid-users-group" className="tab_title--icon" />
               <Typography className="tab_title--text">Số lượt hiến máu</Typography>
             </Stack>
 
@@ -213,7 +208,7 @@ const DashboardPage = () => {
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">
                   <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <BsCheck2 className="status_icon success" />
+                    <Icon icon="solid-check" className="status_icon success" />
                     <Typography className="status_text">Đã hiến máu</Typography>
                   </Stack>
                   <Typography className="status_number">{formatNumber(5000)}</Typography>
@@ -225,7 +220,7 @@ const DashboardPage = () => {
 
                 <Box className="status_box">
                   <Stack className="status_title" direction="row" alignItems="center">
-                    <IoMdClose className="status_icon fail" />
+                    <Icon icon="solid-times" className="status_icon fail" />
                     <Typography className="status_text">Chưa hiến máu</Typography>
                   </Stack>
                   <Typography className="status_number">{formatNumber(5000)}</Typography>
@@ -238,7 +233,7 @@ const DashboardPage = () => {
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
             <Stack className="tab_title" direction="row" alignItems="center">
-              <MdOutlineWaterDrop className="tab_title--icon" />
+              <Icon icon="solid-droplet" className="tab_title--icon" />
               <Typography className="tab_title--text">Số (lit) máu nhận được</Typography>
             </Stack>
 
@@ -248,7 +243,7 @@ const DashboardPage = () => {
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">
                   <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <BsCheck2 className="status_icon success" />
+                    <Icon icon="solid-check" className="status_icon success" />
                     <Typography className="status_text">Đã nhận được</Typography>
                   </Stack>
                   <Typography className="status_number">{formatNumber(5000)}</Typography>
@@ -260,7 +255,7 @@ const DashboardPage = () => {
 
                 <Box className="status_box">
                   <Stack className="status_title" direction="row" alignItems="center">
-                    <FcProcess className="status_icon fail" />
+                    <Icon icon="solid-line-chart-dots" className="status_icon fail" />
                     <Typography className="status_text">Dự kiến nhận</Typography>
                   </Stack>
                   <Typography className="status_number">{formatNumber(5000)}</Typography>
