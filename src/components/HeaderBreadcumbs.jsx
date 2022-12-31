@@ -40,7 +40,7 @@ export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
             {heading}
           </Typography>
 
-          <MUIBreadcrumbs sx={{ color: 'primary.main' }} separator={<Icon icon="solid-angle-right-small" />} {...props}>
+          <MUIBreadcrumbs separator={<Icon icon="solid-angle-right-small" sx={{ color: 'primary.main' }} />} {...props}>
             {listActiveLast}
           </MUIBreadcrumbs>
         </Box>

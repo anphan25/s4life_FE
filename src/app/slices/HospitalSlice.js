@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getHospitalById } from 'api';
+// import { getHospitalById } from 'api';
 
 const initialState = {
   isLoading: false,
@@ -10,19 +11,7 @@ const initialState = {
 export const hospitalSlice = createSlice({
   name: 'hospital',
   initialState,
-  reducers: {
-    hospitalPending: (state) => {
-      state.isLoading = true;
-    },
-    setImage: (state, action) => {
-      state.data = action.payload;
-      state.isLoading = false;
-    },
-    hasError: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(getHospital.pending, (state) => {
       state.isLoading = true;
@@ -48,7 +37,5 @@ export const getHospital = createAsyncThunk('hospital/getHospitalById', async (h
   moveToIndex(response.openingTime, 0, response.openingTime.length - 1);
   return response;
 });
-
-export const { hasError, setHospital, hospitalPending } = hospitalSlice.actions;
 
 export default hospitalSlice.reducer;
