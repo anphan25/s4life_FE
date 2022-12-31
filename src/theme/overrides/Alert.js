@@ -3,6 +3,8 @@ import { ErrorIcon, InfoIcon, SuccessIcon, WarningIcon } from './CustomIcons';
 
 export default function Alert(theme) {
   const standardStyle = (color) => ({
+    paddingLeft: '16px',
+    paddingRight: '16px',
     color: theme.palette.grey[900],
     backgroundColor: 'white',
 

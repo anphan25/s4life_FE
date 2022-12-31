@@ -1,4 +1,4 @@
-import { Drawer, IconButton, MenuList, styled } from '@mui/material';
+import { Drawer, IconButton, MenuList, Stack, styled, Typography } from '@mui/material';
 import { Icon, Logo } from 'components';
 import SubHeader from './SubHeader';
 import SidebarItem from './SidebarItem';
@@ -8,11 +8,11 @@ import { useSelector } from 'react-redux';
 import useResponsive from 'hooks/useResponsive';
 
 const sidebarAdmin = [
-  { name: 'Trang chủ', icon: <Icon icon="solid-grid-web-7" />, to: '/' },
-  { name: 'Quản lý bệnh viện', icon: <Icon icon="solid-hospital" />, to: '/hospital/list' },
+  { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
+  { name: 'Quản lý bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/list' },
   {
     name: 'Quản lý sự kiện',
-    icon: <Icon icon="solid-coupon-star" />,
+    icon: <Icon icon="coupon-star" />,
     children: [
       {
         name: 'Cố định',
@@ -26,16 +26,16 @@ const sidebarAdmin = [
   },
   {
     name: 'Quản lý người dùng',
-    icon: <Icon icon="solid-users" />,
+    icon: <Icon icon="users" />,
     to: '/user/list',
   },
 ];
 
 const sidebarManager = [
-  { name: 'Trang chủ', icon: <Icon icon="solid-grid-web-7" />, to: '/' },
+  { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
   {
     name: 'Quản lý sự kiện',
-    icon: <Icon icon="solid-coupon-star" />,
+    icon: <Icon icon="coupon-star" />,
     children: [
       {
         name: 'Cố định',
@@ -51,15 +51,26 @@ const sidebarManager = [
       },
     ],
   },
-  { name: 'Thông tin bệnh viện', icon: <Icon icon="solid-hospital" />, to: '/hospital/info' },
+  { name: 'Thông tin bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/info' },
 ];
 
 const SidebarContainer = styled('aside')(({ theme }) => ({
-  width: '250px',
+  width: '280px',
   background: 'white',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  borderRight: `1px solid ${theme.palette.grey[300]}`,
+  overflowY: 'auto',
+}));
+
+const ToggleButton = styled(IconButton)(({ theme }) => ({
+  position: 'fixed',
+  padding: '4px',
+  top: 32,
+  left: 268,
+  border: `1px solid ${theme.palette.grey[300]}`,
+  backgroundColor: 'white',
 }));
 
 export const Sidebar = ({ toggle, onClose }) => {
@@ -70,8 +81,11 @@ export const Sidebar = ({ toggle, onClose }) => {
 
   const renderContent = (
     <>
-      <Logo sx={{ margin: '40px auto' }} />
-      <MenuList sx={{ gap: 2, width: '100%' }}>
+      <Stack direction={'row'} sx={{ padding: '24px 16px', width: '100%' }} alignItems={'center'}>
+        <Logo sx={{ height: 65 }} />
+        <Typography sx={{ fontWeight: 700, fontSize: 24 }}>S4Life</Typography>
+      </Stack>
+      <MenuList sx={{ gap: '10px', width: '100%', display: 'flex', flexDirection: 'column' }}>
         {user?.role === 'Admin' &&
           sidebarAdmin.map((item, index) =>
             item.children ? (
@@ -96,14 +110,21 @@ export const Sidebar = ({ toggle, onClose }) => {
   return (
     <>
       {!isDesktop && (
-        <Drawer open={toggle} onClose={onClose} PaperProps={{ sx: { width: '250px' } }}>
+        <Drawer open={toggle} onClose={onClose} PaperProps={{ sx: { width: '280px' } }}>
           <IconButton color="error" sx={{ m: 1, width: 'fit-content' }} onClick={onClose}>
             <Icon icon="times" size={20} />
           </IconButton>
           {renderContent}
         </Drawer>
       )}
-      {isDesktop && <SidebarContainer>{renderContent}</SidebarContainer>}
+      {isDesktop && (
+        <SidebarContainer>
+          {/* <ToggleButton size="small">
+            <Icon icon="solid-angles-left-small" sx={{ fontSize: 16 }} />
+          </ToggleButton> */}
+          {renderContent}
+        </SidebarContainer>
+      )}
     </>
   );
 };

@@ -29,7 +29,7 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
             htmlFor={name}
           >
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </InputLabel>
           <Editor
             className="editor"

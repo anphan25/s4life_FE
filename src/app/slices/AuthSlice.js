@@ -4,12 +4,15 @@ import jwtDecode from 'jwt-decode';
 const getAuthState = () => {
   const storedValue = localStorage.getItem('authTokens');
   const authTokens = storedValue ? JSON.parse(storedValue) : null;
-  if (authTokens)
+  if (authTokens) {
+    const decode = jwtDecode(authTokens.accessToken);
+
     return {
       ...authTokens,
-      user: jwtDecode(authTokens.accessToken),
+      user: decode,
     };
-  else return null;
+  }
+  return null;
 };
 
 const initialState = {

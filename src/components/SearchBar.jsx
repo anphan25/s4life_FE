@@ -1,6 +1,5 @@
-import { InputAdornment, Input, FormControl } from '@mui/material';
+import { InputAdornment, Input, FormControl, Icon } from '@mui/material';
 import React, { useState, useRef } from 'react';
-import { FiSearch } from 'react-icons/fi';
 
 export const SearchBar = ({ sx, onSubmit, ...others }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,9 +30,9 @@ export const SearchBar = ({ sx, onSubmit, ...others }) => {
         value={searchTerm}
         startAdornment={
           <InputAdornment position="start">
-            <FiSearch
-              style={{
-                fontSize: 24,
+            <Icon
+              icon="search"
+              sx={{
                 marginLeft: '8px',
               }}
             />

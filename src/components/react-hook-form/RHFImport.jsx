@@ -223,7 +223,7 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
 
   const convertCSVToJson = async () => {
     //result.data has the form [{},{},...]
-    const result = await Papa.parse(acceptedFiles[0], {
+    await Papa.parse(acceptedFiles[0], {
       delimiter: '', // auto-detect
       newline: '', // auto-detect
       quoteChar: '"',

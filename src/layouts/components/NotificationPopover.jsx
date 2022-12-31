@@ -1,9 +1,8 @@
 import { Badge, Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import { BellIcon } from 'assets';
-import { Dropdown } from 'components';
+import { Dropdown, Icon } from 'components';
 import useToggle from 'hooks/useToggle';
 import { useState } from 'react';
-import { BiCheckDouble } from 'react-icons/bi';
 
 const NotificationPopover = () => {
   const [totalUnRead, setTotalUnRead] = useState(4);
@@ -20,7 +19,7 @@ const NotificationPopover = () => {
           <BellIcon />
         </Badge>
       </IconButton>
-      <Dropdown open={Boolean(toggle)} onClose={onToggle} sx={{ width: 360, p: 0, mt: 8 }}>
+      <Dropdown open={Boolean(toggle)} onClose={onToggle} sx={{ width: 360, p: 0, mt: 8, overflow: 'hidden' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">
@@ -34,7 +33,7 @@ const NotificationPopover = () => {
           {totalUnRead > 0 && (
             <Tooltip title=" Mark all as read">
               <IconButton color="primary" onClick={handleMarkAllAsRead}>
-                <BiCheckDouble />
+                <Icon icon="solid-check-double" />
               </IconButton>
             </Tooltip>
           )}

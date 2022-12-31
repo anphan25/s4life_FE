@@ -1,10 +1,10 @@
-import { Button, ClickAwayListener, IconButton, Input, InputAdornment, Slide } from '@mui/material';
+import { ClickAwayListener, IconButton, Input, InputAdornment, Slide } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RiSearchLine } from 'react-icons/ri';
 import useResponsive from 'hooks/useResponsive';
 import useToggle from 'hooks/useToggle';
 import styled from '@emotion/styled';
+import { Icon } from 'components';
 
 const SearchbarStyle = styled('div')(({ theme }) => ({
   top: 96,
@@ -39,7 +39,7 @@ const Searchbar = () => {
         <ClickAwayListener onClickAway={onClose}>
           <div>
             <IconButton onClick={onOpen}>
-              <RiSearchLine />
+              <Icon icon="search" />
             </IconButton>
 
             <Slide direction="down" in={toggle} mountOnEnter unmountOnExit>
@@ -50,7 +50,7 @@ const Searchbar = () => {
                   onKeyDown={handleKeyDown}
                   startAdornment={
                     <InputAdornment position="start" sx={{ ml: 1 }}>
-                      <RiSearchLine fontSize={24} />
+                      <Icon icon="search" />
                     </InputAdornment>
                   }
                   sx={{
@@ -73,7 +73,7 @@ const Searchbar = () => {
           onKeyDown={handleKeyDown}
           startAdornment={
             <InputAdornment position="start" sx={{ ml: 1 }}>
-              <RiSearchLine fontSize={24} />
+              <Icon icon="search" />
             </InputAdornment>
           }
           sx={{

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { alpha, Snackbar, Alert } from '@mui/material';
+import { alpha, Snackbar, Alert, useTheme } from '@mui/material';
 
 export const CustomSnackBar = (props) => {
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
 
   const handleClose = (event, reason) => {
@@ -18,7 +19,7 @@ export const CustomSnackBar = (props) => {
         sx={{
           marginTop: '60px',
           borderRadius: '12px',
-          boxShadow: `0 8px 16px 0 ${alpha('#A1A5B7', 0.08)}`,
+          boxShadow: `0 8px 16px 0 ${alpha(theme.palette.grey[300], 0.08)}`,
           backgroundColor: 'grey.100',
         }}
         open={isOpen}

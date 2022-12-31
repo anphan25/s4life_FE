@@ -1,16 +1,18 @@
-import { ListItemIcon, ListItemText, MenuItem, styled, Typography } from '@mui/material';
-import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
+import { Box, ListItemIcon, ListItemText, MenuItem, styled, Typography } from '@mui/material';
+import { Icon } from 'components';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
-  gap: '0.75rem',
-  padding: '1rem 1.25rem',
-  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
+  gap: '20px',
+  padding: '14px 20px',
+  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+  background: active === 'true' ? theme.palette.primary.light : 'white',
+  borderRadius: 0,
 
   ':hover': {
     color: theme.palette.primary.main,
-    background: 'white',
+    background: theme.palette.primary.light,
     fontWeight: 600,
 
     '& .MuiListItemIcon-root': {
@@ -36,14 +38,29 @@ const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
   },
 
   '& .MuiListItemIcon-root': {
-    height: '1.75rem',
-    width: '1.75rem',
+    height: '24px',
+    width: '24px',
     minWidth: '1.5rem',
     svg: {
       height: '100%',
       width: '100%',
-      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[600],
+      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
     },
+  },
+}));
+
+const Dot = styled('div')(({ theme, active }) => ({
+  height: '24px',
+  width: '24px',
+  marginLeft: '32px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  div: {
+    borderRadius: '50%',
+    height: '4px',
+    width: '4px',
+    backgroundColor: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
   },
 }));
 
@@ -61,12 +78,26 @@ const SubHeader = ({ item, active, onActive }) => {
         <span />
         <ListItemIcon>{item.icon}</ListItemIcon>
         <ListItemText>
-          <Typography sx={{ fontSize: 16, fontWeight: 500 }}>{item.name}</Typography>
+          <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{item.name}</Typography>
         </ListItemText>
-        <ListItemIcon>{!showSubHeader ? <HiChevronDown /> : <HiChevronUp />}</ListItemIcon>
+        <ListItemIcon>
+          <Icon
+            icon="solid-angle-down-small"
+            sx={{ transform: showSubHeader ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }}
+          />
+        </ListItemIcon>
       </SidebarItem>
-      {showSubHeader &&
-        item?.children?.map((child) => (
+      <Box
+        sx={{
+          height: showSubHeader ? 'auto' : '0',
+          transition: 'height 0.5s ease',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}
+      >
+        {item?.children?.map((child) => (
           <SidebarItem
             component={Link}
             key={child.name}
@@ -74,11 +105,13 @@ const SubHeader = ({ item, active, onActive }) => {
             to={child.to}
             onClick={() => onActive(child.to)}
           >
-            <Typography sx={{ fontSize: 16, fontWeight: active === child.to ? 600 : 500, pl: 5 }}>
-              {child.name}
-            </Typography>
+            <Dot active={active === child.to ? 'true' : 'false'}>
+              <div></div>
+            </Dot>
+            <Typography sx={{ fontSize: 14, fontWeight: active === child.to ? 600 : 500 }}>{child.name}</Typography>
           </SidebarItem>
         ))}
+      </Box>
     </>
   );
 };

@@ -15,7 +15,7 @@ export const RHFCheckbox = ({ control, label, name, list, isRequiredLabel, onChe
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
           <FormGroup>
             {list?.map((item) => (

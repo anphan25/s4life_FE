@@ -15,7 +15,7 @@ export const RHFRadio = ({ control, label, name, options, isRequiredLabel, ...pr
         <FormControl sx={{ mb: 1.5 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
           <RadioGroup {...field} {...props} row>
             {options.map((option) => (

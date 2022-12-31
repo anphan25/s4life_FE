@@ -27,7 +27,7 @@ export const RHFAsyncAutoComplete = ({
         <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
-            {isRequiredLabel ? <RequireLabel>*</RequireLabel> : ''}
+            {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
           <Autocomplete
             id={name}

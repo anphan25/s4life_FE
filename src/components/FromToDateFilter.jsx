@@ -1,6 +1,6 @@
-import { Stack, TextField, Box } from '@mui/material';
+import { Stack, TextField } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { DatePicker, DesktopDatePicker } from '@mui/x-date-pickers';
+import { DesktopDatePicker } from '@mui/x-date-pickers';
 import { Icon } from './Icon';
 
 function DateIcon() {
