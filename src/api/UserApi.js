@@ -1,4 +1,4 @@
-import axiosInstance from 'config/axiosConfig';
+import { axiosInstance } from 'config';
 import queryString from 'query-string';
 
 const apiPath = '/users';

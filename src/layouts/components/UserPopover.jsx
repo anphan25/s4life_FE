@@ -31,6 +31,7 @@ const UserPopover = () => {
   useEffect(() => {
     if (user != null) {
       dispatch(getHospital(user?.hospital_id));
+      console.log(hospital);
     }
   }, [dispatch, user]);
 

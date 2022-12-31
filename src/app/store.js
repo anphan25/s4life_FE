@@ -7,9 +7,9 @@ export const store = configureStore({
     auth: authReducer,
     hospital: hospitalReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-      immutableCheck: false,
-    }),
+  // middleware: (getDefaultMiddleware) =>
+  //   getDefaultMiddleware({
+  //     serializableCheck: false,
+  //     immutableCheck: false,
+  //   }),
 });
