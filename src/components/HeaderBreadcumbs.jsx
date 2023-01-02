@@ -1,6 +1,7 @@
-import { Box, Typography, Breadcrumbs as MUIBreadcrumbs, Icon } from '@mui/material';
+import { Box, Typography, Breadcrumbs as MUIBreadcrumbs } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Icon } from 'components';
 
 export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
   const currentLink = links[links.length - 1].name;
@@ -11,6 +12,7 @@ export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
       sx={{
         fontSize: 14,
         fontWeight: 500,
+        color: 'primary.main',
       }}
     >
       {link.name !== currentLink && link.to ? (

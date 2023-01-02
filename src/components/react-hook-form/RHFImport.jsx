@@ -3,17 +3,18 @@ import { FormControl, TextField, styled, Stack, Box, Typography } from '@mui/mat
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import { FaFileCsv } from 'react-icons/fa';
 import Papa from 'papaparse';
 import moment from 'moment';
+import { CSVFileIcon } from 'assets';
 
 const DropZone = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '10px 0 10px',
+  padding: '24px',
   border: `1px dashed ${theme.palette.primary.main}`,
-  backgroundColor: theme.palette.grey[200],
+  backgroundColor: theme.palette.grey[50],
   fontSize: '14px',
+  borderRadius: 12,
   cursor: 'pointer',
 
   '& .file_input': {
@@ -68,7 +69,7 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
         return 'Vui lòng chọn file định dạng csv';
       }
       case 'file-too-large': {
-        return 'Vui lòng chọn file có kích cỡ bé hơn hoặc bằng 1MB';
+        return 'Vui lòng chọn file có dung lượng bé hơn hoặc bằng 1MB';
       }
 
       case 'required-filed-missing': {
@@ -354,7 +355,7 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
               <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
                 <ImportTextDisplayStyle>
                   <Box>
-                    <FaFileCsv className="import_icon" />
+                    <CSVFileIcon />
                   </Box>
                   <Typography className="import_description">{label}</Typography>
                   <Typography className="import_require">CSV tối đa 1MB</Typography>
