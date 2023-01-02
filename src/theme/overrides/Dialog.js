@@ -3,34 +3,35 @@ export default function Dialog(theme) {
     MuiDialog: {
       styleOverrides: {
         paper: {
-          boxShadow: "none",
-          "&.MuiPaper-rounded": {
+          width: 'auto !important',
+          boxShadow: 'none',
+          '&.MuiPaper-rounded': {
             borderRadius: 16,
           },
-          "&.MuiDialog-paperFullScreen": {
+          '&.MuiDialog-paperFullScreen': {
             borderRadius: 0,
           },
-          "&.MuiDialog-paper .MuiDialogActions-root": {
+          '&.MuiDialog-paper .MuiDialogActions-root': {
             padding: theme.spacing(3),
           },
-          "@media (max-width: 600px)": {
+          '@media (max-width: 600px)': {
             margin: theme.spacing(2),
           },
-          "@media (max-width: 663.95px)": {
-            "&.MuiDialog-paperWidthSm.MuiDialog-paperScrollBody": {
-              maxWidth: "100%",
+          '@media (max-width: 663.95px)': {
+            '&.MuiDialog-paperWidthSm.MuiDialog-paperScrollBody': {
+              maxWidth: '100%',
             },
           },
         },
         paperFullWidth: {
-          width: "100%",
+          width: '100%',
         },
       },
     },
     MuiDialogTitle: {
       styleOverrides: {
         root: {
-          padding: theme.spacing(3, 3, 0),
+          padding: '1.75rem',
         },
       },
     },
@@ -46,7 +47,7 @@ export default function Dialog(theme) {
     MuiDialogActions: {
       styleOverrides: {
         root: {
-          "& > :not(:first-of-type)": {
+          '& > :not(:first-of-type)': {
             marginLeft: theme.spacing(1.5),
           },
         },

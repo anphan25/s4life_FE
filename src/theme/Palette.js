@@ -22,7 +22,7 @@ export const palette = {
     main: '#2BC155',
   },
   grey: {
-    50: '#FAFAFA',
+    50: alpha('#EAEEF9', 0.2),
     100: '#F5F5F5',
     200: '#EEEEEE',
     300: '#E0E0E0',

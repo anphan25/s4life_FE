@@ -1,9 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { Stack, Box, styled, Typography, Button, DialogActions, Divider, Grid, Paper } from '@mui/material';
-import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport } from 'components';
-import { FiEdit2 } from 'react-icons/fi';
-import { RiImageEditFill } from 'react-icons/ri';
-import { BsClock } from 'react-icons/bs';
+import {
+  DashedBox,
+  DialogButtonGroup,
+  HeaderMainStyle,
+  HospitalImgStyle,
+  Item,
+  LeftContainer,
+  PlaceholderStyle,
+} from './HospitalInfoStyle';
+import { Stack, Box, Typography, Button, Grid, Paper, Avatar } from '@mui/material';
+import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { errorHandler, convertDayLabel } from 'utils';
 import { useForm } from 'react-hook-form';
@@ -15,79 +21,8 @@ import { editHospital } from 'api';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_HOSPITAL_IMAGE_URL } from 'utils';
-import { getHospital } from 'app/slices/HospitalSlice';
-
-const TitleStyle = styled(Typography)(({ theme }) => ({
-  fontSize: '20px',
-  fontWeight: '600',
-}));
-
-const HospitalImgStyle = styled('div')(({ theme }) => ({
-  width: '200px',
-  height: '200px',
-  borderRadius: '100%',
-  padding: '10px',
-  border: `1px dashed rgba(145, 158, 171, 0.32)`,
-  position: 'relative',
-  display: 'flex',
-  cursor: 'pointer',
-  overflow: 'hidden',
-  alignItems: 'center',
-  justifyContent: 'center',
-
-  '& img': {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    borderRadius: '100%',
-  },
-}));
-
-const PlaceholderStyle = styled('div')(({ theme }) => ({
-  opacity: 0,
-  width: 'calc(100% - 17px)',
-  height: 'calc(100% - 17px)',
-  borderRadius: '100%',
-  color: theme.palette.grey[100],
-  fontSize: '40px',
-  display: 'flex',
-  position: 'absolute',
-  alignItems: 'center',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  zIndex: 999,
-  backgroundColor: theme.palette.grey[900],
-  transition: theme.transitions.create('opacity', {
-    easing: theme.transitions.easing.easeInOut,
-    duration: theme.transitions.duration.shorter,
-  }),
-  '&:hover': { opacity: 0.72 },
-}));
-
-const TitleInfoStyle = styled('span')(({ theme }) => ({
-  color: '#a1a5b7',
-  fontWeight: '600',
-}));
-
-const ContentInfoStyle = styled('span')(({ theme }) => ({
-  fontWeight: '600',
-}));
-
-const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
-  marginTop: 'auto',
-  padding: '10px 0px 10px !important',
-
-  [theme.breakpoints.down('sm')]: {
-    margin: '0 auto',
-    '& .dialog_button': {
-      fontSize: '10px',
-    },
-  },
-}));
-
-const DownloadLink = styled('a')(({ theme }) => ({
-  display: 'none',
-}));
+import { setHospital } from 'app/slices/HospitalSlice';
+import { Link } from 'react-router-dom';
 
 const HospitalInfoPage = () => {
   const [isUpdateHospitalOpen, setIsUpdateHospitalOpen] = useState(false);
@@ -105,7 +40,6 @@ const HospitalInfoPage = () => {
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const dispatch = useDispatch();
   const hospitalData = useSelector((state) => state.hospital?.data);
-  const user = useSelector((state) => state.auth.auth?.user);
 
   const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
   const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
@@ -137,9 +71,9 @@ const HospitalInfoPage = () => {
 
     const name = uuidv4();
     const storageRef = await ref(storage, `${filePath}/${name}`);
-    const metadata = {
-      contentType: imgUploadFile.type,
-    };
+    // const metadata = {
+    //   contentType: imgUploadFile.type,
+    // };
 
     if (!imgUploadFile) {
       return;
@@ -179,7 +113,7 @@ const HospitalInfoPage = () => {
     setIsButtonLoading(true);
     setImportParams([]);
     try {
-      editHospital(data).then((value) => dispatch(getHospital(user?.hospital_id)));
+      editHospital(data).then((value) => dispatch(setHospital(data)));
       setAlert({
         message: 'Cập nhật thành công',
         status: true,
@@ -198,7 +132,9 @@ const HospitalInfoPage = () => {
     setImgUploadFile(null);
 
     try {
-      editHospital(data).then((value) => dispatch(getHospital(user?.hospital_id)));
+      editHospital(data).then((value) => {
+        dispatch(setHospital(data));
+      });
       setAlert({
         message: 'Cập nhật thành công',
         status: true,
@@ -220,16 +156,16 @@ const HospitalInfoPage = () => {
             <RHFImport
               control={hospitalInfoControl}
               name="hospitalFile"
-              label="Kéo thả hoặc nhấn vào để chọn file"
+              label="Kéo thả hoặc nhấn vào để gửi lên"
               onImport={getDataFromFile}
               isEdit={true}
             />
           </Stack>
 
-          <DownloadLink ref={downloadRef} download />
+          <Link ref={downloadRef} download />
 
           <Stack direction="row" justifyContent="space-between">
-            <Button sx={{ width: '250px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadInfo}>
+            <Button startIcon={<AiOutlineDownload />} onClick={handleDownloadInfo}>
               Tải thông tin bệnh viện
             </Button>
             <DialogButtonGroup sx={{ marginTop: '10px' }}>
@@ -390,98 +326,119 @@ const HospitalInfoPage = () => {
   };
 
   return (
-    <Paper sx={{ padding: '30px', borderRadius: '20px' }} elevation={1}>
-      <Stack direction="row" justifyContent="space-between" alignContent="center">
-        <TitleStyle>Thông tin bệnh viện</TitleStyle>
-        <Button variant="contained" startIcon={<FiEdit2 />} onClick={handleUpdateHospitalDialog}>
-          Sửa
+    <>
+      <HeaderMainStyle>
+        <HeaderBreadcumbs
+          heading="Thông tin bệnh viện"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Thông tin bệnh viện' }]}
+        />
+
+        <Button
+          startIcon={<Icon icon="solid-pen-line" />}
+          variant="contained"
+          onClick={() => handleUpdateHospitalDialog()}
+        >
+          Cập nhật
         </Button>
-      </Stack>
-      <Stack direction="row" spacing={3} sx={{ marginTop: '20px' }}>
-        <HospitalImgStyle>
-          <PlaceholderStyle onClick={handleUpdateHospitalImgDialog}>
-            <Box>
-              <RiImageEditFill />
-            </Box>
-            <Typography variant="caption">Cập nhật ảnh</Typography>
-          </PlaceholderStyle>
-          <img src={hospitalData?.avatarUrl} alt="Ảnh bệnh viện" />
-        </HospitalImgStyle>
-        <Stack spacing={2}>
-          <Typography>
-            <TitleInfoStyle>Tên: </TitleInfoStyle>
-            <ContentInfoStyle>{hospitalData?.name}</ContentInfoStyle>
-          </Typography>
-          <Typography>
-            <TitleInfoStyle>Địa chỉ: </TitleInfoStyle>
-            <ContentInfoStyle>{hospitalData?.address}</ContentInfoStyle>
-          </Typography>
-          <Typography>
-            <TitleInfoStyle>Kinh độ: </TitleInfoStyle>
-            <ContentInfoStyle>{hospitalData?.longitude}</ContentInfoStyle>
-          </Typography>
-          <Typography>
-            <TitleInfoStyle>Vĩ độ: </TitleInfoStyle>
-            <ContentInfoStyle>{hospitalData?.latitude}</ContentInfoStyle>
-          </Typography>
-          <Typography>
-            <TitleInfoStyle>E-mail: </TitleInfoStyle>
-            <ContentInfoStyle>{hospitalData?.email || '-'}</ContentInfoStyle>
-          </Typography>
-          <Typography>
-            <TitleInfoStyle>Số điện thoại: </TitleInfoStyle>
-            <ContentInfoStyle>{hospitalData?.phoneNumber}</ContentInfoStyle>
-          </Typography>
-        </Stack>
-      </Stack>
-
-      <Divider sx={{ margin: '20px 0 20px' }} />
-
-      {/* Working Schedule */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        sx={{
-          '& .workingTime-schedule': {
-            width: '40px',
-            height: '40px',
-            backgroundColor: 'rgba(252, 90, 90, 0.1)',
-            color: 'rgb(252, 90, 90)',
-            borderRadius: '100%',
-            padding: '8px',
-            marginRight: '10px',
-          },
-        }}
-      >
-        <BsClock className="workingTime-schedule" /> <Typography fontWeight="bold">Lịch làm việc</Typography>
-      </Stack>
-
-      <Box sx={{ marginTop: '15px' }}>
-        <Grid container rowSpacing={2}>
-          {hospitalData?.openingTime?.map((item, i) => (
-            <Grid key={i} item xs={12} sm={6} md={4}>
-              <Stack key={i} direction="row" spacing={4} sx={{ marginBottom: '10px' }} alignItems="center">
-                <Typography fontWeight="bold">{convertDayLabel(item?.day)}:</Typography>
-                <Box>
-                  {item?.isEnabled ? (
-                    <Stack direction="row" spacing={3} alignItems="center" sx={{ color: '#5F666F' }}>
-                      <Typography sx={{ padding: '5px 10px 5px', border: '1px solid #E5E5E5', borderRadius: '5px' }}>
-                        {moment(item?.startTime, 'HH:mm').format('HH:mm')}
-                      </Typography>
-                      <Typography>đến</Typography>
-                      <Typography sx={{ padding: '5px 10px 5px', border: '1px solid #E5E5E5', borderRadius: '5px' }}>
-                        {moment(item?.endTime, 'HH:mm').format('HH:mm')}
-                      </Typography>
-                    </Stack>
-                  ) : (
-                    <Typography sx={{ color: 'rgb(252, 90, 90)' }}>Đóng cửa</Typography>
-                  )}
-                </Box>
+      </HeaderMainStyle>
+      <Grid container spacing={2}>
+        <Grid item md={8} sm={6} xs={12}>
+          <Item>
+            <LeftContainer>
+              <HospitalImgStyle>
+                <PlaceholderStyle onClick={handleUpdateHospitalImgDialog}>
+                  <Icon icon="solid-camera" />
+                  <Typography variant="caption">Cập nhật ảnh</Typography>
+                </PlaceholderStyle>
+                <img src={hospitalData?.avatarUrl} alt="Ảnh bệnh viện" />
+              </HospitalImgStyle>
+              <Stack direction={'column'} alignItems="start">
+                <Typography fontSize={'20px'} fontWeight={600} sx={{ mb: 0.5 }}>
+                  {hospitalData?.name}
+                </Typography>
+                <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
+                  {hospitalData?.address}
+                </Typography>
+                <Typography fontSize={'16px'} fontWeight={600} sx={{ mt: 3, mb: 1 }}>
+                  Thông tin liên hệ
+                </Typography>
+                <Stack direction={'row'} flexWrap={'wrap'}>
+                  <DashedBox>
+                    <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
+                      Email
+                    </Typography>
+                    <Typography fontSize={'16px'} fontWeight={600}>
+                      {hospitalData?.email || 'Chưa cập nhật'}
+                    </Typography>
+                  </DashedBox>
+                  <DashedBox>
+                    <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
+                      Số điện thoại
+                    </Typography>
+                    <Typography align="left" fontSize={'16px'} fontWeight={600}>
+                      {hospitalData?.phoneNumber || 'Chưa cập nhật'}
+                    </Typography>
+                  </DashedBox>
+                </Stack>
               </Stack>
-            </Grid>
-          ))}
+            </LeftContainer>
+          </Item>
         </Grid>
-      </Box>
+        <Grid item md={4} sm={6} xs={12}>
+          <Item>
+            <Stack direction={'row'} alignItems="center">
+              <Avatar sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}>
+                <Icon icon="clock" />
+              </Avatar>
+              <Typography fontSize={16} fontWeight={600}>
+                Lịch làm việc
+              </Typography>
+            </Stack>
+            <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
+              {hospitalData?.openingTime?.map((item, i) => (
+                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'}>
+                  <Typography fontWeight={600} fontSize={14}>
+                    {convertDayLabel(item?.day)}
+                  </Typography>
+                  <Box>
+                    {item?.isEnabled ? (
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'grey.700' }}>
+                        <Typography
+                          fontSize={14}
+                          sx={{
+                            padding: '4px 12px',
+                            border: '1px solid',
+                            borderColor: 'grey.300',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          {moment(item?.startTime, 'HH:mm').format('HH:mm')}
+                        </Typography>
+                        <Typography fontSize={14}>đến</Typography>
+                        <Typography
+                          fontSize={14}
+                          sx={{
+                            padding: '4px 12px',
+                            border: '1px solid',
+                            borderColor: 'grey.300',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          {moment(item?.endTime, 'HH:mm').format('HH:mm')}
+                        </Typography>
+                      </Stack>
+                    ) : (
+                      <Typography fontSize={14} sx={{ color: 'error.main' }}>
+                        Đóng cửa
+                      </Typography>
+                    )}
+                  </Box>
+                </Stack>
+              ))}
+            </Stack>
+          </Item>
+        </Grid>
+      </Grid>
 
       {/* Update Hospital Info Dialog */}
       <CustomDialog
@@ -502,7 +459,7 @@ const HospitalInfoPage = () => {
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-    </Paper>
+    </>
   );
 };
 
