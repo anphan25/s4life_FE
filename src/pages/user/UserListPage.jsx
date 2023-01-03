@@ -22,21 +22,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 
-const FilterSectionStyle = styled(Box)(({ theme }) => ({
-  justifyContent: 'space-between',
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
 const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
   margin: '20px',
@@ -443,19 +428,9 @@ const UserListPage = () => {
           Thêm người dùng
         </Button>
       </HeaderMainStyle>
-      <Paper elevation={1} sx={{ borderRadius: '20px' }}>
-        <FilterSectionStyle>
-          <FilterTab
-            sx={{
-              padding: '10px 20px 0',
-              borderTopLeftRadius: '20px',
-              borderTopRightRadius: '20px',
-              backgroundColor: '#F4F6F8',
-            }}
-            tabs={filterTabValues}
-            onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.filterMode}
-          />
+      <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+        <Box>
+          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterMode} />
 
           <InputFilterSectionStyle>
             {/* {pageState.filterMode !== 1 && <LazyLoadAutocomplete placeholder="Chọn bệnh viện" loadMore={() => {}} />} */}
@@ -467,7 +442,7 @@ const UserListPage = () => {
               onSubmit={handleUserSearch}
             />
           </InputFilterSectionStyle>
-        </FilterSectionStyle>
+        </Box>
 
         <DataTable
           density="comfortable"
@@ -496,7 +471,7 @@ const UserListPage = () => {
         />
 
         {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-      </Paper>
+      </Box>
     </>
   );
 };

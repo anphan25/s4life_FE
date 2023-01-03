@@ -37,21 +37,6 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const FilterSectionStyle = styled(Box)(({ theme }) => ({
-  justifyContent: 'space-between',
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
 const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
   margin: '20px',
@@ -403,7 +388,7 @@ const EventListPage = () => {
   }, [fetchEventListData]);
 
   return (
-    <div>
+    <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
           heading="Danh sách sự kiện cố định"
@@ -422,19 +407,9 @@ const EventListPage = () => {
         )}
       </HeaderMainStyle>
 
-      <Box sx={{ backgroundColor: 'white', borderRadius: 20 }}>
-        <FilterSectionStyle>
-          <FilterTab
-            sx={{
-              padding: '10px 20px 0',
-              borderTopLeftRadius: '20px',
-              borderTopRightRadius: '20px',
-              backgroundColor: '#F4F6F8',
-            }}
-            tabs={filterTabValues}
-            onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.status}
-          />
+      <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+        <Box>
+          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.status} />
 
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '100%' }} />
@@ -445,7 +420,7 @@ const EventListPage = () => {
               onSubmit={handleSearchEventName}
             />
           </InputFilterSectionStyle>
-        </FilterSectionStyle>
+        </Box>
         <DataTable
           density="comfortable"
           gridOptions={gridOptions}
@@ -474,7 +449,7 @@ const EventListPage = () => {
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-    </div>
+    </>
   );
 };
 

@@ -25,23 +25,11 @@ const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
 }));
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
+  marginBottom: '40px',
   justifyContent: 'space-between',
 
   flexDirection: 'row',
 
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
-const FilterSectionStyle = styled(Stack)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     alignItems: 'center',
   },
@@ -414,7 +402,7 @@ const HospitalListPage = () => {
   }, [fetchHospitalData]);
 
   return (
-    <div>
+    <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
           heading="Danh sách bệnh viện"
@@ -424,34 +412,28 @@ const HospitalListPage = () => {
           Thêm bệnh viện
         </Button>
       </HeaderMainStyle>
-      <Paper elevation={1} sx={{ borderRadius: '20px' }}>
-        <FilterSectionStyle>
+      <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+        <Box>
           <FilterTab
-            sx={{
-              width: '100%',
-              padding: '10px 20px 0',
-              borderTopLeftRadius: '20px',
-              borderTopRightRadius: '20px',
-              backgroundColor: '#F4F6F8',
-            }}
             tabs={filterTabValues}
             onChangeTab={handleFilterTabChange}
             defaultValue={pageState.filterTabMode}
           />
-        </FilterSectionStyle>
-        <SearchBar
-          className="search-bar"
-          sx={{ margin: '20px' }}
-          placeholder="Nhập tên bệnh viện"
-          onSubmit={handleSearchHospitalName}
-        />
+          <SearchBar
+            className="search-bar"
+            sx={{ margin: '20px' }}
+            placeholder="Nhập tên bệnh viện"
+            onSubmit={handleSearchHospitalName}
+          />
+        </Box>
+
         <DataTable
           gridOptions={gridOptions}
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}
           disableFilter={true}
         />
-      </Paper>
+      </Box>
 
       {/* Add Hospital Dialog */}
       <CustomDialog
@@ -481,7 +463,7 @@ const HospitalListPage = () => {
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-    </div>
+    </>
   );
 };
 

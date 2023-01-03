@@ -1,5 +1,6 @@
-import { InputAdornment, Input, FormControl, Icon } from '@mui/material';
+import { InputAdornment, Input, FormControl } from '@mui/material';
 import React, { useState, useRef } from 'react';
+import { Icon } from './Icon';
 
 export const SearchBar = ({ sx, onSubmit, ...others }) => {
   const [searchTerm, setSearchTerm] = useState('');

@@ -22,7 +22,7 @@ export const DashboardLayout = () => {
       <Sidebar toggle={toggle} onClose={onToggle} />
       <Box sx={{ flex: 1, pb: 8, width: '100%' }}>
         <Navbar onOpen={onOpen} />
-        <Box sx={{ px: 5, pt: 6, pb: 14, overflow: 'scroll', height: '100%' }}>
+        <Box sx={{ px: 5, py: 6, overflow: 'scroll', height: '100%' }}>
           <Outlet />
         </Box>
       </Box>

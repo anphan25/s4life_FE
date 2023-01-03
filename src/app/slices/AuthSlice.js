@@ -6,7 +6,6 @@ const getAuthState = () => {
   const authTokens = storedValue ? JSON.parse(storedValue) : null;
   if (authTokens) {
     const decode = jwtDecode(authTokens.accessToken);
-
     return {
       ...authTokens,
       user: decode,

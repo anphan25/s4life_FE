@@ -4,12 +4,12 @@ import hospitalReducer from 'app/slices/HospitalSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
     hospital: hospitalReducer,
+    auth: authReducer,
   },
-  // middleware: (getDefaultMiddleware) =>
-  //   getDefaultMiddleware({
-  //     serializableCheck: false,
-  //     immutableCheck: false,
-  //   }),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+      immutableCheck: false,
+    }),
 });
