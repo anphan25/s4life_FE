@@ -2,6 +2,7 @@ export function convertErrorCodeToMessage(code) {
   const message = {
     //Firebase
     10001: 'Tải ảnh thất bại, Vui lòng liên hệ quản trị viên',
+
     //Login
     1003: 'Quyền truy cập bị giới hạn',
     1004: 'Thông tin đăng nhập không chính xác',
@@ -11,6 +12,7 @@ export function convertErrorCodeToMessage(code) {
     1034: 'Tài khoản đã bị vô hiệu',
 
     //Register
+    2001: 'Thông tin đăng ký không hợp lệ',
     2031: 'Bệnh viện không tồn tại',
 
     //Hospital
@@ -35,11 +37,20 @@ export function convertErrorCodeToMessage(code) {
     4041: 'Khu vực tổ chức sự kiện không hợp lệ',
     4051: 'Không nằm trong khung thời gian sự kiện',
     4061: 'Không sửa được sự kiện theo lịch làm việc của bệnh viện',
+    4071: 'Không thể chỉnh sửa sự kiện khẩn cấp',
     4081: 'Sự kiện hiến máu khẩn cấp phải bao gồm nhóm máu cần',
     4091: 'Yêu cầu tạo sự kiện hiến máu không hợp lệ',
     4101: 'Thời gian bắt đầu và thời gian kết thúc phải cách nhau 1 giờ',
+    4111: 'Sự kiện lưu động phải có khu vực di chuyển của xe',
+    4121: 'Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa 30 ngày',
+    4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
 
     //Blood Donation Approval
+    5001: 'Không trích xuất được thông tin từ ảnh',
+    5011: 'Thiếu trường thông tin ghi chú',
+    5021: 'Yêu cầu này đã được xử lí',
+    5003: 'Từ chối  yêu cầu truy cập',
+    5004: 'Không tìm thấy yêu cầu',
 
     //Blood Donation
     6003: 'Từ chối yêu cầu truy cập lịch sử hiến máu',
@@ -47,6 +58,8 @@ export function convertErrorCodeToMessage(code) {
 
     //Event Registration
     7001: 'Bạn đã đăng ký sự kiện này rồi',
+    7003: 'Từ chối quyền truy cập thông tin đăng ký',
+    7004: 'Không tìm thấy thông tin đăng ký ',
     7011: 'Phiếu đăng ký không hợp lệ',
     7021: 'Sự kiện không thể đăng ký, đã vượt quá sớ người tham gia',
     7031: 'Thiếu thông tin địa điểm đăng ký',
@@ -56,10 +69,12 @@ export function convertErrorCodeToMessage(code) {
     7071: 'Thiếu thông tin phiếu đăng ký',
     7081: 'Thiếu số lượng máu hiến',
     7091: 'Sự kiện đã bắt đầu, không thể hủy đăng ký',
-    7101: 'Thời gia dự kiến tham gia không hợp lệ',
-    7003: 'Từ chối quyền truy cập thông tin đăng ký',
-    7004: 'Không tìm thấy thông tin đăng ký ',
+    7101: 'Thời gian dự kiến tham gia không hợp lệ',
+    7111: 'Khoảng cách giữa 2 lần hiến máu gần nhất phải tối thiểu 90 ngày',
+    7131: 'Nhóm máu của tình nguyện viên không nằm trong danh sách của sự kiện',
     7141: 'Từ chối yêu cầu cập nhật nhóm máu',
+    7151: 'Tình nguyện viên không được đăng ký nhiều sự kiện cùng một lúc',
+    7161: 'Không thể đăng ký vào sự kiện lưu động đang diễn ra',
 
     //User Informations
     8000: 'Thay đổi thông tin cá nhân thành công',

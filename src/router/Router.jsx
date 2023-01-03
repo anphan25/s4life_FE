@@ -108,26 +108,10 @@ export default function Router() {
               ),
             },
             {
-              path: 'add',
-              element: (
-                <ProtectedRouter roles={['Admin']}>
-                  <AddEditUserPage />
-                </ProtectedRouter>
-              ),
-            },
-            {
               path: ':userId',
               element: (
                 <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
                   <UserDetailPage />
-                </ProtectedRouter>
-              ),
-            },
-            {
-              path: ':eventId/edit',
-              element: (
-                <ProtectedRouter roles={['Admin']}>
-                  <AddEditUserPage />
                 </ProtectedRouter>
               ),
             },
@@ -202,7 +186,6 @@ const StatisticsPage = Loadable(lazy(() => import('pages/statistics/StatisticsPa
 
 //user
 const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
-const AddEditUserPage = Loadable(lazy(() => import('pages/user/AddEditUserPage')));
 const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
 
 //hospital

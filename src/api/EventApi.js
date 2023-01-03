@@ -20,5 +20,5 @@ export async function editEvent(params) {
 }
 
 export async function cancelEvent(eventId) {
-  return await axiosInstance.patch(`${apiPath}/${eventId}/cancel`);
+  return await axiosInstance.delete(`${apiPath}/${eventId}`);
 }
