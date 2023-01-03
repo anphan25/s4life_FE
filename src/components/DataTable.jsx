@@ -2,13 +2,6 @@ import React, { useState } from 'react';
 import { Box, Paper, styled, Popover, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
-const tableContainerStyle = {
-  width: '100%',
-  // padding: '0 20px 10px',
-  borderBottomLeftRadius: '10px',
-  borderBottomRightRadius: '10px',
-};
-
 const containerDataGrid = {
   height: '610px',
   width: '100%',
@@ -128,7 +121,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
   const open = Boolean(anchorEl);
 
   return (
-    <Paper elevation={0} sx={tableContainerStyle}>
+    <Paper sx={{ width: '100%', borderTopLeftRadius: '10px', borderTopRightRadius: '10px', px: 3, pb: 2 }}>
       <Box sx={containerDataGrid}>
         <DataGrid
           {...props}

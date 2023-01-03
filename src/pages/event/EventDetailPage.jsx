@@ -260,8 +260,8 @@ const EventDetailPage = () => {
         />
       </HeaderMainStyle>
 
-      <Paper elevation={1} sx={{ padding: '30px', borderRadius: '20px' }}>
-        <Stack spacing={2}>
+      <Box sx={{ backgroundColor: 'white', borderRadius: '12px' }}>
+        <Stack spacing={2} sx={{ p: 3 }}>
           <Stack justifyContent="flex-end">
             <IconButton
               sx={{ marginLeft: 'auto', width: '40px' }}
@@ -284,7 +284,7 @@ const EventDetailPage = () => {
               onClose={handleClose}
               PaperProps={{
                 style: {
-                  width: '20ch',
+                  width: '20px',
                 },
               }}
             >
@@ -473,11 +473,11 @@ const EventDetailPage = () => {
           </Grid>
         </Stack>
 
-        <Divider sx={{ margin: '30px 0 30px' }} />
+        <Divider sx={{ margin: '30px' }} />
 
         {/* Volunteer of event */}
         <VolunteerListOfEvent />
-      </Paper>
+      </Box>
 
       {/* Cancel Event Dialog */}
       <CustomDialog

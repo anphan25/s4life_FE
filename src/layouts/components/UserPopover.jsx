@@ -7,8 +7,10 @@ import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
 import { getVietnameseRole } from 'utils/getVietnameseRole';
 import { getHospital } from 'app/slices/HospitalSlice';
+import useResponsive from 'hooks/useResponsive';
 
 const UserPopover = () => {
+  const isDesktop = useResponsive('up', 'lg');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toggle, onToggle } = useToggle();
@@ -29,9 +31,8 @@ const UserPopover = () => {
   };
 
   useEffect(() => {
-    if (user != null) {
+    if (user != null && user.role === 'Manager') {
       dispatch(getHospital(user?.hospital_id));
-      console.log(hospital);
     }
   }, [dispatch, user]);
 
@@ -41,9 +42,11 @@ const UserPopover = () => {
         {user?.role === 'Manager' ? (
           <Stack gap={'12px'} direction={'row'} alignItems="center">
             <Avatar src={hospital?.avatarUrl || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
-            <Typography fontSize={14} fontWeight={600}>
-              {hospital?.name || ''}
-            </Typography>
+            {isDesktop && (
+              <Typography fontSize={14} fontWeight={600} whiteSpace="nowrap">
+                {hospital?.name || ''}
+              </Typography>
+            )}
           </Stack>
         ) : (
           <Avatar src={user?.picture_url || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />

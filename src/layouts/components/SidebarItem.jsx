@@ -7,7 +7,7 @@ const SidebarItemStyle = styled(MenuItem, {
 })(({ theme, active }) => ({
   gap: '20px',
   padding: '14px 20px',
-  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
   background: active === 'true' ? theme.palette.primary.light : 'white',
   borderRadius: 0,
 
@@ -45,7 +45,7 @@ const SidebarItemStyle = styled(MenuItem, {
     svg: {
       height: '100%',
       width: '100%',
-      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
     },
   },
 }));

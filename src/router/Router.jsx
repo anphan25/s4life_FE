@@ -156,6 +156,15 @@ export default function Router() {
             },
           ],
         },
+
+        {
+          path: '/script',
+          element: (
+            <ProtectedRouter roles={['Admin']}>
+              <RunScriptPage />
+            </ProtectedRouter>
+          ),
+        },
       ],
     },
     {
@@ -199,3 +208,6 @@ const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')))
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
+
+//script
+const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
   gap: '20px',
   padding: '14px 20px',
-  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+  color: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
   background: active === 'true' ? theme.palette.primary.light : 'white',
   borderRadius: 0,
 
@@ -17,6 +17,12 @@ const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
 
     '& .MuiListItemIcon-root': {
       svg: { fill: theme.palette.primary.main },
+    },
+
+    '& .MuiBox-root': {
+      div: {
+        background: theme.palette.primary.main,
+      },
     },
   },
 
@@ -44,23 +50,24 @@ const SidebarItem = styled(MenuItem)(({ theme, active }) => ({
     svg: {
       height: '100%',
       width: '100%',
-      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+      fill: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
     },
   },
 }));
 
-const Dot = styled('div')(({ theme, active }) => ({
+const Dot = styled(Box)(({ theme, active }) => ({
   height: '24px',
   width: '24px',
   marginLeft: '32px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+
   div: {
     borderRadius: '50%',
     height: '4px',
     width: '4px',
-    backgroundColor: active === 'true' ? theme.palette.primary.main : theme.palette.grey[700],
+    backgroundColor: active === 'true' ? theme.palette.primary.main : theme.palette.grey[900],
   },
 }));
 

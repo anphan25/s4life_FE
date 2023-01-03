@@ -5,17 +5,9 @@ import ChangePassword from './components/ChangePassword';
 import { useSelector } from 'react-redux';
 
 const LeftSideStyle = styled(Stack)(({ theme }) => ({
-  padding: '20px',
+  padding: '10px',
   width: '25%',
-
-  '& .tab-name': {
-    padding: '8px 15px',
-    fontWeight: '600',
-    borderRadius: '8px',
-    fontSize: '15px',
-  },
-
-  '& .MuiTab-root': { textAlign: 'right' },
+  height: '100%',
 }));
 
 const RightSideStyle = styled(Box)(({ theme }) => ({
@@ -35,7 +27,7 @@ const AccountPage = () => {
   };
 
   return (
-    <Paper elevation={1}>
+    <Paper elevation={0}>
       <Stack direction="row">
         <LeftSideStyle>
           <FilterTab

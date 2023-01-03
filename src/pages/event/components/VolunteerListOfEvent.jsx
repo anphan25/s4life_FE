@@ -1,15 +1,4 @@
-import {
-  Stack,
-  styled,
-  Box,
-  Paper,
-  Typography,
-  Button,
-  DialogActions,
-  FormControl,
-  Select,
-  MenuItem,
-} from '@mui/material';
+import { Stack, styled, Box, Typography, Button, DialogActions, FormControl, Select, MenuItem } from '@mui/material';
 import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog } from 'components';
 import { useState, useCallback, useEffect } from 'react';
 import { errorHandler, formatDate } from 'utils';
@@ -21,21 +10,6 @@ import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { BLOOD_TYPE, convertBloodTypeLabel } from 'utils';
 import { useSelector } from 'react-redux';
-
-const FilterSectionStyle = styled(Box)(({ theme }) => ({
-  justifyContent: 'space-between',
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
 
 const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
@@ -325,23 +299,13 @@ const VolunteerListOfEvent = () => {
   }, [fetchVolunteersOfEvent]);
 
   return (
-    <Box>
-      <Typography variant="h4" sx={{ marginBottom: '10px' }}>
+    <>
+      <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
         Danh sách người đăng ký
       </Typography>
-      <Paper elevation={1} sx={{ borderRadius: '20px' }}>
-        <FilterSectionStyle>
-          <FilterTab
-            sx={{
-              padding: '10px 20px 0',
-              borderTopLeftRadius: '20px',
-              borderTopRightRadius: '20px',
-              backgroundColor: '#F4F6F8',
-            }}
-            tabs={filterTabValues}
-            onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.status}
-          />
+      <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+        <Box>
+          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.status} />
 
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
@@ -353,14 +317,14 @@ const VolunteerListOfEvent = () => {
               onSubmit={handleSearchVolunteerPhoneNumber}
             />
           </InputFilterSectionStyle>
-        </FilterSectionStyle>
+        </Box>
         <DataTable
           gridOptions={gridOptions}
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}
           disableFilter={true}
         />
-      </Paper>
+      </Box>
 
       {/* Update Blood Type Dialog */}
       <CustomDialog
@@ -372,7 +336,7 @@ const VolunteerListOfEvent = () => {
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
-    </Box>
+    </>
   );
 };
 

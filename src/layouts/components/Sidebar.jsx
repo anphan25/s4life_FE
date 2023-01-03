@@ -29,6 +29,11 @@ const sidebarAdmin = [
     icon: <Icon icon="users" />,
     to: '/user/list',
   },
+  {
+    name: 'Giả lập',
+    icon: <Icon icon="code-square" />,
+    to: '/script',
+  },
 ];
 
 const sidebarManager = [
