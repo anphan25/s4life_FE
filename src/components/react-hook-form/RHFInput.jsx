@@ -17,7 +17,16 @@ export const RHFInput = ({ control, label, name, isRequiredLabel, ...props }) =>
             {label}
             {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
-          <TextField id={name} {...field} {...props} error={!!error} helperText={error?.message?.toString()} />
+          <TextField
+            id={name}
+            {...field}
+            {...props}
+            error={!!error}
+            inputProps={{
+              autoComplete: 'off',
+            }}
+            helperText={error?.message?.toString()}
+          />
         </FormControl>
       )}
     />

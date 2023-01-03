@@ -4,7 +4,7 @@ import queryString from 'query-string';
 const apiPath = '/hospitals';
 
 export async function importCSVHospitalData(params) {
-  return await axiosInstance.post(apiPath + '/import', params);
+  return await axiosInstance.post(apiPath, params);
 }
 export async function getHospitalsList(params) {
   return await axiosInstance.get(`${apiPath}?${queryString.stringify(params)}`);
@@ -15,7 +15,7 @@ export async function getHospitalById(hospitalId) {
 }
 
 export async function editHospital(params) {
-  return await axiosInstance.patch(`${apiPath}`, params);
+  return await axiosInstance.patch(apiPath, params);
 }
 
 export async function disableHospital(hospitalId) {

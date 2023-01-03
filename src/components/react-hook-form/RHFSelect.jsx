@@ -5,7 +5,7 @@ const RequireLabel = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
 }));
 
-export const RHFSelect = ({ name, control, label, children, defaultValue, isRequiredLabel, ...props }) => {
+export const RHFSelect = ({ name, control, label, children, isRequiredLabel, ...props }) => {
   return (
     <Controller
       name={name}
@@ -20,9 +20,9 @@ export const RHFSelect = ({ name, control, label, children, defaultValue, isRequ
             {...field}
             {...props}
             id={name}
-            defaultValue={defaultValue}
             name={name}
             select
+            SelectProps={{ native: true }}
             fullWidth
             error={!!error}
             helperText={error?.message?.toString()}

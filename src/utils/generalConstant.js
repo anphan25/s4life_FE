@@ -1,6 +1,6 @@
 export const MAX_INT = 2147483647;
 export const PHONE_NUMBER_PATTERN = /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/;
-
+export const USERNAME_PATTERN = /^[a-zA-Z]{1}[a-zA-Z0-9]{4,256}$/;
 export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&\/]).{8,}$/;
 
 export const DEFAULT_EVENT_IMAGE_URL =

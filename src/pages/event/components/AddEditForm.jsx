@@ -141,7 +141,9 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     setLocations(mappingResult);
   };
 
-  const handleSelectLocation = async ({ placeId }) => {
+  const handleSelectLocation = async (value) => {
+    const placeId = value?.place_id;
+
     if (!placeId) {
       return;
     }

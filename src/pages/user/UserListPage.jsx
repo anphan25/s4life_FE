@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Paper, Box, styled, Stack, MenuItem, Button } from '@mui/material';
+import { Paper, Box, styled, Stack, Button } from '@mui/material';
 import { HiPlus } from 'react-icons/hi';
 import {
   DataTable,
@@ -10,13 +10,13 @@ import {
   RHFPasswordInput,
   HeaderBreadcumbs,
   RHFInput,
-  RHFAutoComplete,
+  RHFAsyncAutoComplete,
   RHFSelect,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { FcKey } from 'react-icons/fc';
-import { errorHandler, convertBloodTypeLabel, formatDate, PASSWORD_PATTERN } from 'utils';
-import { getUsers, changePassword } from 'api';
+import { errorHandler, convertBloodTypeLabel, formatDate, PASSWORD_PATTERN, USERNAME_PATTERN } from 'utils';
+import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -51,8 +51,8 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
 
 const filterTabValues = [
   { label: 'Tình nguyện viên', value: 1 },
-  { label: 'Quản lý bệnh viện', value: 3 },
-  { label: 'Nhân viên bệnh viện', value: 2 },
+  { label: 'Quản lý viên', value: 3 },
+  { label: 'Nhân viên', value: 2 },
 ];
 
 const UserListPage = () => {
@@ -68,7 +68,7 @@ const UserListPage = () => {
   const [searchParam, setSearchParam] = useState('');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [hospitalData, setHospitalData] = useState([]);
+  const [hospitals, setHospitals] = useState([]);
   const [changePassWordUserName, setChangePassWordUserName] = useState();
   const [changePassWordId, setChangePassWordId] = useState();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
@@ -209,23 +209,22 @@ const UserListPage = () => {
 
   const handleChangePasswordDialog = () => {
     setIsChangePasswordOpen(!isChangePasswordOpen);
+    changePasswordReset();
   };
 
   const handleAddUserDialog = () => {
     setIsAddUserOpen(!isAddUserOpen);
+    addUserReset();
   };
 
   const ChangePasswordSchema = Yup.object().shape({
-    newPassword: Yup.string()
-      .required('Vui lòng nhập mật khẩu hiện tại.')
-      .matches(PASSWORD_PATTERN, {
-        message:
-          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-        excludeEmptyString: false,
-      })
-      .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
+    newPassword: Yup.string().required('Vui lòng nhập mật khẩu hiện tại.').matches(PASSWORD_PATTERN, {
+      message:
+        'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
+      excludeEmptyString: false,
+    }),
     confirmPassword: Yup.string()
-      .required('Vui lòng nhập mật khẩu hiện tại')
+      .required('Vui lòng nhập lại mật khẩu.')
       .matches(PASSWORD_PATTERN, {
         message:
           'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
@@ -234,14 +233,63 @@ const UserListPage = () => {
       .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
   });
 
-  const { handleSubmit: handleChangePasswordSubmit, control: changePasswordControl } = useForm({
+  const AddUserSchema = Yup.object().shape({
+    username: Yup.string().required('Vui lòng nhập tên tài khoản').matches(USERNAME_PATTERN, {
+      message: 'Tên tài khoản không hợp lệ',
+      excludeEmptyString: false,
+    }),
+    hospital: Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.string().required('Vui lòng chọn bệnh viện'),
+          name: Yup.string(),
+        })
+      )
+      .transform(function (value, originalValue) {
+        if (originalValue?.length < 1 || !originalValue) return [];
+        return [
+          {
+            id: originalValue?.id,
+            name: originalValue?.name,
+          },
+        ];
+      })
+      .min(1, 'Vui lòng chọn bệnh viện.'),
+    password: Yup.string().required('Vui lòng nhập mật khẩu.').matches(PASSWORD_PATTERN, {
+      message:
+        'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
+      excludeEmptyString: false,
+    }),
+    confirmPassword: Yup.string()
+      .required('Vui lòng nhập lại mật khẩu.')
+      .matches(PASSWORD_PATTERN, {
+        message:
+          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
+        excludeEmptyString: false,
+      })
+      .oneOf([Yup.ref('password')], 'Xác nhận mật khẩu không trùng khớp.'),
+  });
+
+  const {
+    handleSubmit: handleChangePasswordSubmit,
+    control: changePasswordControl,
+    reset: changePasswordReset,
+  } = useForm({
     resolver: yupResolver(ChangePasswordSchema),
     mode: 'onChange',
+    defaultValues: { newPassword: '', confirmPassword: '' },
+    reValidateMode: 'onChange',
   });
 
-  const { handleSubmit: handleAddUserSubmit, control: addUserControl } = useForm({
-    // resolver: yupResolver(ChangePasswordSchema),
+  const {
+    handleSubmit: handleAddUserSubmit,
+    control: addUserControl,
+    reset: addUserReset,
+  } = useForm({
+    resolver: yupResolver(AddUserSchema),
     mode: 'onChange',
+    defaultValues: { username: '', hospital: [], password: '', confirmPassword: '', role: roleList[0].label },
+    reValidateMode: 'onChange',
   });
 
   const onChangePasswordSubmit = async (data) => {
@@ -257,18 +305,40 @@ const UserListPage = () => {
         status: true,
         type: 'success',
       });
-      data.currentPassword = '';
-      data.changePassword = '';
-      data.confirmPassword = '';
+      changePasswordReset();
+      handleChangePasswordDialog();
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
-      handleChangePasswordDialog();
       setIsButtonLoading(false);
     }
   };
 
-  const onAddUserSubmit = async () => {};
+  const onAddUserSubmit = async (data) => {
+    setIsButtonLoading(true);
+    setAlert({});
+    try {
+      await addUser({
+        username: data.username,
+        password: data.password,
+        role: data.role * 1,
+        hospitalId: data.hospital[0].id,
+      });
+
+      setAlert({
+        message: `Tạo tài khoản thành công`,
+        status: true,
+        type: 'success',
+      });
+      handleAddUserDialog();
+      fetchUserListData();
+      addUserReset();
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      setIsButtonLoading(false);
+    }
+  };
 
   const changePasswordDialogContent = () => {
     return (
@@ -305,23 +375,28 @@ const UserListPage = () => {
       <Box>
         <form onSubmit={handleAddUserSubmit(onAddUserSubmit)}>
           <Stack direction="row" spacing={2}>
-            {/* <RHFAutoComplete
+            <RHFAsyncAutoComplete
+              name="hospital"
               control={addUserControl}
               label="Bệnh viện"
               isRequiredLabel={true}
-              list={[]}
-              onScrollToBottom={() => {}}
+              list={hospitals}
+              onInput={() => {}}
+              paramsCompare="id"
+              getOptionLabel={(option) => {
+                return option?.name || '';
+              }}
             />
-            <RHFSelect name="role" label="Chọn vai trò" control={addUserControl} isRequiredLabel={true}>
-              {roleList.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
+            <RHFSelect name="role" label="Vai trò" control={addUserControl} isRequiredLabel={true}>
+              {roleList.map((option, i) => (
+                <option key={i} value={option?.value}>
+                  {option?.label}
+                </option>
               ))}
-            </RHFSelect> */}
+            </RHFSelect>
           </Stack>
           <RHFInput
-            label="tên tài khoản"
+            label="Tên tài khoản"
             name="username"
             control={addUserControl}
             placeholder="Nhập mật khẩu"
@@ -344,7 +419,7 @@ const UserListPage = () => {
           <Stack>
             <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
               <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
-                Cập nhật
+                Tạo
               </LoadingButton>
             </Box>
           </Stack>
@@ -407,14 +482,16 @@ const UserListPage = () => {
     fetchUserListData();
   }, [fetchUserListData]);
 
-  // const fetchHospitals = async () => {
-  //   const data = await getHospitalsList({});
-  //   setHospitalData(data?.items);
-  // };
+  const fetchHospitals = useCallback(async () => {
+    const data = await getHospitalsList({ FilterMode: 2, Page: 1, PageSize: 10 });
+    const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
 
-  // useEffect(() => {
-  //   fetchHospitals();
-  // }, []);
+    setHospitals(mappingData);
+  }, []);
+
+  useEffect(() => {
+    fetchHospitals();
+  }, [fetchHospitals]);
 
   return (
     <>
@@ -467,7 +544,7 @@ const UserListPage = () => {
           onClose={handleAddUserDialog}
           title={`Tạo tài khoản`}
           children={addUserDialogContent()}
-          sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+          sx={{ '& .MuiDialog-paper': { width: '70%' } }}
         />
 
         {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}

@@ -52,8 +52,9 @@ export const RHFAsyncAutoComplete = ({
             value={list?.find((item) => value && item[paramsCompare] === value[paramsCompare]) || ''}
             filterSelectedOptions
             onChange={(event, newValue) => {
-              if (!newValue) return;
-              onChange(newValue);
+              onChange(newValue || '');
+
+              if (!onSelect) return;
               onSelect(newValue);
             }}
             renderInput={(params) => (
