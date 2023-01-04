@@ -162,7 +162,7 @@ const HospitalInfoPage = () => {
             />
           </Stack>
 
-          <Link ref={downloadRef} download />
+          <a ref={downloadRef} style={{ display: 'hidden' }} />
 
           <Stack direction="row" justifyContent="space-between">
             <Button startIcon={<AiOutlineDownload />} onClick={handleDownloadInfo}>
@@ -316,7 +316,7 @@ const HospitalInfoPage = () => {
     //Convert Data to CSV
     let csv = arrayToCsv(arrData);
     //Download
-    downloadBlob(csv, 'hospital_info', 'text/csv;charset=utf-8;');
+    downloadBlob(csv, 'hospital_info.csv', 'data:text/csv;charset=utf-8,');
   };
 
   const getDataFromFile = (values, disabledBtn) => {
@@ -396,7 +396,7 @@ const HospitalInfoPage = () => {
             </Stack>
             <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
               {hospitalData?.openingTime?.map((item, i) => (
-                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'}>
+                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={item.id}>
                   <Typography fontWeight={600} fontSize={14}>
                     {convertDayLabel(item?.day)}
                   </Typography>
