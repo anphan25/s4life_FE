@@ -173,7 +173,7 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage')));
 
 //event
-const EventListPage = Loadable(lazy(() => import('pages/event/EventListPage')));
+const EventListPage = Loadable(lazy(() => import('pages/event/event-list/EventListPage')));
 const AddEditEventPage = Loadable(lazy(() => import('pages/event/AddEditEventPage')));
 const EventDetailPage = Loadable(lazy(() => import('pages/event/EventDetailPage')));
 

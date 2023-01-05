@@ -2,7 +2,7 @@ export * from './auth/LoginPage';
 
 export * from './dashboard/DashboardPage';
 
-export * from './event/EventListPage';
+export * from './event/event-list/EventListPage';
 export * from './event/AddEditEventPage';
 export * from './event/EventDetailPage';
 
