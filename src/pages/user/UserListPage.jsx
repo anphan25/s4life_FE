@@ -11,6 +11,7 @@ import {
   RHFInput,
   RHFAsyncAutoComplete,
   RHFSelect,
+  AsyncAutocompleteFilter,
   Icon,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
@@ -68,9 +69,17 @@ const UserListPage = () => {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [hospitals, setHospitals] = useState([]);
+  const [filterHospitals, setFilterHospitals] = useState([]);
   const [changePassWordUserName, setChangePassWordUserName] = useState();
   const [changePassWordId, setChangePassWordId] = useState();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [hospitalGetParam, setHospitalsGetParam] = useState({ FilterMode: 2, Page: 1, PageSize: 10, SearchKey: '' });
+  const [hospitalFilterParam, setHospitalsFilterParam] = useState({
+    FilterMode: 2,
+    Page: 1,
+    PageSize: 10,
+    SearchKey: '',
+  });
 
   const [alert, setAlert] = useState({
     message: '',
@@ -212,8 +221,33 @@ const UserListPage = () => {
   };
 
   const handleAddUserDialog = () => {
+    //When dialog closes, reset the HospitalsGetParam
+    if (!isAddUserOpen) {
+      setHospitalsGetParam({ FilterMode: 2, Page: 1, PageSize: 10, SearchKey: '' });
+    }
     setIsAddUserOpen(!isAddUserOpen);
+
     addUserReset();
+  };
+
+  const handleScrollToBottom = async (newSize) => {
+    setHospitalsGetParam((pre) => ({ ...pre, PageSize: newSize }));
+  };
+
+  const handleSearchHospitalOnAutocomplete = async (value) => {
+    setHospitalsGetParam((pre) => ({ ...pre, SearchKey: value }));
+  };
+
+  const handleScrollToBottomToFilter = async (newSize) => {
+    setHospitalsFilterParam((pre) => ({ ...pre, PageSize: newSize }));
+  };
+
+  const handleSearchHospitalToFilter = async (value) => {
+    setHospitalsFilterParam((pre) => ({ ...pre, SearchKey: value }));
+  };
+
+  const handleChooseHospital = (value) => {
+    setPageState((pre) => ({ ...pre, hospitalId: value?.id || '' }));
   };
 
   const ChangePasswordSchema = Yup.object().shape({
@@ -375,12 +409,14 @@ const UserListPage = () => {
         <form onSubmit={handleAddUserSubmit(onAddUserSubmit)}>
           <Stack direction="row" spacing={2}>
             <RHFAsyncAutoComplete
+              isLazyLoad={true}
               name="hospital"
               control={addUserControl}
               label="Bệnh viện"
               isRequiredLabel={true}
               list={hospitals}
-              onInput={() => {}}
+              onInput={handleSearchHospitalOnAutocomplete}
+              onScrollToBottom={handleScrollToBottom}
               paramsCompare="id"
               getOptionLabel={(option) => {
                 return option?.name || '';
@@ -481,17 +517,30 @@ const UserListPage = () => {
     fetchUserListData();
   }, [fetchUserListData]);
 
+  const fetchFilterHospitals = useCallback(async () => {
+    const data = await getHospitalsList(hospitalFilterParam);
+
+    const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
+
+    setFilterHospitals(mappingData);
+  }, [hospitalFilterParam.PageSize, hospitalFilterParam.SearchKey]);
+
+  useEffect(() => {
+    fetchFilterHospitals();
+  }, [fetchFilterHospitals]);
+
   const fetchHospitals = useCallback(async () => {
-    const data = await getHospitalsList({ FilterMode: 2, Page: 1, PageSize: 10 });
+    if (!isAddUserOpen) return;
+    const data = await getHospitalsList(hospitalGetParam);
+
     const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
 
     setHospitals(mappingData);
-  }, []);
+  }, [hospitalGetParam.PageSize, hospitalGetParam.SearchKey]);
 
   useEffect(() => {
     fetchHospitals();
   }, [fetchHospitals]);
-
   return (
     <>
       <HeaderMainStyle>
@@ -509,9 +558,23 @@ const UserListPage = () => {
           <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterMode} />
 
           <InputFilterSectionStyle>
-            {/* {pageState.filterMode !== 1 && <LazyLoadAutocomplete placeholder="Chọn bệnh viện" loadMore={() => {}} />} */}
+            {pageState.filterMode !== 1 && (
+              <AsyncAutocompleteFilter
+                sx={{ width: '50%' }}
+                placeholder="Chọn bệnh viện"
+                onInput={handleSearchHospitalToFilter}
+                onSelect={handleChooseHospital}
+                list={filterHospitals}
+                isLazyLoad={true}
+                onScrollToBottom={handleScrollToBottomToFilter}
+                getOptionLabel={(option) => {
+                  return option?.name || '';
+                }}
+              />
+            )}
+
             <SearchBar
-              sx={{ width: '100%' }}
+              sx={{ width: pageState.filterMode === 1 ? '100%' : '50%' }}
               type={pageState.filterMode === 1 ? 'number' : 'text'}
               className="search-bar"
               placeholder={pageState.filterMode === 1 ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}

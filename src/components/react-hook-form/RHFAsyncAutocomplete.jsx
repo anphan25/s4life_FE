@@ -1,5 +1,5 @@
 import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField, styled } from '@mui/material';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Controller } from 'react-hook-form';
 
 export const RHFAsyncAutoComplete = ({
@@ -7,17 +7,26 @@ export const RHFAsyncAutoComplete = ({
   label,
   control,
   isRequiredLabel = false,
+  isLazyLoad = false,
   onInput,
   onSelect,
   list,
   paramsCompare,
+  onScrollToBottom,
   ...props
 }) => {
+  const [size, setSize] = useState(10);
+
   const RequireLabel = styled('span')(({ theme }) => ({
     color: theme.palette.error.main,
   }));
 
   const typingTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (!onScrollToBottom || size <= 10) return;
+    onScrollToBottom(size);
+  }, [size]);
 
   return (
     <Controller
@@ -32,14 +41,26 @@ export const RHFAsyncAutoComplete = ({
           <Autocomplete
             id={name}
             {...props}
-            autoHighlight
             options={list}
-            filterOptions={(x) => x}
+            ListboxProps={{
+              role: 'list-box',
+              onScroll: (event) => {
+                if (!isLazyLoad) return;
+                if (!onScrollToBottom) return;
+
+                const listboxNode = event.currentTarget;
+                if (Math.round(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
+                  const top = listboxNode.scrollTop;
+                  setSize(size + 10);
+
+                  listboxNode.scrollTo({ top });
+                }
+              },
+            }}
             freeSolo
             includeInputInList
             onInputChange={(e, newValue) => {
               if (!onInput) return;
-              if (!newValue) return;
 
               if (typingTimeoutRef.current) {
                 clearTimeout(typingTimeoutRef.current);
@@ -60,6 +81,7 @@ export const RHFAsyncAutoComplete = ({
             renderInput={(params) => (
               <TextField
                 {...params}
+                placeholder={props.placeholder || ''}
                 error={!!error}
                 onChange={onChange}
                 inputProps={{

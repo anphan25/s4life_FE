@@ -21,4 +21,4 @@ export * from './CustomSnackBar';
 export * from './FilterTab';
 export * from './SearchBar';
 export * from './FromToDateFilter';
-export * from './LazyLoadAutocompleteFilter';
+export * from './AsyncAutocompleteFilter';
