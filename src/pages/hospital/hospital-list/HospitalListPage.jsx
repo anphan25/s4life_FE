@@ -1,4 +1,4 @@
-import { Button, Stack, DialogActions, styled, Box, Typography, IconButton } from '@mui/material';
+import { Button, Stack, Box, Typography } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import {
   CustomDialog,
@@ -12,44 +12,12 @@ import {
 } from 'components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api/HospitalApi';
+import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
 import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from 'config/firebaseConfig';
+import { storage } from 'config';
 import { formatDate, errorHandler } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
-
-const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
-  marginTop: 'auto',
-  padding: '10px 0px 10px !important',
-
-  [theme.breakpoints.down('sm')]: {
-    margin: '0 auto',
-    '& .dialog_button': {
-      fontSize: '10px',
-    },
-  },
-}));
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '40px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
-const DownloadLink = styled('a')(({ theme }) => ({
-  display: 'none',
-}));
+import { DialogButtonGroup, DownloadLink, HeaderMainStyle } from './HospitalListStyle';
 
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
@@ -164,12 +132,6 @@ const HospitalListPage = () => {
               return null;
           }
         },
-        // getActions: (params) => [
-        //   pageState.filterTabMode !== 2 && (
-
-        //   ),
-        //   pageState.filterTabMode !== 1 &&,
-        // ],
       },
     ],
     pageState: pageState,
