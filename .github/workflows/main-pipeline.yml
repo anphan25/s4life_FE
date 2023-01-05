@@ -58,7 +58,7 @@ jobs:
         script: |
           cd s4life_FE
           npm run build
-          zip build
+          zip -r build.zip build
           ${{ secrets.SCP_COMMAND }}
 
   Publish:
