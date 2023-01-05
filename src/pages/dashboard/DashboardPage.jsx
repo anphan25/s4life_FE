@@ -168,7 +168,7 @@ const DashboardPage = () => {
             </Stack>
 
             <Stack className="tab_content">
-              <Typography className="tab_content--number">{formatNumber(50041)}</Typography>
+              <Typography className="tab_content--number">{formatNumber(50047)}</Typography>
 
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">

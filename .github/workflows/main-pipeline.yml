@@ -1,0 +1,77 @@
+name: CI/CD
+
+on:
+  push:
+    branches: 
+      - "**"
+
+jobs:
+  Build-Test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build --if-present
+      env:
+         CI: ""
+
+  Build-And-Export:
+    runs-on: ubuntu-latest
+    needs: [Build-Test]
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@master
+    - name: Get The source code
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        source: "."
+        target: "s4life_FE"
+
+    - name: Build and transfer
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          cd s4life_FE
+          npm run build
+          zip -r build.zip build
+          ${{ secrets.SCP_COMMAND }}
+
+  Publish:
+    runs-on: ubuntu-latest
+    needs: [Build-And-Export]
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Build and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST_PUBLISH }}
+        username: ${{ secrets.SSH_USERNAME_PUBLISH }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_PUBLISH }}
+        port: 22
+        script: |
+          rm -rf build
+          unzip build.zip
