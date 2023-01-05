@@ -1,5 +1,5 @@
 import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField, styled } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Controller } from 'react-hook-form';
 
 export const RHFAutoComplete = ({
@@ -12,17 +12,9 @@ export const RHFAutoComplete = ({
   list,
   ...props
 }) => {
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const [scrollTop, setScrollTop] = useState();
-  const [size, setSize] = useState(10);
-
   const RequireLabel = styled('span')(({ theme }) => ({
     color: theme.palette.error.main,
   }));
-
-  useEffect(() => {
-    onScrollToBottom({ PageSize: size, Page: 1, SearchKey: '' });
-  }, [size]);
 
   return (
     <Controller
@@ -37,49 +29,16 @@ export const RHFAutoComplete = ({
           <Autocomplete
             id={name}
             {...props}
-            // {...field}
             autoHighlight
             freeSolo
             options={list}
-            ListboxProps={{
-              onScroll: (event) => {
-                if (isLazyLoad) {
-                  const listboxNode = event.currentTarget;
-
-                  if (Math.round(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
-                    setIsAtBottom(true);
-                    setSize(size + 10);
-                    onScrollToBottom(size, '');
-
-                    if (isAtBottom) {
-                      listboxNode.scrollTop = listboxNode.scrollHeight - 50 * 20;
-                      // setScrollTop(listboxNode.scrollHeight - 50 * 20);
-
-                      setIsAtBottom(false);
-                    }
-                  }
-                }
-              },
-            }}
-            // onInputChange={(e, value) => {
-            //   // if (isLazyLoad) {
-            //   //   setTimeout(() => {
-            //   //     onScrollToBottom({ PageSize: size, Page: 1, SearchKey: value });
-            //   //   }, [300]);
-            //   // }
-            // }}
-            // defaultChecked={value}
-            // isOptionEqualToValue={(option, value) => option.value == value.value}
-            // value={value || null}
             value={list.find((item) => item === value)}
             filterSelectedOptions
-            // defaultValue={list.find((item) => item?.value === value)}
-            // getOptionSelected={(option) => option?.value === value}
-            // isOptionEqualToValue={(option) => option?.value === value}
             onChange={(event, newValue) => onChange(newValue)}
             renderInput={(params) => (
               <TextField
                 {...params}
+                placeholder={props.placeholder || ''}
                 error={!!error}
                 onChange={onChange}
                 inputProps={{
