@@ -2,10 +2,10 @@ import { Controller } from 'react-hook-form';
 import { FormControl, TextField, styled, Stack, Box, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react';
-import { AiOutlineClose } from 'react-icons/ai';
 import Papa from 'papaparse';
 import moment from 'moment';
 import { CSVFileIcon } from 'assets';
+import { Icon } from 'components';
 
 const DropZone = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
@@ -22,14 +22,14 @@ const DropZone = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const ClearFile = styled(AiOutlineClose)(({ theme }) => ({
-  border: '0',
-  background: 'transparent',
-  color: 'red',
-  width: '1.5rem',
-  cursor: 'pointer',
-  marginRight: '5px',
-}));
+// const ClearFile = styled(AiOutlineClose)(({ theme }) => ({
+//   border: '0',
+//   background: 'transparent',
+//   color: 'red',
+//   width: '1.5rem',
+//   cursor: 'pointer',
+//   marginRight: '5px',
+// }));
 
 const ErrorMessageList = styled(Box)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -333,7 +333,8 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
     <Box>
       {selectedFile && (
         <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
-          <ClearFile
+          <Icon
+            icon="trash"
             onClick={() => {
               setSelectedFile(null);
               onImport([], true);

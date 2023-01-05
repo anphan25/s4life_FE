@@ -173,7 +173,7 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage')));
 
 //event
-const EventListPage = Loadable(lazy(() => import('pages/event/EventListPage')));
+const EventListPage = Loadable(lazy(() => import('pages/event/event-list/EventListPage')));
 const AddEditEventPage = Loadable(lazy(() => import('pages/event/AddEditEventPage')));
 const EventDetailPage = Loadable(lazy(() => import('pages/event/EventDetailPage')));
 
@@ -189,7 +189,7 @@ const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
 const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
 
 //hospital
-const HospitalListPage = Loadable(lazy(() => import('pages/hospital/HospitalListPage')));
+const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
 
 //script

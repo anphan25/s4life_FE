@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Paper, Box, styled, Stack, Button } from '@mui/material';
-import { HiPlus } from 'react-icons/hi';
+import { Box, styled, Stack, Button } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -12,9 +11,9 @@ import {
   RHFInput,
   RHFAsyncAutoComplete,
   RHFSelect,
+  Icon,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { FcKey } from 'react-icons/fc';
 import { errorHandler, convertBloodTypeLabel, formatDate, PASSWORD_PATTERN, USERNAME_PATTERN } from 'utils';
 import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -174,7 +173,7 @@ const UserListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            icon={<FcKey />}
+            icon={<Icon icon="solid-key-circle" />}
             onClick={() => {
               setChangePassWordUserName(params.row.userName);
               setChangePassWordId(params.row.id);
@@ -501,7 +500,7 @@ const UserListPage = () => {
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách người dùng' }]}
         />
 
-        <Button startIcon={<HiPlus />} variant="contained" onClick={handleAddUserDialog}>
+        <Button startIcon={<Icon icon="sloid-plus" />} variant="contained" onClick={handleAddUserDialog}>
           Thêm người dùng
         </Button>
       </HeaderMainStyle>

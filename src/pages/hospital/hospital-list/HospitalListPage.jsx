@@ -1,49 +1,23 @@
-import { Button, Stack, DialogActions, styled, Box, Typography, Paper } from '@mui/material';
+import { Button, Stack, Box, Typography } from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { CustomDialog, RHFImport, DataTable, HeaderBreadcumbs, CustomSnackBar, FilterTab, SearchBar } from 'components';
+import {
+  CustomDialog,
+  RHFImport,
+  DataTable,
+  HeaderBreadcumbs,
+  CustomSnackBar,
+  FilterTab,
+  SearchBar,
+  Icon,
+} from 'components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api/HospitalApi';
-import { AiOutlineDownload } from 'react-icons/ai';
+import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
 import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from 'config/firebaseConfig';
-import { HiPlus } from 'react-icons/hi';
-import { FcCancel, FcCheckmark } from 'react-icons/fc';
+import { storage } from 'config';
 import { formatDate, errorHandler } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
-
-const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
-  marginTop: 'auto',
-  padding: '10px 0px 10px !important',
-
-  [theme.breakpoints.down('sm')]: {
-    margin: '0 auto',
-    '& .dialog_button': {
-      fontSize: '10px',
-    },
-  },
-}));
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '40px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
-const DownloadLink = styled('a')(({ theme }) => ({
-  display: 'none',
-}));
+import { DialogButtonGroup, DownloadLink, HeaderMainStyle } from './HospitalListStyle';
 
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
@@ -73,7 +47,7 @@ const HospitalListPage = () => {
 
   const filterTabValues = [
     { label: 'Đang hoạt động', value: 1 },
-    { label: 'Bị vô hiệu hóa', value: 2 },
+    { label: 'Ngưng hoạt động', value: 2 },
   ];
 
   const downloadRef = useRef();
@@ -83,12 +57,6 @@ const HospitalListPage = () => {
   const gridOptions = {
     columns: [
       {
-        headerName: 'No',
-        field: 'no',
-        width: 10,
-        align: 'center',
-      },
-      {
         field: 'id',
         hide: true,
       },
@@ -96,67 +64,74 @@ const HospitalListPage = () => {
         headerName: 'Tên bệnh viện',
         field: 'name',
         type: 'string',
-        minWidth: 150,
-        flex: 1,
+        width: 150,
         renderCell: (nameValue) => {
-          return <Typography sx={{ fontWeight: '600' }}>{nameValue.value}</Typography>;
+          return <Typography sx={{ fontWeight: 600, fontSize: 12 }}>{nameValue.value}</Typography>;
         },
       },
       {
         headerName: 'Địa chỉ',
         field: 'address',
-        minWidth: 200,
         flex: 2,
+        minWidth: 220,
       },
-
       {
         headerName: 'Email',
         field: 'email',
         type: 'string',
-        minWidth: 100,
-        flex: 0.5,
+        width: 180,
       },
 
       {
         headerName: 'Số điện thoại',
         field: 'phoneNumber',
         type: 'string',
-        width: 110,
+        width: 140,
       },
       {
         headerName: 'Ngày thêm',
         field: 'addDate',
         type: 'string',
-        width: 140,
+        width: 130,
       },
       {
         field: 'actions',
         type: 'actions',
-        width: 50,
         sortable: false,
         filterable: false,
-        getActions: (params) => [
-          <GridActionsCellItem
-            disabled={pageState.filterTabMode === 2}
-            icon={<FcCancel />}
-            onClick={() => {
-              setDisableHospitalId(params.row.id);
-              openDisableHospitalConfirm(params.row.name);
-            }}
-            label="Vô hiệu bệnh viện"
-            showInMenu
-          />,
-          <GridActionsCellItem
-            disabled={pageState.filterTabMode === 1}
-            icon={<FcCheckmark />}
-            onClick={() => {
-              setEnableHospitalId(params.row.id);
-              openEnableHospitalConfirm(params.row.name);
-            }}
-            label="Kích hoạt bệnh viện"
-            showInMenu
-          />,
-        ],
+        width: 50,
+        align: 'center',
+        renderCell: (params) => {
+          switch (pageState.filterTabMode) {
+            case 2:
+              return (
+                <GridActionsCellItem
+                  icon={<Icon icon="trash-slash" sx={{ height: 20, width: 20 }} />}
+                  onClick={() => {
+                    setEnableHospitalId(params.row.id);
+                    openEnableHospitalConfirm(params.row.name);
+                  }}
+                  label="Kích hoạt"
+                  showInMenu={false}
+                />
+              );
+
+            case 1:
+              return (
+                <GridActionsCellItem
+                  icon={<Icon icon="trash" sx={{ height: 20, width: 20, color: 'error.main' }} />}
+                  onClick={() => {
+                    setDisableHospitalId(params.row.id);
+                    openDisableHospitalConfirm(params.row.name);
+                  }}
+                  label="Vô hiệu hoá"
+                  showInMenu={false}
+                />
+              );
+            default:
+              return null;
+          }
+        },
       },
     ],
     pageState: pageState,
@@ -312,7 +287,11 @@ const HospitalListPage = () => {
 
           <DownloadLink ref={downloadRef} download />
           <Stack direction="row" justifyContent="space-between">
-            <Button sx={{ width: '150px' }} startIcon={<AiOutlineDownload />} onClick={handleDownloadTemplate}>
+            <Button
+              sx={{ width: '150px' }}
+              startIcon={<Icon icon="solid-file-download" />}
+              onClick={handleDownloadTemplate}
+            >
               Tải file mẫu
             </Button>
             <DialogButtonGroup>
@@ -379,14 +358,13 @@ const HospitalListPage = () => {
       });
 
       const dataRow = data.items.map((data, i) => ({
-        no: i + 1,
         id: data?.id,
         name: data?.name || '-',
         address: data?.address || '-',
         email: data?.email || '-',
         phoneNumber: data?.phoneNumber || '-',
         isActive: data?.isActive,
-        addDate: formatDate(data?.addDate, 2) || '-',
+        addDate: formatDate(data?.addDate, 4) || '-',
       }));
 
       setPageState({ ...pageState, data: dataRow, total: data.total });
@@ -408,7 +386,7 @@ const HospitalListPage = () => {
           heading="Danh sách bệnh viện"
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
         />
-        <Button startIcon={<HiPlus />} variant="contained" onClick={addHospitalDialogHandler}>
+        <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={addHospitalDialogHandler}>
           Thêm bệnh viện
         </Button>
       </HeaderMainStyle>

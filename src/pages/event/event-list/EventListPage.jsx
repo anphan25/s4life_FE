@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Stack, styled, Button, Box, Typography, DialogActions } from '@mui/material';
-import { HiPlus } from 'react-icons/hi';
+import { Button, Box, Typography } from '@mui/material';
 import {
   DataTable,
   HeaderBreadcumbs,
@@ -12,52 +11,13 @@ import {
   Icon,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { FcCancel, FcInfo } from 'react-icons/fc';
-import { getEvents, cancelEvent } from 'api/EventApi';
+import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { formatDate, errorHandler, isEventEditableOrCancelable } from 'utils';
 import moment from 'moment';
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
-const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
-  flexDirection: 'row',
-  margin: '20px',
-  gap: 10,
-
-  [theme.breakpoints.down('md')]: {
-    flexDirection: 'column',
-  },
-}));
-
-const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
-  marginTop: 'auto',
-  padding: '10px 0px 10px !important',
-
-  [theme.breakpoints.down('sm')]: {
-    margin: '0 auto',
-    '& .dialog_button': {
-      fontSize: '10px',
-    },
-  },
-}));
+import { DialogButtonGroup, HeaderMainStyle, InputFilterSectionStyle } from './EventListStyle';
 
 const filterTabValues = [
   { label: 'Chưa diễn ra', value: 1 },
@@ -98,12 +58,6 @@ const EventListPage = () => {
   const gridOptions = {
     columns: [
       {
-        headerName: 'No',
-        field: 'no',
-        width: 10,
-        align: 'center',
-      },
-      {
         field: 'id',
         hide: true,
       },
@@ -111,19 +65,16 @@ const EventListPage = () => {
         headerName: 'Sự kiện',
         type: 'string',
         field: 'name',
-        minWidth: 150,
-        flex: 1,
-
+        width: 150,
         renderCell: (nameValue) => {
-          return <Typography sx={{ fontWeight: '600' }}>{nameValue.value}</Typography>;
+          return <Typography sx={{ fontWeight: 600, fontSize: 12 }}>{nameValue.value}</Typography>;
         },
       },
-
       {
         headerName: 'Mã sự kiện',
         field: 'eventCode',
         type: 'string',
-        width: 100,
+        width: 140,
       },
       {
         headerName: 'Địa điểm',
@@ -132,12 +83,11 @@ const EventListPage = () => {
         minWidth: 200,
         flex: 1,
       },
-
       {
         headerName: 'Thời gian',
         type: 'string',
         field: 'time',
-        width: 250,
+        width: 220,
         renderCell: (timeValue) => {
           const valueObject = JSON.parse(timeValue.value);
           const startDate = valueObject?.startDate;
@@ -149,33 +99,37 @@ const EventListPage = () => {
           return (
             <Box>
               {isEmergency ? (
-                <Typography
-                  sx={{
-                    backgroundColor: '#F4F4F4',
-                    fontWeight: 600,
-                    padding: '3px 5px 3px',
-                    borderRadius: '8px',
-                    marginBottom: '5px',
-                  }}
-                >
-                  {startDate} {workingTimeStart}
-                  <br />
-                  {endDate} {workingTimeEnd}
-                </Typography>
+                <>
+                  <Typography
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                      mb: '4px',
+                    }}
+                  >
+                    {workingTimeStart}, {startDate}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: 12,
+                    }}
+                  >
+                    {workingTimeEnd}, {endDate}
+                  </Typography>
+                </>
               ) : (
                 <>
                   <Typography
                     sx={{
-                      backgroundColor: '#F4F4F4',
-                      fontWeight: 600,
-                      padding: '3px 5px 3px',
-                      borderRadius: '8px',
-                      marginBottom: '5px',
+                      fontWeight: 500,
+                      marginBottom: '4px',
+                      fontSize: 12,
                     }}
                   >
                     {startDate} - {endDate}
                   </Typography>
-                  <Typography sx={{ color: '#2BC155' }}>
+                  <Typography sx={{ fontWeight: 600, fontSize: 12, color: 'primary.main' }}>
                     {workingTimeStart} - {workingTimeEnd}
                   </Typography>
                 </>
@@ -189,6 +143,14 @@ const EventListPage = () => {
         type: 'boolean',
         field: 'isEmergency',
         width: 80,
+        renderCell: (params) => {
+          return (
+            <Icon
+              icon="solid-light-emergency-on"
+              sx={{ fontSize: 20, color: params.row.isEmergency ? 'error.main' : 'grey.600' }}
+            />
+          );
+        },
       },
       {
         headerName: 'Số người đăng kí',
@@ -204,17 +166,21 @@ const EventListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
+            icon={<Icon icon="eye" sx={{ fontSize: 20 }} />}
+            onClick={() => {
+              navigate(`/event/${params.row.id}`);
+            }}
+            label="Xem chi tiết"
+            showInMenu
+          />,
+          <GridActionsCellItem
             disabled={
               params.row.status === 'Đã kết thúc' ||
               params.row.status === 'Đã bị hủy' ||
               params.row.isEmergency ||
               user.role === 'Admin'
             }
-            icon={
-              <Box sx={{ '& .action-icon': { color: 'error.main' } }}>
-                <Icon name="solidEdit" />
-              </Box>
-            }
+            icon={<Icon icon="pen-line" sx={{ fontSize: 20 }} />}
             onClick={() => {
               if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 1)) {
                 handleEditCancelDialog();
@@ -223,7 +189,7 @@ const EventListPage = () => {
 
               navigate(`/event/${params.row.id}/edit`);
             }}
-            label="Sửa sự kiện"
+            label="Cập nhật"
             showInMenu
           />,
           <GridActionsCellItem
@@ -232,7 +198,8 @@ const EventListPage = () => {
               params.row.status === 'Đã bị hủy' ||
               (params.row.isEmergency && user.role === 'Manager')
             }
-            icon={<FcCancel />}
+            sx={{ color: 'error.main' }}
+            icon={<Icon icon="trash" sx={{ fontSize: 20 }} />}
             onClick={() => {
               if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)) {
                 handleEditCancelDialog();
@@ -243,15 +210,7 @@ const EventListPage = () => {
               setCancelEventName(params.row.name);
               setCancelEventId(params.row.id);
             }}
-            label="Hủy sự kiện"
-            showInMenu
-          />,
-          <GridActionsCellItem
-            icon={<FcInfo />}
-            onClick={() => {
-              navigate(`/event/${params.row.id}`);
-            }}
-            label="Xem chi tiết"
+            label="Hủy"
             showInMenu
           />,
         ],
@@ -357,14 +316,13 @@ const EventListPage = () => {
     })
       .then((res) => {
         const dataRow = res.items?.map((data, i) => ({
-          no: i + 1,
           id: data?.id,
           name: data?.name || '-',
           eventCode: data?.eventCode || '-',
           address: data.eventLocations[0]?.location?.name || '-',
           time: JSON.stringify({
-            startDate: formatDate(data?.startDate, 2),
-            endDate: formatDate(data?.endDate, 2),
+            startDate: formatDate(data?.startDate, 4),
+            endDate: formatDate(data?.endDate, 4),
             workingTimeStart: moment(data?.workingTimeStart, 'HH:mm').format('HH:mm'),
             workingTimeEnd: moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm'),
             isEmergency: data?.isEmergency,
@@ -396,7 +354,7 @@ const EventListPage = () => {
         />
         {user.role === 'Manager' && (
           <Button
-            startIcon={<HiPlus />}
+            startIcon={<Icon icon="solid-plus" />}
             variant="contained"
             onClick={() => {
               navigate('/event/add');

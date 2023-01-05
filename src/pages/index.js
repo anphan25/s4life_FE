@@ -2,7 +2,7 @@ export * from './auth/LoginPage';
 
 export * from './dashboard/DashboardPage';
 
-export * from './event/EventListPage';
+export * from './event/event-list/EventListPage';
 export * from './event/AddEditEventPage';
 export * from './event/EventDetailPage';
 
@@ -15,4 +15,4 @@ export * from './user/UserListPage';
 export * from './user/AddEditUserPage';
 export * from './user/UserDetailPage';
 
-export * from './hospital/HospitalListPage';
+export * from './hospital/hospital-list/HospitalListPage';
