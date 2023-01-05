@@ -13,7 +13,6 @@ import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBr
 import LoadingButton from '@mui/lab/LoadingButton';
 import { errorHandler, convertDayLabel } from 'utils';
 import { useForm } from 'react-hook-form';
-import { AiOutlineDownload } from 'react-icons/ai';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
@@ -165,7 +164,7 @@ const HospitalInfoPage = () => {
           <a ref={downloadRef} style={{ display: 'hidden' }} />
 
           <Stack direction="row" justifyContent="space-between">
-            <Button startIcon={<AiOutlineDownload />} onClick={handleDownloadInfo}>
+            <Button startIcon={<Icon icon="solid-file-download" />} onClick={handleDownloadInfo}>
               Tải thông tin bệnh viện
             </Button>
             <DialogButtonGroup sx={{ marginTop: '10px' }}>

@@ -2,5 +2,7 @@ export { default as Logo } from './images/logo.png';
 
 export { ReactComponent as BellIcon } from 'assets/icons/bell.svg';
 export { ReactComponent as CSVFileIcon } from 'assets/icons/csv-file.svg';
+export { ReactComponent as ImageFileIcon } from 'assets/icons/image-file.svg';
+export { ReactComponent as NotFoundIcon } from 'assets/icons/not-found.svg';
 export { ReactComponent as TypeOBloodIcon } from 'assets/icons/type-o-blood.svg';
 export { ReactComponent as TypeRHSubtractIcon } from 'assets/icons/type-rh-substract-blood.svg';

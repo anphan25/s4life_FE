@@ -7,6 +7,7 @@ export default function CssBaseline(theme) {
         '*': {
           '*::-webkit-scrollbar': {
             width: '8px',
+            height: '8px',
           },
           '*::-webkit-scrollbar-track': {
             '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',

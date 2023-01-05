@@ -53,7 +53,7 @@ const UserPopover = () => {
         )}
       </Box>
       <Dropdown anchorEl={toggle} open={Boolean(toggle)} onClose={onToggle} sx={{ width: 280, p: 0, mt: 8 }}>
-        <Box sx={{ padding: '16px 33px 0' }}>
+        <Box sx={{ padding: '16px 24px 0' }}>
           <Typography noWrap fontSize={20} fontWeight={600}>
             {user?.username || ''}
           </Typography>
@@ -65,9 +65,8 @@ const UserPopover = () => {
         <Stack sx={{ p: 2 }} justifyContent="center">
           <Divider
             sx={{
-              mx: 2,
               color: 'grey.400',
-              margin: '0 0 8px',
+              mb: 1.5,
             }}
           />
           {menu.map((option) => (
@@ -76,28 +75,23 @@ const UserPopover = () => {
               to={option.to}
               component={Link}
               onClick={onToggle}
-              sx={{ p: 1.5, color: 'grey.700', borderRadius: '12px' }}
+              sx={{ color: 'grey.700', m: 0 }}
             >
               <ListItemIcon sx={{ color: 'grey.700' }}>{option.icon}</ListItemIcon>
-              <ListItemText>
-                <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{option.name}</Typography>
-              </ListItemText>
+              <ListItemText>{option.name}</ListItemText>
             </MenuItem>
           ))}
-
           <Divider
             sx={{
-              mx: 2,
+              my: '12px !important',
               color: 'grey.400',
             }}
           />
-          <MenuItem onClick={handleLogout} sx={{ p: 1.5, color: 'error.main', borderRadius: '12px' }}>
+          <MenuItem onClick={handleLogout} sx={{ color: 'error.main', m: 0 }}>
             <ListItemIcon sx={{ color: 'error.main' }}>
               <Icon icon="log-out" />
             </ListItemIcon>
-            <ListItemText>
-              <Typography sx={{ fontSize: 14, fontWeight: 500 }}>Đăng xuất</Typography>
-            </ListItemText>
+            <ListItemText>Đăng xuất</ListItemText>
           </MenuItem>
         </Stack>
       </Dropdown>

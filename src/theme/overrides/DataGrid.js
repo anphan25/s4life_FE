@@ -8,38 +8,51 @@ export default function DataGrid(theme) {
           '& .MuiTablePagination-root': {
             borderTop: 0,
           },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: theme.palette.grey[100],
+            color: theme.palette.grey[800],
+            fontSize: '13px',
+            fontWeight: 600,
+            borderTopLeftRadius: '20px',
+            borderTopRightRadius: '20px',
+          },
+          '& .MuiDataGrid-virtualScroller': {
+            minHeight: '550px',
+          },
           '& .MuiDataGrid-toolbarContainer': {
             padding: theme.spacing(2),
-            backgroundColor: theme.palette.background.neutral,
             '& .MuiButton-root': {
               marginRight: theme.spacing(1.5),
               color: theme.palette.text.primary,
               '&:hover': {
-                backgroundColor: theme.palette.action.hover,
+                backgroundColor: theme.palette.grey[200],
               },
             },
           },
           '& .MuiDataGrid-cell, .MuiDataGrid-columnsContainer': {
-            borderBottom: `1px solid ${theme.palette.divider}`,
+            borderBottom: `1px solid ${theme.palette.grey[200]}`,
+            fontSize: '12px',
+            ':focus': {
+              outline: 'none',
+            },
+            ':focus-within': {
+              outline: 'none',
+            },
           },
           '& .MuiDataGrid-columnSeparator': {
-            color: theme.palette.divider,
+            color: 'transparent',
+          },
+          '& .MuiDataGrid-columnHeader': {
+            gap: '8px',
+            ':focus': {
+              outline: 'none',
+            },
+            ':focus-within': {
+              outline: 'none',
+            },
           },
           '& .MuiDataGrid-columnHeader[data-field="__check__"]': {
             padding: 0,
-          },
-        },
-      },
-    },
-    MuiGridMenu: {
-      styleOverrides: {
-        root: {
-          '& .MuiDataGrid-gridMenuList': {
-            boxShadow: 'none',
-            borderRadius: theme.shape.borderRadius,
-          },
-          '& .MuiMenuItem-root': {
-            ...theme.typography.body2,
           },
         },
       },

@@ -234,7 +234,7 @@ const DashboardPage = () => {
           <StatisticTabContainer elevation={0}>
             <Stack className="tab_title" direction="row" alignItems="center">
               <Icon icon="solid-droplet" className="tab_title--icon" />
-              <Typography className="tab_title--text">Số (lit) máu nhận được</Typography>
+              <Typography className="tab_title--text">Số (ml) máu nhận được</Typography>
             </Stack>
 
             <Stack className="tab_content">

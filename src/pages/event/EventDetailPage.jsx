@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FcCancel } from 'react-icons/fc';
-import { VscCalendar } from 'react-icons/vsc';
-import { MdOutlineWaterDrop, MdOutlineLocationOn } from 'react-icons/md';
 import {
   Stack,
   styled,
   Grid,
   Box,
-  Paper,
   Typography,
   Divider,
   Menu,
@@ -17,9 +13,7 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-import { BsThreeDots } from 'react-icons/bs';
-import { AiFillEdit } from 'react-icons/ai';
-import { HeaderBreadcumbs, CustomSnackBar, CustomDialog } from 'components';
+import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, Icon } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -265,14 +259,13 @@ const EventDetailPage = () => {
           <Stack justifyContent="flex-end">
             <IconButton
               sx={{ marginLeft: 'auto', width: '40px' }}
-              // aria-label="more"
               id="long-button"
               aria-controls={open ? 'long-menu' : undefined}
               aria-expanded={open ? 'true' : undefined}
               aria-haspopup="true"
               onClick={handleClick}
             >
-              <BsThreeDots />
+              <Icon icon="more-horizontal-circle" />
             </IconButton>
             <Menu
               id="long-menu"
@@ -310,7 +303,7 @@ const EventDetailPage = () => {
                 }}
               >
                 <Stack key={1} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                  <AiFillEdit /> <Typography>Sửa sự kiện</Typography>
+                  <Icon icon="solid-pen" /> <Typography>Sửa sự kiện</Typography>
                 </Stack>
               </MenuItem>
 
@@ -335,7 +328,8 @@ const EventDetailPage = () => {
                 }}
               >
                 <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                  <FcCancel /> <Typography>Hủy sự kiện</Typography>
+                  <Icon icon="solid-trash" />
+                  <Typography>Hủy sự kiện</Typography>
                 </Stack>
               </MenuItem>
             </Menu>
@@ -372,7 +366,7 @@ const EventDetailPage = () => {
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_icon">
-                  <MdOutlineLocationOn className="info-item_icon_item" />
+                  <Icon icon="solid-eye" className="info-item_icon_item" />
                 </Box>
                 <Box>
                   <Typography className="info-item_title">{detailData?.eventLocations[0].location.name}</Typography>
@@ -384,7 +378,7 @@ const EventDetailPage = () => {
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_icon">
-                  <VscCalendar className="info-item_icon_item" />
+                  <Icon icon="solid-calendar-star" className="info-item_icon_item" />
                 </Box>
                 <Box>
                   <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)} - ${formatDate(
@@ -402,7 +396,7 @@ const EventDetailPage = () => {
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_icon">
-                  <MdOutlineWaterDrop className="info-item_icon_item" />
+                  <Icon icon="solid-droplet" className="info-item_icon_item" />
                 </Box>
                 <Box>
                   <Box className="info-item_title">
