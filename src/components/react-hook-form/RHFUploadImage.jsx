@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Stack, styled, Box, InputLabel, TextField, Typography, FormControl, Button } from '@mui/material';
 import { Controller } from 'react-hook-form';
-import { AiFillFileImage, AiOutlineClose } from 'react-icons/ai';
 import { useDropzone } from 'react-dropzone';
-import { BsUpload } from 'react-icons/bs';
+import { Icon } from 'components';
+import { ImageFileIcon } from 'assets';
 
 const ErrorMessageList = styled(Box)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -26,15 +26,6 @@ const DropZone = styled(Stack)(({ theme }) => ({
   '& .file_input': {
     display: 'none',
   },
-}));
-
-const ClearFile = styled(AiOutlineClose)(({ theme }) => ({
-  border: '0',
-  background: 'transparent',
-  color: 'red',
-  width: '1.5rem',
-  cursor: 'pointer',
-  marginRight: '5px',
 }));
 
 const ImportTextDisplayStyle = styled(Stack)(({ theme }) => ({
@@ -151,7 +142,8 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
       {!defaultValue
         ? selectedFile && (
             <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
-              <ClearFile
+              <Icon
+                icon="trash"
                 onClick={() => {
                   setSelectedFile(null);
                   onUpload(acceptedFiles[0]);
@@ -200,7 +192,7 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
                   <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
                     <ImportTextDisplayStyle>
                       <Box>
-                        <AiFillFileImage className="upload_icon" />
+                        <ImageFileIcon />
                       </Box>
                       <Typography className="upload_description">{label}</Typography>
                       <Typography className="upload_require">Ảnh tối đa 3MB</Typography>
@@ -229,9 +221,7 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
                 render={({ field, fieldState: { error } }) => (
                   <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
                     <ImportTextDisplayStyle>
-                      <Box>
-                        <AiFillFileImage className="upload_icon" />
-                      </Box>
+                      <ImageFileIcon />
                       <Typography className="upload_description">{label}</Typography>
                       <Typography className="upload_require">Ảnh tối đa 3MB</Typography>
                     </ImportTextDisplayStyle>
@@ -279,7 +269,7 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
                   '&:hover': { opacity: '100%' },
                 }}
                 variant="contained"
-                startIcon={<BsUpload />}
+                startIcon={<Icon icon="solid-cloud-upload" />}
                 onClick={() => {
                   editImgRef.current.click();
                 }}

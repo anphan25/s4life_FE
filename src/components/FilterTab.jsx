@@ -4,10 +4,11 @@ import React from 'react';
 const TabsContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'isVertical',
 })(({ theme, isVertical }) => ({
-  margin: '24px 30px',
+  padding: '0.75rem 2.25rem 0',
+  backgroundColor: theme.palette.grey[100],
+
   '& .MuiTabs-indicator': {
     height: '4px',
-    width: '4px',
     borderRadius: '0.475rem',
     backgroundColor: theme.palette.primary.main,
     zIndex: 999,
@@ -39,19 +40,6 @@ export const FilterTab = ({ tabs, sx, defaultValue, onChangeTab, ...props }) => 
           <Tab key={i} label={tab.label} value={tab.value} />
         ))}
       </Tabs>
-      {props.orientation !== 'vertical' && (
-        <Box
-          sx={{
-            height: '4px',
-            width: '100%',
-            backgroundColor: 'grey.100',
-            bottom: '4px',
-            left: 0,
-            borderRadius: '0.475rem',
-            position: 'relative',
-          }}
-        />
-      )}
     </TabsContainer>
   );
 };

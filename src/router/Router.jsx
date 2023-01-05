@@ -189,7 +189,7 @@ const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
 const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
 
 //hospital
-const HospitalListPage = Loadable(lazy(() => import('pages/hospital/HospitalListPage')));
+const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
 
 //script

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Stack, styled, Button, Box, Typography, DialogActions } from '@mui/material';
-import { HiPlus } from 'react-icons/hi';
 import {
   DataTable,
   HeaderBreadcumbs,
@@ -12,8 +11,7 @@ import {
   Icon,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { FcCancel, FcInfo } from 'react-icons/fc';
-import { getEvents, cancelEvent } from 'api/EventApi';
+import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -232,7 +230,7 @@ const EventListPage = () => {
               params.row.status === 'Đã bị hủy' ||
               (params.row.isEmergency && user.role === 'Manager')
             }
-            icon={<FcCancel />}
+            icon={<Icon icon="trash" />}
             onClick={() => {
               if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)) {
                 handleEditCancelDialog();
@@ -247,7 +245,7 @@ const EventListPage = () => {
             showInMenu
           />,
           <GridActionsCellItem
-            icon={<FcInfo />}
+            icon={<Icon icon="trash" />}
             onClick={() => {
               navigate(`/event/${params.row.id}`);
             }}
@@ -396,7 +394,7 @@ const EventListPage = () => {
         />
         {user.role === 'Manager' && (
           <Button
-            startIcon={<HiPlus />}
+            startIcon={<Icon icon="solid-plus" />}
             variant="contained"
             onClick={() => {
               navigate('/event/add');

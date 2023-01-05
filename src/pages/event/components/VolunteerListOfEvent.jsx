@@ -1,11 +1,10 @@
 import { Stack, styled, Box, Typography, Button, DialogActions, FormControl, Select, MenuItem } from '@mui/material';
-import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog } from 'components';
+import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog, Icon } from 'components';
 import { useState, useCallback, useEffect } from 'react';
 import { errorHandler, formatDate } from 'utils';
 import { useParams } from 'react-router-dom';
 import { getEventRegistrations, updateBloodType } from 'api';
 import moment from 'moment';
-import { AiFillEdit } from 'react-icons/ai';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { BLOOD_TYPE, convertBloodTypeLabel } from 'utils';
@@ -118,12 +117,13 @@ const VolunteerListOfEvent = () => {
         width: 50,
         sortable: false,
         filterable: false,
+        align: 'center',
         getActions: (params) => [
           <GridActionsCellItem
             disabled={pageState.status !== 3 || user.role !== 'Manager'}
             icon={
               <Box sx={{ '& .action-icon': { color: 'warning.main' } }}>
-                <AiFillEdit className="action-icon" />
+                <Icon icon="solid-user-edit" className="action-icon" />
               </Box>
             }
             onClick={() => {
