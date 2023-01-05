@@ -32,7 +32,7 @@ jobs:
   #     env:
   #        CI: ""
 
-  Transfer-Code-To-Server-And-Deploy:
+  Build-And-Export:
     runs-on: ubuntu-latest
     # needs: [Build-Test]
     if: github.ref == 'refs/heads/Configure/NamTH/CICD'
@@ -48,7 +48,7 @@ jobs:
         source: "."
         target: "s4life_FE"
 
-    - name: Deploying
+    - name: Build and transfer
       uses: appleboy/ssh-action@master
       with:
         host: 139.59.223.66
@@ -58,3 +58,21 @@ jobs:
         script: |
           cd s4life_FE
           npm run build
+          zip build
+          ${{ secrets.SCP_COMMAND }}
+
+    PUBLISH:
+    runs-on: ubuntu-latest
+    needs: [Build-And-Export]
+    if: github.ref == 'refs/heads/Configure/NamTH/CICD'
+    steps:
+    - name: Build and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST_PUBLISH }}
+        username: ${{ secrets.SSH_USERNAME_PUBLISH }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_PUBLISH }}
+        port: 22
+        script: |
+          rm -rf build
+          unzip build.zip
