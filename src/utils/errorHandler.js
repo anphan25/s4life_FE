@@ -94,10 +94,8 @@ export function convertErrorCodeToMessage(code) {
 }
 
 export const errorHandler = (error) => {
-  console.log('error :', error);
   if (error?.response?.status === 401) return;
   const { response } = error;
-  console.log('status :', response?.status);
   if (response?.data !== null) {
     const code = response.data?.code;
     var message = convertErrorCodeToMessage(code);

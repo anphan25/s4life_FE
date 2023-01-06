@@ -31,7 +31,7 @@ export default function DataGrid(theme) {
           },
           '& .MuiDataGrid-cell, .MuiDataGrid-columnsContainer': {
             borderBottom: `1px solid ${theme.palette.grey[200]}`,
-            fontSize: '12px',
+            fontSize: '13px',
             ':focus': {
               outline: 'none',
             },

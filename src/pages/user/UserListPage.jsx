@@ -95,20 +95,14 @@ const UserListPage = () => {
   const volunteerGridOptions = {
     columns: [
       {
-        headerName: 'No',
-        field: 'no',
-        width: 10,
-        align: 'center',
-      },
-      {
         field: 'id',
         hide: true,
       },
       {
-        headerName: 'Tên',
+        headerName: 'Họ tên',
         field: 'name',
         type: 'string',
-        width: 150,
+        width: 180,
       },
       {
         headerName: 'Địa chỉ',
@@ -117,19 +111,25 @@ const UserListPage = () => {
         minWidth: 200,
         flex: 1,
       },
-
       {
         headerName: 'CMND/CCCD',
-        type: 'string',
+        type: 'number',
         field: 'nationalId',
-        width: 200,
+        width: 120,
       },
-
+      {
+        headerName: 'Giới tính',
+        type: 'string',
+        field: 'gender',
+        minWidth: 30,
+        align: 'center',
+      },
       {
         headerName: 'Ngày sinh',
-        type: 'string',
+        type: 'date',
         field: 'dateOfBirth',
-        width: 100,
+        width: 130,
+        align: 'center',
       },
       {
         headerName: 'Số điện thoại',
@@ -141,7 +141,8 @@ const UserListPage = () => {
         headerName: 'Nhóm máu',
         field: 'bloodType',
         type: 'string',
-        width: 100,
+        width: 90,
+        align: 'center',
       },
     ],
     pageState: pageState,
@@ -149,12 +150,6 @@ const UserListPage = () => {
 
   const managerStaffGridOptions = {
     columns: [
-      {
-        headerName: 'No',
-        field: 'no',
-        width: 10,
-        align: 'center',
-      },
       {
         field: 'id',
         hide: true,
@@ -182,7 +177,7 @@ const UserListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            icon={<Icon icon="solid-key-circle" />}
+            icon={<Icon icon="key" sx={{ fontSize: 18 }} />}
             onClick={() => {
               setChangePassWordUserName(params.row.userName);
               setChangePassWordId(params.row.id);
@@ -488,7 +483,6 @@ const UserListPage = () => {
       const dataRow =
         pageState.filterMode === 1
           ? data.items?.map((data, i) => ({
-              no: i + 1,
               id: data?.userInformation?.userId,
               name: data?.userInformation?.fullName || '-',
               address: data?.userInformation?.address || '-',
@@ -497,10 +491,10 @@ const UserListPage = () => {
               bloodType: data?.userInformation?.bloodTypeId
                 ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
                 : '-',
-              dateOfBirth: formatDate(data?.userInformation?.dateOfBirth, 2) || '-',
+              dateOfBirth: formatDate(data?.userInformation?.dateOfBirth, 4) || '-',
+              gender: data?.userInformation?.gender || '-',
             }))
           : data.items?.map((data, i) => ({
-              no: i + 1,
               id: data?.id,
               userName: data?.userName || '-',
               hospitalName: data?.hospital?.name || '-',
@@ -545,12 +539,12 @@ const UserListPage = () => {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading="Danh sách người dùng"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách người dùng' }]}
+          heading="Danh sách tài khoản"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách tài khoản' }]}
         />
 
-        <Button startIcon={<Icon icon="sloid-plus" />} variant="contained" onClick={handleAddUserDialog}>
-          Thêm người dùng
+        <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserDialog}>
+          Thêm tài khoản
         </Button>
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
@@ -561,7 +555,7 @@ const UserListPage = () => {
             {pageState.filterMode !== 1 && (
               <AsyncAutocompleteFilter
                 sx={{ width: '50%' }}
-                placeholder="Chọn bệnh viện"
+                placeholder="Nhập tên bệnh viện"
                 onInput={handleSearchHospitalToFilter}
                 onSelect={handleChooseHospital}
                 list={filterHospitals}

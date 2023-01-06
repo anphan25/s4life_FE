@@ -67,7 +67,9 @@ const EventListPage = () => {
         field: 'name',
         width: 150,
         renderCell: (nameValue) => {
-          return <Typography sx={{ fontWeight: 600, fontSize: 12 }}>{nameValue.value}</Typography>;
+          return (
+            <Typography sx={{ fontWeight: 600, fontSize: 13, textOverflow: 'ellipsis' }}>{nameValue.value}</Typography>
+          );
         },
       },
       {
@@ -112,7 +114,7 @@ const EventListPage = () => {
                   <Typography
                     sx={{
                       fontWeight: 500,
-                      fontSize: 12,
+                      fontSize: 13,
                     }}
                   >
                     {workingTimeEnd}, {endDate}
@@ -129,7 +131,7 @@ const EventListPage = () => {
                   >
                     {startDate} - {endDate}
                   </Typography>
-                  <Typography sx={{ fontWeight: 600, fontSize: 12, color: 'primary.main' }}>
+                  <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
                     {workingTimeStart} - {workingTimeEnd}
                   </Typography>
                 </>
@@ -166,7 +168,7 @@ const EventListPage = () => {
         filterable: false,
         getActions: (params) => [
           <GridActionsCellItem
-            icon={<Icon icon="eye" sx={{ fontSize: 20 }} />}
+            icon={<Icon icon="eye" sx={{ fontSize: 18 }} />}
             onClick={() => {
               navigate(`/event/${params.row.id}`);
             }}
@@ -180,7 +182,7 @@ const EventListPage = () => {
               params.row.isEmergency ||
               user.role === 'Admin'
             }
-            icon={<Icon icon="pen-line" sx={{ fontSize: 20 }} />}
+            icon={<Icon icon="pen-line" sx={{ fontSize: 18 }} />}
             onClick={() => {
               if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 1)) {
                 handleEditCancelDialog();
@@ -199,7 +201,7 @@ const EventListPage = () => {
               (params.row.isEmergency && user.role === 'Manager')
             }
             sx={{ color: 'error.main' }}
-            icon={<Icon icon="trash" sx={{ fontSize: 20 }} />}
+            icon={<Icon icon="trash" sx={{ fontSize: 18 }} />}
             onClick={() => {
               if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)) {
                 handleEditCancelDialog();

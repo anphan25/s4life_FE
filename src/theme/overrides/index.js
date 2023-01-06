@@ -21,6 +21,7 @@ import Select from './Select';
 import SvgIcon from './SvgIcon';
 import Tooltip from './Tooltip';
 import Popover from './Popover';
+import Popper from './Popper';
 import Stepper from './Stepper';
 import DataGrid from './DataGrid';
 import Skeleton from './Skeleton';
@@ -80,6 +81,7 @@ export function Overrides(theme) {
     Autocomplete(theme),
     ControlLabel(theme),
     ToggleButton(theme),
-    LoadingButton(theme)
+    LoadingButton(theme),
+    Popper(theme)
   );
 }

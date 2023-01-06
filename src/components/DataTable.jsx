@@ -93,10 +93,10 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
           autoHeight
           sx={{
             minHeight: 550,
-            '.MuiDataGrid-menuList': {
+            '.MuiPopper-root': {
               boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04) !important',
               borderRadius: 12,
-              padding: '16px',
+              padding: '12px',
             },
           }}
           columns={gridOptions.columns}

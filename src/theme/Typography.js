@@ -1,9 +1,10 @@
-import { responsiveFontSizes } from "utils/getFontValue";
+import { responsiveFontSizes } from 'utils/getFontValue';
 
-const FONT_PRIMARY = "Inter, sans-serif";
+const FONT_PRIMARY = 'Inter, sans-serif';
 
 export const typography = {
   fontFamily: FONT_PRIMARY,
+  fontSize: 14,
   h1: {
     fontWeight: 700,
     lineHeight: 80 / 64,
@@ -64,6 +65,6 @@ export const typography = {
     fontWeight: 700,
     lineHeight: 24 / 14,
     fontSize: 14,
-    textTransform: "capitalize",
+    textTransform: 'capitalize',
   },
 };

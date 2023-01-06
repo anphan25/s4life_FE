@@ -1,5 +1,12 @@
 export default function List(theme) {
   return {
+    MuiList: {
+      styleOverrides: {
+        root: {
+          padding: 0,
+        },
+      },
+    },
     MuiListItemIcon: {
       styleOverrides: {
         root: {
