@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { Icon } from 'components';
 import React, { useState } from 'react';
-import { ResultItemContainer, Tag } from '../ResultItemStyle';
+import { ResultItemContainer, Tag } from './ResultItemStyle';
 
 const ResultItem = ({ item, index }) => {
   const [showItem, setShowItem] = useState(false);

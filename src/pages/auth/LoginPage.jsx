@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, styled, Typography, Grid } from '@mui/material';
+import { styled, Typography } from '@mui/material';
 import { Logo as logo } from 'assets';
 import LoginForm from './components/LoginForm';
 

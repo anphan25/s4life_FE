@@ -25,7 +25,7 @@ const sidebarAdmin = [
     ],
   },
   {
-    name: 'Quản lý người dùng',
+    name: 'Quản lý tài khoản',
     icon: <Icon icon="users" />,
     to: '/user/list',
   },

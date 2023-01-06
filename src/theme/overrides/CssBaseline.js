@@ -1,5 +1,3 @@
-// ----------------------------------------------------------------------
-
 export default function CssBaseline(theme) {
   return {
     MuiCssBaseline: {
@@ -27,6 +25,7 @@ export default function CssBaseline(theme) {
         body: {
           width: '100%',
           height: '100%',
+          fontSize: 14,
         },
         a: {
           color: 'inherit',

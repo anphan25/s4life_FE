@@ -3,8 +3,8 @@ export default function Menu(theme) {
     MuiMenuItem: {
       styleOverrides: {
         root: {
-          margin: '12px',
-          padding: '12px 16px',
+          margin: '8px',
+          padding: '10px 14px',
           fontSize: 14,
           fontWeight: 500,
           borderRadius: 6,
