@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Box, Typography } from '@mui/material';
+import { Button, Box, Typography, Divider, MenuItem } from '@mui/material';
 import {
   DataTable,
   HeaderBreadcumbs,
@@ -9,6 +9,7 @@ import {
   FromToDateFilter,
   CustomSnackBar,
   Icon,
+  MoreMenuButton,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { getEvents, cancelEvent } from 'api';
@@ -26,7 +27,7 @@ const filterTabValues = [
   { label: 'Đã hủy', value: 4 },
 ];
 
-const EventListPage = () => {
+const EventFixedListPage = () => {
   const user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
@@ -109,15 +110,21 @@ const EventListPage = () => {
                       mb: '4px',
                     }}
                   >
-                    {workingTimeStart}, {startDate}
+                    <Typography component={'span'} fontWeight={600} fontSize={13} color="primary.main">
+                      {workingTimeStart}
+                    </Typography>
+                    , {startDate}
                   </Typography>
                   <Typography
                     sx={{
                       fontWeight: 500,
-                      fontSize: 13,
+                      fontSize: 12,
                     }}
                   >
-                    {workingTimeEnd}, {endDate}
+                    <Typography component={'span'} fontWeight={600} fontSize={13} color="primary.main">
+                      {workingTimeEnd}
+                    </Typography>
+                    , {endDate}
                   </Typography>
                 </>
               ) : (
@@ -166,56 +173,68 @@ const EventListPage = () => {
         width: 50,
         sortable: false,
         filterable: false,
-        getActions: (params) => [
-          <GridActionsCellItem
-            icon={<Icon icon="eye" sx={{ fontSize: 18 }} />}
-            onClick={() => {
-              navigate(`/event/${params.row.id}`);
-            }}
-            label="Xem chi tiết"
-            showInMenu
-          />,
-          <GridActionsCellItem
-            disabled={
-              params.row.status === 'Đã kết thúc' ||
-              params.row.status === 'Đã bị hủy' ||
-              params.row.isEmergency ||
-              user.role === 'Admin'
-            }
-            icon={<Icon icon="pen-line" sx={{ fontSize: 18 }} />}
-            onClick={() => {
-              if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 1)) {
-                handleEditCancelDialog();
-                return;
-              }
+        renderCell: (params) => {
+          return (
+            <MoreMenuButton>
+              <MenuItem
+                onClick={() => {
+                  navigate(`/event/${params.row.id}`);
+                }}
+              >
+                <Icon icon={'eye'} />
+                Xem chi tiết
+              </MenuItem>
 
-              navigate(`/event/${params.row.id}/edit`);
-            }}
-            label="Cập nhật"
-            showInMenu
-          />,
-          <GridActionsCellItem
-            disabled={
-              params.row.status === 'Đã kết thúc' ||
-              params.row.status === 'Đã bị hủy' ||
-              (params.row.isEmergency && user.role === 'Manager')
-            }
-            sx={{ color: 'error.main' }}
-            icon={<Icon icon="trash" sx={{ fontSize: 18 }} />}
-            onClick={() => {
-              if (!isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)) {
-                handleEditCancelDialog();
-                return;
-              }
+              <MenuItem
+                disabled={
+                  params.row.status === 'Đã kết thúc' ||
+                  params.row.status === 'Đã bị hủy' ||
+                  params.row.isEmergency ||
+                  user.role === 'Admin'
+                }
+                onClick={() => {
+                  if (
+                    !isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 1)
+                  ) {
+                    handleEditCancelDialog();
+                    return;
+                  }
 
-              handleCancelEventDialog();
-              setCancelEventName(params.row.name);
-              setCancelEventId(params.row.id);
-            }}
-            label="Hủy"
-            showInMenu
-          />,
-        ],
+                  navigate(`/event/${params.row.id}/edit`);
+                }}
+              >
+                <Icon icon={'pen'} />
+                Cập nhật
+              </MenuItem>
+
+              <Divider sx={{ borderStyle: 'dashed' }} />
+
+              <MenuItem
+                disabled={
+                  params.row.status === 'Đã kết thúc' ||
+                  params.row.status === 'Đã bị hủy' ||
+                  (params.row.isEmergency && user.role === 'Manager')
+                }
+                onClick={() => {
+                  if (
+                    !isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)
+                  ) {
+                    handleEditCancelDialog();
+                    return;
+                  }
+
+                  handleCancelEventDialog();
+                  setCancelEventName(params.row.name);
+                  setCancelEventId(params.row.id);
+                }}
+                sx={{ color: 'error.main' }}
+              >
+                <Icon icon={'trash'} />
+                Huỷ
+              </MenuItem>
+            </MoreMenuButton>
+          );
+        },
       },
     ],
     pageState,
@@ -382,7 +401,6 @@ const EventListPage = () => {
           </InputFilterSectionStyle>
         </Box>
         <DataTable
-          density="comfortable"
           gridOptions={gridOptions}
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}
@@ -413,4 +431,4 @@ const EventListPage = () => {
   );
 };
 
-export default EventListPage;
+export default EventFixedListPage;

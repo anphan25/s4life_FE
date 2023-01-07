@@ -23,7 +23,7 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const AddEditEventPage = () => {
+const AddEditFixedEventPage = () => {
   const { eventId } = useParams();
   const [eventEditData, setEventEditData] = useState();
   const [alert, setAlert] = useState({
@@ -77,7 +77,7 @@ const AddEditEventPage = () => {
           heading={isEdit ? 'Sửa sự kiện cố định' : 'Thêm sự kiện cố định'}
           links={[
             { name: 'Trang chủ', to: '/' },
-            { name: 'Danh sách sự kiện cố định', to: '/event/list' },
+            { name: 'Danh sách sự kiện cố định', to: '/event/fixed-list' },
             { name: `${isEdit ? 'Sửa sự kiện cố định' : 'Thêm sự kiện cố định'} ` },
           ]}
         />
@@ -90,4 +90,4 @@ const AddEditEventPage = () => {
   );
 };
 
-export default React.memo(AddEditEventPage);
+export default React.memo(AddEditFixedEventPage);

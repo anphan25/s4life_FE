@@ -16,11 +16,15 @@ const sidebarAdmin = [
     children: [
       {
         name: 'Cố định',
-        to: '/event/list/',
+        to: '/event/fixed-list/',
       },
       {
         name: 'Lưu động',
-        // to: '/recipes/drinks',
+        to: '/event/mobile-list/',
+      },
+      {
+        name: 'Theo lịch bệnh viện',
+        to: '/event/schedule-list/',
       },
     ],
   },
@@ -44,15 +48,15 @@ const sidebarManager = [
     children: [
       {
         name: 'Cố định',
-        to: '/event/list/',
+        to: '/event/fixed-list/',
       },
       {
         name: 'Lưu động',
-        // to: '/recipes/drinks',
+        to: '/event/mobile-list/',
       },
       {
         name: 'Theo lịch bệnh viện',
-        // to: '/recipes/drinks',
+        to: '/event/schedule-list/',
       },
     ],
   },

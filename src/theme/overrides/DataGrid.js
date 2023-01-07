@@ -10,7 +10,7 @@ export default function DataGrid(theme) {
           },
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: theme.palette.grey[100],
-            color: theme.palette.grey[800],
+            color: theme.palette.grey[900],
             fontSize: '13px',
             fontWeight: 600,
             borderTopLeftRadius: '20px',
