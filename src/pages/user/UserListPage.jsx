@@ -168,7 +168,13 @@ const UserListPage = () => {
         flex: 1,
         minWidth: 250,
       },
-
+      {
+        headerName: 'Ngày thêm',
+        type: 'string',
+        field: 'addDate',
+        width: 150,
+        align: 'left',
+      },
       {
         field: 'actions',
         type: 'actions',
@@ -498,6 +504,7 @@ const UserListPage = () => {
               id: data?.id,
               userName: data?.userName || '-',
               hospitalName: data?.hospital?.name || '-',
+              addDate: formatDate(data?.addDate, 4) || '-',
             }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
@@ -578,7 +585,6 @@ const UserListPage = () => {
         </Box>
 
         <DataTable
-          density="comfortable"
           gridOptions={pageState.filterMode === 1 ? volunteerGridOptions : managerStaffGridOptions}
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}

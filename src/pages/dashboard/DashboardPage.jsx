@@ -1,25 +1,11 @@
-import React, { useState } from 'react';
-import {
-  Paper,
-  Grid,
-  Stack,
-  Box,
-  Typography,
-  styled,
-  Divider,
-  Table,
-  TableContainer,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableBody,
-  useMediaQuery,
-} from '@mui/material';
+import React from 'react';
+import { Paper, Grid, Stack, Box, Typography, styled, Divider, useMediaQuery } from '@mui/material';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
 import { formatNumber } from 'utils/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
+import NewEventList from './components/NewEventList';
 
 const PageTitle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
@@ -33,21 +19,21 @@ const PageTitle = styled(Stack)(({ theme }) => ({
 }));
 
 const StatisticTabContainer = styled(Paper)(({ theme }) => ({
-  padding: '20px',
-  backgroundColor: theme.palette.background.white,
+  padding: '24px',
+  backgroundColor: 'white',
   boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04)',
   width: '100%',
   borderRadius: '20px',
 
   '& .tab_title': {
     '& .tab_title--icon': {
-      width: '36px',
-      height: '36px',
+      width: '40px',
+      height: '40px',
       backgroundColor: theme.palette.primary.light,
       color: theme.palette.primary.main,
       borderRadius: '100%',
       padding: '8px',
-      marginRight: '10px',
+      marginRight: '14px',
     },
 
     '& .tab_title--text': { fontWeight: 500, fontSize: '14px' },
@@ -58,7 +44,7 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
 
     '& .tab_content--number': {
       fontWeight: 600,
-      fontSize: '32px',
+      fontSize: '28px',
       marginBottom: '10px',
 
       [theme.breakpoints.down('lg')]: {
@@ -84,13 +70,8 @@ const StatisticTabContainer = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const IncomingEventStyle = styled(Paper)(({ theme }) => ({
-  padding: '20px',
-  borderRadius: '20px',
-}));
-
 const BloodVolume = styled(Paper)(({ theme }) => ({
-  padding: '40px 20px 40px',
+  padding: '30px',
   borderRadius: '20px',
 
   '& .blood_volume--content': {
@@ -102,12 +83,12 @@ const BloodVolume = styled(Paper)(({ theme }) => ({
   },
 
   '& .blood-type': {
-    padding: '8px',
-    backgroundColor: theme.palette.error.light,
-    width: '55px',
-    height: '55px',
+    padding: '12px',
+    backgroundColor: theme.palette.primary.light,
+    width: '60px',
+    height: '60px',
     borderRadius: '10px',
-    marginRight: '10px',
+    marginRight: '14px',
 
     [theme.breakpoints.down('lg')]: {
       marginRight: 0,
@@ -128,21 +109,6 @@ const BloodVolume = styled(Paper)(({ theme }) => ({
 
 const DashboardPage = () => {
   const theme = useTheme();
-
-  const rows = [
-    {
-      name: 'Hiến máu cho người nghèo',
-      address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
-      startDate: new Date(),
-      endDate: new Date(),
-    },
-    {
-      name: 'Hiến máu cho người nghèo, người khuyết tật, người thiếu máu',
-      address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
-      startDate: new Date(),
-      endDate: new Date(),
-    },
-  ];
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -266,57 +232,9 @@ const DashboardPage = () => {
         </Grid>
       </Grid>
 
-      <Grid container columnSpacing={{ lg: 2 }}>
+      <Grid container spacing={3}>
         <Grid item lg={9} xs={12}>
-          <IncomingEventStyle elevation={0}>
-            <Typography sx={{ fontWeight: 800, fontSize: '20px', marginBottom: '10px' }}>
-              Sự kiện hiến máu sắp diễn ra
-            </Typography>
-
-            <TableContainer component={Box}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead sx={{ borderBottom: '1px solid #EBEAED' }}>
-                  <TableRow>
-                    <TableCell sx={{ boxShadow: 'none !important', width: '30%', fontWeight: 'bold' }}>
-                      Sự kiện
-                    </TableCell>
-                    <TableCell sx={{ width: '40%', fontWeight: 'bold' }}>Địa điểm</TableCell>
-                    <TableCell sx={{ boxShadow: 'none !important', width: '30%', fontWeight: 'bold' }}>
-                      Thời gian
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell component="th" scope="row">
-                        {row.name}
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        {row.address}
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        <Box>
-                          <Typography>
-                            {moment(row.startDate).format('DD/MM/yyyy')} - {moment(row.endDate).format('DD/MM/yyyy')}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontWeight: 700,
-                              fontSize: '12px',
-                              color: `${theme.palette.success.main}`,
-                            }}
-                          >
-                            {moment(row.startDate).format('HH:mm')} - {moment(row.endDate).format('HH:mm')}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </IncomingEventStyle>
+          <NewEventList />
         </Grid>
         <Grid item lg={3} xs={12}>
           <BloodVolume>
@@ -324,7 +242,7 @@ const DashboardPage = () => {
               <Stack className="blood_volume--item" direction="row">
                 <TypeOBloodIcon className="blood-type" />
                 <Box>
-                  <Typography className="blood-volume-number">{formatNumber(60034)} lít</Typography>
+                  <Typography className="blood-volume-number">{formatNumber(60034)} ml</Typography>
                   <Typography>Nhóm máu O</Typography>
                 </Box>
               </Stack>
@@ -343,8 +261,8 @@ const DashboardPage = () => {
               <Stack className="blood_volume--item" direction="row">
                 <TypeRHSubtractIcon className="blood-type" />
                 <Box>
-                  <Typography className="blood-volume-number">{formatNumber(60034)} lít</Typography>
-                  <Typography>Nhóm máu RH-</Typography>
+                  <Typography className="blood-volume-number">{formatNumber(60034)} ml</Typography>
+                  <Typography>Nhóm máu Rh-</Typography>
                 </Box>
               </Stack>
             </Stack>

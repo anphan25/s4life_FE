@@ -18,26 +18,27 @@ export default function Table(theme) {
           borderBottom: 'none',
         },
         head: {
-          color: theme.palette.text.secondary,
-          backgroundColor: theme.palette.background.neutral,
+          color: theme.palette.grey[900],
+          backgroundColor: theme.palette.grey[100],
+          fontWeight: 600,
+          fontSize: '13px',
           '&:first-of-type': {
             paddingLeft: theme.spacing(3),
             borderTopLeftRadius: 16,
-            borderBottomLeftRadius: 16,
-            boxShadow: `inset 8px 0 0 ${theme.palette.grey[200]}`,
+            boxShadow: 'none',
           },
           '&:last-of-type': {
             paddingRight: theme.spacing(3),
             borderTopRightRadius: 16,
-            borderBottomRightRadius: 16,
-            boxShadow: `inset -8px 0 0 ${theme.palette.grey[200]}`,
+            boxShadow: 'none',
           },
         },
         stickyHeader: {
-          backgroundColor: theme.palette.grey[200],
+          backgroundColor: theme.palette.grey[100],
           backgroundImage: `linear-gradient(to bottom, ${theme.palette.background} 0%, ${theme.palette.background} 100%)`,
         },
         body: {
+          fontSize: 12,
           '&:first-of-type': {
             paddingLeft: theme.spacing(3),
           },

@@ -52,12 +52,12 @@ export default function Router() {
         {
           path: 'event',
           children: [
-            { element: <Navigate to="/event/list" replace />, index: true },
+            { element: <Navigate to="/event/fixed-list" replace />, index: true },
             {
-              path: 'list',
+              path: 'fixed-list',
               element: (
                 <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
-                  <EventListPage />
+                  <EventFixedListPage />
                 </ProtectedRouter>
               ),
             },
@@ -65,7 +65,7 @@ export default function Router() {
               path: 'add',
               element: (
                 <ProtectedRouter roles={['Manager']}>
-                  <AddEditEventPage />
+                  <AddEditFixedEventPage />
                 </ProtectedRouter>
               ),
             },
@@ -81,7 +81,7 @@ export default function Router() {
               path: ':eventId/edit',
               element: (
                 <ProtectedRouter roles={['Manager']}>
-                  <AddEditEventPage />
+                  <AddEditFixedEventPage />
                 </ProtectedRouter>
               ),
             },
@@ -173,8 +173,8 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage')));
 
 //event
-const EventListPage = Loadable(lazy(() => import('pages/event/event-list/EventListPage')));
-const AddEditEventPage = Loadable(lazy(() => import('pages/event/AddEditEventPage')));
+const EventFixedListPage = Loadable(lazy(() => import('pages/event/event-fixed-list/EventFixedListPage')));
+const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/AddEditFixedEventPage')));
 const EventDetailPage = Loadable(lazy(() => import('pages/event/EventDetailPage')));
 
 //error

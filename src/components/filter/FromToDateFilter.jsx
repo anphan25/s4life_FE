@@ -1,7 +1,7 @@
 import { Stack, TextField } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
-import { Icon } from './Icon';
+import { Icon } from '../Icon';
 
 function DateIcon() {
   return <Icon icon="calendar" />;
