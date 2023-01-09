@@ -26,7 +26,7 @@ import {
   isEventEditableOrCancelable,
 } from 'utils';
 import parse from 'html-react-parser';
-import VolunteerListOfEvent from './components/VolunteerListOfEvent';
+import VolunteerListOfEvent from '../components/VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector } from 'react-redux';
 
@@ -118,7 +118,7 @@ const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   },
 }));
 
-const EventDetailPage = () => {
+const EventFixedDetailPage = () => {
   const [detailData, setDetailData] = useState();
   const [cancelEventId, setCancelEventId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -248,7 +248,7 @@ const EventDetailPage = () => {
           heading="Chi tiết sự kiện"
           links={[
             { name: 'Trang chủ', to: '/' },
-            { name: 'Danh sách sự kiện cố định', to: '/event/list/' },
+            { name: 'Danh sách sự kiện cố định', to: '/event/fixed-list/' },
             { name: `${detailData?.name}` },
           ]}
         />
@@ -496,4 +496,4 @@ const EventDetailPage = () => {
   );
 };
 
-export default EventDetailPage;
+export default EventFixedDetailPage;
