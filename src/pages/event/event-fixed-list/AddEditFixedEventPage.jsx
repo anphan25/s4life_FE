@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Stack, styled } from '@mui/material';
 import { HeaderBreadcumbs, CustomSnackBar } from 'components';
 import { getEventDetailByEventId } from 'api';
-import AddEditForm from './components/AddEditForm';
+import AddEditForm from '../components/AddEditForm';
 import { useParams } from 'react-router-dom';
 import { errorHandler } from 'utils';
 

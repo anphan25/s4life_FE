@@ -11,7 +11,6 @@ import {
   Icon,
   MoreMenuButton,
 } from 'components';
-import { GridActionsCellItem } from '@mui/x-data-grid';
 import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -178,7 +177,7 @@ const EventFixedListPage = () => {
             <MoreMenuButton>
               <MenuItem
                 onClick={() => {
-                  navigate(`/event/${params.row.id}`);
+                  navigate(`/event/fixed-list/${params.row.id}`);
                 }}
               >
                 <Icon icon={'eye'} />
@@ -200,7 +199,7 @@ const EventFixedListPage = () => {
                     return;
                   }
 
-                  navigate(`/event/${params.row.id}/edit`);
+                  navigate(`/event/fixed-list/${params.row.id}/edit`);
                 }}
               >
                 <Icon icon={'pen'} />
@@ -378,7 +377,7 @@ const EventFixedListPage = () => {
             startIcon={<Icon icon="solid-plus" />}
             variant="contained"
             onClick={() => {
-              navigate('/event/add');
+              navigate('/event/fixed-list/add');
             }}
           >
             Thêm sự kiện

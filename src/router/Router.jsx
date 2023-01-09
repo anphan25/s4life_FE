@@ -55,35 +55,40 @@ export default function Router() {
             { element: <Navigate to="/event/fixed-list" replace />, index: true },
             {
               path: 'fixed-list',
-              element: (
-                <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
-                  <EventFixedListPage />
-                </ProtectedRouter>
-              ),
-            },
-            {
-              path: 'add',
-              element: (
-                <ProtectedRouter roles={['Manager']}>
-                  <AddEditFixedEventPage />
-                </ProtectedRouter>
-              ),
-            },
-            {
-              path: ':eventId',
-              element: (
-                <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
-                  <EventDetailPage />
-                </ProtectedRouter>
-              ),
-            },
-            {
-              path: ':eventId/edit',
-              element: (
-                <ProtectedRouter roles={['Manager']}>
-                  <AddEditFixedEventPage />
-                </ProtectedRouter>
-              ),
+              children: [
+                {
+                  index: true,
+                  element: (
+                    <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
+                      <EventFixedListPage />
+                    </ProtectedRouter>
+                  ),
+                },
+                {
+                  path: 'add',
+                  element: (
+                    <ProtectedRouter roles={['Manager']}>
+                      <AddEditFixedEventPage />
+                    </ProtectedRouter>
+                  ),
+                },
+                {
+                  path: ':eventId',
+                  element: (
+                    <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
+                      <EventFixedDetailPage />
+                    </ProtectedRouter>
+                  ),
+                },
+                {
+                  path: ':eventId/edit',
+                  element: (
+                    <ProtectedRouter roles={['Manager']}>
+                      <AddEditFixedEventPage />
+                    </ProtectedRouter>
+                  ),
+                },
+              ],
             },
           ],
         },
@@ -174,8 +179,8 @@ const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage'
 
 //event
 const EventFixedListPage = Loadable(lazy(() => import('pages/event/event-fixed-list/EventFixedListPage')));
-const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/AddEditFixedEventPage')));
-const EventDetailPage = Loadable(lazy(() => import('pages/event/EventDetailPage')));
+const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/event-fixed-list/AddEditFixedEventPage')));
+const EventFixedDetailPage = Loadable(lazy(() => import('pages/event//event-fixed-list/EventFixedDetailPage')));
 
 //error
 const PermissionDeniedPage = Loadable(lazy(() => import('pages/error/PermissionDeniedPage')));
