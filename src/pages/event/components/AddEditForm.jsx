@@ -22,6 +22,7 @@ import {
   DEFAULT_EVENT_IMAGE_URL,
   PHONE_NUMBER_PATTERN,
   BLOOD_TYPE,
+  convertErrorCodeToMessage,
 } from 'utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ref, uploadBytesResumable, getDownloadURL, getStorage, deleteObject } from 'firebase/storage';
@@ -30,6 +31,8 @@ import moment from 'moment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
@@ -46,11 +49,19 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const navigate = useNavigate();
   const { eventId } = useParams();
+  const [connection, setConnection] = useState(null);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
+
+  const [signalRAlert, setSignalRAlert] = useState({
+    message: '',
+    status: false,
+    type: 'success',
+  });
+  const store = useStore();
 
   const uploadImage = async (data) => {
     const filePath = `event-images/`;
@@ -161,6 +172,11 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const addEditEventHandler = async (param) => {
     setAlert({});
     try {
+      setAlert({
+        message: 'Yêu cầu đang được xử lý',
+        status: true,
+        type: 'warning',
+      });
       if (isEdit) {
         const editParams = {};
         editParams['id'] = eventId;
@@ -174,21 +190,9 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
         await createEvent(param);
       }
 
-      // setAlert({
-      //   message: 'Yêu cầu đang được xử lý',
-      //   status: true,
-      //   type: 'warning',
-      // });
-
-      // setAlert({
-      //   message: isEdit ? `Sửa sự kiện thành công` : `Thêm sự kiện thành công`,
-      //   status: true,
-      //   type: 'success',
-      // });
-
-      // setTimeout(() => {
-      //   navigate('/event/fixed-list');
-      // }, [1500]);
+      setTimeout(() => {
+        navigate('/event/fixed-list');
+      }, [1500]);
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
@@ -391,6 +395,26 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   useEffect(() => {
     resetDatetimeField();
   }, [isEmergency]);
+
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      setSignalRAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
 
   return (
     <>
@@ -614,6 +638,11 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       </form>
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
+
+      {/* SignalR Alert */}
+      {signalRAlert?.status && (
+        <CustomSnackBar sx={{ marginTop: '130px' }} message={signalRAlert.message} type={signalRAlert.type} />
+      )}
     </>
   );
 };
