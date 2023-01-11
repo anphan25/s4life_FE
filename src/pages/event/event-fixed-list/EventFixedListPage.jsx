@@ -42,7 +42,6 @@ const EventFixedListPage = () => {
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
-  const [isConnectedToHub, setIsConnectedToHub] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
   const [pageState, setPageState] = useState({

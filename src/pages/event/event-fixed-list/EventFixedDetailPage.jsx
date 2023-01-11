@@ -366,7 +366,7 @@ const EventFixedDetailPage = () => {
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_icon">
-                  <Icon icon="solid-eye" className="info-item_icon_item" />
+                  <Icon icon="solid-location-pin" className="info-item_icon_item" />
                 </Box>
                 <Box>
                   <Typography className="info-item_title">{detailData?.eventLocations[0].location.name}</Typography>
