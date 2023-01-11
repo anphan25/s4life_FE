@@ -34,6 +34,11 @@ const sidebarAdmin = [
     to: '/user/list',
   },
   {
+    name: 'Xét duyệt thẻ hiến máu',
+    icon: <Icon icon="file-text-edit" />,
+    to: '/blood-donation-approvals/list',
+  },
+  {
     name: 'Giả lập',
     icon: <Icon icon="code-square" />,
     to: '/script',

@@ -16,3 +16,4 @@ export * from './user/AddEditUserPage';
 export * from './user/UserDetailPage';
 
 export * from './hospital/hospital-list/HospitalListPage';
+export * from './blood-donation-approvals/ApprovalList';

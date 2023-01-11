@@ -145,6 +145,20 @@ export default function Router() {
             },
           ],
         },
+        {
+          path: 'blood-donation-approvals',
+          children: [
+            { element: <Navigate to="/blood-donation-approvals/list" replace />, index: true },
+            {
+              path: 'list',
+              element: (
+                <ProtectedRouter roles={['Admin']}>
+                  <ApprovalList />
+                </ProtectedRouter>
+              ),
+            },
+          ],
+        },
 
         {
           path: '/script',
@@ -199,3 +213,6 @@ const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-inf
 
 //script
 const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
+
+//blood-donation-approvals
+const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approvals/ApprovalList')));
