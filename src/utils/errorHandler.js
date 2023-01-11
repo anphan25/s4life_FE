@@ -1,4 +1,8 @@
+import { PROCESSING_MESSAGE } from 'utils/message';
+
 export function convertErrorCodeToMessage(code) {
+  if (code === undefined || code === null) return;
+
   const message = {
     //Firebase
     10001: 'Tải ảnh thất bại, Vui lòng liên hệ quản trị viên',
@@ -16,6 +20,11 @@ export function convertErrorCodeToMessage(code) {
     2031: 'Bệnh viện không tồn tại',
 
     //Hospital
+    3000: PROCESSING_MESSAGE,
+    3100: 'Thêm bệnh viện thành công',
+    3200: 'Chỉnh sửa thông tin bệnh viện thành công',
+    3300: 'Vô hiệu hóa bệnh viện thành công',
+    3400: 'Kích hoạt hóa bệnh viện thành công',
     3001: 'Tọa độ không chính xác',
     3002: 'Không tìm thấy vị trí',
     3003: 'Từ chối yêu cầu truy cập bệnh viện',
@@ -25,6 +34,7 @@ export function convertErrorCodeToMessage(code) {
     3031: 'Không thể vô hiệu, bệnh viện đang có sự kiện chưa kết thúc',
 
     //Event
+    4000: PROCESSING_MESSAGE,
     4001: 'Không thể tạo sự kiện hiến máu tuần này',
     4002: 'Thiếu ngày bắt đầu và ngày kết thúc',
     4003: 'Sửa và hủy sự kiện phải trước ngày bắt đầu 3 ngày',
@@ -44,19 +54,26 @@ export function convertErrorCodeToMessage(code) {
     4111: 'Sự kiện lưu động phải có khu vực di chuyển của xe',
     4121: 'Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa 30 ngày',
     4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
+    4100: 'Chỉnh sửa sự kiện thành công',
+    4200: 'Hủy sự kiện thành công',
+    4300: 'Tạo sự kiện thành công',
 
     //Blood Donation Approval
+    5000: PROCESSING_MESSAGE,
     5001: 'Không trích xuất được thông tin từ ảnh',
     5011: 'Thiếu trường thông tin ghi chú',
     5021: 'Yêu cầu này đã được xử lí',
     5003: 'Từ chối  yêu cầu truy cập',
     5004: 'Không tìm thấy yêu cầu',
-
+    5100: 'Tạo yêu cầu cập nhật lịch sử hiến máu thành công',
+    5200: 'Cập nhật yêu cầu lịch sử hiến máu thành công',
     //Blood Donation
+    6000: PROCESSING_MESSAGE,
     6003: 'Từ chối yêu cầu truy cập lịch sử hiến máu',
     6004: 'Không tìm thấy lịch sử hiến máu',
 
     //Event Registration
+    7000: PROCESSING_MESSAGE,
     7001: 'Bạn đã đăng ký sự kiện này rồi',
     7003: 'Từ chối quyền truy cập thông tin đăng ký',
     7004: 'Không tìm thấy thông tin đăng ký ',
@@ -81,11 +98,15 @@ export function convertErrorCodeToMessage(code) {
     8001: 'Nhóm máu không hợp lệ',
     8011: 'Thông tin tình nguyện viên không hợp lệ',
     8003: 'Từ chối yêu cầu truy cập thông tin người dùng',
-    8013: 'Yêu cầu cập nhật không phù hợp',
+    // 8013: 'Yêu cầu cập nhật không phù hợp',
     8004: 'Không tìm thấy thông tin người dùng',
     8015: 'Cập nhật nhóm máu đang được xử lý',
     8016: 'Tình nguyện viên chưa hiến máu',
     8100: 'Cập nhật nhóm máu thành công',
+
+    //Event Direction
+    10003: 'Từ chối yêu cầu truy cập thông tin đường đi của sự kiện',
+    10004: 'Không tìm thấy thông tin đường đi',
 
     //Internal Error
     5555: 'Có lỗi xảy ra, Vui lòng liên hệ quản trị viên',
@@ -98,6 +119,8 @@ export const errorHandler = (error) => {
   const { response } = error;
   if (response?.data !== null) {
     const code = response.data?.code;
+    if (code < 0) return 'Đã có lỗi xảy ra';
+
     var message = convertErrorCodeToMessage(code);
     return message;
   } else {

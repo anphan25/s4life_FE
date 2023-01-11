@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { alpha, Snackbar, Alert, useTheme } from '@mui/material';
+import { Snackbar, Alert, useTheme } from '@mui/material';
 
-export const CustomSnackBar = (props) => {
-  const theme = useTheme();
+export const CustomSnackBar = ({ message, type, sx }) => {
   const [isOpen, setIsOpen] = useState(true);
 
   const handleClose = (event, reason) => {
@@ -19,8 +18,9 @@ export const CustomSnackBar = (props) => {
         sx={{
           marginTop: '60px',
           borderRadius: '12px',
-          boxShadow: `0 8px 16px 0 ${alpha(theme.palette.grey[300], 0.08)}`,
+          boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px',
           backgroundColor: 'grey.100',
+          ...sx,
         }}
         open={isOpen}
         autoHideDuration={5000}
@@ -31,8 +31,8 @@ export const CustomSnackBar = (props) => {
         onClose={handleClose}
         key={`topright`}
       >
-        <Alert onClose={handleClose} severity={props.type} sx={{ width: '100%' }}>
-          {props.message}
+        <Alert onClose={handleClose} severity={type} sx={{ width: '100%' }}>
+          {message}
         </Alert>
       </Snackbar>
     </>

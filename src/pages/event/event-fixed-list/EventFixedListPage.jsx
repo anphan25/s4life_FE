@@ -15,9 +15,17 @@ import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { formatDate, errorHandler, isEventEditableOrCancelable } from 'utils';
+import {
+  formatDate,
+  errorHandler,
+  isEventEditableOrCancelable,
+  convertErrorCodeToMessage,
+  PROCESSING_MESSAGE,
+} from 'utils';
 import moment from 'moment';
 import { DialogButtonGroup, HeaderMainStyle, InputFilterSectionStyle } from './EventListStyle';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const filterTabValues = [
   { label: 'Chưa diễn ra', value: 1 },
@@ -34,7 +42,9 @@ const EventFixedListPage = () => {
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
-
+  const [isConnectedToHub, setIsConnectedToHub] = useState(false);
+  const [connection, setConnection] = useState(null);
+  const store = useStore();
   const [pageState, setPageState] = useState({
     isLoading: false,
     total: 0,
@@ -50,6 +60,11 @@ const EventFixedListPage = () => {
   });
 
   const [alert, setAlert] = useState({
+    message: '',
+    status: false,
+    type: 'success',
+  });
+  const [signalRAlert, setSignalRAlert] = useState({
     message: '',
     status: false,
     type: 'success',
@@ -259,13 +274,32 @@ const EventFixedListPage = () => {
     setPageState((old) => ({ ...old, page: 1, dateFrom: params.startDate, dateTo: params.endDate }));
   };
 
-  const handleCancelEventDialog = () => {
+  const handleCancelEventDialog = async () => {
     setIsCancelEventOpen(!isCancelEventOpen);
+    setConnection(await openHubConnection(store));
+    if (connection) {
+      setTimeout(() => {
+        connection?.stop();
+      }, 2000);
+    }
   };
 
   const handleEditCancelDialog = () => {
     setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
   };
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      setSignalRAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
 
   const cancelEventDialogContent = () => {
     return (
@@ -278,12 +312,13 @@ const EventFixedListPage = () => {
           <LoadingButton
             loading={isButtonLoading}
             onClick={async () => {
-              setAlert({});
               setIsButtonLoading(true);
+              setAlert({});
+              setSignalRAlert({});
               try {
+                setAlert({ message: PROCESSING_MESSAGE, status: true, type: 'warning' });
                 await cancelEvent(cancelEventId);
                 await fetchEventListData();
-                setAlert({ message: `Hủy sự kiện ${cancelEventName} thành công`, status: true, type: 'success' });
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
               } finally {
@@ -384,7 +419,6 @@ const EventFixedListPage = () => {
           </Button>
         )}
       </HeaderMainStyle>
-
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.status} />
@@ -406,7 +440,6 @@ const EventFixedListPage = () => {
           disableFilter={true}
         />
       </Box>
-
       {/* Cancel Event Dialog */}
       <CustomDialog
         isOpen={isCancelEventOpen}
@@ -415,7 +448,6 @@ const EventFixedListPage = () => {
         children={cancelEventDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
-
       {/* Alert Edit/Cancel Event Dialog */}
       <CustomDialog
         isOpen={isEditCancelAlertOpen}
@@ -424,8 +456,12 @@ const EventFixedListPage = () => {
         children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
 
-      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+      {/* SignalR Alert */}
+      {signalRAlert?.status && (
+        <CustomSnackBar sx={{ marginTop: '130px' }} message={signalRAlert.message} type={signalRAlert.type} />
+      )}
     </>
   );
 };

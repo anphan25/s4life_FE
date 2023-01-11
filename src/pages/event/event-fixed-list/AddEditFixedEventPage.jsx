@@ -85,7 +85,7 @@ const AddEditFixedEventPage = () => {
 
       {eventEditData && isEdit ? <AddEditForm isEdit={true} eventEditData={eventEditData} /> : <AddEditForm />}
 
-      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </div>
   );
 };

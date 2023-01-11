@@ -24,3 +24,4 @@ export * from './filter/FromToDateFilter';
 export * from './filter/AsyncAutocompleteFilter';
 export * from './Tag';
 export * from './MoreMenuButton';
+export * from './SignalRSnackBar';

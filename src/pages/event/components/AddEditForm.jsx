@@ -46,7 +46,6 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const navigate = useNavigate();
   const { eventId } = useParams();
-
   const [alert, setAlert] = useState({
     message: '',
     status: false,
@@ -161,7 +160,6 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
 
   const addEditEventHandler = async (param) => {
     setAlert({});
-
     try {
       if (isEdit) {
         const editParams = {};
@@ -176,15 +174,21 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
         await createEvent(param);
       }
 
-      setAlert({
-        message: isEdit ? `Sửa sự kiện thành công` : `Thêm sự kiện thành công`,
-        status: true,
-        type: 'success',
-      });
+      // setAlert({
+      //   message: 'Yêu cầu đang được xử lý',
+      //   status: true,
+      //   type: 'warning',
+      // });
 
-      setTimeout(() => {
-        navigate('/event/list');
-      }, [1000]);
+      // setAlert({
+      //   message: isEdit ? `Sửa sự kiện thành công` : `Thêm sự kiện thành công`,
+      //   status: true,
+      //   type: 'success',
+      // });
+
+      // setTimeout(() => {
+      //   navigate('/event/fixed-list');
+      // }, [1500]);
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
@@ -205,6 +209,22 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
+  Yup.addMethod(Yup.date, 'validDateBaseOnCurrentDate', function (errorMessage) {
+    return this.test(`test-valid-time`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const startDate = context.parent.startDate;
+      const endDate = context.parent.endDate;
+
+      if (isEmergency) return true;
+
+      return (
+        (moment().add(1, 'days').format('DD/MM/yyy') <= moment(startDate).format('DD/MM/yyy') &&
+          moment().add(1, 'days').format('DD/MM/yyy') <= moment(endDate).format('DD/MM/yyy')) ||
+        createError({ path, message: errorMessage })
+      );
+    });
+  });
+
   const AddEventSchema = Yup.object().shape({
     name: Yup.string().required('Vui lòng nhập tên').max(128, 'Tên không được dài quá 128 kí tự'),
     description: Yup.string().required('Vui lòng nhập mô tả').max(512, 'Mô tả không được dài quá 512 kí tự'),
@@ -216,12 +236,14 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập ngày bắt đầu')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc'),
+      .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc')
+      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại 1 ngày'),
     endDate: Yup.date()
       .min(Yup.ref('startDate'), 'Ngày kết thúc phải trước ngày bắt đầu')
       .required('Vui lòng nhập ngày kết thúc')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null)),
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
+      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại 1 ngày'),
     workingTimeStart: Yup.date()
       .max(Yup.ref('workingTimeEnd'), 'Giờ bắt đầu phải trước giờ kết thúc')
       .required('Vui lòng nhập giờ bắt đầu làm việc')
@@ -575,7 +597,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
                     <Button
                       sx={{ marginRight: '10px' }}
                       onClick={() => {
-                        navigate('/event/list');
+                        navigate('/event/fixed-list');
                       }}
                     >
                       Hủy
@@ -591,7 +613,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
         </Grid>
       </form>
 
-      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };
