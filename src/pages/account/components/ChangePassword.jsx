@@ -103,7 +103,7 @@ const ChangePassword = () => {
         </Stack>
       </form>
 
-      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </ChangePasswordStackStyle>
   );
 };

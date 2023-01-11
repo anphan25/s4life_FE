@@ -12,7 +12,6 @@ import { setupAxiosInstance } from 'config';
 function App() {
   const store = useStore();
   setupAxiosInstance(store);
-
   return (
     <Theme>
       <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={'vi'}>

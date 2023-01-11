@@ -609,7 +609,7 @@ const UserListPage = () => {
           sx={{ '& .MuiDialog-paper': { width: '70%' } }}
         />
 
-        {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+        {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
       </Box>
     </>
   );

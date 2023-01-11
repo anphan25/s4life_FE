@@ -399,9 +399,9 @@ const HospitalInfoPage = () => {
                   <Typography fontWeight={600} fontSize={14}>
                     {convertDayLabel(item?.day)}
                   </Typography>
-                  <Box>
+                  <Box key={item.id}>
                     {item?.isEnabled ? (
-                      <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'grey.700' }}>
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'grey.700' }} key={item.id}>
                         <Typography
                           fontSize={14}
                           sx={{
@@ -457,7 +457,7 @@ const HospitalInfoPage = () => {
         sx={{ '& .MuiDialog-paper': { width: '30%', maxHeight: '700px' } }}
       />
 
-      {alert?.status && <CustomSnackBar message={alert.message} status={alert.status} type={alert.type} />}
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };
