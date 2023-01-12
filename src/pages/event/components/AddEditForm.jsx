@@ -221,8 +221,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       if (isEmergency) return true;
 
       return (
-        (moment().add(1, 'days').format('DD/MM/yyy') <= moment(startDate).format('DD/MM/yyy') &&
-          moment().add(1, 'days').format('DD/MM/yyy') <= moment(endDate).format('DD/MM/yyy')) ||
+        (moment().add(1, 'days') <= moment(startDate) && moment().add(1, 'days') <= moment(endDate)) ||
         createError({ path, message: errorMessage })
       );
     });
