@@ -74,7 +74,6 @@ export const RHFAsyncAutoComplete = ({
             filterSelectedOptions
             onChange={(event, newValue) => {
               onChange(newValue || '');
-
               if (!onSelect) return;
               onSelect(newValue);
             }}
