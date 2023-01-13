@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, styled, Stack, Button, Hidden } from '@mui/material';
-import { GridActionsCellItem } from '@mui/x-data-grid';
-import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon } from 'components';
-
-import { getApprovalUsers } from 'api/UserApprovalApi';
+import { Box, styled, Stack, MenuItem } from '@mui/material';
+import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomSnackBar, MoreMenuButton } from 'components';
+import { getBloodDonationApprovalList } from 'api/BloodDonationApprovalApi';
 import { errorHandler, formatDate } from 'utils';
+import { useNavigate } from 'react-router-dom';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -32,23 +31,23 @@ const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   },
 }));
 const filterTabValues = [
-  { label: 'Đang xử lý', value: 1 },
-  { label: 'Chấp nhận', value: 2 },
-  { label: 'Từ chối', value: 3 },
+  { label: 'Đang xử lý', value: 2 },
+  { label: 'Chấp nhận', value: 1 },
+  { label: 'Từ chối', value: 0 },
 ];
 
 function ApprovalList() {
-  const [searchParam, setSearchParam] = useState('');
-
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
     total: 0,
     page: 1,
     pageSize: 10,
-    filterMode: 1,
-    hospitalId: '',
+    filterMode: 2, // 0: Từ chối, 1: Đã phê duyệt, 2: Đang xử lý
+    searchKey: '',
   });
+
+  const navigate = useNavigate();
 
   const [alert, setAlert] = useState({
     message: '',
@@ -56,7 +55,7 @@ function ApprovalList() {
     type: 'success',
   });
 
-  const volunteerGridOptions = {
+  const bloodDonationApprovalGridOptions = {
     columns: [
       {
         field: 'id',
@@ -69,10 +68,10 @@ function ApprovalList() {
         width: 120,
       },
       {
-        headerName: 'Họ tên',
+        headerName: 'Họ và tên',
         field: 'name',
         type: 'string',
-        width: 400,
+        minWidth: 200,
         flex: 1,
       },
       {
@@ -90,88 +89,63 @@ function ApprovalList() {
       {
         field: 'actions',
         type: 'actions',
-        hide: pageState.filterMode === 1 ? false : true,
+        hide: pageState.filterMode === 1 || pageState.filterMode === 0 ? true : false,
         width: 50,
         sortable: false,
         filterable: false,
-        getActions: (params) => [
-          <GridActionsCellItem
-            icon={<Icon icon="file-text-edit" sx={{ fontSize: 18 }} />}
-            onClick={() => {
-              // setChangePassWordUserName(params.row.userName);
-              // setChangePassWordId(params.row.id);
-              // handleChangePasswordDialog();
-            }}
-            label="Xét duyệt"
-            showInMenu
-          />,
-        ],
+        renderCell: (params) => {
+          return (
+            <MoreMenuButton>
+              <MenuItem
+                onClick={() => {
+                  // console.log('router', `blood-donation-approvals/${params.row.id}`);
+                  navigate(`/blood-donation-approvals/${params.row.id}`);
+                }}
+              >
+                <Icon icon="file-text-edit" sx={{ fontSize: 18 }} />
+                Xét duyệt
+              </MenuItem>
+            </MoreMenuButton>
+          );
+        },
       },
     ],
     pageState: pageState,
   };
 
-  const fetchUserListData = useCallback(async () => {
+  const fetchBloodDonationApprovals = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
     setAlert({});
 
     try {
-      const getVolunteerParam = {
-        Role: pageState.filterMode,
-        SearchKey: searchParam,
+      const approvalParams = {
+        Status: pageState.filterMode,
+        SearchKey: pageState.searchKey,
         Page: pageState.page,
         PageSize: pageState.pageSize,
       };
 
-      const data = await getApprovalUsers(getVolunteerParam);
+      const data = await getBloodDonationApprovalList(approvalParams);
 
-      const dataRow =
-        pageState.filterMode === 2
-          ? data.items
-              .filter((item) => {
-                return item.statusId === 1;
-              })
-              .map((data, i) => ({
-                id: data?.id,
-                bloodBagCode: data?.bloodBagCode || '-',
-                name: data?.user || '-',
-                donationVolume: data?.donationVolume || '-',
-                donationDate: formatDate(data?.donationDate, 4) || '-',
-              }))
-          : pageState.filterMode === 1
-          ? data.items
-              .filter((item) => {
-                return item.statusId === 2;
-              })
-              .map((data, i) => ({
-                id: data?.id,
-                bloodBagCode: data?.bloodBagCode || '-',
-                name: data?.user || '-',
-                donationVolume: data?.donationVolume || '-',
-                donationDate: formatDate(data?.donationDate, 4) || '-',
-              }))
-          : data.items
-              .filter((item) => {
-                return item.statusId === 3;
-              })
-              .map((data, i) => ({
-                id: data?.id,
-                bloodBagCode: data?.bloodBagCode || '-',
-                name: data?.user || '-',
-                donationVolume: data?.donationVolume || '-',
-                donationDate: formatDate(data?.donationDate, 4) || '-',
-              }));
+      const dataRow = data?.items?.map((data) => ({
+        id: data?.id || '-',
+        name: data?.user?.userInformation?.fullName || '-',
+        bloodBagCode: data?.bloodBagCode || '-',
+        donationVolume: data?.donationVolume || '-',
+        donationDate: formatDate(data?.donationDate, 4) || '-',
+      }));
+
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
       setPageState((old) => ({ ...old, isLoading: false }));
     }
-  }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId]);
+  }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.filterMode]);
 
   useEffect(() => {
-    fetchUserListData();
-  }, [fetchUserListData]);
+    fetchBloodDonationApprovals();
+  }, [fetchBloodDonationApprovals]);
 
   const pageChangeHandler = (newPage) => {
     setPageState((old) => ({ ...old, page: newPage + 1 }));
@@ -181,7 +155,10 @@ function ApprovalList() {
   };
   const handleFilterTabChange = (e, value) => {
     setPageState((old) => ({ ...old, filterMode: value, page: 1, pageSize: 10 }));
-    setSearchParam('');
+  };
+
+  const handleSearchBloodBag = (searchValue) => {
+    setPageState((old) => ({ ...old, page: 1, searchKey: searchValue.searchTerm }));
   };
 
   return (
@@ -196,37 +173,24 @@ function ApprovalList() {
         <Box>
           <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterMode} />
           <InputFilterSectionStyle>
-            {/* {pageState.filterMode !== 1 && (
-                          <AsyncAutocompleteFilter
-                            sx={{width:' 50%'}}
-                            placeholder="Nhập số túi máu"
-                            onInput={handleSearchHospitalToFilter}
-                            onSelect={handleChooseHospital}
-                            // list={}
-                            isLazyLoad={true}
-                            onScrollToBottom={handleScrollToBottomToFilter}
-                            getOptionLabel={(option)=> {
-                              return option?.name || '';
-                            }}
-                          />
-                        )} */}
-
             <SearchBar
               sx={{ width: '100%' }}
               type={'number'}
               className="search-bar"
               placeholder={'Nhập số Túi máu'}
-              //onSubmit={handleUserSearch}
+              onSubmit={handleSearchBloodBag}
             />
           </InputFilterSectionStyle>
         </Box>
         <DataTable
-          gridOptions={pageState.filterMode === 1 ? volunteerGridOptions : volunteerGridOptions}
+          gridOptions={bloodDonationApprovalGridOptions}
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}
           disableFilter={true}
         />
       </Box>
+
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 }

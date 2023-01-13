@@ -84,7 +84,7 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
   const open = Boolean(anchorEl);
 
   return (
-    <Paper sx={{ width: '100%', borderTopLeftRadius: '10px', borderTopRightRadius: '10px', px: 3, py: 1.75 }}>
+    <Paper sx={{ width: '100%', borderTopLeftRadius: '10px', borderTopRightRadius: '10px', px: 3 }}>
       <Box sx={containerDataGrid}>
         <DataGrid
           {...props}

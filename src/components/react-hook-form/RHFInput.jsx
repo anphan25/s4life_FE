@@ -6,7 +6,7 @@ const RequireLabel = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
 }));
 
-export const RHFInput = ({ control, label, name, isRequiredLabel, ...props }) => {
+export const RHFInput = ({ control, label, name, isRequiredLabel = false, ...props }) => {
   return (
     <Controller
       name={name}
