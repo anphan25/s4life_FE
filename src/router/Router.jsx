@@ -157,6 +157,14 @@ export default function Router() {
                 </ProtectedRouter>
               ),
             },
+            {
+              path: ':id',
+              element: (
+                <ProtectedRouter roles={['Admin']}>
+                  <ApprovalDetail />
+                </ProtectedRouter>
+              ),
+            },
           ],
         },
 
@@ -216,3 +224,4 @@ const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')))
 
 //blood-donation-approvals
 const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approvals/ApprovalList')));
+const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approvals/ApprovalDetail')));
