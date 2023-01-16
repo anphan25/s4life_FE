@@ -15,9 +15,11 @@ import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config';
-import { formatDate, errorHandler } from 'utils';
+import { formatDate, errorHandler, convertErrorCodeToMessage } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DialogButtonGroup, DownloadLink, HeaderMainStyle } from './HospitalListStyle';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
@@ -30,6 +32,7 @@ const HospitalListPage = () => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [disableHospitalId, setDisableHospitalId] = useState(null);
   const [enableHospitalId, setEnableHospitalId] = useState(null);
+  const [connection, setConnection] = useState(null);
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
@@ -44,6 +47,7 @@ const HospitalListPage = () => {
     status: false,
     type: 'success',
   });
+  const store = useStore();
 
   const filterTabValues = [
     { label: 'Đang hoạt động', value: 1 },
@@ -66,7 +70,13 @@ const HospitalListPage = () => {
         type: 'string',
         width: 180,
         renderCell: (nameValue) => {
-          return <Typography sx={{ fontWeight: 600, fontSize: 13 }}>{nameValue.value}</Typography>;
+          return (
+            <Typography
+              sx={{ fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {nameValue.value}
+            </Typography>
+          );
         },
       },
       {
@@ -124,7 +134,7 @@ const HospitalListPage = () => {
                     setDisableHospitalId(params.row.id);
                     openDisableHospitalConfirm(params.row.name);
                   }}
-                  label="Vô hiệu hoá"
+                  label="Vô hiệu"
                   showInMenu={false}
                 />
               );
@@ -180,7 +190,7 @@ const HospitalListPage = () => {
     return (
       <Box>
         <Typography>
-          Bạn có chắc chắn muốn vô hiệu hóa <b>{disableHospitalName}</b> không ?
+          Bạn có chắc chắn muốn vô hiệu <b>{disableHospitalName}</b> không ?
         </Typography>
         <DialogButtonGroup sx={{ marginTop: '10px' }}>
           <Button onClick={handleDisableHospitalDialog}>Hủy</Button>
@@ -192,7 +202,6 @@ const HospitalListPage = () => {
               try {
                 await disableHospital(disableHospitalId);
                 await fetchHospitalData();
-                setAlert({ message: `Vô hiệu hóa ${disableHospitalName} thành công`, status: true, type: 'success' });
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
               } finally {
@@ -203,7 +212,7 @@ const HospitalListPage = () => {
             variant="contained"
             autoFocus
           >
-            Vô Hiệu Hóa
+            Vô Hiệu
           </LoadingButton>
         </DialogButtonGroup>
       </Box>
@@ -226,7 +235,6 @@ const HospitalListPage = () => {
               try {
                 await enableHospital(enableHospitalId);
                 await fetchHospitalData();
-                setAlert({ message: `Kích hoạt ${enableHospitalName} thành công`, status: true, type: 'success' });
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
               } finally {
@@ -261,11 +269,6 @@ const HospitalListPage = () => {
     try {
       await importCSVHospitalData(importParams);
       await fetchHospitalData();
-      setAlert({
-        message: 'Thêm bệnh viện thành công',
-        status: true,
-        type: 'success',
-      });
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
@@ -327,9 +330,9 @@ const HospitalListPage = () => {
         downloadRef.current.click();
       })
       .catch((error) => {
+        setAlert({});
         switch (error.code) {
           case 'storage/object-not-found':
-            setAlert({});
             setAlert({
               message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
               status: true,
@@ -346,7 +349,6 @@ const HospitalListPage = () => {
       });
   };
   const fetchHospitalData = useCallback(async () => {
-    setAlert({});
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
     try {
       const data = await getHospitalsList({
@@ -378,6 +380,26 @@ const HospitalListPage = () => {
   useEffect(() => {
     fetchHospitalData();
   }, [fetchHospitalData]);
+
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      setAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
 
   return (
     <>
@@ -419,7 +441,7 @@ const HospitalListPage = () => {
         onClose={addHospitalDialogHandler}
         children={addHospitalDialogContent()}
         title="Thêm bệnh viện từ file"
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {/* Disable Hospital Dialog */}
@@ -428,7 +450,7 @@ const HospitalListPage = () => {
         onClose={handleDisableHospitalDialog}
         title="Vô hiệu bệnh viện"
         children={disableHospitalDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {/* Enable Hospital Dialog */}
@@ -437,7 +459,7 @@ const HospitalListPage = () => {
         onClose={handleEnableHospitalDialog}
         title="Kích hoạt bệnh viện"
         children={enableHospitalDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}

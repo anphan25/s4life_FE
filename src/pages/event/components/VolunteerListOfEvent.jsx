@@ -332,7 +332,7 @@ const VolunteerListOfEvent = () => {
         onClose={handleUpdateBloodTypeDialog}
         title="Cập nhật nhóm máu"
         children={updateBloodTypeDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}

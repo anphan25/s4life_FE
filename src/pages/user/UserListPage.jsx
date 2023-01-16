@@ -322,7 +322,7 @@ const UserListPage = () => {
   } = useForm({
     resolver: yupResolver(AddUserSchema),
     mode: 'onChange',
-    defaultValues: { username: '', hospital: [], password: '', confirmPassword: '', role: roleList[0].label },
+    defaultValues: { username: '', hospital: [], password: '', confirmPassword: '', role: roleList[0].value },
     reValidateMode: 'onChange',
   });
 
@@ -466,7 +466,6 @@ const UserListPage = () => {
 
   const fetchUserListData = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
-    setAlert({});
 
     try {
       const getVolunteerParam = {

@@ -56,11 +56,6 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     type: 'success',
   });
 
-  const [signalRAlert, setSignalRAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
   const store = useStore();
 
   const uploadImage = async (data) => {
@@ -171,11 +166,6 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const addEditEventHandler = async (param) => {
     setAlert({});
     try {
-      setAlert({
-        message: 'Yêu cầu đang được xử lý',
-        status: true,
-        type: 'warning',
-      });
       if (isEdit) {
         const editParams = {};
         editParams['id'] = eventId;
@@ -221,7 +211,8 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       if (isEmergency) return true;
 
       return (
-        (moment().add(1, 'days') <= moment(startDate) && moment().add(1, 'days') <= moment(endDate)) ||
+        (moment().add(1, 'days').isSameOrBefore(moment(startDate)) &&
+          moment().add(1, 'days').isSameOrBefore(moment(endDate))) ||
         createError({ path, message: errorMessage })
       );
     });
@@ -403,7 +394,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setSignalRAlert({
+      setAlert({
         message: convertErrorCodeToMessage(messageCode),
         type: messageCode < 0 ? 'error' : 'success',
         status: true,
@@ -636,11 +627,6 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       </form>
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
-
-      {/* SignalR Alert */}
-      {signalRAlert?.status && (
-        <CustomSnackBar sx={{ marginTop: '130px' }} message={signalRAlert.message} type={signalRAlert.type} />
-      )}
     </>
   );
 };

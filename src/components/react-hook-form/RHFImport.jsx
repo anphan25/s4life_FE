@@ -22,14 +22,14 @@ const DropZone = styled(Stack)(({ theme }) => ({
   },
 }));
 
-// const ClearFile = styled(AiOutlineClose)(({ theme }) => ({
-//   border: '0',
-//   background: 'transparent',
-//   color: 'red',
-//   width: '1.5rem',
-//   cursor: 'pointer',
-//   marginRight: '5px',
-// }));
+const ClearFile = styled(Icon)(({ theme }) => ({
+  border: '0',
+  background: 'transparent',
+  color: theme.palette.error.main,
+  width: '1.5rem',
+  cursor: 'pointer',
+  marginRight: '5px',
+}));
 
 const ErrorMessageList = styled(Box)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -293,7 +293,6 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
         const hospitalData = results.data
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
-        // debugger;
         validateCSVFileContent(hospitalData);
         console.log('hospitalData', hospitalData);
         if (tempErrorFileContent.length > 0) {
@@ -333,8 +332,8 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
     <Box>
       {selectedFile && (
         <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
-          <Icon
-            icon="trash"
+          <ClearFile
+            icon="solid-times"
             onClick={() => {
               setSelectedFile(null);
               onImport([], true);

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   DashedBox,
   DialogButtonGroup,
@@ -11,7 +11,7 @@ import {
 import { Stack, Box, Typography, Button, Grid, Paper, Avatar } from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { errorHandler, convertDayLabel } from 'utils';
+import { errorHandler, convertDayLabel, convertErrorCodeToMessage } from 'utils';
 import { useForm } from 'react-hook-form';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
@@ -21,7 +21,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_HOSPITAL_IMAGE_URL } from 'utils';
 import { setHospital } from 'app/slices/HospitalSlice';
-import { Link } from 'react-router-dom';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const HospitalInfoPage = () => {
   const [isUpdateHospitalOpen, setIsUpdateHospitalOpen] = useState(false);
@@ -37,9 +38,10 @@ const HospitalInfoPage = () => {
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [isUpdateImgBtnDisabled, setIsUpdateImgBtnDisabled] = useState(true);
   const [imgUploadFile, setImgUploadFile] = useState(null);
+  const [connection, setConnection] = useState(null);
   const dispatch = useDispatch();
   const hospitalData = useSelector((state) => state.hospital?.data);
-
+  const store = useStore();
   const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
   const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
 
@@ -113,11 +115,6 @@ const HospitalInfoPage = () => {
     setImportParams([]);
     try {
       editHospital(data).then((value) => dispatch(setHospital(data)));
-      setAlert({
-        message: 'Cập nhật thành công',
-        status: true,
-        type: 'success',
-      });
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
@@ -133,11 +130,6 @@ const HospitalInfoPage = () => {
     try {
       editHospital(data).then((value) => {
         dispatch(setHospital(data));
-      });
-      setAlert({
-        message: 'Cập nhật thành công',
-        status: true,
-        type: 'success',
       });
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -324,6 +316,26 @@ const HospitalInfoPage = () => {
     setIsImportBtnDisabled(disabledBtn);
   };
 
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      setAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
+
   return (
     <>
       <HeaderMainStyle>
@@ -445,7 +457,7 @@ const HospitalInfoPage = () => {
         onClose={handleUpdateHospitalDialog}
         title="Sửa thông tin bệnh viện"
         children={updateHospitalDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '700px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '700px' } }}
       />
 
       {/* Update Hospital Img Dialog */}
@@ -454,7 +466,7 @@ const HospitalInfoPage = () => {
         onClose={handleUpdateHospitalImgDialog}
         title="Cập nhật ảnh bệnh viện"
         children={updateHospitalImgDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '30%', maxHeight: '700px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '30% !important', maxHeight: '700px' } }}
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}

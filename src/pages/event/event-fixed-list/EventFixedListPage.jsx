@@ -15,13 +15,7 @@ import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
-import {
-  formatDate,
-  errorHandler,
-  isEventEditableOrCancelable,
-  convertErrorCodeToMessage,
-  PROCESSING_MESSAGE,
-} from 'utils';
+import { formatDate, errorHandler, isEventEditableOrCancelable, convertErrorCodeToMessage } from 'utils';
 import moment from 'moment';
 import { DialogButtonGroup, HeaderMainStyle, InputFilterSectionStyle } from './EventListStyle';
 import { openHubConnection, listenOnHub } from 'config';
@@ -63,11 +57,6 @@ const EventFixedListPage = () => {
     status: false,
     type: 'success',
   });
-  const [signalRAlert, setSignalRAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
 
   const gridOptions = {
     columns: [
@@ -82,7 +71,11 @@ const EventFixedListPage = () => {
         width: 150,
         renderCell: (nameValue) => {
           return (
-            <Typography sx={{ fontWeight: 600, fontSize: 13, textOverflow: 'ellipsis' }}>{nameValue.value}</Typography>
+            <Typography
+              sx={{ fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {nameValue.value}
+            </Typography>
           );
         },
       },
@@ -289,7 +282,7 @@ const EventFixedListPage = () => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setSignalRAlert({
+      setAlert({
         message: convertErrorCodeToMessage(messageCode),
         type: messageCode < 0 ? 'error' : 'success',
         status: true,
@@ -313,9 +306,7 @@ const EventFixedListPage = () => {
             onClick={async () => {
               setIsButtonLoading(true);
               setAlert({});
-              setSignalRAlert({});
               try {
-                setAlert({ message: PROCESSING_MESSAGE, status: true, type: 'warning' });
                 await cancelEvent(cancelEventId);
                 await fetchEventListData();
               } catch (error) {
@@ -445,7 +436,7 @@ const EventFixedListPage = () => {
         onClose={handleCancelEventDialog}
         title="Hủy sự kiện"
         children={cancelEventDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
       {/* Alert Edit/Cancel Event Dialog */}
       <CustomDialog
@@ -453,14 +444,9 @@ const EventFixedListPage = () => {
         onClose={handleEditCancelDialog}
         title=""
         children={alertEditCancelDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
-
-      {/* SignalR Alert */}
-      {signalRAlert?.status && (
-        <CustomSnackBar sx={{ marginTop: '130px' }} message={signalRAlert.message} type={signalRAlert.type} />
-      )}
     </>
   );
 };
