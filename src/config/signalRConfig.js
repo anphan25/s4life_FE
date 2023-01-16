@@ -31,7 +31,6 @@ export const listenOnHub = (connection, onReceive) => {
   if (!connection) return;
   try {
     connection.on('ReceiveMessage', (messageCode) => {
-      console.log('messageCode', messageCode);
       onReceive(messageCode);
     });
   } catch (error) {

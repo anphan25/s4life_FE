@@ -14,17 +14,19 @@ export function convertErrorCodeToMessage(code) {
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
     1034: 'Tài khoản đã bị vô hiệu',
+    1100: 'Đổi mật khẩu thành công',
 
     //Register
     2001: 'Thông tin đăng ký không hợp lệ',
     2031: 'Bệnh viện không tồn tại',
+    2100: 'Tạo tài khoản thành công',
 
     //Hospital
     3000: PROCESSING_MESSAGE,
     3100: 'Thêm bệnh viện thành công',
     3200: 'Chỉnh sửa thông tin bệnh viện thành công',
-    3300: 'Vô hiệu hóa bệnh viện thành công',
-    3400: 'Kích hoạt hóa bệnh viện thành công',
+    3300: 'Vô hiệu bệnh viện thành công',
+    3400: 'Kích hoạt bệnh viện thành công',
     3001: 'Tọa độ không chính xác',
     3002: 'Không tìm thấy vị trí',
     3003: 'Từ chối yêu cầu truy cập bệnh viện',
@@ -66,7 +68,7 @@ export function convertErrorCodeToMessage(code) {
     5003: 'Từ chối  yêu cầu truy cập',
     5004: 'Không tìm thấy yêu cầu',
     5100: 'Tạo yêu cầu cập nhật lịch sử hiến máu thành công',
-    5200: 'Cập nhật yêu cầu lịch sử hiến máu thành công',
+    5200: 'Phê duyệt thành công',
     //Blood Donation
     6000: PROCESSING_MESSAGE,
     6003: 'Từ chối yêu cầu truy cập lịch sử hiến máu',

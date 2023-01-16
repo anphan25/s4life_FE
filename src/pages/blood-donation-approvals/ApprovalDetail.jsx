@@ -1,13 +1,15 @@
 import { Stack, styled, Paper, Box, Typography, Grid, Button, DialogActions } from '@mui/material';
-import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, Icon, RHFInput, RHFTextArea } from 'components';
+import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, Icon, RHFInput } from 'components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
-import { errorHandler, formatDate } from 'utils';
+import { errorHandler, formatDate, convertErrorCodeToMessage } from 'utils';
 import { getBloodDonationApprovalById, approveBloodDonation, rejectBloodDonation } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -47,6 +49,8 @@ const ApprovalDetail = () => {
   const [detailData, setDetailData] = useState();
   const [isApproveConfirmOpen, setIsApproveConfirmOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [connection, setConnection] = useState(null);
+  const store = useStore();
   const navigate = useNavigate();
   const [alert, setAlert] = useState({
     message: '',
@@ -72,7 +76,6 @@ const ApprovalDetail = () => {
 
     try {
       await rejectBloodDonation(id, data.note);
-      setAlert({ message: 'Từ chối yêu cầu phê duyệt thành công', type: 'success', status: true });
       setTimeout(() => {
         navigate('/blood-donation-approvals');
       }, [1300]);
@@ -93,7 +96,7 @@ const ApprovalDetail = () => {
 
   const confirmApproveDialogContent = () => {
     return (
-      <Box sx={{ width: '400px' }}>
+      <Box>
         <Typography>
           Bạn có chắc chắn muốn <TitleItemStyle>chấp nhận</TitleItemStyle> ?
         </Typography>
@@ -112,7 +115,6 @@ const ApprovalDetail = () => {
               setIsButtonLoading(true);
               try {
                 await approveBloodDonation(id);
-                setAlert({ message: 'Chấp nhận yêu cầu phê duyệt thành công', type: 'success', status: true });
                 setTimeout(() => {
                   navigate('/blood-donation-approvals');
                 }, [1300]);
@@ -141,7 +143,7 @@ const ApprovalDetail = () => {
             multiline={true}
             minRows={2}
             maxRows={4}
-            sx={{ width: '500px', padding: 0 }}
+            sx={{ padding: 0 }}
             label="Lý do từ chối"
             control={control}
             isRequiredLabel={true}
@@ -174,6 +176,26 @@ const ApprovalDetail = () => {
   useEffect(() => {
     getDetailData();
   }, [getDetailData]);
+
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      setAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
   return (
     <Box>
       <HeaderMainStyle>
@@ -244,7 +266,7 @@ const ApprovalDetail = () => {
         onClose={handleApproveConfirmDialog}
         title=""
         children={confirmApproveDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '50% !important', maxHeight: '500px' } }}
       />
 
       {/*Reject Dialog */}
@@ -253,7 +275,7 @@ const ApprovalDetail = () => {
         onClose={handleRejectDialog}
         title="Từ chối yêu cầu"
         children={rejectDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}

@@ -24,11 +24,14 @@ import {
   errorHandler,
   formatDate,
   isEventEditableOrCancelable,
+  convertErrorCodeToMessage,
 } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from '../components/VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector } from 'react-redux';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -126,6 +129,7 @@ const EventFixedDetailPage = () => {
   const { eventId } = useParams();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
+  const [connection, setConnection] = useState(null);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
@@ -133,6 +137,7 @@ const EventFixedDetailPage = () => {
   });
   const navigate = useNavigate();
   let user = useSelector((state) => state.auth.auth?.user);
+  const store = useStore();
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -186,7 +191,6 @@ const EventFixedDetailPage = () => {
               try {
                 await cancelEvent(cancelEventId);
                 await fetchEventDetailData();
-                setAlert({ message: `Hủy sự kiện thành công`, status: true, type: 'success' });
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
               } finally {
@@ -238,6 +242,27 @@ const EventFixedDetailPage = () => {
   }, [eventId]);
 
   useEffect(() => {
+    setCancelEventId(eventId);
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      setAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
+
+  useEffect(() => {
     fetchEventDetailData();
   }, [fetchEventDetailData]);
 
@@ -275,11 +300,6 @@ const EventFixedDetailPage = () => {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
-              PaperProps={{
-                style: {
-                  width: '20px',
-                },
-              }}
             >
               <MenuItem
                 key={1}
@@ -327,7 +347,7 @@ const EventFixedDetailPage = () => {
                   handleCancelEventDialog();
                 }}
               >
-                <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center', color: 'primary.main' }}>
                   <Icon icon="solid-trash" />
                   <Typography>Hủy sự kiện</Typography>
                 </Stack>
@@ -368,7 +388,7 @@ const EventFixedDetailPage = () => {
                 <Box className="info-item_icon">
                   <Icon icon="solid-location-pin" className="info-item_icon_item" />
                 </Box>
-                <Box>
+                <Box sx={{ width: '90%' }}>
                   <Typography className="info-item_title">{detailData?.eventLocations[0].location.name}</Typography>
                   <Typography>{detailData?.eventLocations[0].location.address}</Typography>
                 </Box>
@@ -479,7 +499,7 @@ const EventFixedDetailPage = () => {
         onClose={handleCancelEventDialog}
         title="Hủy sự kiện"
         children={cancelEventDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {/* Alert Edit/Cancel Event Dialog */}
@@ -488,7 +508,7 @@ const EventFixedDetailPage = () => {
         onClose={handleEditCancelDialog}
         title=""
         children={alertEditCancelDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
