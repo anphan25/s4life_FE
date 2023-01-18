@@ -531,7 +531,6 @@ const UserListPage = () => {
 
   const fetchHospitals = useCallback(async () => {
     if (!isAddUserOpen) return;
-    console.log('hehehehe');
     const data = await getHospitalsList(hospitalGetParam);
 
     const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
