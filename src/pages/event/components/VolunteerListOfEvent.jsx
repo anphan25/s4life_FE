@@ -229,7 +229,7 @@ const VolunteerListOfEvent = () => {
                   },
                 });
                 await fetchVolunteersOfEvent();
-                setAlert({ message: `Cập nhật nhóm máu thành công`, status: true, type: 'success' });
+                // setAlert({ message: `Cập nhật nhóm máu thành công`, status: true, type: 'success' });
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
               } finally {
