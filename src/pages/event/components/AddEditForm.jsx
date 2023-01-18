@@ -196,7 +196,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       const workingTimeStart = context.parent.workingTimeStart;
       const workingTimeEnd = context.parent.workingTimeEnd;
       return (
-        moment(workingTimeStart).format('HH:mm') <= moment(workingTimeEnd).subtract(1, 'hours').format('HH:mm') ||
+        moment(workingTimeStart).isSameOrBefore(moment(workingTimeEnd).subtract(1, 'hours')) ||
         createError({ path, message: errorMessage })
       );
     });
@@ -211,8 +211,8 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       if (isEmergency) return true;
 
       return (
-        (moment().add(1, 'days').isSameOrBefore(moment(startDate)) &&
-          moment().add(1, 'days').isSameOrBefore(moment(endDate))) ||
+        (moment().add(1, 'days').isSameOrBefore(moment(startDate), 'dates') &&
+          moment().add(1, 'days').isSameOrBefore(moment(endDate), 'dates')) ||
         createError({ path, message: errorMessage })
       );
     });
@@ -230,13 +230,13 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
       .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại 1 ngày'),
+      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày'),
     endDate: Yup.date()
       .min(Yup.ref('startDate'), 'Ngày kết thúc phải trước ngày bắt đầu')
       .required('Vui lòng nhập ngày kết thúc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại 1 ngày'),
+      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày'),
     workingTimeStart: Yup.date()
       .max(Yup.ref('workingTimeEnd'), 'Giờ bắt đầu phải trước giờ kết thúc')
       .required('Vui lòng nhập giờ bắt đầu làm việc')

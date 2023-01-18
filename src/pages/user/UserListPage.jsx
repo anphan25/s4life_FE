@@ -536,7 +536,7 @@ const UserListPage = () => {
     const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
 
     setHospitals(mappingData);
-  }, [hospitalGetParam.PageSize, hospitalGetParam.SearchKey]);
+  }, [hospitalGetParam.PageSize, hospitalGetParam.SearchKey, isAddUserOpen]);
 
   useEffect(() => {
     fetchHospitals();
