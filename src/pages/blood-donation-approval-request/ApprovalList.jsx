@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, styled, Stack, MenuItem } from '@mui/material';
 import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomSnackBar, MoreMenuButton } from 'components';
-import { getBloodDonationApprovalList } from 'api/BloodDonationApprovalApi';
+import { getBloodDonationApprovalRequests } from 'api';
 import { errorHandler, formatDate } from 'utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,9 +31,8 @@ const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
   },
 }));
 const filterTabValues = [
-  { label: 'Đang xử lý', value: 2 },
-  { label: 'Chấp nhận', value: 1 },
-  { label: 'Từ chối', value: 0 },
+  { label: 'Đang xử lý', value: true },
+  { label: 'Đã xử lý', value: false },
 ];
 
 function ApprovalList() {
@@ -43,7 +42,7 @@ function ApprovalList() {
     total: 0,
     page: 1,
     pageSize: 10,
-    filterMode: 2, // 0: Từ chối, 1: Đã phê duyệt, 2: Đang xử lý
+    isProcessing: true,
     searchKey: '',
   });
 
@@ -62,12 +61,6 @@ function ApprovalList() {
         hide: true,
       },
       {
-        headerName: 'Số túi máu',
-        field: 'bloodBagCode',
-        type: 'number',
-        width: 120,
-      },
-      {
         headerName: 'Họ và tên',
         field: 'name',
         type: 'string',
@@ -75,21 +68,21 @@ function ApprovalList() {
         flex: 1,
       },
       {
-        headerName: 'Số lượng máu hiến',
+        headerName: 'CMND/CCCD',
         type: 'number',
-        field: 'donationVolume',
+        field: 'nationalId',
         width: 400,
       },
       {
-        headerName: 'Ngày lấy máu',
+        headerName: 'Ngày tạo',
         type: 'date',
-        field: 'donationDate',
+        field: 'addDate',
         width: 300,
       },
       {
         field: 'actions',
         type: 'actions',
-        hide: pageState.filterMode === 1 || pageState.filterMode === 0 ? true : false,
+        hide: !pageState.isProcessing,
         width: 50,
         sortable: false,
         filterable: false,
@@ -98,8 +91,7 @@ function ApprovalList() {
             <MoreMenuButton>
               <MenuItem
                 onClick={() => {
-                  // console.log('router', `blood-donation-approvals/${params.row.id}`);
-                  navigate(`/blood-donation-approvals/${params.row.id}`);
+                  navigate(`/blood-donation-approval-request/${params.row.id}`);
                 }}
               >
                 <Icon icon="file-text-edit" sx={{ fontSize: 18 }} />
@@ -119,20 +111,19 @@ function ApprovalList() {
 
     try {
       const approvalParams = {
-        Status: pageState.filterMode,
+        IsProcessing: pageState.isProcessing,
         SearchKey: pageState.searchKey,
         Page: pageState.page,
         PageSize: pageState.pageSize,
       };
 
-      const data = await getBloodDonationApprovalList(approvalParams);
+      const data = await getBloodDonationApprovalRequests(approvalParams);
 
       const dataRow = data?.items?.map((data) => ({
         id: data?.id || '-',
         name: data?.user?.userInformation?.fullName || '-',
-        bloodBagCode: data?.bloodBagCode || '-',
-        donationVolume: data?.donationVolume || '-',
-        donationDate: formatDate(data?.donationDate, 4) || '-',
+        nationalId: data?.user?.userInformation?.nationalId || '-',
+        addDate: formatDate(data?.addDate, 4) || '-',
       }));
 
       setPageState({ ...pageState, data: dataRow, total: data.total });
@@ -141,7 +132,7 @@ function ApprovalList() {
     } finally {
       setPageState((old) => ({ ...old, isLoading: false }));
     }
-  }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.filterMode]);
+  }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.isProcessing]);
 
   useEffect(() => {
     fetchBloodDonationApprovals();
@@ -154,7 +145,7 @@ function ApprovalList() {
     setPageState((old) => ({ ...old, pageSize: newPageSize }));
   };
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, filterMode: value, page: 1, pageSize: 10 }));
+    setPageState((old) => ({ ...old, isProcessing: value, page: 1, pageSize: 10 }));
   };
 
   const handleSearchBloodBag = (searchValue) => {
@@ -165,13 +156,13 @@ function ApprovalList() {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading="Xét duyệt thẻ hiến máu"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Xét duyệt thẻ hiến máu' }]}
+          heading="Yêu cầu phê duyệt thẻ hiến máu"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Yêu cầu phê duyệt thẻ hiến máu' }]}
         />
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterMode} />
+          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.isProcessing} />
           <InputFilterSectionStyle>
             <SearchBar
               sx={{ width: '100%' }}
