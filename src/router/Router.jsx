@@ -146,9 +146,9 @@ export default function Router() {
           ],
         },
         {
-          path: 'blood-donation-approvals',
+          path: 'blood-donation-approval-request',
           children: [
-            { element: <Navigate to="/blood-donation-approvals/list" replace />, index: true },
+            { element: <Navigate to="/blood-donation-approvals-request/list" replace />, index: true },
             {
               path: 'list',
               element: (
@@ -222,6 +222,6 @@ const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-inf
 //script
 const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
 
-//blood-donation-approvals
-const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approvals/ApprovalList')));
-const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approvals/ApprovalDetail')));
+//blood-donation-approval-request
+const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalList')));
+const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalDetail')));

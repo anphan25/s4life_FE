@@ -1,15 +1,16 @@
 import { Stack, styled, Paper, Box, Typography, Grid, Button, DialogActions } from '@mui/material';
-import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, Icon, RHFInput } from 'components';
+import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, RHFInput, Tag } from 'components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
 import { errorHandler, formatDate, convertErrorCodeToMessage } from 'utils';
-import { getBloodDonationApprovalById, approveBloodDonation, rejectBloodDonation } from 'api';
+import { getBloodDonationApprovalRequestById, approveBloodDonation, rejectBloodDonation } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import BloodDonationApprovalTable from './components/BloodDonationApprovalTable';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -44,6 +45,13 @@ const TitleItemStyle = styled('span')(({ theme }) => ({
   fontWeight: 'bold',
 }));
 
+const ImgBox = styled(Box)(({ theme }) => ({
+  width: '100%',
+  height: '500px',
+
+  '& img': { width: '100%', height: '100%', objectFit: 'fill' },
+}));
+
 const ApprovalDetail = () => {
   const { id } = useParams();
   const [detailData, setDetailData] = useState();
@@ -63,7 +71,7 @@ const ApprovalDetail = () => {
     note: Yup.string().required('Vui lòng nhập lý do từ chối.'),
   });
 
-  const { handleSubmit, control } = useForm({
+  const { handleSubmit: handleRejectSubmit, control: rejectControl } = useForm({
     resolver: yupResolver(RejectDonationSchema),
     defaultValues: { note: '' },
     mode: 'onChange',
@@ -77,7 +85,7 @@ const ApprovalDetail = () => {
     try {
       await rejectBloodDonation(id, data.note);
       setTimeout(() => {
-        navigate('/blood-donation-approvals');
+        navigate('/blood-donation-approval-request');
       }, [1300]);
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -116,7 +124,7 @@ const ApprovalDetail = () => {
               try {
                 await approveBloodDonation(id);
                 setTimeout(() => {
-                  navigate('/blood-donation-approvals');
+                  navigate('/blood-donation-approval-request');
                 }, [1300]);
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -138,14 +146,14 @@ const ApprovalDetail = () => {
   const rejectDialogContent = () => {
     return (
       <Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleRejectSubmit(onSubmit)}>
           <RHFInput
             multiline={true}
             minRows={2}
             maxRows={4}
             sx={{ padding: 0 }}
             label="Lý do từ chối"
-            control={control}
+            control={rejectControl}
             isRequiredLabel={true}
             placeholder="Nhập lý do từ chối"
             name="note"
@@ -169,7 +177,7 @@ const ApprovalDetail = () => {
   };
 
   const getDetailData = useCallback(async () => {
-    const response = await getBloodDonationApprovalById(id);
+    const response = await getBloodDonationApprovalRequestById(id);
     setDetailData(response);
   }, []);
 
@@ -203,61 +211,53 @@ const ApprovalDetail = () => {
           heading="Chi tiết yêu cầu"
           links={[
             { name: 'Trang chủ', to: '/' },
-            { name: 'Xét duyệt thẻ hiến máu', to: '/blood-donation-approvals' },
+            { name: 'Yêu cầu phê duyệt hiến máu', to: '/blood-donation-approval-request' },
             { name: 'Chi tiết yêu cầu' },
           ]}
         />
       </HeaderMainStyle>
 
       <Paper sx={{ borderRadius: '12px', padding: '30px' }} elevation={1}>
-        <Grid container spacing={4}>
+        <Grid container spacing={4} mb={5}>
           <Grid item sm={12} md={6}>
-            <Box>
+            <ImgBox>
               <img src={detailData?.imageUrl} alt="ảnh thẻ hiến máu" />
-            </Box>
+            </ImgBox>
           </Grid>
 
           <Grid item sm={12} md={6}>
-            <Stack spacing={2}>
+            <Stack spacing={3}>
               <Typography>
-                <TitleItemStyle>Họ và tên:</TitleItemStyle> {detailData?.user?.userInformation?.fullName}
+                <TitleItemStyle>Họ và tên: </TitleItemStyle>
+                {detailData?.user?.userInformation?.fullName}
               </Typography>
               <Typography>
-                <TitleItemStyle>Địa chỉ:</TitleItemStyle> {detailData?.user?.userInformation?.address}
+                <TitleItemStyle>Giới tính : </TitleItemStyle>
+                {detailData?.user?.userInformation?.gender}
               </Typography>
               <Typography>
-                <TitleItemStyle>Ngày tháng năm sinh: </TitleItemStyle>
-                {formatDate(detailData?.user?.userInformation?.dateOfBirth, 4)}
+                <TitleItemStyle>Ngày sinh: </TitleItemStyle>
+                {formatDate(detailData?.user?.userInformation?.dateOfBirth, 2)}
               </Typography>
               <Typography>
-                <TitleItemStyle>Số đơn vị:</TitleItemStyle> {detailData?.donationVolume}ml
+                <TitleItemStyle>CMND/CCCD: </TitleItemStyle>
+                {detailData?.user?.userInformation?.nationalId}
               </Typography>
               <Typography>
-                <TitleItemStyle>Số túi máu:</TitleItemStyle> {detailData?.bloodBagCode}
+                <TitleItemStyle>Địa chỉ: </TitleItemStyle>
+                {detailData?.user?.userInformation?.address}
               </Typography>
-            </Stack>
-
-            <Stack direction="row" spacing={2} sx={{ marginTop: '30px' }}>
-              <Button
-                startIcon={<Icon icon="solid-times" />}
-                onClick={() => {
-                  handleRejectDialog();
-                }}
-              >
-                Từ chối
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<Icon icon="solid-check" />}
-                onClick={() => {
-                  handleApproveConfirmDialog(true);
-                }}
-              >
-                Chấp nhận
-              </Button>
+              <Typography>
+                <TitleItemStyle>Trạng thái phê duyệt: </TitleItemStyle>
+                <Tag status={detailData?.isProcessing ? 'warning' : 'success'}>
+                  {detailData?.isProcessing ? 'Đang xử lý' : 'Đã xử lý'}
+                </Tag>
+              </Typography>
             </Stack>
           </Grid>
         </Grid>
+
+        <BloodDonationApprovalTable detailData={detailData} />
       </Paper>
 
       {/*Approve Confirm Dialog */}
