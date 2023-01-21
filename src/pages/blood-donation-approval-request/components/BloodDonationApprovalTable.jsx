@@ -1,7 +1,4 @@
 import {
-  Stack,
-  styled,
-  Paper,
   Box,
   Typography,
   Grid,
