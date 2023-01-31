@@ -63,10 +63,13 @@ export function convertErrorCodeToMessage(code) {
     //Blood Donation Approval
     5000: PROCESSING_MESSAGE,
     5001: 'Không trích xuất được thông tin từ ảnh',
-    5011: 'Thiếu trường thông tin ghi chú',
+    5011: 'Thiếu trường thông tin ghi chú khi từ chối phê duyệt',
     5021: 'Yêu cầu này đã được xử lí',
     5003: 'Từ chối  yêu cầu truy cập',
     5004: 'Không tìm thấy yêu cầu',
+    5031: 'Thông tin nhập lịch sử hiến máu không hợp lệ',
+    5041: 'Thiếu thông tin lịch sử hiến máu',
+    5051: 'Thông tin lịch sử hiến máu đã tồn tại',
     5100: 'Tạo yêu cầu cập nhật lịch sử hiến máu thành công',
     5200: 'Phê duyệt thành công',
     //Blood Donation
@@ -110,6 +113,9 @@ export function convertErrorCodeToMessage(code) {
     10003: 'Từ chối yêu cầu truy cập thông tin đường đi của sự kiện',
     10004: 'Không tìm thấy thông tin đường đi',
 
+    //Blood Donation Approval Request
+    110001: 'Thông tin lịch sử hiến máu không trùng khớp',
+    110004: 'Không tìm thấy yêu cầu cập nhật lịch sử hiến máu',
     //Internal Error
     5555: 'Có lỗi xảy ra, Vui lòng liên hệ quản trị viên',
   };

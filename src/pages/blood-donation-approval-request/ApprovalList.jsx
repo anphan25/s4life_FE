@@ -82,7 +82,6 @@ function ApprovalList() {
       {
         field: 'actions',
         type: 'actions',
-        hide: !pageState.isProcessing,
         width: 50,
         sortable: false,
         filterable: false,
@@ -95,7 +94,7 @@ function ApprovalList() {
                 }}
               >
                 <Icon icon="file-text-edit" sx={{ fontSize: 18 }} />
-                Xét duyệt
+                {params.row.isProcessing ? 'Xét duyệt' : 'Xem chi tiết'}
               </MenuItem>
             </MoreMenuButton>
           );
@@ -124,6 +123,7 @@ function ApprovalList() {
         name: data?.user?.userInformation?.fullName || '-',
         nationalId: data?.user?.userInformation?.nationalId || '-',
         addDate: formatDate(data?.addDate, 4) || '-',
+        isProcessing: data?.isProcessing,
       }));
 
       setPageState({ ...pageState, data: dataRow, total: data.total });
@@ -168,7 +168,7 @@ function ApprovalList() {
               sx={{ width: '100%' }}
               type={'number'}
               className="search-bar"
-              placeholder={'Nhập số Túi máu'}
+              placeholder={'Nhập CCCD/CMND'}
               onSubmit={handleSearchBloodBag}
             />
           </InputFilterSectionStyle>

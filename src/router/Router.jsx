@@ -148,7 +148,7 @@ export default function Router() {
         {
           path: 'blood-donation-approval-request',
           children: [
-            { element: <Navigate to="/blood-donation-approvals-request/list" replace />, index: true },
+            { element: <Navigate to="/blood-donation-approval-request/list" replace />, index: true },
             {
               path: 'list',
               element: (
