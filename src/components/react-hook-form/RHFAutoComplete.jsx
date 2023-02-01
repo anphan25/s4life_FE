@@ -1,6 +1,7 @@
-import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField, styled } from '@mui/material';
+import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField } from '@mui/material';
 import React from 'react';
 import { Controller } from 'react-hook-form';
+import { RequireLabel } from 'utils';
 
 export const RHFAutoComplete = ({
   name,
@@ -12,10 +13,6 @@ export const RHFAutoComplete = ({
   list,
   ...props
 }) => {
-  const RequireLabel = styled('span')(({ theme }) => ({
-    color: theme.palette.error.main,
-  }));
-
   return (
     <Controller
       name={name}

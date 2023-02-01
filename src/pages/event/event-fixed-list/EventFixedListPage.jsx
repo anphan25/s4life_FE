@@ -15,9 +15,16 @@ import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { formatDate, errorHandler, isEventEditableOrCancelable, convertErrorCodeToMessage } from 'utils';
+import {
+  formatDate,
+  errorHandler,
+  isEventEditableOrCancelable,
+  convertErrorCodeToMessage,
+  HeaderMainStyle,
+  DialogButtonGroupStyle,
+  InputFilterSectionStyle,
+} from 'utils';
 import moment from 'moment';
-import { DialogButtonGroup, HeaderMainStyle, InputFilterSectionStyle } from './EventListStyle';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 
@@ -299,7 +306,7 @@ const EventFixedListPage = () => {
         <Typography>
           Bạn có chắc chắn muốn hủy sự kiện <b>{cancelEventName}</b> không ?
         </Typography>
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button onClick={handleCancelEventDialog}>Hủy</Button>
           <LoadingButton
             loading={isButtonLoading}
@@ -321,7 +328,7 @@ const EventFixedListPage = () => {
           >
             Hủy sự kiện
           </LoadingButton>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -336,7 +343,7 @@ const EventFixedListPage = () => {
           Vui lòng liên hệ quản trị viên nếu bạn muốn hủy vô điều kiện.
         </Typography>
 
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button
             variant="contained"
             onClick={() => {
@@ -345,7 +352,7 @@ const EventFixedListPage = () => {
           >
             Ok
           </Button>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };

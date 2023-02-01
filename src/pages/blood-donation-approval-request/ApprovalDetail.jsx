@@ -1,27 +1,11 @@
-import { Stack, styled, Paper, Box, Typography, Grid } from '@mui/material';
+import { Stack, styled, Paper, Box, Typography, Grid, Backdrop } from '@mui/material';
 import { HeaderBreadcumbs, Tag } from 'components';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
 import { formatDate } from 'utils';
 import { getBloodDonationApprovalRequestById } from 'api';
 import BloodDonationApprovalTable from './components/BloodDonationApprovalTable';
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
+import { HeaderMainStyle } from 'utils';
 
 const TitleItemStyle = styled('span')(({ theme }) => ({
   fontWeight: 'bold',
@@ -29,7 +13,8 @@ const TitleItemStyle = styled('span')(({ theme }) => ({
 
 const ImgBox = styled(Box)(({ theme }) => ({
   width: '100%',
-  height: '500px',
+  height: '550px',
+  cursor: 'pointer',
 
   '& img': { width: '100%', height: '100%', objectFit: 'fill' },
 }));
@@ -37,11 +22,16 @@ const ImgBox = styled(Box)(({ theme }) => ({
 const ApprovalDetail = () => {
   const { id } = useParams();
   const [detailData, setDetailData] = useState();
+  const [isZoomedImageOpen, setIsZoomedImageOpen] = useState(false);
 
   const getDetailData = useCallback(async () => {
     const response = await getBloodDonationApprovalRequestById(id);
     setDetailData(response);
   }, []);
+
+  const handleZoomedImage = async () => {
+    setIsZoomedImageOpen(!isZoomedImageOpen);
+  };
 
   useEffect(() => {
     getDetailData();
@@ -63,8 +53,14 @@ const ApprovalDetail = () => {
       <Paper sx={{ borderRadius: '12px', padding: '30px' }} elevation={1}>
         <Grid container spacing={4} mb={5}>
           <Grid item sm={12} md={6}>
-            <ImgBox>
-              <img src={detailData?.imageUrl} alt="ảnh thẻ hiến máu" />
+            <ImgBox onClick={handleZoomedImage}>
+              <img
+                src={
+                  detailData?.imageUrl ||
+                  'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Fvector-art%2F5337799-icon-image-not-found-vector&psig=AOvVaw3WbT1vu-vBZ1d3hO9UTuyY&ust=1675343496846000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCPjpoYKz9PwCFQAAAAAdAAAAABAE'
+                }
+                alt="ảnh thẻ hiến máu"
+              />
             </ImgBox>
           </Grid>
 
@@ -106,6 +102,20 @@ const ApprovalDetail = () => {
 
         <BloodDonationApprovalTable detailData={detailData} />
       </Paper>
+
+      <Backdrop
+        open={isZoomedImageOpen}
+        onClick={handleZoomedImage}
+        sx={{ maxWidth: '100%', '& img': { maxWidth: '90%', maxHeight: '90%' } }}
+      >
+        <img
+          src={
+            detailData?.imageUrl ||
+            'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Fvector-art%2F5337799-icon-image-not-found-vector&psig=AOvVaw3WbT1vu-vBZ1d3hO9UTuyY&ust=1675343496846000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCPjpoYKz9PwCFQAAAAAdAAAAABAE'
+          }
+          alt="ảnh thẻ hiến máu"
+        />
+      </Backdrop>
     </Box>
   );
 };

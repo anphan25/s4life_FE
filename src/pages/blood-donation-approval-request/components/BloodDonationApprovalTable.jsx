@@ -15,12 +15,11 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { errorHandler, formatDate, convertErrorCodeToMessage } from 'utils';
-import { RHFInput, RHFRadio } from 'components';
+import { errorHandler, formatDate, convertErrorCodeToMessage, DialogButtonGroupStyle } from 'utils';
 import React, { useEffect, useState, useRef } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-import { CustomSnackBar, Tag } from 'components';
+import { CustomSnackBar, Tag, CustomDialog, RHFInput, RHFRadio } from 'components';
 import { useNavigate } from 'react-router-dom';
 import { updateApproveBloodDonation } from 'api';
 
@@ -37,8 +36,8 @@ const RequireLabel = styled('span')(({ theme }) => ({
 const ApprovalSchema = Yup.object().shape({
   approvals: Yup.array().of(
     Yup.object().shape({
-      status: Yup.string().required('Vui lòng chọn quyết định phê duyệt'),
-      note: Yup.string(),
+      status: Yup.number().required('Vui lòng chọn quyết định phê duyệt').default(1),
+      note: Yup.string().default(''),
     })
   ),
 });
@@ -46,13 +45,13 @@ const ApprovalSchema = Yup.object().shape({
 const BloodDonationApprovalTable = ({ detailData }) => {
   const { handleSubmit, control } = useForm({
     resolver: yupResolver(ApprovalSchema),
-    // defaultValues: mappingBloodDonationApprovals(detailData),
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
   const [connection, setConnection] = useState(null);
-  const [isButtonLoading, setIsButtonLoading] = useState(null);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [disabledInputIndexes, setDisabledInputIndexes] = useState([]);
+  const [isConfirmApprovalOpen, setIsConfirmApprovalOpen] = useState(false);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
@@ -60,10 +59,38 @@ const BloodDonationApprovalTable = ({ detailData }) => {
   });
   const store = useStore();
   const navigate = useNavigate();
+  const submitBtnRef = useRef();
+
   const isProcessing = detailData?.isProcessing;
 
+  const handleConfirmApprovalDialog = async () => {
+    setIsConfirmApprovalOpen(!isConfirmApprovalOpen);
+  };
+
+  const confirmApprovalDialogContent = () => {
+    return (
+      <Box>
+        <Typography>Sau khi duyệt sẽ không thể chỉnh sửa, bạn hãy chắc chắn những thông tin trên là đúng.</Typography>
+
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Stack>
+            <Button onClick={handleConfirmApprovalDialog}>Hủy</Button>
+          </Stack>
+          <LoadingButton
+            loading={isButtonLoading}
+            variant="contained"
+            onClick={() => {
+              submitBtnRef.current.click();
+            }}
+          >
+            Duyệt
+          </LoadingButton>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
   const onSubmit = async (data) => {
-    console.log('datada dd', data);
     const bloodDonationApprovalMappingData = data?.approvals?.map((item, i) => ({
       ...item,
       id: detailData?.bloodDonationApprovals[i].id,
@@ -83,11 +110,11 @@ const BloodDonationApprovalTable = ({ detailData }) => {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
       setIsButtonLoading(false);
+      handleConfirmApprovalDialog();
     }
   };
 
   useEffect(() => {
-    // if (!isProcessing) return;
     const openConnection = async () => {
       setConnection(await openHubConnection(store));
     };
@@ -95,7 +122,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
   }, []);
 
   useEffect(() => {
-    // if (!isProcessing) return;
     listenOnHub(connection, (messageCode) => {
       setAlert({
         message: convertErrorCodeToMessage(messageCode),
@@ -140,6 +166,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
                         label=""
                         options={APPROVAL_OPTIONS}
                         control={control}
+                        defaultValue={1 + ''}
                         name={`approvals[${i}].status`}
                         onSelect={(value) => {
                           //Rejecting will enable note textfield
@@ -164,6 +191,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
                   <TableCell align="left">
                     {isProcessing ? (
                       <RHFInput
+                        sx={{ padding: '0 !important' }}
                         placeholder="Nhập ghi chú"
                         multiline
                         disabled={disabledInputIndexes?.includes(i) ? false : true}
@@ -193,13 +221,23 @@ const BloodDonationApprovalTable = ({ detailData }) => {
               >
                 Hủy
               </Button>
-              <LoadingButton type="submit" loading={isButtonLoading} variant="contained">
+              <Button variant="contained" onClick={handleConfirmApprovalDialog}>
                 Duyệt
-              </LoadingButton>
+              </Button>
+              <Button type="submit" ref={submitBtnRef}></Button>
             </Box>
           </Stack>
         )}
       </form>
+
+      {/* Confirm Approval Dialog */}
+      <CustomDialog
+        isOpen={isConfirmApprovalOpen}
+        onClose={handleConfirmApprovalDialog}
+        title="Xác nhận duyệt"
+        children={confirmApprovalDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
+      />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </Box>

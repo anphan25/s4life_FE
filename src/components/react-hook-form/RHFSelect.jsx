@@ -1,9 +1,6 @@
-import { FormControl, TextField, FormLabel, styled } from '@mui/material';
+import { FormControl, TextField, FormLabel } from '@mui/material';
 import { Controller } from 'react-hook-form';
-
-const RequireLabel = styled('span')(({ theme }) => ({
-  color: theme.palette.error.main,
-}));
+import { RequireLabel } from 'utils';
 
 export const RHFSelect = ({ name, control, label, children, isRequiredLabel, ...props }) => {
   return (

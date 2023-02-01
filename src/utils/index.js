@@ -7,3 +7,4 @@ export * from './convertBloodTypeLabel';
 export * from './convertDayLabel';
 export * from './isEventEditableOrCancelable';
 export * from './message';
+export * from './commonStyle';

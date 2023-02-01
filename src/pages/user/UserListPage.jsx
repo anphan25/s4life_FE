@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, styled, Stack, Button } from '@mui/material';
+import { Box, Stack, Button } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -15,39 +15,20 @@ import {
   Icon,
 } from 'components';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { errorHandler, convertBloodTypeLabel, formatDate, PASSWORD_PATTERN, USERNAME_PATTERN } from 'utils';
+import {
+  errorHandler,
+  convertBloodTypeLabel,
+  formatDate,
+  PASSWORD_PATTERN,
+  USERNAME_PATTERN,
+  InputFilterSectionStyle,
+  HeaderMainStyle,
+} from 'utils';
 import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-
-const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
-  flexDirection: 'row',
-  margin: '20px',
-  gap: 10,
-
-  [theme.breakpoints.down('md')]: {
-    flexDirection: 'column',
-  },
-}));
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
 
 const filterTabValues = [
   { label: 'Tình nguyện viên', value: 1 },

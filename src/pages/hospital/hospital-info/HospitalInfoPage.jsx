@@ -1,17 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  DashedBox,
-  DialogButtonGroup,
-  HeaderMainStyle,
-  HospitalImgStyle,
-  Item,
-  LeftContainer,
-  PlaceholderStyle,
-} from './HospitalInfoStyle';
+import { DashedBox, HospitalImgStyle, Item, LeftContainer, PlaceholderStyle } from './HospitalInfoStyle';
 import { Stack, Box, Typography, Button, Grid, Paper, Avatar } from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { errorHandler, convertDayLabel, convertErrorCodeToMessage } from 'utils';
+import {
+  errorHandler,
+  convertDayLabel,
+  convertErrorCodeToMessage,
+  HeaderMainStyle,
+  DialogButtonGroupStyle,
+} from 'utils';
 import { useForm } from 'react-hook-form';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
@@ -72,9 +70,6 @@ const HospitalInfoPage = () => {
 
     const name = uuidv4();
     const storageRef = await ref(storage, `${filePath}/${name}`);
-    // const metadata = {
-    //   contentType: imgUploadFile.type,
-    // };
 
     if (!imgUploadFile) {
       return;
@@ -159,7 +154,7 @@ const HospitalInfoPage = () => {
             <Button startIcon={<Icon icon="solid-file-download" />} onClick={handleDownloadInfo}>
               Tải thông tin bệnh viện
             </Button>
-            <DialogButtonGroup sx={{ marginTop: '10px' }}>
+            <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
               <Button onClick={handleUpdateHospitalDialog}>Hủy</Button>
               <LoadingButton
                 loading={isButtonLoading}
@@ -170,7 +165,7 @@ const HospitalInfoPage = () => {
               >
                 Cập nhật
               </LoadingButton>
-            </DialogButtonGroup>
+            </DialogButtonGroupStyle>
           </Stack>
         </form>
       </Paper>
@@ -194,7 +189,7 @@ const HospitalInfoPage = () => {
             />
           </Stack>
           <Stack direction="row" justifyContent="flex-end">
-            <DialogButtonGroup sx={{ marginTop: '10px' }}>
+            <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
               <Button onClick={handleUpdateHospitalImgDialog}>Hủy</Button>
               <LoadingButton
                 loading={isButtonLoading}
@@ -205,7 +200,7 @@ const HospitalInfoPage = () => {
               >
                 Lưu
               </LoadingButton>
-            </DialogButtonGroup>
+            </DialogButtonGroupStyle>
           </Stack>
         </form>
       </Paper>

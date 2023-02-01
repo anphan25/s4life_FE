@@ -1,11 +1,8 @@
-import { FormControl, FormHelperText, FormLabel, TextField, styled } from '@mui/material';
+import { FormControl, FormHelperText, FormLabel, TextField } from '@mui/material';
 import React from 'react';
 import { TimePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
-
-const RequireLabel = styled('span')(({ theme }) => ({
-  color: theme.palette.error.main,
-}));
+import { RequireLabel } from 'utils';
 
 export const RHFTimePicker = ({ name, control, label, placeholder, isRequiredLabel, ...props }) => {
   return (
