@@ -80,3 +80,4 @@ jobs:
           unzip build.zip
           rm -rf build.zip
           echo "Deleted build zip file"
+          sudo systemctl restart nginx
