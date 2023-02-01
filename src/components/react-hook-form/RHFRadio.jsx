@@ -1,10 +1,7 @@
-import { FormControl, FormControlLabel, styled, FormHelperText, FormLabel, Radio, RadioGroup } from '@mui/material';
+import { FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup } from '@mui/material';
 import React from 'react';
 import { Controller } from 'react-hook-form';
-
-const RequireLabel = styled('span')(({ theme }) => ({
-  color: theme.palette.error.main,
-}));
+import { RequireLabel } from 'utils';
 
 export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSelect, ...props }) => {
   return (

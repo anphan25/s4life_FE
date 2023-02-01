@@ -1,14 +1,11 @@
 import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import { FormControl, FormHelperText, InputLabel, styled } from '@mui/material';
+import { FormControl, FormHelperText, InputLabel } from '@mui/material';
 import { Controller } from 'react-hook-form';
+import { RequireLabel } from 'utils';
 
 export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, field, defaultValue, ...props }) => {
   const editorRef = useRef(null);
-
-  const RequireLabel = styled('span')(({ theme }) => ({
-    color: theme.palette.error.main,
-  }));
 
   return (
     <Controller

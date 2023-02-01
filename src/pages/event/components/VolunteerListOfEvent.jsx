@@ -1,4 +1,4 @@
-import { Stack, styled, Box, Typography, Button, DialogActions, FormControl, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Button, FormControl, Select, MenuItem } from '@mui/material';
 import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog, Icon } from 'components';
 import { useState, useCallback, useEffect } from 'react';
 import { errorHandler, formatDate } from 'utils';
@@ -7,30 +7,8 @@ import { getEventRegistrations, updateBloodType } from 'api';
 import moment from 'moment';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { BLOOD_TYPE, convertBloodTypeLabel } from 'utils';
+import { BLOOD_TYPE, convertBloodTypeLabel, DialogButtonGroupStyle, InputFilterSectionStyle } from 'utils';
 import { useSelector } from 'react-redux';
-
-const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
-  flexDirection: 'row',
-  margin: '20px',
-  gap: 10,
-
-  [theme.breakpoints.down('md')]: {
-    flexDirection: 'column',
-  },
-}));
-
-const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
-  marginTop: 'auto',
-  padding: '10px 0px 10px !important',
-
-  [theme.breakpoints.down('sm')]: {
-    margin: '0 auto',
-    '& .dialog_button': {
-      fontSize: '10px',
-    },
-  },
-}));
 
 const filterTabValues = [
   { label: 'Chưa tham gia', value: 2 },
@@ -210,7 +188,7 @@ const VolunteerListOfEvent = () => {
             </Select>
           </FormControl>
         </Box>
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button onClick={handleUpdateBloodTypeDialog}>Hủy</Button>
           <LoadingButton
             disabled={bloodType ? false : true}
@@ -248,7 +226,7 @@ const VolunteerListOfEvent = () => {
           >
             Cập nhật
           </LoadingButton>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };

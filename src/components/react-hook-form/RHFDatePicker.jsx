@@ -1,18 +1,15 @@
-import { FormControl, FormHelperText, FormLabel, TextField, styled } from '@mui/material';
+import { FormControl, FormHelperText, FormLabel, TextField } from '@mui/material';
 import React from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Controller } from 'react-hook-form';
 import { Icon } from 'components';
+import { RequireLabel } from 'utils';
 
 function DateIcon() {
   return <Icon icon="calendar" />;
 }
 
 export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLabel, defaultValue, ...props }) => {
-  const RequireLabel = styled('span')(({ theme }) => ({
-    color: theme.palette.error.main,
-  }));
-
   return (
     <Controller
       name={name}

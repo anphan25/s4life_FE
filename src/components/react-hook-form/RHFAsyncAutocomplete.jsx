@@ -1,6 +1,7 @@
-import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField, styled } from '@mui/material';
+import { Autocomplete, FormControl, FormLabel, FormHelperText, TextField } from '@mui/material';
 import React, { useRef, useState, useEffect } from 'react';
 import { Controller } from 'react-hook-form';
+import { RequireLabel } from 'utils';
 
 export const RHFAsyncAutoComplete = ({
   name,
@@ -16,10 +17,6 @@ export const RHFAsyncAutoComplete = ({
   ...props
 }) => {
   const [size, setSize] = useState(10);
-
-  const RequireLabel = styled('span')(({ theme }) => ({
-    color: theme.palette.error.main,
-  }));
 
   const typingTimeoutRef = useRef(null);
 

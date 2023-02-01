@@ -1,11 +1,8 @@
-import { FormControl, TextField, FormLabel, styled, IconButton, InputAdornment } from '@mui/material';
+import { FormControl, TextField, FormLabel, IconButton, InputAdornment } from '@mui/material';
 import { Icon } from 'components';
 import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-
-const RequireLabel = styled('span')(({ theme }) => ({
-  color: theme.palette.error.main,
-}));
+import { RequireLabel } from 'utils';
 
 export const RHFPasswordInput = ({ control, label, name, isRequiredLabel, ...props }) => {
   const [showPassword, setShowPassword] = useState(false);

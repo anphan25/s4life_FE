@@ -1,35 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, styled, Stack, MenuItem } from '@mui/material';
+import { Box, MenuItem } from '@mui/material';
 import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomSnackBar, MoreMenuButton } from 'components';
 import { getBloodDonationApprovalRequests } from 'api';
-import { errorHandler, formatDate } from 'utils';
+import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle } from 'utils';
 import { useNavigate } from 'react-router-dom';
 
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
-  flexDirection: 'row',
-  margin: '20px',
-  gap: 10,
-
-  [theme.breakpoints.down('md')]: {
-    flexDirection: 'column',
-  },
-}));
 const filterTabValues = [
   { label: 'Đang xử lý', value: true },
   { label: 'Đã xử lý', value: false },
@@ -71,13 +46,13 @@ function ApprovalList() {
         headerName: 'CMND/CCCD',
         type: 'number',
         field: 'nationalId',
-        width: 400,
+        width: 200,
       },
       {
         headerName: 'Ngày tạo',
         type: 'date',
         field: 'addDate',
-        width: 300,
+        width: 180,
       },
       {
         field: 'actions',

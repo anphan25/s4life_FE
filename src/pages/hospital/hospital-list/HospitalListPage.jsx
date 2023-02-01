@@ -15,9 +15,9 @@ import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config';
-import { formatDate, errorHandler, convertErrorCodeToMessage } from 'utils';
+import { formatDate, errorHandler, convertErrorCodeToMessage, HeaderMainStyle, DialogButtonGroupStyle } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { DialogButtonGroup, DownloadLink, HeaderMainStyle } from './HospitalListStyle';
+import { DownloadLink } from './HospitalListStyle';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 
@@ -192,7 +192,7 @@ const HospitalListPage = () => {
         <Typography>
           Bạn có chắc chắn muốn vô hiệu <b>{disableHospitalName}</b> không ?
         </Typography>
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button onClick={handleDisableHospitalDialog}>Hủy</Button>
           <LoadingButton
             loading={isButtonLoading}
@@ -214,7 +214,7 @@ const HospitalListPage = () => {
           >
             Vô Hiệu
           </LoadingButton>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -225,7 +225,7 @@ const HospitalListPage = () => {
         <Typography>
           Bạn có chắc chắn muốn kích hoạt <b>{enableHospitalName}</b> không ?
         </Typography>
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button onClick={handleEnableHospitalDialog}>Hủy</Button>
           <LoadingButton
             loading={isButtonLoading}
@@ -247,7 +247,7 @@ const HospitalListPage = () => {
           >
             Kích hoạt
           </LoadingButton>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -297,7 +297,7 @@ const HospitalListPage = () => {
             >
               Tải file mẫu
             </Button>
-            <DialogButtonGroup>
+            <DialogButtonGroupStyle>
               <Box>
                 <Button className="dialog_button" onClick={addHospitalDialogHandler}>
                   Hủy
@@ -316,7 +316,7 @@ const HospitalListPage = () => {
               >
                 Thêm
               </LoadingButton>
-            </DialogButtonGroup>
+            </DialogButtonGroupStyle>
           </Stack>
         </Stack>
       </form>

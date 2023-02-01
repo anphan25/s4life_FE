@@ -1,10 +1,7 @@
-import { FormControl, TextField, FormLabel, styled } from '@mui/material';
+import { FormControl, TextField, FormLabel } from '@mui/material';
 import React from 'react';
 import { Controller } from 'react-hook-form';
-
-const RequireLabel = styled('span')(({ theme }) => ({
-  color: theme.palette.error.main,
-}));
+import { RequireLabel } from 'utils';
 
 export const RHFInput = ({ control, label, name, isRequiredLabel = false, ...props }) => {
   return (
@@ -21,6 +18,7 @@ export const RHFInput = ({ control, label, name, isRequiredLabel = false, ...pro
             id={name}
             {...field}
             {...props}
+            sx={{ '& .css-10d4dhp-MuiInputBase-root-MuiOutlinedInput-root': { padding: '0 !important' } }}
             error={!!error}
             inputProps={{
               autoComplete: 'off',
