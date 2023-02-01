@@ -6,18 +6,29 @@ const RequireLabel = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
 }));
 
-export const RHFRadio = ({ control, label, name, options, isRequiredLabel, ...props }) => {
+export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSelect, ...props }) => {
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field, fieldState: { error } }) => (
+      render={({ field: { onChange, value }, fieldState: { error } }) => (
         <FormControl sx={{ mb: 1.5 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
             {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
           </FormLabel>
-          <RadioGroup {...field} {...props} row>
+          <RadioGroup
+            {...props}
+            row
+            value={value}
+            onChange={(event, newValue) => {
+              if (onSelect) {
+                onSelect(newValue);
+              }
+
+              onChange(newValue);
+            }}
+          >
             {options.map((option) => (
               <FormControlLabel
                 key={option.id}
