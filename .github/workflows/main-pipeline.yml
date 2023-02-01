@@ -56,9 +56,11 @@ jobs:
         port: 22
         script: |
           cd s4life_FE
+          npm install
           npm run build
           zip -r build.zip build
           ${{ secrets.SCP_COMMAND }}
+          echo "Completed send file"
 
   Publish:
     runs-on: ubuntu-latest
@@ -74,4 +76,7 @@ jobs:
         port: 22
         script: |
           rm -rf build
+          echo "Deleted old build file"
           unzip build.zip
+          rm -rf build.zip
+          echo "Deleted build zip file"
