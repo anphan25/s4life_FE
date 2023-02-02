@@ -232,7 +232,6 @@ const VolunteerListOfEvent = () => {
   };
   const fetchVolunteersOfEvent = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
-    setAlert({});
 
     try {
       const data = await getEventRegistrations({
