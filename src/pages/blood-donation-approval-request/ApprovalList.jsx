@@ -81,7 +81,6 @@ function ApprovalList() {
 
   const fetchBloodDonationApprovals = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
-    setAlert({});
 
     try {
       const approvalParams = {

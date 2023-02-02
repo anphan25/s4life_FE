@@ -359,7 +359,6 @@ const EventFixedListPage = () => {
 
   const fetchEventListData = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true }));
-    setAlert({});
 
     getEvents({
       ...pageState,
