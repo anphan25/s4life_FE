@@ -168,7 +168,7 @@ const EventFixedListPage = () => {
         renderCell: (params) => {
           return (
             <Icon
-              icon="solid-light-emergency-on"
+              icon={params.row.isEmergency ? 'solid-light-emergency-on' : 'solid-light-emergency-off'}
               sx={{ fontSize: 20, color: params.row.isEmergency ? 'error.main' : 'grey.600' }}
             />
           );
@@ -275,20 +275,22 @@ const EventFixedListPage = () => {
 
   const handleCancelEventDialog = async () => {
     setIsCancelEventOpen(!isCancelEventOpen);
-    setConnection(await openHubConnection(store));
-    if (connection) {
-      setTimeout(() => {
-        connection?.stop();
-      }, 2000);
-    }
   };
 
   const handleEditCancelDialog = () => {
     setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
   };
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+    setAlert({});
+  }, []);
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
+      setAlert({});
       setAlert({
         message: convertErrorCodeToMessage(messageCode),
         type: messageCode < 0 ? 'error' : 'success',

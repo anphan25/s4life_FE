@@ -14,6 +14,15 @@ const ErrorMessageList = styled(Box)(({ theme }) => ({
   },
 }));
 
+const ClearFile = styled(Icon)(({ theme }) => ({
+  border: '0',
+  background: 'transparent',
+  color: theme.palette.error.main,
+  width: '1.5rem',
+  cursor: 'pointer',
+  marginRight: '5px',
+}));
+
 const DropZone = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
@@ -142,13 +151,13 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, .
       {!defaultValue
         ? selectedFile && (
             <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
-              <Icon
-                icon="trash"
+              <ClearFile
+                icon="solid-times"
                 onClick={() => {
                   setSelectedFile(null);
                   onUpload(acceptedFiles[0]);
                 }}
-                title="Gỡ bỏ tệp tin"
+                title="Gỡ bỏ ảnh"
               />
               <Box sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', width: '90%' }}>
                 {selectedFile.path}

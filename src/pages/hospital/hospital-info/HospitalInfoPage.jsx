@@ -84,8 +84,8 @@ const HospitalInfoPage = () => {
       },
       () => {
         const storage = getStorage();
-        if (hospitalData?.avatarUrl !== DEFAULT_HOSPITAL_IMAGE_URL) {
-          const imgId = hospitalData?.avatarUrl.split('hospital-images%2F')[1]?.split('?alt')[0];
+        if (hospitalData?.avatarUrl && hospitalData?.avatarUrl !== DEFAULT_HOSPITAL_IMAGE_URL) {
+          const imgId = hospitalData?.avatarUrl?.split('hospital-images%2F')[1]?.split('?alt')[0];
           const desertRef = ref(storage, `hospital-images/${imgId}`);
           // Delete the file
           deleteObject(desertRef)

@@ -17,16 +17,16 @@ export function convertErrorCodeToMessage(code) {
     1100: 'Đổi mật khẩu thành công',
 
     //Register
-    2001: 'Thông tin đăng ký không hợp lệ',
+    2001: 'Tên tài khoản đã tồn tại',
     2031: 'Bệnh viện không tồn tại',
     2100: 'Tạo tài khoản thành công',
 
     //Hospital
     3000: PROCESSING_MESSAGE,
-    3100: 'Thêm bệnh viện thành công',
+    3100: 'Tạo bệnh viện thành công',
     3200: 'Chỉnh sửa thông tin bệnh viện thành công',
     3300: 'Vô hiệu bệnh viện thành công',
-    3400: 'Kích hoạt bệnh viện thành công',
+    3400: 'Hủy bỏ vô hiệu hóa bệnh viện thành công',
     3001: 'Tọa độ không chính xác',
     3002: 'Không tìm thấy vị trí',
     3003: 'Từ chối yêu cầu truy cập bệnh viện',
@@ -38,12 +38,13 @@ export function convertErrorCodeToMessage(code) {
     //Event
     4000: PROCESSING_MESSAGE,
     4001: 'Không thể tạo sự kiện hiến máu tuần này',
-    4002: 'Thiếu ngày bắt đầu và ngày kết thúc',
+    4002: 'Thiếu các thông tin cần thiết (*)',
     4003: 'Sửa và hủy sự kiện phải trước ngày bắt đầu 3 ngày',
     4004: 'Sự kiện không tìm thấy',
     4005: 'Yêu cầu lọc không phù hợp',
     4009: 'Ngày bắt đầu không thể trước ngày kết thúc',
-    4013: 'Từ chối quyền truy cập sự kiện',
+    4011: 'Thời gian sự kiện không hợp lệ',
+    4013: 'Từ chối yêu cầu truy cập sự kiện',
     4021: 'Sự kiện đã bị hủy hoặc đã kết thúc',
     4031: 'Không thể chỉnh sửa, sự kiện đã có người đăng ký',
     4041: 'Khu vực tổ chức sự kiện không hợp lệ',
@@ -62,16 +63,16 @@ export function convertErrorCodeToMessage(code) {
 
     //Blood Donation Approval
     5000: PROCESSING_MESSAGE,
-    5001: 'Không trích xuất được thông tin từ ảnh',
+    5001: 'Không thể trích xuất lịch sử hiến máu từ ảnh',
     5011: 'Thiếu trường thông tin ghi chú khi từ chối phê duyệt',
     5021: 'Yêu cầu này đã được xử lí',
     5003: 'Từ chối  yêu cầu truy cập',
     5004: 'Không tìm thấy yêu cầu',
     5031: 'Thông tin nhập lịch sử hiến máu không hợp lệ',
     5041: 'Thiếu thông tin lịch sử hiến máu',
-    5051: 'Thông tin lịch sử hiến máu đã tồn tại',
-    5100: 'Tạo yêu cầu cập nhật lịch sử hiến máu thành công',
-    5200: 'Phê duyệt thành công',
+    5051: 'Thông tin xét duyệt đã tồn tại trong hệ thống',
+    5100: 'Tạo yêu cầu xét duyệt lịch sử hiến máu thành công',
+    5200: 'Cập nhật yêu cầu xét duyệt lịch sử hiến máu thành công',
     //Blood Donation
     6000: PROCESSING_MESSAGE,
     6003: 'Từ chối yêu cầu truy cập lịch sử hiến máu',
@@ -91,12 +92,15 @@ export function convertErrorCodeToMessage(code) {
     7071: 'Thiếu thông tin phiếu đăng ký',
     7081: 'Thiếu số lượng máu hiến',
     7091: 'Sự kiện đã bắt đầu, không thể hủy đăng ký',
+    7100: 'Đăng kí sự kiện thành công',
     7101: 'Thời gian dự kiến tham gia không hợp lệ',
     7111: 'Khoảng cách giữa 2 lần hiến máu gần nhất phải tối thiểu 90 ngày',
     7131: 'Nhóm máu của tình nguyện viên không nằm trong danh sách của sự kiện',
     7141: 'Từ chối yêu cầu cập nhật nhóm máu',
     7151: 'Tình nguyện viên không được đăng ký nhiều sự kiện cùng một lúc',
     7161: 'Không thể đăng ký vào sự kiện lưu động đang diễn ra',
+    7171: 'Đã điền phiếu đăng kí tham gia hiến máu',
+    7181: 'Vui lòng đến tham dự sự kiện hiến máu vào đúng ngày đã đăng kí tham gia',
 
     //User Informations
     8000: 'Thay đổi thông tin cá nhân thành công',
@@ -116,6 +120,10 @@ export function convertErrorCodeToMessage(code) {
     //Blood Donation Approval Request
     110001: 'Thông tin lịch sử hiến máu không trùng khớp',
     110004: 'Không tìm thấy yêu cầu cập nhật lịch sử hiến máu',
+
+    //Config number
+    12000: 'Yêu cầu thay đổi hệ thống đang được xử lí',
+    12100: 'Thay đổi cấu hình hệ thống thành công',
     //Internal Error
     5555: 'Có lỗi xảy ra, Vui lòng liên hệ quản trị viên',
   };
@@ -127,6 +135,7 @@ export const errorHandler = (error) => {
   const { response } = error;
   if (response?.data !== null) {
     const code = response.data?.code;
+    if (response.status === 400 && !response.data?.code) return 'Dữ liệu truyền vào không hợp lệ';
     if (code < 0) return 'Đã có lỗi xảy ra';
 
     var message = convertErrorCodeToMessage(code);
