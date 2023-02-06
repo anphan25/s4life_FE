@@ -294,7 +294,6 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
         validateCSVFileContent(hospitalData);
-        console.log('hospitalData', hospitalData);
         if (tempErrorFileContent.length > 0) {
           onImport([], true);
           setSelectedFile(null);

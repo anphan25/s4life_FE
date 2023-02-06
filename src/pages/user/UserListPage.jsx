@@ -419,7 +419,7 @@ const UserListPage = () => {
             placeholder="Nhập mật khẩu"
             isRequiredLabel={true}
           />
-          <RHFInput
+          <RHFPasswordInput
             label="Mật khẩu"
             name="password"
             control={addUserControl}

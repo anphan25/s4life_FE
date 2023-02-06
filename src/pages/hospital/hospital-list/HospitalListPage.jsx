@@ -15,7 +15,14 @@ import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from 'config';
-import { formatDate, errorHandler, convertErrorCodeToMessage, HeaderMainStyle, DialogButtonGroupStyle } from 'utils';
+import {
+  formatDate,
+  errorHandler,
+  convertErrorCodeToMessage,
+  HeaderMainStyle,
+  DialogButtonGroupStyle,
+  DEFAULT_HOSPITAL_IMAGE_URL,
+} from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DownloadLink } from './HospitalListStyle';
 import { openHubConnection, listenOnHub } from 'config';
@@ -99,7 +106,7 @@ const HospitalListPage = () => {
         width: 140,
       },
       {
-        headerName: 'Ngày thêm',
+        headerName: 'Ngày tạo',
         field: 'addDate',
         type: 'string',
         width: 130,
@@ -266,8 +273,13 @@ const HospitalListPage = () => {
     setIsButtonLoading(true);
     setImportParams([]);
 
+    const importParamsWithAvatarUrl = importParams?.map((item, i) => ({
+      ...item,
+      avatarUrl: DEFAULT_HOSPITAL_IMAGE_URL,
+    }));
+
     try {
-      await importCSVHospitalData(importParams);
+      await importCSVHospitalData(importParamsWithAvatarUrl);
       await fetchHospitalData();
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -314,7 +326,7 @@ const HospitalListPage = () => {
                 type="submit"
                 variant="contained"
               >
-                Thêm
+                Tạo
               </LoadingButton>
             </DialogButtonGroupStyle>
           </Stack>
@@ -409,7 +421,7 @@ const HospitalListPage = () => {
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
         />
         <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={addHospitalDialogHandler}>
-          Thêm bệnh viện
+          Tạo bệnh viện
         </Button>
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
@@ -440,7 +452,7 @@ const HospitalListPage = () => {
         isOpen={isAddHospitalDialogOpen}
         onClose={addHospitalDialogHandler}
         children={addHospitalDialogContent()}
-        title="Thêm bệnh viện từ file"
+        title="Tạo bệnh viện từ file"
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 

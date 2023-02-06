@@ -112,14 +112,6 @@ export default function Router() {
                 </ProtectedRouter>
               ),
             },
-            {
-              path: ':userId',
-              element: (
-                <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
-                  <UserDetailPage />
-                </ProtectedRouter>
-              ),
-            },
           ],
         },
 
@@ -213,7 +205,6 @@ const StatisticsPage = Loadable(lazy(() => import('pages/statistics/StatisticsPa
 
 //user
 const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
-const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
 
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
