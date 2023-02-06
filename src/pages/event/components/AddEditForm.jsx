@@ -33,6 +33,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { ConsoleLogger } from '@microsoft/signalr/dist/esm/Utils';
 
 const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
@@ -193,17 +194,16 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   Yup.addMethod(Yup.date, 'validTimeDuration', function (errorMessage) {
     return this.test(`test-valid-time-duration`, errorMessage, function (value, context) {
       const { path, createError } = this;
-      const workingTimeStart = context.parent.workingTimeStart;
-      const workingTimeEnd = context.parent.workingTimeEnd;
-      return (
-        moment(workingTimeStart).isSameOrBefore(moment(workingTimeEnd).subtract(1, 'hours')) ||
-        createError({ path, message: errorMessage })
-      );
+      const workingTimeStart = moment(context.parent.workingTimeStart);
+      const workingTimeEnd = moment(context.parent.workingTimeEnd);
+      const duration = workingTimeEnd.diff(workingTimeStart, 'hours');
+
+      return Math.abs(duration) >= 1 || createError({ path, message: errorMessage });
     });
   });
 
   Yup.addMethod(Yup.date, 'validDateBaseOnCurrentDate', function (errorMessage) {
-    return this.test(`test-valid-time`, errorMessage, function (value, context) {
+    return this.test(`test-valid-date-base-on-now`, errorMessage, function (value, context) {
       const { path, createError } = this;
       const startDate = context.parent.startDate;
       const endDate = context.parent.endDate;
@@ -218,6 +218,57 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
+  Yup.addMethod(Yup.date, 'validDaysDuration', function (errorMessage) {
+    return this.test(`test-valid-day-duration`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const startDate = moment(context.parent.startDate);
+      const endDate = moment(context.parent.endDate);
+      const duration = endDate.diff(startDate, 'days');
+
+      return Math.abs(duration) <= 30 || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isStartDateBeforeOrSameEndDate', function (errorMessage) {
+    return this.test(`test-valid-startDate`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const startDate = moment(context.parent.startDate);
+      const endDate = moment(context.parent.endDate);
+
+      return startDate.isSameOrBefore(endDate, 'dates') || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isEndDateAfterOrSameStartDate', function (errorMessage) {
+    return this.test(`test-valid-endDate`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const startDate = moment(context.parent.startDate);
+      const endDate = moment(context.parent.endDate);
+
+      return endDate.isSameOrAfter(startDate, 'dates') || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isStartTimeBeforeOrSameEndTime', function (errorMessage) {
+    return this.test(`test-start-time-before-end-time`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const workingTimeStart = moment(context.parent.workingTimeStart);
+      const workingTimeEnd = moment(context.parent.workingTimeEnd);
+
+      return workingTimeStart.isSameOrBefore(workingTimeEnd, 'hours') || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isEndTimeAfterOrSameStartTime', function (errorMessage) {
+    return this.test(`test-end-time-after-start-time`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const workingTimeStart = moment(context.parent.workingTimeStart);
+      const workingTimeEnd = moment(context.parent.workingTimeEnd);
+
+      return workingTimeEnd.isSameOrAfter(workingTimeStart, 'hours') || createError({ path, message: errorMessage });
+    });
+  });
+
   const AddEventSchema = Yup.object().shape({
     name: Yup.string().required('Vui lòng nhập tên').max(128, 'Tên không được dài quá 128 kí tự'),
     description: Yup.string().required('Vui lòng nhập mô tả').max(512, 'Mô tả không được dài quá 512 kí tự'),
@@ -229,26 +280,28 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập ngày bắt đầu')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .max(Yup.ref('endDate'), 'Ngày bắt đầu phải trước ngày kết thúc')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày'),
+      .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
+      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
     endDate: Yup.date()
-      .min(Yup.ref('startDate'), 'Ngày kết thúc phải trước ngày bắt đầu')
       .required('Vui lòng nhập ngày kết thúc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày'),
+      .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
+      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
     workingTimeStart: Yup.date()
-      .max(Yup.ref('workingTimeEnd'), 'Giờ bắt đầu phải trước giờ kết thúc')
-      .required('Vui lòng nhập giờ bắt đầu làm việc')
+      .required('Vui lòng nhập giờ bắt đầu')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
+      .isStartTimeBeforeOrSameEndTime('Giờ bắt đầu phải trước giờ kết thúc')
+      .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     workingTimeEnd: Yup.date()
-      .min(Yup.ref('workingTimeStart'), 'Giờ kết thúc phải trước giờ bắt đầu')
-      .required('Vui lòng nhập giờ kết thúc làm việc')
+      .required('Vui lòng nhập giờ kết thúc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau 1 giờ'),
+      .isEndTimeAfterOrSameStartTime('Giờ kết thúc phải sau giờ bắt đầu')
+      .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     bloodTypeNeed: Yup.array()
       .transform((value) => {
