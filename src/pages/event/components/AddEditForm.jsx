@@ -269,15 +269,15 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
-  Yup.addMethod(Yup.date, 'validDate', function (errorMessage) {
-    return this.test(`test-valid-date`, errorMessage, function (value, context) {
-      const { path, createError } = this;
+  // Yup.addMethod(Yup.date, 'validDate', function (errorMessage) {
+  //   return this.test(`test-valid-date`, errorMessage, function (value, context) {
+  //     const { path, createError } = this;
 
-      console.log('value', value);
+  //     console.log('value', value);
 
-      return value !== INVALID_DATE_VALUE || createError({ path, message: errorMessage });
-    });
-  });
+  //     return value !== INVALID_DATE_VALUE || createError({ path, message: errorMessage });
+  //   });
+  // });
 
   const AddEventSchema = Yup.object().shape({
     name: Yup.string().required('Vui lòng nhập tên').max(128, 'Tên không được dài quá 128 kí tự'),
@@ -289,19 +289,17 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     startDate: Yup.date()
       .required('Vui lòng nhập ngày bắt đầu')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : new Date('foo')))
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
       .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày')
-      ,
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
     endDate: Yup.date()
       .required('Vui lòng nhập ngày kết thúc')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : INVALID_DATE_VALUE))
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
       .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày')
-      ,
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
     workingTimeStart: Yup.date()
       .required('Vui lòng nhập giờ bắt đầu')
       .nullable()
