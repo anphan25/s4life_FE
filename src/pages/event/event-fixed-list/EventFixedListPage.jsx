@@ -168,7 +168,7 @@ const EventFixedListPage = () => {
         renderCell: (params) => {
           return (
             <Icon
-              icon={params.row.isEmergency ? 'solid-light-emergency-on' : 'solid-light-emergency-off'}
+              icon={params.row.isEmergency ? 'solid-light-emergency-on' : 'solid-light-emergency'}
               sx={{ fontSize: 20, color: params.row.isEmergency ? 'error.main' : 'grey.600' }}
             />
           );

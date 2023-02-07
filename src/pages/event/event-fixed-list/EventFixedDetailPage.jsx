@@ -382,7 +382,7 @@ const EventFixedDetailPage = () => {
             <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Box>
           </Box>
 
-          <Grid rowSpacing={2} container>
+          <Grid rowSpacing={2} columnSpacing={2} container>
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_icon">
@@ -419,7 +419,8 @@ const EventFixedDetailPage = () => {
                   <Icon icon="solid-droplet" className="info-item_icon_item" />
                 </Box>
                 <Box>
-                  <Box className="info-item_title">
+                  <Typography className="info-item_title">Nhóm máu cần lấy</Typography>
+                  <Box>
                     {detailData?.bloodTypeNeed
                       ? detailData?.bloodTypeNeed.map((e, i) => (
                           <Chip
@@ -432,7 +433,6 @@ const EventFixedDetailPage = () => {
                         ))
                       : 'Tất cả nhóm máu'}
                   </Box>
-                  <Typography>Nhóm máu cần lấy</Typography>
                 </Box>
               </Stack>
             </InfoItemWithIconStyle>
