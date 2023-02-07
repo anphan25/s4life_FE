@@ -319,7 +319,7 @@ const EventFixedDetailPage = () => {
                     return;
                   }
 
-                  navigate(`/event/${eventId}/edit`);
+                  navigate(`/event/fixed-list/${eventId}/edit`);
                 }}
               >
                 <Stack key={1} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
