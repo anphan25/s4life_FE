@@ -33,7 +33,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-import { ConsoleLogger } from '@microsoft/signalr/dist/esm/Utils';
 
 const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
@@ -56,6 +55,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     status: false,
     type: 'success',
   });
+  const INVALID_DATE_VALUE = 'Invalid';
 
   const store = useStore();
 
@@ -249,7 +249,7 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
-  Yup.addMethod(Yup.date, 'isStartTimeBeforeOrSameEndTime', function (errorMessage) {
+  Yup.addMethod(Yup.date, 'isStartTimeBeforeEndTime', function (errorMessage) {
     return this.test(`test-start-time-before-end-time`, errorMessage, function (value, context) {
       const { path, createError } = this;
       const workingTimeStart = moment(context.parent.workingTimeStart);
@@ -259,13 +259,23 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
-  Yup.addMethod(Yup.date, 'isEndTimeAfterOrSameStartTime', function (errorMessage) {
+  Yup.addMethod(Yup.date, 'isEndTimeAfterStartTime', function (errorMessage) {
     return this.test(`test-end-time-after-start-time`, errorMessage, function (value, context) {
       const { path, createError } = this;
       const workingTimeStart = moment(context.parent.workingTimeStart);
       const workingTimeEnd = moment(context.parent.workingTimeEnd);
 
       return workingTimeEnd.isSameOrAfter(workingTimeStart, 'hours') || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'validDate', function (errorMessage) {
+    return this.test(`test-valid-date`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      console.log('value', value);
+
+      return value !== INVALID_DATE_VALUE || createError({ path, message: errorMessage });
     });
   });
 
@@ -279,28 +289,30 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     startDate: Yup.date()
       .required('Vui lòng nhập ngày bắt đầu')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : new Date('foo')))
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
       .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày')
+      ,
     endDate: Yup.date()
       .required('Vui lòng nhập ngày kết thúc')
       .nullable()
-      .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
+      .transform((v) => (v instanceof Date && !isNaN(v) ? v : INVALID_DATE_VALUE))
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
       .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày')
+      ,
     workingTimeStart: Yup.date()
       .required('Vui lòng nhập giờ bắt đầu')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .isStartTimeBeforeOrSameEndTime('Giờ bắt đầu phải trước giờ kết thúc')
+      .isStartTimeBeforeEndTime('Giờ bắt đầu phải trước giờ kết thúc')
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     workingTimeEnd: Yup.date()
       .required('Vui lòng nhập giờ kết thúc')
       .nullable()
       .transform((v) => (v instanceof Date && !isNaN(v) ? v : null))
-      .isEndTimeAfterOrSameStartTime('Giờ kết thúc phải sau giờ bắt đầu')
+      .isEndTimeAfterStartTime('Giờ kết thúc phải sau giờ bắt đầu')
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     bloodTypeNeed: Yup.array()
