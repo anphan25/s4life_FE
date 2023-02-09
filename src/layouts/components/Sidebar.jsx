@@ -22,10 +22,10 @@ const sidebarAdmin = [
         name: 'Lưu động',
         to: '/event/mobile-list/',
       },
-      {
-        name: 'Theo lịch bệnh viện',
-        to: '/event/schedule-list/',
-      },
+      // {
+      //   name: 'Theo lịch bệnh viện',
+      //   to: '/event/schedule-list/',
+      // },
     ],
   },
   {

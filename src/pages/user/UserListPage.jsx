@@ -233,7 +233,7 @@ const UserListPage = () => {
   };
 
   const ChangePasswordSchema = Yup.object().shape({
-    newPassword: Yup.string().required('Vui lòng nhập mật khẩu hiện tại.').matches(PASSWORD_PATTERN, {
+    newPassword: Yup.string().required('Vui lòng nhập mật khẩu mới.').matches(PASSWORD_PATTERN, {
       message:
         'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
       excludeEmptyString: false,
