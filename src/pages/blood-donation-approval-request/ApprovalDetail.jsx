@@ -33,6 +33,10 @@ const ApprovalDetail = () => {
     setIsZoomedImageOpen(!isZoomedImageOpen);
   };
 
+  const handleLoadImage = (imgLink) => {
+    return imgLink;
+  };
+
   useEffect(() => {
     getDetailData();
   }, [getDetailData]);
@@ -54,13 +58,7 @@ const ApprovalDetail = () => {
         <Grid container spacing={4} mb={5}>
           <Grid item sm={12} md={6}>
             <ImgBox onClick={handleZoomedImage}>
-              <img
-                src={
-                  detailData?.imageUrl ||
-                  'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Fvector-art%2F5337799-icon-image-not-found-vector&psig=AOvVaw3WbT1vu-vBZ1d3hO9UTuyY&ust=1675343496846000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCPjpoYKz9PwCFQAAAAAdAAAAABAE'
-                }
-                alt="ảnh thẻ hiến máu"
-              />
+              <img src={handleLoadImage(detailData?.imageUrl)} alt="ảnh thẻ hiến máu" />
             </ImgBox>
           </Grid>
 

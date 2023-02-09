@@ -85,7 +85,7 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
       }
 
       case 'invalid-starttime-endTime': {
-        return 'Thởi gian bắt đầu phải trước thời gian kết thúc';
+        return 'Thời gian bắt đầu phải trước thời gian kết thúc';
       }
 
       case 'too-much-record': {

@@ -30,7 +30,7 @@ export default function Router() {
       children: [
         {
           element: (
-            <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
+            <ProtectedRouter roles={['Manager', 'Admin']}>
               <DashboardPage />
             </ProtectedRouter>
           ),
@@ -42,7 +42,7 @@ export default function Router() {
             {
               index: true,
               element: (
-                <ProtectedRouter roles={['Admin', 'Staff', 'Manager']}>
+                <ProtectedRouter roles={['Admin', 'Manager']}>
                   <AccountPage />
                 </ProtectedRouter>
               ),
@@ -59,7 +59,7 @@ export default function Router() {
                 {
                   index: true,
                   element: (
-                    <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
+                    <ProtectedRouter roles={['Manager', 'Admin']}>
                       <EventFixedListPage />
                     </ProtectedRouter>
                   ),
@@ -75,7 +75,7 @@ export default function Router() {
                 {
                   path: ':eventId',
                   element: (
-                    <ProtectedRouter roles={['Manager', 'Staff', 'Admin']}>
+                    <ProtectedRouter roles={['Manager', 'Admin']}>
                       <EventFixedDetailPage />
                     </ProtectedRouter>
                   ),
@@ -90,12 +90,25 @@ export default function Router() {
                 },
               ],
             },
+            {
+              path: 'schedule-list',
+              children: [
+                {
+                  index: true,
+                  element: (
+                    <ProtectedRouter roles={['Manager', 'Admin']}>
+                      <EventHospitalSchedulePage />
+                    </ProtectedRouter>
+                  ),
+                },
+              ],
+            },
           ],
         },
         {
           path: 'statistics',
           element: (
-            <ProtectedRouter roles={['Manager', 'Admin', 'Staff']}>
+            <ProtectedRouter roles={['Manager', 'Admin']}>
               <StatisticsPage />
             </ProtectedRouter>
           ),
@@ -195,6 +208,9 @@ const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage'
 const EventFixedListPage = Loadable(lazy(() => import('pages/event/event-fixed-list/EventFixedListPage')));
 const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/event-fixed-list/AddEditFixedEventPage')));
 const EventFixedDetailPage = Loadable(lazy(() => import('pages/event//event-fixed-list/EventFixedDetailPage')));
+const EventHospitalSchedulePage = Loadable(
+  lazy(() => import('pages/event/event-hospital-schedule-list/EventHospitalSchedulePage'))
+);
 
 //error
 const PermissionDeniedPage = Loadable(lazy(() => import('pages/error/PermissionDeniedPage')));
