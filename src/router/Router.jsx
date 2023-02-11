@@ -141,9 +141,9 @@ export default function Router() {
               ),
             },
             {
-              path: 'info',
+              path: ':hospitalId',
               element: (
-                <ProtectedRouter roles={['Manager']}>
+                <ProtectedRouter roles={['Manager', 'Admin']}>
                   <HospitalInfoPage />
                 </ProtectedRouter>
               ),

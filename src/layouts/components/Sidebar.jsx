@@ -7,67 +7,6 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import useResponsive from 'hooks/useResponsive';
 
-const sidebarAdmin = [
-  { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
-  { name: 'Quản lý bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/list' },
-  {
-    name: 'Quản lý sự kiện',
-    icon: <Icon icon="coupon-star" />,
-    children: [
-      {
-        name: 'Cố định',
-        to: '/event/fixed-list/',
-      },
-      {
-        name: 'Lưu động',
-        to: '/event/mobile-list/',
-      },
-      // {
-      //   name: 'Theo lịch bệnh viện',
-      //   to: '/event/schedule-list/',
-      // },
-    ],
-  },
-  {
-    name: 'Quản lý tài khoản',
-    icon: <Icon icon="users" />,
-    to: '/user/list',
-  },
-  {
-    name: 'Xét duyệt thẻ hiến máu',
-    icon: <Icon icon="file-text-edit" />,
-    to: '/blood-donation-approval-request/list',
-  },
-  {
-    name: 'Giả lập',
-    icon: <Icon icon="code-square" />,
-    to: '/script',
-  },
-];
-
-const sidebarManager = [
-  { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
-  {
-    name: 'Quản lý sự kiện',
-    icon: <Icon icon="coupon-star" />,
-    children: [
-      {
-        name: 'Cố định',
-        to: '/event/fixed-list/',
-      },
-      {
-        name: 'Lưu động',
-        to: '/event/mobile-list/',
-      },
-      {
-        name: 'Theo lịch bệnh viện',
-        to: '/event/schedule-list/',
-      },
-    ],
-  },
-  { name: 'Thông tin bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/info' },
-];
-
 const SidebarContainer = styled('aside')(({ theme }) => ({
   width: '280px',
   background: 'white',
@@ -90,8 +29,70 @@ const ToggleButton = styled(IconButton)(({ theme }) => ({
 export const Sidebar = ({ toggle, onClose }) => {
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
-  let user = useSelector((state) => state.auth.auth?.user);
+  let user = useSelector((state) => state?.auth.auth?.user);
+  let hospital = useSelector((state) => state?.hospital?.data);
   const isDesktop = useResponsive('up', 'lg');
+
+  const sidebarAdmin = [
+    { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
+    { name: 'Quản lý bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/list' },
+    {
+      name: 'Quản lý sự kiện',
+      icon: <Icon icon="coupon-star" />,
+      children: [
+        {
+          name: 'Cố định',
+          to: '/event/fixed-list/',
+        },
+        {
+          name: 'Lưu động',
+          to: '/event/mobile-list/',
+        },
+        // {
+        //   name: 'Theo lịch bệnh viện',
+        //   to: '/event/schedule-list/',
+        // },
+      ],
+    },
+    {
+      name: 'Quản lý tài khoản',
+      icon: <Icon icon="users" />,
+      to: '/user/list',
+    },
+    {
+      name: 'Xét duyệt thẻ hiến máu',
+      icon: <Icon icon="file-text-edit" />,
+      to: '/blood-donation-approval-request/list',
+    },
+    {
+      name: 'Giả lập',
+      icon: <Icon icon="code-square" />,
+      to: '/script',
+    },
+  ];
+
+  const sidebarManager = [
+    { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
+    {
+      name: 'Quản lý sự kiện',
+      icon: <Icon icon="coupon-star" />,
+      children: [
+        {
+          name: 'Cố định',
+          to: '/event/fixed-list/',
+        },
+        {
+          name: 'Lưu động',
+          to: '/event/mobile-list/',
+        },
+        {
+          name: 'Theo lịch bệnh viện',
+          to: '/event/schedule-list/',
+        },
+      ],
+    },
+    { name: 'Thông tin bệnh viện', icon: <Icon icon="hospital" />, to: `/hospital/${hospital?.id}` },
+  ];
 
   const renderContent = (
     <>
