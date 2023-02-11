@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { DashedBox, HospitalImgStyle, Item, LeftContainer, PlaceholderStyle } from './HospitalInfoStyle';
-import { Stack, Box, Typography, Button, Grid, Paper, Avatar } from '@mui/material';
+import { DashedBox, HospitalImgStyle, Item, LeftContainer } from './HospitalInfoStyle';
+import { Stack, Box, Typography, Button, Grid, Paper, Avatar, styled } from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
@@ -14,13 +14,14 @@ import { useForm } from 'react-hook-form';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
 import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
-import { editHospital } from 'api';
+import { editHospital, getHospitalById } from 'api';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_HOSPITAL_IMAGE_URL } from 'utils';
 import { setHospital } from 'app/slices/HospitalSlice';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 const HospitalInfoPage = () => {
   const [isUpdateHospitalOpen, setIsUpdateHospitalOpen] = useState(false);
@@ -37,13 +38,38 @@ const HospitalInfoPage = () => {
   const [isUpdateImgBtnDisabled, setIsUpdateImgBtnDisabled] = useState(true);
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [connection, setConnection] = useState(null);
+  const [hospitalData, setHospitalData] = useState(null);
   const dispatch = useDispatch();
-  const hospitalData = useSelector((state) => state.hospital?.data);
+  const user = useSelector((state) => state.auth?.auth?.user);
   const store = useStore();
+  const { hospitalId } = useParams();
   const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
   const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
 
   const downloadRef = useRef();
+
+  const isAdmin = () => user?.role === 'Admin';
+
+  const PlaceholderStyle = styled('div')(({ theme }) => ({
+    opacity: 0,
+    width: 'calc(100% - 17px)',
+    height: 'calc(100% - 17px)',
+    borderRadius: '100%',
+    color: theme.palette.grey[100],
+    fontSize: '40px',
+    display: 'flex',
+    position: 'absolute',
+    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    zIndex: 999,
+    backgroundColor: theme.palette.grey[900],
+    transition: theme.transitions.create('opacity', {
+      easing: theme.transitions.easing.easeInOut,
+      duration: theme.transitions.duration.shorter,
+    }),
+    '&:hover': { opacity: isAdmin ? 0 : 0.72 },
+  }));
 
   const handleUpdateHospitalDialog = () => {
     setIsUpdateHospitalOpen(!isUpdateHospitalOpen);
@@ -311,24 +337,33 @@ const HospitalInfoPage = () => {
     setIsImportBtnDisabled(disabledBtn);
   };
 
+  const fetchHospitalInfoData = async () => {
+    setHospitalData(await getHospitalById(hospitalId));
+  };
+
   useEffect(() => {
-    const openConnection = async () => {
-      setConnection(await openHubConnection(store));
-    };
-    openConnection();
+    if (!isAdmin()) {
+      const openConnection = async () => {
+        setConnection(await openHubConnection(store));
+      };
+      openConnection();
+    }
+    fetchHospitalInfoData();
   }, []);
 
   useEffect(() => {
-    listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+    if (!isAdmin) {
+      listenOnHub(connection, (messageCode) => {
+        setAlert({
+          message: convertErrorCodeToMessage(messageCode),
+          type: messageCode < 0 ? 'error' : 'success',
+          status: true,
+        });
       });
-    });
-    connection?.onclose((e) => {
-      setConnection(null);
-    });
+      connection?.onclose((e) => {
+        setConnection(null);
+      });
+    }
   }, [connection]);
 
   return (
@@ -336,23 +371,29 @@ const HospitalInfoPage = () => {
       <HeaderMainStyle>
         <HeaderBreadcumbs
           heading="Thông tin bệnh viện"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Thông tin bệnh viện' }]}
+          links={[
+            isAdmin ? { name: 'Danh sách bệnh viện', to: '/hospital' } : { name: 'Trang chủ', to: '/' },
+            { name: isAdmin ? `${hospitalData?.name}` : 'Thông tin bệnh viện' },
+          ]}
         />
-
-        <Button
-          startIcon={<Icon icon="solid-pen-line" />}
-          variant="contained"
-          onClick={() => handleUpdateHospitalDialog()}
-        >
-          Cập nhật
-        </Button>
+        {isAdmin ? (
+          ''
+        ) : (
+          <Button
+            startIcon={<Icon icon="solid-pen-line" />}
+            variant="contained"
+            onClick={() => handleUpdateHospitalDialog()}
+          >
+            Cập nhật
+          </Button>
+        )}
       </HeaderMainStyle>
       <Grid container spacing={2}>
         <Grid item md={8} sm={6} xs={12}>
           <Item>
             <LeftContainer>
               <HospitalImgStyle>
-                <PlaceholderStyle onClick={handleUpdateHospitalImgDialog}>
+                <PlaceholderStyle onClick={isAdmin ? null : handleUpdateHospitalImgDialog}>
                   <Icon icon="solid-camera" />
                   <Typography variant="caption">Cập nhật ảnh</Typography>
                 </PlaceholderStyle>

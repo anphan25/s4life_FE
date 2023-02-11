@@ -1,5 +1,4 @@
-import { Button, Stack, Box, Typography } from '@mui/material';
-import { GridActionsCellItem } from '@mui/x-data-grid';
+import { Button, Stack, Box, Typography, MenuItem } from '@mui/material';
 import {
   CustomDialog,
   RHFImport,
@@ -9,6 +8,7 @@ import {
   FilterTab,
   SearchBar,
   Icon,
+  MoreMenuButton,
 } from 'components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,6 +27,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { DownloadLink } from './HospitalListStyle';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
@@ -55,6 +56,7 @@ const HospitalListPage = () => {
     type: 'success',
   });
   const store = useStore();
+  const navigate = useNavigate();
 
   const filterTabValues = [
     { label: 'Đang hoạt động', value: 1 },
@@ -118,36 +120,37 @@ const HospitalListPage = () => {
         filterable: false,
         width: 50,
         align: 'center',
-        renderCell: (params) => {
-          switch (pageState.filterTabMode) {
-            case 2:
-              return (
-                <GridActionsCellItem
-                  icon={<Icon icon="trash-slash" sx={{ height: 20, width: 20 }} />}
-                  onClick={() => {
-                    setEnableHospitalId(params.row.id);
-                    openEnableHospitalConfirm(params.row.name);
-                  }}
-                  label="Kích hoạt"
-                  showInMenu={false}
-                />
-              );
 
-            case 1:
-              return (
-                <GridActionsCellItem
-                  icon={<Icon icon="trash" sx={{ height: 20, width: 20, color: 'error.main' }} />}
-                  onClick={() => {
+        renderCell: (params) => {
+          return (
+            <MoreMenuButton>
+              <MenuItem
+                onClick={() => {
+                  if (pageState.filterTabMode === 1) {
                     setDisableHospitalId(params.row.id);
                     openDisableHospitalConfirm(params.row.name);
-                  }}
-                  label="Vô hiệu"
-                  showInMenu={false}
+                  } else {
+                    setEnableHospitalId(params.row.id);
+                    openEnableHospitalConfirm(params.row.name);
+                  }
+                }}
+              >
+                <Icon
+                  sx={{ height: 20, width: 20, color: pageState.filterTabMode === 1 ? 'error.main' : '' }}
+                  icon={pageState.filterTabMode === 1 ? 'trash' : 'trash-slash'}
                 />
-              );
-            default:
-              return null;
-          }
+                {pageState.filterTabMode === 1 ? 'Vô hiệu' : 'Kích hoạt'}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  navigate(`/hospital/${params.row.id}`);
+                }}
+              >
+                <Icon sx={{ height: 20, width: 20 }} icon="eye" />
+                Xem chi tiết
+              </MenuItem>
+            </MoreMenuButton>
+          );
         },
       },
     ],
