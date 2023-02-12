@@ -273,7 +273,9 @@ const EventFixedDetailPage = () => {
           heading="Chi tiết sự kiện"
           links={[
             { name: 'Trang chủ', to: '/' },
-            { name: 'Danh sách sự kiện cố định', to: '/event/fixed-list/' },
+            detailData?.eventType === 'Sự kiện cố định theo lịch bệnh viện'
+              ? { name: 'Danh sách sự kiện theo lịch bệnh viện', to: '/event/schedule-list/' }
+              : { name: 'Danh sách sự kiện cố định', to: '/event/fixed-list/' },
             { name: `${detailData?.name}` },
           ]}
         />
@@ -304,6 +306,7 @@ const EventFixedDetailPage = () => {
               <MenuItem
                 key={1}
                 disabled={
+                  detailData?.eventType === 'Sự kiện cố định theo lịch bệnh viện' ||
                   detailData?.status === 'Đã kết thúc' ||
                   detailData?.status === 'Đã bị hủy' ||
                   detailData?.isEmergency ||
@@ -330,6 +333,7 @@ const EventFixedDetailPage = () => {
               <MenuItem
                 key={2}
                 disabled={
+                  detailData?.eventType === 'Sự kiện cố định theo lịch bệnh viện' ||
                   detailData?.status === 'Đã kết thúc' ||
                   detailData?.status === 'Đã bị hủy' ||
                   (detailData?.isEmergency && user.role === 'Manager')
@@ -358,7 +362,7 @@ const EventFixedDetailPage = () => {
           <EventImageStyle>
             <img
               className="event-img"
-              src={detailData?.eventImages[0].imageUrl || DEFAULT_EVENT_IMAGE_URL}
+              src={detailData?.eventImages[0]?.imageUrl || DEFAULT_EVENT_IMAGE_URL}
               alt="Ảnh sự kiện"
             />
           </EventImageStyle>
@@ -379,7 +383,7 @@ const EventFixedDetailPage = () => {
               {detailData?.isEmergency && <EmergencyTagStyle label="Sự kiện khẩn cấp"></EmergencyTagStyle>}
             </Stack>
 
-            <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật'}</Box>
+            <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật mô tả'}</Box>
           </Box>
 
           <Grid rowSpacing={2} columnSpacing={2} container>
@@ -453,13 +457,13 @@ const EventFixedDetailPage = () => {
           <Grid rowSpacing={3} container>
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Liên hệ:</TitleItemStyle> {detailData?.contactInformation}
+                <TitleItemStyle>Liên hệ:</TitleItemStyle> {detailData?.contactInformation || '-'}
               </Typography>
             </Grid>
 
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData?.eventCode}
+                <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData?.eventCode || '-'}
               </Typography>
             </Grid>
 

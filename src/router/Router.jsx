@@ -73,14 +73,6 @@ export default function Router() {
                   ),
                 },
                 {
-                  path: ':eventId',
-                  element: (
-                    <ProtectedRouter roles={['Manager', 'Admin']}>
-                      <EventFixedDetailPage />
-                    </ProtectedRouter>
-                  ),
-                },
-                {
                   path: ':eventId/edit',
                   element: (
                     <ProtectedRouter roles={['Manager']}>
@@ -102,6 +94,14 @@ export default function Router() {
                   ),
                 },
               ],
+            },
+            {
+              path: ':eventId',
+              element: (
+                <ProtectedRouter roles={['Manager', 'Admin']}>
+                  <EventFixedDetailPage />
+                </ProtectedRouter>
+              ),
             },
           ],
         },
