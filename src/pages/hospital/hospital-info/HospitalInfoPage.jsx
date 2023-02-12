@@ -48,7 +48,7 @@ const HospitalInfoPage = () => {
 
   const downloadRef = useRef();
 
-  const isAdmin = () => user?.role === 'Admin';
+  // const isAdmin = () => user?.role === 'Admin';
 
   const PlaceholderStyle = styled('div')(({ theme }) => ({
     opacity: 0,
@@ -68,7 +68,7 @@ const HospitalInfoPage = () => {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.shorter,
     }),
-    '&:hover': { opacity: isAdmin ? 0 : 0.72 },
+    '&:hover': { opacity: user?.role === 'Admin' ? 0 : 0.72 },
   }));
 
   const handleUpdateHospitalDialog = () => {
@@ -337,12 +337,25 @@ const HospitalInfoPage = () => {
     setIsImportBtnDisabled(disabledBtn);
   };
 
+  const mappingHospitalSchedule = (schedule) => {
+    if (!schedule) return;
+
+    schedule?.sort();
+    const sunday = schedule?.find((el) => el.day === 0);
+
+    const result = schedule?.filter((item) => item.day !== 0);
+
+    result.push(sunday);
+
+    return result;
+  };
+
   const fetchHospitalInfoData = async () => {
     setHospitalData(await getHospitalById(hospitalId));
   };
 
   useEffect(() => {
-    if (!isAdmin()) {
+    if (user?.role !== 'Admin') {
       const openConnection = async () => {
         setConnection(await openHubConnection(store));
       };
@@ -352,7 +365,7 @@ const HospitalInfoPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (user?.role !== 'Admin') {
       listenOnHub(connection, (messageCode) => {
         setAlert({
           message: convertErrorCodeToMessage(messageCode),
@@ -372,11 +385,11 @@ const HospitalInfoPage = () => {
         <HeaderBreadcumbs
           heading="Thông tin bệnh viện"
           links={[
-            isAdmin ? { name: 'Danh sách bệnh viện', to: '/hospital' } : { name: 'Trang chủ', to: '/' },
-            { name: isAdmin ? `${hospitalData?.name}` : 'Thông tin bệnh viện' },
+            user?.role === 'Admin' ? { name: 'Danh sách bệnh viện', to: '/hospital' } : { name: 'Trang chủ', to: '/' },
+            { name: user?.role === 'Admin' ? `${hospitalData?.name}` : 'Thông tin bệnh viện' },
           ]}
         />
-        {isAdmin ? (
+        {user?.role === 'Admin' ? (
           ''
         ) : (
           <Button
@@ -393,7 +406,7 @@ const HospitalInfoPage = () => {
           <Item>
             <LeftContainer>
               <HospitalImgStyle>
-                <PlaceholderStyle onClick={isAdmin ? null : handleUpdateHospitalImgDialog}>
+                <PlaceholderStyle onClick={user?.role === 'Admin' ? null : handleUpdateHospitalImgDialog}>
                   <Icon icon="solid-camera" />
                   <Typography variant="caption">Cập nhật ảnh</Typography>
                 </PlaceholderStyle>
@@ -442,7 +455,7 @@ const HospitalInfoPage = () => {
               </Typography>
             </Stack>
             <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
-              {hospitalData?.openingTime?.map((item, i) => (
+              {mappingHospitalSchedule(hospitalData?.openingTime)?.map((item, i) => (
                 <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={item.id}>
                   <Typography fontWeight={600} fontSize={14}>
                     {convertDayLabel(item?.day)}
