@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Box, TableCell, TableRow, Collapse, Table, TableHead, TableBody } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, TableCell, TableRow, Collapse, Table, TableHead, TableBody, CircularProgress } from '@mui/material';
 import { formatDate } from 'utils';
 import { Icon, Tag } from 'components';
 import { useNavigate } from 'react-router-dom';
+import { getEvents } from 'api';
 
 const TagStyleConvert = (status, theme) => {
   switch (status) {
@@ -24,9 +25,33 @@ const TagStyleConvert = (status, theme) => {
   }
 };
 
-const DetailRowData = ({ item, index }) => {
+const DetailRowData = ({ item, index, hospitalId }) => {
   const [isDisplayDetail, setIsDisplayDetail] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
   const navigate = useNavigate();
+
+  const fetchEventListInWeekGroup = useCallback(async () => {
+    if (!isDisplayDetail) return;
+    setIsDetailLoading(true);
+
+    const response = await getEvents({
+      FilterMode: 2,
+      EventType: 2,
+      DateFrom: item?.startWeek,
+      DateTo: item?.endWeek,
+      HospitalId: hospitalId,
+      GroupByWeek: false,
+    });
+
+    setEvents(response?.items);
+    setIsDetailLoading(false);
+  }, [isDisplayDetail]);
+
+  useEffect(() => {
+    fetchEventListInWeekGroup();
+  }, [fetchEventListInWeekGroup]);
 
   return (
     <React.Fragment key={index}>
@@ -49,7 +74,7 @@ const DetailRowData = ({ item, index }) => {
         <TableCell component="th" scope="row">
           {formatDate(item?.endWeek, 2)}
         </TableCell>
-        <TableCell align="right">{item?.events.length}</TableCell>
+        <TableCell align="right">{item?.totalEvent}</TableCell>
       </TableRow>
 
       <TableRow>
@@ -60,37 +85,46 @@ const DetailRowData = ({ item, index }) => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Ngày diễn ra</TableCell>
-                    {/* <TableCell>Địa điểm</TableCell>
-                      <TableCell>Địa chỉ</TableCell> */}
                     <TableCell>Thời gian</TableCell>
                     <TableCell>Trạng thái</TableCell>
+                    <TableCell>Số người đăng ký</TableCell>
+                    <TableCell>AddDate</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {item?.events.map((event) => (
-                    <TableRow key={event?.id}>
-                      <TableCell sx={{ padding: '10px' }}>{formatDate(event?.startDate, 2)}</TableCell>
-                      {/* <TableCell sx={{ padding: '10px' }}>{event?.eventLocations[0]?.location?.name}</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>{event?.eventLocations[0]?.location?.address}</TableCell> */}
-                      <TableCell sx={{ padding: '10px' }}>
-                        {event?.workingTimeStart} - {event?.workingTimeEnd}
-                      </TableCell>
-                      <TableCell sx={{ padding: '10px' }}>
-                        <Tag status={TagStyleConvert(event?.status)}>{event?.status}</Tag>
-                      </TableCell>
-                      <TableCell>
-                        <Icon
-                          sx={{ cursor: 'pointer' }}
-                          icon="eye"
-                          onClick={() => {
-                            navigate(`/event/${event?.id}`);
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                {isDetailLoading ? (
+                  <TableBody sx={{ height: '268.6px', position: 'relative' }}>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                      <CircularProgress />
+                    </Box>
+                  </TableBody>
+                ) : (
+                  <TableBody>
+                    {events?.map((event) => (
+                      <TableRow key={event?.id}>
+                        <TableCell sx={{ padding: '10px' }}>{formatDate(event?.startDate, 2)}</TableCell>
+                        <TableCell sx={{ padding: '10px' }}>
+                          {event?.workingTimeStart} - {event?.workingTimeEnd}
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '10px' }}>
+                          <Tag status={TagStyleConvert(event?.status)}>{event?.status}</Tag>
+                        </TableCell>
+                        <TableCell sx={{ padding: '10px' }}>{event?.numberOfRegistration}</TableCell>
+                        <TableCell sx={{ padding: '10px' }}>{event?.addDate}</TableCell>
+                        <TableCell>
+                          <Icon
+                            sx={{ cursor: 'pointer' }}
+                            icon="eye"
+                            onClick={() => {
+                              navigate(`/event/${event?.id}`);
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                )}
               </Table>
             </Box>
           </Collapse>
