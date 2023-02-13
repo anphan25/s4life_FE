@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  CircularProgress,
+  Stack,
+} from '@mui/material';
 import { HeaderBreadcumbs } from 'components';
 import { getEvents } from 'api';
 import { HeaderMainStyle } from 'utils';
@@ -9,18 +20,22 @@ import { useSelector } from 'react-redux';
 const EventHospitalSchedulePage = () => {
   const [data, setData] = useState([]);
   const [pagingParams, setPagingParams] = useState({ Page: 0, PageSize: 10 });
+  const [isLoading, setIsLoading] = useState(false);
   const hospital = useSelector((state) => state.auth.auth?.hospital);
 
   const fetchEventHospitalScheduleList = useCallback(async () => {
+    setIsLoading(true);
     const response = await getEvents({
-      FilterMode: 1,
+      FilterMode: 2,
       EventType: 2,
       Page: pagingParams.Page + 1,
       PageSize: pagingParams.PageSize,
       HospitalId: hospital?.data?.id,
+      GroupByWeek: true,
     });
 
     setData(response);
+    setIsLoading(false);
   }, [pagingParams.Page, pagingParams.PageSize]);
 
   const onChangePage = (event, newPage) => {
@@ -45,7 +60,7 @@ const EventHospitalSchedulePage = () => {
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <TableContainer component={Box}>
-          <Table sx={{ minWidth: 300 }} aria-label="simple table">
+          <Table sx={{ minWidth: 300 }}>
             <TableHead>
               <TableRow>
                 <TableCell align="left"></TableCell>
@@ -54,11 +69,19 @@ const EventHospitalSchedulePage = () => {
                 <TableCell align="right">Số lượng sự kiện</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {data?.items?.map((item, i) => (
-                <DetailRowData item={item} index={i} />
-              ))}
-            </TableBody>
+            {isLoading ? (
+              <TableBody sx={{ height: '439.5px', position: 'relative' }}>
+                <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                  <CircularProgress />
+                </Box>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {data?.items?.map((item, i) => (
+                  <DetailRowData item={item} index={i} hospitalId={hospital?.data?.id} />
+                ))}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
         <TablePagination

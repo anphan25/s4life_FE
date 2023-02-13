@@ -99,7 +99,7 @@ export default function Router() {
               path: ':eventId',
               element: (
                 <ProtectedRouter roles={['Manager', 'Admin']}>
-                  <EventFixedDetailPage />
+                  <EventDetailPage />
                 </ProtectedRouter>
               ),
             },
@@ -207,7 +207,7 @@ const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage'
 //event
 const EventFixedListPage = Loadable(lazy(() => import('pages/event/event-fixed-list/EventFixedListPage')));
 const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/event-fixed-list/AddEditFixedEventPage')));
-const EventFixedDetailPage = Loadable(lazy(() => import('pages/event//event-fixed-list/EventFixedDetailPage')));
+const EventDetailPage = Loadable(lazy(() => import('pages/event/components/EventDetailPage')));
 const EventHospitalSchedulePage = Loadable(
   lazy(() => import('pages/event/event-hospital-schedule-list/EventHospitalSchedulePage'))
 );

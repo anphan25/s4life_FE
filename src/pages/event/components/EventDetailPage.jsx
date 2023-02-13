@@ -27,7 +27,7 @@ import {
   convertErrorCodeToMessage,
 } from 'utils';
 import parse from 'html-react-parser';
-import VolunteerListOfEvent from '../components/VolunteerListOfEvent';
+import VolunteerListOfEvent from './VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHub } from 'config';
@@ -121,7 +121,7 @@ const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
   },
 }));
 
-const EventFixedDetailPage = () => {
+const EventDetailPage = () => {
   const [detailData, setDetailData] = useState();
   const [cancelEventId, setCancelEventId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -520,4 +520,4 @@ const EventFixedDetailPage = () => {
   );
 };
 
-export default EventFixedDetailPage;
+export default EventDetailPage;

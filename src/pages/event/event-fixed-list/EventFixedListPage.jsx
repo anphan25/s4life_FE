@@ -191,7 +191,7 @@ const EventFixedListPage = () => {
             <MoreMenuButton>
               <MenuItem
                 onClick={() => {
-                  navigate(`/event/fixed-list/${params.row.id}`);
+                  navigate(`/event/${params.row.id}`);
                 }}
               >
                 <Icon icon={'eye'} />
@@ -213,7 +213,7 @@ const EventFixedListPage = () => {
                     return;
                   }
 
-                  navigate(`/event/fixed-list/${params.row.id}/edit`);
+                  navigate(`/event/${params.row.id}/edit`);
                 }}
               >
                 <Icon icon={'pen'} />
