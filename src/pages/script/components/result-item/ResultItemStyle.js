@@ -12,6 +12,7 @@ export const Tag = styled(Stack)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   fontSize: 10,
+  lineHeight: 0,
   fontWeight: 700,
   textTransform: 'uppercase',
   borderRadius: '0.475rem',

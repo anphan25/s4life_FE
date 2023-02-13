@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { Icon } from 'components';
+import moment from 'moment';
 import React, { useState } from 'react';
 import { ResultItemContainer, Tag } from './ResultItemStyle';
 
@@ -10,8 +11,13 @@ const ResultItem = ({ item, index }) => {
     <ResultItemContainer onClick={() => setShowItem(!showItem)}>
       <Stack direction={'row'} gap="30px" justifyContent={'space-between'}>
         <Stack direction={'row'} gap="12px">
-          <Typography fontWeight={500}>{++index}. Tên sự kiện hiến máu</Typography>
-          <Tag sx={{ color: 'success.main', backgroundColor: 'success.light' }}>Thành công</Tag>
+          <Typography fontSize={15} fontWeight={500}>
+            {++index}. {item.username}
+          </Typography>
+
+          <Tag sx={{ color: `${item.type}.main`, backgroundColor: `${item.type}.light` }}>
+            {item.type === 'success' ? 'Thành công' : 'Thất bại'}
+          </Tag>
         </Stack>
         <Icon
           icon="solid-angle-down-small"
@@ -20,9 +26,6 @@ const ResultItem = ({ item, index }) => {
       </Stack>
       {showItem && (
         <Box>
-          <Typography fontSize={14} fontWeight={600} color="primary.main">
-            Thông tin sự kiện
-          </Typography>
           <Stack direction={'column'} gap={2} sx={{ mt: 0.5, ml: 1.5 }}>
             <Stack direction={'row'} alignItems="center">
               <Box
@@ -35,8 +38,8 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
-                Tên sự kiện
+              <Typography fontSize={14} color="grey.900">
+                Tên sự kiện: {item.event.eventName}
               </Typography>
             </Stack>
             <Stack direction={'row'} alignItems="center">
@@ -50,8 +53,8 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
-                Mã sự kiện
+              <Typography fontSize={14} color="grey.900">
+                Mã sự kiện: {item.event.eventCode}
               </Typography>
             </Stack>
             <Stack direction={'row'} alignItems="center">
@@ -65,8 +68,8 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
-                Thời gian: 07 tháng 1, 2023 - 07 tháng 1, 2023 (08:00 - 17:00)
+              <Typography fontSize={14} color="grey.900">
+                Ngày lấy máu: {moment(item.event.participationDate).format('DD MMMM YYYY HH:mm')}
               </Typography>
             </Stack>
             <Stack direction={'row'} alignItems="center">
@@ -80,11 +83,11 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
-                Loại sự kiện: Thông thường
+              <Typography fontSize={14} color="grey.900">
+                Ghi chú: {item.message}
               </Typography>
             </Stack>
-            <Stack direction={'row'} alignItems="center">
+            {/* <Stack direction={'row'} alignItems="center">
               <Box
                 sx={{
                   width: '8px',
@@ -95,7 +98,7 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
+              <Typography fontSize={12} color="grey.900">
                 50 người đã đăng kí
               </Typography>
             </Stack>
@@ -110,7 +113,7 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
+              <Typography fontSize={12} color="grey.900">
                 Thông tin liên hệ
               </Typography>
             </Stack>
@@ -125,10 +128,10 @@ const ResultItem = ({ item, index }) => {
                   mr: '0.75rem',
                 }}
               />
-              <Typography fontSize={12} color="grey.600">
+              <Typography fontSize={12} color="grey.900">
                 Nhóm máu cần: tất cả
               </Typography>
-            </Stack>
+            </Stack> */}
           </Stack>
         </Box>
       )}
