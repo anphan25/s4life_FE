@@ -33,6 +33,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { store } from 'app/store';
 
 const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
@@ -55,9 +56,6 @@ const AddEditForm = ({ isEdit = false, eventEditData = null }) => {
     status: false,
     type: 'success',
   });
-  const INVALID_DATE_VALUE = 'Invalid';
-
-  const store = useStore();
 
   const uploadImage = async (data) => {
     const filePath = `event-images/`;
