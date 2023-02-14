@@ -46,7 +46,7 @@ export const Sidebar = ({ toggle, onClose }) => {
         },
         {
           name: 'Lưu động',
-          to: '/not-found',
+          to: '/event/mobile-list',
         },
         // {
         //   name: 'Theo lịch bệnh viện',
@@ -83,7 +83,7 @@ export const Sidebar = ({ toggle, onClose }) => {
         },
         {
           name: 'Lưu động',
-          to: '/not-found',
+          to: '/event/mobile-list',
         },
         {
           name: 'Theo lịch bệnh viện',

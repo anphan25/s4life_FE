@@ -150,7 +150,7 @@ const UserListPage = () => {
         minWidth: 250,
       },
       {
-        headerName: 'Ngày thêm',
+        headerName: 'Ngày tạo',
         type: 'string',
         field: 'addDate',
         width: 150,
@@ -531,7 +531,7 @@ const UserListPage = () => {
         />
 
         <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserDialog}>
-          Thêm tài khoản
+          Tạo tài khoản
         </Button>
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>

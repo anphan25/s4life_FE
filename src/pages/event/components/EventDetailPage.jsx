@@ -25,6 +25,7 @@ import {
   formatDate,
   isEventEditableOrCancelable,
   convertErrorCodeToMessage,
+  isStartAndEndDateIsSame,
 } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
@@ -405,10 +406,15 @@ const EventDetailPage = () => {
                   <Icon icon="solid-calendar-star" className="info-item_icon_item" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)} - ${formatDate(
-                    detailData?.endDate,
-                    3
-                  )}`}</Typography>
+                  {isStartAndEndDateIsSame(detailData?.startDate, detailData?.endDate) ? (
+                    <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)} - ${formatDate(
+                      detailData?.endDate,
+                      3
+                    )}`}</Typography>
+                  ) : (
+                    <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)}`}</Typography>
+                  )}
+
                   <Typography>{`${moment(detailData?.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(
                     detailData?.workingTimeEnd,
                     'HH:mm'

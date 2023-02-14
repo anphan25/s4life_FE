@@ -96,6 +96,27 @@ export default function Router() {
               ],
             },
             {
+              path: 'mobile-list',
+              children: [
+                {
+                  index: true,
+                  element: (
+                    <ProtectedRouter roles={['Manager', 'Admin']}>
+                      <EventMobileListPage />
+                    </ProtectedRouter>
+                  ),
+                },
+                {
+                  path: 'add',
+                  element: (
+                    <ProtectedRouter roles={['Manager']}>
+                      <AddMobileEventPage />
+                    </ProtectedRouter>
+                  ),
+                },
+              ],
+            },
+            {
               path: ':eventId',
               element: (
                 <ProtectedRouter roles={['Manager', 'Admin']}>
@@ -211,6 +232,8 @@ const EventDetailPage = Loadable(lazy(() => import('pages/event/components/Event
 const EventHospitalSchedulePage = Loadable(
   lazy(() => import('pages/event/event-hospital-schedule-list/EventHospitalSchedulePage'))
 );
+const AddMobileEventPage = Loadable(lazy(() => import('pages/event/event-mobile-list/AddMobileEventPage')));
+const EventMobileListPage = Loadable(lazy(() => import('pages/event/event-mobile-list/EventMobileListPage')));
 
 //error
 const PermissionDeniedPage = Loadable(lazy(() => import('pages/error/PermissionDeniedPage')));
