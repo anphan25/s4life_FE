@@ -1,27 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Stack, styled } from '@mui/material';
 import { HeaderBreadcumbs, CustomSnackBar } from 'components';
 import { getEventDetailByEventId } from 'api';
-import AddEditForm from '../components/AddEditForm';
+import AddEditFixedEventForm from '../components/AddEditFixedEventForm';
 import { useParams } from 'react-router-dom';
-import { errorHandler } from 'utils';
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
+import { errorHandler, HeaderMainStyle } from 'utils';
 
 const AddEditFixedEventPage = () => {
   const { eventId } = useParams();
@@ -74,16 +56,20 @@ const AddEditFixedEventPage = () => {
     <div>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading={isEdit ? 'Sửa sự kiện cố định' : 'Thêm sự kiện cố định'}
+          heading={isEdit ? 'Sửa sự kiện cố định' : 'Tạo sự kiện cố định'}
           links={[
             { name: 'Trang chủ', to: '/' },
             { name: 'Danh sách sự kiện cố định', to: '/event/fixed-list' },
-            { name: `${isEdit ? 'Sửa sự kiện cố định' : 'Thêm sự kiện cố định'} ` },
+            { name: `${isEdit ? 'Sửa sự kiện cố định' : 'Tạo sự kiện cố định'} ` },
           ]}
         />
       </HeaderMainStyle>
 
-      {eventEditData && isEdit ? <AddEditForm isEdit={true} eventEditData={eventEditData} /> : <AddEditForm />}
+      {eventEditData && isEdit ? (
+        <AddEditFixedEventForm isEdit={true} eventEditData={eventEditData} />
+      ) : (
+        <AddEditFixedEventForm />
+      )}
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </div>

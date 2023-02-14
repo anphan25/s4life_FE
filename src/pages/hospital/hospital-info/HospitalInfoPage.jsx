@@ -328,7 +328,7 @@ const HospitalInfoPage = () => {
     //Convert Data to CSV
     let csv = arrayToCsv(arrData);
     //Download
-    downloadBlob(csv, 'hospital_info.csv', 'data:text/csv;charset=utf-8,');
+    downloadBlob(csv, 'hospital_info.csv', 'data:text/csv;charset=utf-16');
   };
 
   const getDataFromFile = (values, disabledBtn) => {

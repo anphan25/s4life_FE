@@ -62,7 +62,7 @@ const CustomizeErrorMessage = (code) => {
 };
 
 //When have defaultValue, that means editing. If not it mean adding
-export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue, ...props }) => {
+export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue = '', ...props }) => {
   const uploadImgRef = useRef();
   const editImgRef = useRef();
   const [files, setFiles] = useState([]);

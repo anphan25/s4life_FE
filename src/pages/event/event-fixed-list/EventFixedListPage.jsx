@@ -213,7 +213,7 @@ const EventFixedListPage = () => {
                     return;
                   }
 
-                  navigate(`/event/${params.row.id}/edit`);
+                  navigate(`/event/fixed-list/${params.row.id}/edit`);
                 }}
               >
                 <Icon icon={'pen'} />
@@ -413,7 +413,7 @@ const EventFixedListPage = () => {
               navigate('/event/fixed-list/add');
             }}
           >
-            Thêm sự kiện
+            Tạo sự kiện
           </Button>
         )}
       </HeaderMainStyle>
