@@ -12,7 +12,7 @@ const ResultItem = ({ item, index }) => {
       <Stack direction={'row'} gap="30px" justifyContent={'space-between'}>
         <Stack direction={'row'} gap="12px">
           <Typography fontSize={15} fontWeight={500}>
-            {++index}. {item.username}
+            {++index}. {item.username} - {item.action}
           </Typography>
 
           <Tag sx={{ color: `${item.type}.main`, backgroundColor: `${item.type}.light` }}>
@@ -87,51 +87,23 @@ const ResultItem = ({ item, index }) => {
                 Ghi chú: {item.message}
               </Typography>
             </Stack>
-            {/* <Stack direction={'row'} alignItems="center">
-              <Box
-                sx={{
-                  width: '8px',
-                  height: '4px',
-                  borderRadius: 6,
-                  flexShrink: 0,
-                  backgroundColor: 'primary.main',
-                  mr: '0.75rem',
-                }}
-              />
-              <Typography fontSize={12} color="grey.900">
-                50 người đã đăng kí
-              </Typography>
-            </Stack>
-            <Stack direction={'row'} alignItems="center">
-              <Box
-                sx={{
-                  width: '8px',
-                  height: '4px',
-                  borderRadius: 6,
-                  flexShrink: 0,
-                  backgroundColor: 'primary.main',
-                  mr: '0.75rem',
-                }}
-              />
-              <Typography fontSize={12} color="grey.900">
-                Thông tin liên hệ
-              </Typography>
-            </Stack>
-            <Stack direction={'row'} alignItems="center">
-              <Box
-                sx={{
-                  width: '8px',
-                  height: '4px',
-                  borderRadius: 6,
-                  flexShrink: 0,
-                  backgroundColor: 'primary.main',
-                  mr: '0.75rem',
-                }}
-              />
-              <Typography fontSize={12} color="grey.900">
-                Nhóm máu cần: tất cả
-              </Typography>
-            </Stack> */}
+            {item.note && (
+              <Stack direction={'row'} alignItems="center">
+                <Box
+                  sx={{
+                    width: '8px',
+                    height: '4px',
+                    borderRadius: 6,
+                    flexShrink: 0,
+                    backgroundColor: 'primary.main',
+                    mr: '0.75rem',
+                  }}
+                />
+                <Typography fontSize={14} color="grey.900">
+                  Lí do từ chối: {item.note}
+                </Typography>
+              </Stack>
+            )}
           </Stack>
         </Box>
       )}
