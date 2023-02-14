@@ -137,7 +137,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
     const mappingResult = response?.data?.predictions?.map((item) => ({
       name: item?.structured_formatting?.main_text,
-      address: item?.structured_formatting?.secondary_text,
+      address: item?.description,
       placeId: item?.place_id,
       latitude: 0,
       longitude: 0,

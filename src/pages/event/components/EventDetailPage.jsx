@@ -407,12 +407,12 @@ const EventDetailPage = () => {
                 </Box>
                 <Box>
                   {isStartAndEndDateIsSame(detailData?.startDate, detailData?.endDate) ? (
+                    <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)}`}</Typography>
+                  ) : (
                     <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)} - ${formatDate(
                       detailData?.endDate,
                       3
                     )}`}</Typography>
-                  ) : (
-                    <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)}`}</Typography>
                   )}
 
                   <Typography>{`${moment(detailData?.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(

@@ -88,7 +88,6 @@ const DetailRowData = ({ item, index, hospitalId }) => {
                     <TableCell>Thời gian</TableCell>
                     <TableCell>Trạng thái</TableCell>
                     <TableCell>Số người đăng ký</TableCell>
-                    <TableCell>AddDate</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -111,7 +110,6 @@ const DetailRowData = ({ item, index, hospitalId }) => {
                           <Tag status={TagStyleConvert(event?.status)}>{event?.status}</Tag>
                         </TableCell>
                         <TableCell sx={{ padding: '10px' }}>{event?.numberOfRegistration}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{event?.addDate}</TableCell>
                         <TableCell>
                           <Icon
                             sx={{ cursor: 'pointer' }}
