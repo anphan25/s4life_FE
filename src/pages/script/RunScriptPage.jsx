@@ -1,4 +1,4 @@
-import { Box, Button, Grid, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { Box, Button, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
@@ -39,16 +39,17 @@ const generateRecaptchaVerifier = () => {
 };
 
 const RunScriptPage = () => {
-  const event = {
-    eventId: 'b7e6638b-ce57-47e4-83c3-c60fe4d71745',
-    participationDate: new Date('2023-02-15').toISOString(),
-    eventCode: '-',
-    eventName: 'Nhà Ân',
-  };
+  const [eventId, setEventId] = useState('');
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [run, setRun] = useState([]);
   const [result, setResult] = useState([]);
+  const event = {
+    eventId: eventId,
+    participationDate: new Date().toISOString(),
+    eventCode: '-',
+    eventName: '-',
+  };
 
   const openHubConnection = async (token, result) => {
     const hubConnection = new HubConnectionBuilder()
@@ -62,8 +63,9 @@ const RunScriptPage = () => {
       .build();
 
     try {
-      hubConnection.start().then((value) => {
-        // hubConnection.off('ReceiveContent');
+      hubConnection.start().then(() => {
+        registerEvent({ eventId, participationDate: event.participationDate, eventCode: event.eventCode }, token);
+        hubConnection.off('ReceiveContent');
         hubConnection.on('ReceiveContent', (id, messageCode) => {
           console.log(id, messageCode);
           setResult((prevState) => [
@@ -77,7 +79,7 @@ const RunScriptPage = () => {
               action: 'Đăng ký hiến máu',
             },
           ]);
-          if (id.length > 0) {
+          if (id !== '') {
             editRegistrationForm(
               {
                 eventRegistrationId: id,
@@ -106,21 +108,33 @@ const RunScriptPage = () => {
                 },
               },
               token
-            ).then((res) => {
-              console.log(res);
-              setResult((prevState) => [
-                ...prevState,
-                {
-                  event: event,
-                  message:
-                    res.data.code === 7000 ? 'Điền phiếu đăng ký thành công' : convertErrorCodeToMessage(res.data.code),
-                  type: res.data.code !== 7000 ? 'error' : 'success',
-                  username: result.user.phoneNumber,
-                  eventRegisterId: id,
-                  action: 'Điền phiếu đăng ký',
-                },
-              ]);
-            });
+            )
+              .then((res) => {
+                setResult((prevState) => [
+                  ...prevState,
+                  {
+                    event,
+                    message: 'Điền phiếu đăng ký thành công',
+                    type: 'success',
+                    username: result.user.phoneNumber,
+                    eventRegisterId: id,
+                    action: 'Điền phiếu đăng ký',
+                  },
+                ]);
+              })
+              .catch((error) => {
+                setResult((prevState) => [
+                  ...prevState,
+                  {
+                    event,
+                    message: errorHandler(error),
+                    type: 'error',
+                    username: result.user.phoneNumber,
+                    eventRegisterId: id,
+                    action: 'Điền phiếu đăng ký',
+                  },
+                ]);
+              });
           }
         });
       });
@@ -157,12 +171,8 @@ const RunScriptPage = () => {
             result.user.getIdToken().then((idToken) => {
               loginOTP({
                 idToken,
-              }).then(async (res) => {
+              }).then((res) => {
                 openHubConnection(res.data.result.accessToken, result);
-                registerEvent(
-                  { eventId: event.eventId, participationDate: event.participationDate, eventCode: event.eventCode },
-                  res.data.result.accessToken
-                );
                 signOut(auth);
               });
             });
@@ -299,6 +309,17 @@ const RunScriptPage = () => {
               </MenuItem>
             ))}
           </Select>
+          {category === 0 && (
+            <TextField
+              hiddenLabel
+              variant="outlined"
+              placeholder="Nhập id của sự kiện"
+              value={eventId}
+              onChange={(e) => {
+                setEventId(e.target.value);
+              }}
+            />
+          )}
           <Button
             id="sign-in-button"
             sx={{ whiteSpace: 'nowrap' }}
