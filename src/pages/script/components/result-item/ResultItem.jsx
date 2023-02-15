@@ -87,6 +87,23 @@ const ResultItem = ({ item, index }) => {
                 Ghi chú: {item.message}
               </Typography>
             </Stack>
+            {item.status && (
+              <Stack direction={'row'} alignItems="center">
+                <Box
+                  sx={{
+                    width: '8px',
+                    height: '4px',
+                    borderRadius: 6,
+                    flexShrink: 0,
+                    backgroundColor: 'primary.main',
+                    mr: '0.75rem',
+                  }}
+                />
+                <Typography fontSize={14} color="grey.900">
+                  Trạng thái lấy máu: {item.status === 0 ? 'Lấy máu thành công' : 'Lấy máu thất bại'}
+                </Typography>
+              </Stack>
+            )}
             {item.note && (
               <Stack direction={'row'} alignItems="center">
                 <Box
