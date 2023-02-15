@@ -67,12 +67,12 @@ const RunScriptPage = () => {
         registerEvent({ eventId, participationDate: event.participationDate, eventCode: event.eventCode }, token);
         hubConnection.off('ReceiveContent');
         hubConnection.on('ReceiveContent', (id, messageCode) => {
-          console.log(id, messageCode);
+          console.log(`${messageCode}: ${convertErrorCodeToMessage(messageCode)}`);
           setResult((prevState) => [
             ...prevState,
             {
               event: event,
-              message: convertErrorCodeToMessage(messageCode),
+              message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
               type: messageCode !== 7100 ? 'error' : 'success',
               username: result.user.phoneNumber,
               eventRegisterId: id,
@@ -117,20 +117,19 @@ const RunScriptPage = () => {
                     message: 'Điền phiếu đăng ký thành công',
                     type: 'success',
                     username: result.user.phoneNumber,
-                    eventRegisterId: id,
                     action: 'Điền phiếu đăng ký',
                   },
                 ]);
               })
               .catch((error) => {
+                console.log(error?.response?.data?.code);
                 setResult((prevState) => [
                   ...prevState,
                   {
                     event,
-                    message: errorHandler(error),
+                    message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
                     type: 'error',
                     username: result.user.phoneNumber,
-                    eventRegisterId: id,
                     action: 'Điền phiếu đăng ký',
                   },
                 ]);
@@ -144,11 +143,11 @@ const RunScriptPage = () => {
   };
 
   function volunteerRegisterEvent() {
-    listVolunteerAccount.forEach((e, index) => {
-      setLoading(true);
-      if (!window.recaptchaVerifier) {
-        generateRecaptchaVerifier();
-      }
+    setRun([]);
+    setResult([]);
+    setLoading(true);
+    if (!window.recaptchaVerifier) generateRecaptchaVerifier();
+    listVolunteerAccount.forEach((e) => {
       var appVerifier = window.recaptchaVerifier;
       signInWithPhoneNumber(auth, e, appVerifier)
         .then((confirmationResult) => {
@@ -181,11 +180,14 @@ const RunScriptPage = () => {
         .catch((error) => {
           console.log(error);
         });
-      setLoading(false);
     });
+    window.recaptchaVerifier = null;
+    setLoading(false);
   }
 
   function staffConfirm() {
+    setRun([]);
+    setResult([]);
     setLoading(true);
     try {
       setRun((prevState) => [
@@ -195,9 +197,9 @@ const RunScriptPage = () => {
           username: StaffAccount.username,
         },
       ]);
-      loginUserPassword(StaffAccount).then((res, index) => {
+      loginUserPassword(StaffAccount).then((res) => {
         result.forEach((e) => {
-          if (e.eventRegisterId != null) {
+          if (e.eventRegisterId != null && e.eventRegisterId.length > 1) {
             setRun((prevState) => [
               ...prevState,
               {
@@ -236,13 +238,12 @@ const RunScriptPage = () => {
                 ]);
               })
               .catch((error) => {
-                console.log(errorHandler(error));
+                console.log(error?.response?.data?.code);
                 setResult((prevState) => [
                   ...prevState,
                   {
                     event: event,
-                    message: errorHandler(error),
-                    type: 'error',
+                    message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
                     username: StaffAccount.username,
                     action: 'Xác nhận hiến máu',
                     note: 'tự động từ chối lấy máu',
@@ -326,6 +327,7 @@ const RunScriptPage = () => {
             startIcon={<Icon icon={loading ? 'solid-pause' : 'solid-play'} />}
             variant="contained"
             onClick={runScript}
+            disabled={loading}
           >
             {loading ? 'Đang chạy' : 'Chạy giả lập'}
           </Button>
