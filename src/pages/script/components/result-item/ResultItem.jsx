@@ -121,6 +121,23 @@ const ResultItem = ({ item, index }) => {
                 </Typography>
               </Stack>
             )}
+            {item.donationVolume && (
+              <Stack direction={'row'} alignItems="center">
+                <Box
+                  sx={{
+                    width: '8px',
+                    height: '4px',
+                    borderRadius: 6,
+                    flexShrink: 0,
+                    backgroundColor: 'primary.main',
+                    mr: '0.75rem',
+                  }}
+                />
+                <Typography fontSize={14} color="grey.900">
+                  Số lượng máu hiến {item.donationVolume}
+                </Typography>
+              </Stack>
+            )}
           </Stack>
         </Box>
       )}
