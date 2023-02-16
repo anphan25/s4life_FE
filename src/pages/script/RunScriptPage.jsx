@@ -198,7 +198,7 @@ const RunScriptPage = () => {
         },
       ]);
       loginUserPassword(StaffAccount).then((res) => {
-        result.forEach((e) => {
+        result.forEach((e, index) => {
           if (e.eventRegisterId != null && e.eventRegisterId.length > 1) {
             setRun((prevState) => [
               ...prevState,
@@ -210,17 +210,15 @@ const RunScriptPage = () => {
             confirmRegistrationForm(
               {
                 eventRegistrationId: e.eventRegisterId,
-                donationVolume: 350,
                 heartRate: 80,
                 systolicPressure: 120,
                 diastolicPressure: 80,
                 bodyTemperature: 36,
                 height: 165,
                 weight: 50,
-                status: 0,
-                note: 'tự động từ chối lấy máu',
-                //status: index > index / 2 ? 1 : 0,
-                //note: index > index / 2 ? null : 'Từ chối lấy máu tự động',
+                status: index > index / 2 ? 1 : 0,
+                note: index > index / 2 ? null : 'Từ chối lấy máu tự động',
+                donationVolume: index > index / 2 ? 350 : null,
               },
               res.accessToken
             )
