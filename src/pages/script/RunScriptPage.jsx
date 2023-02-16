@@ -3,12 +3,9 @@ import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
 import { HeaderMainStyle, ResultContainer, RunContainer } from './RunScriptStyle';
-import { auth } from 'config';
-import { RecaptchaVerifier, signInWithPhoneNumber, signOut } from 'firebase/auth';
 import {
   listVolunteerAccount,
   registerEvent,
-  loginOTP,
   StaffAccount,
   confirmRegistrationForm,
   editRegistrationForm,
@@ -28,16 +25,6 @@ const categoryList = [
   },
 ];
 
-const generateRecaptchaVerifier = () => {
-  window.recaptchaVerifier = new RecaptchaVerifier(
-    'sign-in-button',
-    {
-      size: 'invisible',
-    },
-    auth
-  );
-};
-
 const RunScriptPage = () => {
   const [eventId, setEventId] = useState('');
   const [category, setCategory] = useState('');
@@ -51,7 +38,7 @@ const RunScriptPage = () => {
     eventName: '-',
   };
 
-  const openHubConnection = async (token, result) => {
+  const openHubConnection = async (token, username) => {
     const hubConnection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_SIGNALR_URL, {
         accessTokenFactory: () => {
@@ -61,25 +48,22 @@ const RunScriptPage = () => {
       })
       .withAutomaticReconnect()
       .build();
-
     try {
       hubConnection.start().then(() => {
         registerEvent({ eventId, participationDate: event.participationDate, eventCode: event.eventCode }, token);
-        hubConnection.off('ReceiveContent');
         hubConnection.on('ReceiveContent', (id, messageCode) => {
-          console.log(`${messageCode}: ${convertErrorCodeToMessage(messageCode)}`);
           setResult((prevState) => [
             ...prevState,
             {
               event: event,
               message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
               type: messageCode !== 7100 ? 'error' : 'success',
-              username: result.user.phoneNumber,
+              username: username,
               eventRegisterId: id,
               action: 'Đăng ký hiến máu',
             },
           ]);
-          if (id !== '') {
+          if (id !== '' && id !== null) {
             editRegistrationForm(
               {
                 eventRegistrationId: id,
@@ -116,24 +100,28 @@ const RunScriptPage = () => {
                     event,
                     message: 'Điền phiếu đăng ký thành công',
                     type: 'success',
-                    username: result.user.phoneNumber,
+                    username: username,
                     action: 'Điền phiếu đăng ký',
                   },
                 ]);
               })
               .catch((error) => {
-                console.log(error?.response?.data?.code);
                 setResult((prevState) => [
                   ...prevState,
                   {
                     event,
                     message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
                     type: 'error',
-                    username: result.user.phoneNumber,
+                    username: username,
                     action: 'Điền phiếu đăng ký',
                   },
                 ]);
+              })
+              .finally(() => {
+                hubConnection.stop();
               });
+          } else {
+            hubConnection.stop();
           }
         });
       });
@@ -145,66 +133,57 @@ const RunScriptPage = () => {
   function volunteerRegisterEvent() {
     setRun([]);
     setResult([]);
-    setLoading(true);
-    if (!window.recaptchaVerifier) generateRecaptchaVerifier();
+
     listVolunteerAccount.forEach((e) => {
-      var appVerifier = window.recaptchaVerifier;
-      signInWithPhoneNumber(auth, e, appVerifier)
-        .then((confirmationResult) => {
-          return confirmationResult.confirm('000000').then((result) => {
-            setRun((prevState) => [
-              ...prevState,
-              {
-                action: 'Đăng nhập',
-                username: result.user.phoneNumber,
-              },
-              {
-                action: 'Đăng ký hiến máu',
-                username: result.user.phoneNumber,
-              },
-              {
-                action: 'Điền phiếu đăng ký',
-                username: result.user.phoneNumber,
-              },
-            ]);
-            result.user.getIdToken().then((idToken) => {
-              loginOTP({
-                idToken,
-              }).then((res) => {
-                openHubConnection(res.data.result.accessToken, result);
-                signOut(auth);
-              });
-            });
-          });
+      setLoading(true);
+      setRun((prevState) => [
+        ...prevState,
+        {
+          action: 'Đăng nhập',
+          username: e,
+        },
+        {
+          action: 'Đăng ký hiến máu',
+          username: e,
+        },
+        {
+          action: 'Điền phiếu đăng ký',
+          username: e,
+        },
+      ]);
+      loginUserPassword({
+        username: e,
+        password: 'Tinhnguyenvientest001//',
+      })
+        .then((res) => {
+          openHubConnection(res.accessToken, e);
         })
-        .catch((error) => {
-          console.log(error);
+        .finally(() => {
+          setLoading(false);
         });
     });
-    window.recaptchaVerifier = null;
-    setLoading(false);
   }
 
   function staffConfirm() {
     setRun([]);
     setResult([]);
     setLoading(true);
-    try {
-      setRun((prevState) => [
-        ...prevState,
-        {
-          action: 'Đăng nhập',
-          username: StaffAccount.username,
-        },
-      ]);
-      loginUserPassword(StaffAccount).then((res) => {
+    setRun((prevState) => [
+      ...prevState,
+      {
+        action: 'Đăng nhập',
+        username: StaffAccount.username,
+      },
+    ]);
+    loginUserPassword(StaffAccount)
+      .then((res) => {
         result.forEach((e, index) => {
           if (e.eventRegisterId != null && e.eventRegisterId.length > 1) {
             setRun((prevState) => [
               ...prevState,
               {
                 action: 'Xác nhận hiến máu',
-                username: StaffAccount.username,
+                username: `${StaffAccount.username} - ${e.username}`,
               },
             ]);
             confirmRegistrationForm(
@@ -229,32 +208,30 @@ const RunScriptPage = () => {
                     event: event,
                     message: 'Xác nhận thành công',
                     type: 'success',
-                    username: StaffAccount.username,
+                    username: `${StaffAccount.username} - ${e.username}`,
                     action: 'Xác nhận hiến máu',
-                    note: 'tự động từ chối lấy máu',
+                    note: index > index / 2 ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: index > index / 2 ? 350 : null,
                   },
                 ]);
               })
               .catch((error) => {
-                console.log(error?.response?.data?.code);
                 setResult((prevState) => [
                   ...prevState,
                   {
                     event: event,
                     message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
-                    username: StaffAccount.username,
+                    username: `${StaffAccount.username} - ${e.username}`,
                     action: 'Xác nhận hiến máu',
-                    note: 'tự động từ chối lấy máu',
+                    note: index > index / 2 ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: index > index / 2 ? 350 : null,
                   },
                 ]);
               });
           }
         });
-      });
-    } catch (error) {
-      console.log(error);
-    }
-    setLoading(false);
+      })
+      .finally(() => setLoading(false));
   }
 
   async function runScript() {
