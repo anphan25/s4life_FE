@@ -100,7 +100,7 @@ const ResultItem = ({ item, index }) => {
                   }}
                 />
                 <Typography fontSize={14} color="grey.900">
-                  Trạng thái lấy máu: {item.status === 0 ? 'Lấy máu thành công' : 'Lấy máu thất bại'}
+                  Trạng thái lấy máu: {item.status === 1 ? 'Lấy máu thành công' : 'Lấy máu thất bại'}
                 </Typography>
               </Stack>
             )}
