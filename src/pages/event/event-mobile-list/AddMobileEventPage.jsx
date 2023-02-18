@@ -18,11 +18,11 @@ const AddMobileEventPage = () => {
         />
       </HeaderMainStyle>
 
-      {/* <AddMobileEventForm /> */}
+      <AddMobileEventForm />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </div>
   );
 };
 
-export default AddMobileEventPage;
+export default React.memo(AddMobileEventPage);

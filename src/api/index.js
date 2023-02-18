@@ -9,3 +9,4 @@ export * from './UserApi';
 export * from './GoongApi';
 export * from './BloodDonationApprovalApi';
 export * from './BloodDonationApprovalRequestApi';
+export * from './AdministrativeDivisionApi';

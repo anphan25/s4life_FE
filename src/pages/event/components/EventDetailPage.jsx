@@ -453,8 +453,8 @@ const EventDetailPage = () => {
                   <img src={detailData?.hospital.avatarUrl} alt="ảnh đại diện" />
                 </Box>
                 <Box>
-                  <Typography className="info-item_title">{detailData?.hospital.name}</Typography>
-                  <Typography>Đơn vị tổ chức</Typography>
+                  <Typography className="info-item_title">Đơn vị tổ chức</Typography>
+                  <Typography>{detailData?.hospital.name}</Typography>
                 </Box>
               </Stack>
             </InfoItemWithIconStyle>
