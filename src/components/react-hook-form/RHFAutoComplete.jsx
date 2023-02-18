@@ -11,6 +11,8 @@ export const RHFAutoComplete = ({
   onScrollToBottom,
   isRequiredLabel = false,
   list,
+  paramsCompare,
+  onSelect,
   ...props
 }) => {
   return (
@@ -29,9 +31,14 @@ export const RHFAutoComplete = ({
             autoHighlight
             freeSolo
             options={list}
-            value={list.find((item) => item === value)}
+            value={list?.find((item) => value && item[paramsCompare] === value[paramsCompare]) || ''}
             filterSelectedOptions
-            onChange={(event, newValue) => onChange(newValue)}
+            onChange={(event, newValue) => {
+              onChange(newValue);
+              if (onSelect) {
+                onSelect(newValue);
+              }
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
