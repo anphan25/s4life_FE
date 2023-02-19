@@ -253,5 +253,5 @@ const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-inf
 const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
 
 //blood-donation-approval-request
-const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalList')));
-const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalDetail')));
+const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalListPage')));
+const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval-request/components/ApprovalDetail')));

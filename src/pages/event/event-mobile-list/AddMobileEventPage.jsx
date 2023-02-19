@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { HeaderBreadcumbs, CustomSnackBar } from 'components';
-import { useParams } from 'react-router-dom';
-import { errorHandler, HeaderMainStyle } from 'utils';
+
+import { HeaderMainStyle } from 'utils';
 import AddMobileEventForm from '../components/AddMobileEventForm';
 
 const AddMobileEventPage = () => {

@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, MenuItem } from '@mui/material';
-import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomSnackBar, MoreMenuButton } from 'components';
+import {
+  DataTable,
+  FilterTab,
+  HeaderBreadcumbs,
+  SearchBar,
+  Icon,
+  CustomSnackBar,
+  MoreMenuButton,
+  CustomDialog,
+} from 'components';
 import { getBloodDonationApprovalRequests } from 'api';
 import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle } from 'utils';
 import { useNavigate } from 'react-router-dom';
+import ApprovalDetail from './components/ApprovalDetail';
 
 const filterTabValues = [
   { label: 'Đang xử lý', value: true },
@@ -11,6 +21,8 @@ const filterTabValues = [
 ];
 
 function ApprovalList() {
+  const [isApprovalDetailOpen, setIsApprovalDetailOpen] = useState(false);
+  const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
@@ -20,8 +32,6 @@ function ApprovalList() {
     isProcessing: true,
     searchKey: '',
   });
-
-  const navigate = useNavigate();
 
   const [alert, setAlert] = useState({
     message: '',
@@ -65,7 +75,8 @@ function ApprovalList() {
             <MoreMenuButton>
               <MenuItem
                 onClick={() => {
-                  navigate(`/blood-donation-approval-request/${params.row.id}`);
+                  setSelectedDetailId(params.row.id);
+                  handleApprovalDetailDialog();
                 }}
               >
                 <Icon icon="file-text-edit" sx={{ fontSize: 18 }} />
@@ -126,6 +137,14 @@ function ApprovalList() {
     setPageState((old) => ({ ...old, page: 1, searchKey: searchValue.searchTerm }));
   };
 
+  const handleApprovalDetailDialog = () => {
+    setIsApprovalDetailOpen(!isApprovalDetailOpen);
+  };
+
+  const approvalDetailDialogContent = () => {
+    return <ApprovalDetail id={selectedDetailId} />;
+  };
+
   return (
     <>
       <HeaderMainStyle>
@@ -154,6 +173,15 @@ function ApprovalList() {
           disableFilter={true}
         />
       </Box>
+
+      {/* Approval Detail Dialog */}
+      <CustomDialog
+        isOpen={isApprovalDetailOpen}
+        onClose={handleApprovalDetailDialog}
+        title="Chi tiết yêu cầu"
+        children={approvalDetailDialogContent()}
+        sx={{ '& .MuiDialog-paper': { maxWidth: '90% !important', maxHeight: '90%' } }}
+      />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>

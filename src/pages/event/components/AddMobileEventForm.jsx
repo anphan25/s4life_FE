@@ -280,7 +280,7 @@ const AddMobileEventForm = () => {
       .required('Vui lòng chọn quận huyện'),
   });
 
-  const { handleSubmit, control, setValue, getValues, resetField } = useForm({
+  const { handleSubmit, control, resetField } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues,
     mode: 'onChange',

@@ -3,7 +3,7 @@ import React from 'react';
 import { Controller } from 'react-hook-form';
 import { RequireLabel } from 'utils';
 
-export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSelect, ...props }) => {
+export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSelect, getOptionLabel, ...props }) => {
   return (
     <Controller
       name={name}
@@ -17,7 +17,8 @@ export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSel
           <RadioGroup
             {...props}
             row
-            value={value}
+            defaultValue={props?.defaultValue}
+            value={value || null}
             onChange={(event, newValue) => {
               if (onSelect) {
                 onSelect(newValue);
@@ -26,12 +27,12 @@ export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSel
               onChange(newValue);
             }}
           >
-            {options.map((option) => (
+            {options.map((option, i) => (
               <FormControlLabel
-                key={option.id}
-                value={option.value}
+                key={option}
+                value={option}
                 control={<Radio sx={{ color: 'grey.600', p: '6px' }} />}
-                label={option.label}
+                label={getOptionLabel?.length ? getOptionLabel[i] : option}
               />
             ))}
           </RadioGroup>
