@@ -10,6 +10,9 @@ import {
   TableRow,
   Stack,
   styled,
+  FormGroup,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
@@ -25,8 +28,8 @@ import { updateApproveBloodDonation } from 'api';
 
 // 0: Reject, 1: Approve
 const APPROVAL_OPTIONS = [
-  { label: 'Chấp nhận', value: 1, id: 1 },
-  { label: 'Từ chối', value: 0, id: 0 },
+  { label: 'Chấp nhận', value: 1 },
+  { label: 'Từ chối', value: 0 },
 ];
 
 const RequireLabel = styled('span')(({ theme }) => ({
@@ -36,17 +39,23 @@ const RequireLabel = styled('span')(({ theme }) => ({
 const ApprovalSchema = Yup.object().shape({
   approvals: Yup.array().of(
     Yup.object().shape({
-      status: Yup.number().required('Vui lòng chọn quyết định phê duyệt').default(1),
+      status: Yup.number().required('Vui lòng chọn quyết định phê duyệt'),
       note: Yup.string().default(''),
     })
   ),
 });
 
 const BloodDonationApprovalTable = ({ detailData }) => {
-  const { handleSubmit, control } = useForm({
+  const { handleSubmit, control, setValue } = useForm({
     resolver: yupResolver(ApprovalSchema),
     mode: 'onChange',
     reValidateMode: 'onChange',
+    defaultValues: {
+      approvals: detailData?.bloodDonationApprovals?.map((item) => ({
+        status: 1,
+        note: '',
+      })),
+    },
   });
   const [connection, setConnection] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
@@ -65,6 +74,25 @@ const BloodDonationApprovalTable = ({ detailData }) => {
 
   const handleConfirmApprovalDialog = async () => {
     setIsConfirmApprovalOpen(!isConfirmApprovalOpen);
+  };
+
+  const handleRejectAll = (event) => {
+    if (event.target.checked) {
+      const newArr = [];
+      detailData?.bloodDonationApprovals.forEach((item, i) => {
+        setValue(`approvals[${i}].status`, '0');
+
+        newArr.push(i);
+        setDisabledInputIndexes(newArr);
+      });
+    } else {
+      detailData?.bloodDonationApprovals.forEach((item, i) => {
+        setValue(`approvals[${i}].status`, '1');
+
+        const newArr = disabledInputIndexes.filter((t) => t !== i);
+        setDisabledInputIndexes(newArr);
+      });
+    }
   };
 
   const confirmApprovalDialogContent = () => {
@@ -122,6 +150,10 @@ const BloodDonationApprovalTable = ({ detailData }) => {
   }, []);
 
   useEffect(() => {
+    console.log('disabledInputIndexes', disabledInputIndexes);
+  }, [disabledInputIndexes]);
+
+  useEffect(() => {
     listenOnHub(connection, (messageCode) => {
       setAlert({
         message: convertErrorCodeToMessage(messageCode),
@@ -136,16 +168,20 @@ const BloodDonationApprovalTable = ({ detailData }) => {
 
   return (
     <Box>
+      <FormGroup>
+        <FormControlLabel control={<Checkbox onChange={handleRejectAll} />} label="Từ chối tất cả" />
+      </FormGroup>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <TableContainer component={Box}>
+        <TableContainer component={Box} sx={{ maxHeight: 460 }}>
           <Table sx={{ minWidth: 300 }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell align="left">STT</TableCell>
                 <TableCell align="right">Số túi máu</TableCell>
-                <TableCell align="right">Số đơn vị máu (ml)</TableCell>
+                <TableCell align="right" sx={{ width: '100px' }}>
+                  Số đơn vị máu (ml)
+                </TableCell>
                 <TableCell align="left">Ngày hiến</TableCell>
-                <TableCell align="left">
+                <TableCell align="left" sx={{ width: '160px' }}>
                   Phê duyệt <RequireLabel>*</RequireLabel>
                 </TableCell>
                 <TableCell align="left">Ghi chú</TableCell>
@@ -154,27 +190,29 @@ const BloodDonationApprovalTable = ({ detailData }) => {
             <TableBody>
               {detailData?.bloodDonationApprovals?.map((item, i) => (
                 <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <TableCell component="th" scope="row">
-                    {i + 1}
-                  </TableCell>
                   <TableCell align="right">{item?.bloodBagCode}</TableCell>
                   <TableCell align="right">{item?.donationVolume}</TableCell>
-                  <TableCell align="left">{formatDate(item?.donationDate, 4)}</TableCell>
+                  <TableCell align="left">{formatDate(item?.donationDate, 2)}</TableCell>
                   {isProcessing ? (
                     <TableCell align="left">
                       <RHFRadio
+                        sx={{ '& .MuiFormControlLabel-label': { fontSize: '12px' } }}
                         label=""
-                        options={APPROVAL_OPTIONS}
+                        options={APPROVAL_OPTIONS.map((option) => option.value)}
+                        getOptionLabel={APPROVAL_OPTIONS.map((option) => option.label)}
                         control={control}
-                        defaultValue={1 + ''}
+                        // defaultValue={'1'}
                         name={`approvals[${i}].status`}
                         onSelect={(value) => {
+                          console.log('value', value);
                           //Rejecting will enable note textfield
                           if (value * 1 === 0) {
+                            //When Approving
                             const newArr = [...disabledInputIndexes];
                             newArr.push(i);
                             setDisabledInputIndexes(newArr);
                           } else {
+                            //When Rejecting
                             const newArr = disabledInputIndexes.filter((t) => t !== i);
                             setDisabledInputIndexes(newArr);
                           }
