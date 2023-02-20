@@ -7,8 +7,6 @@ export const RHFAutoComplete = ({
   name,
   label,
   control,
-  isLazyLoad,
-  onScrollToBottom,
   isRequiredLabel = false,
   list,
   paramsCompare,
@@ -31,7 +29,7 @@ export const RHFAutoComplete = ({
             autoHighlight
             freeSolo
             options={list}
-            value={list?.find((item) => value && item[paramsCompare] === value[paramsCompare]) || ''}
+            value={list?.find((item) => value && item[paramsCompare] === value[paramsCompare]) || undefined}
             filterSelectedOptions
             onChange={(event, newValue) => {
               onChange(newValue);

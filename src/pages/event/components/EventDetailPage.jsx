@@ -178,6 +178,22 @@ const EventDetailPage = () => {
     setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
   };
 
+  const eventListNavigator = (eventType) => {
+    switch (eventType) {
+      case 'Sự kiện cố định theo lịch bệnh viện': {
+        return { label: 'Danh sách sự kiện cố định theo lịch bệnh viện', link: '/event/schedule-list/' };
+      }
+      case 'Sự kiện cố định': {
+        return { label: 'Danh sách sự kiện cố định', link: '/event/fixed-list/' };
+      }
+      case 'Sự kiện lưu động': {
+        return { label: 'Danh sách sự kiện lưu động', link: '/event/mobile-list/' };
+      }
+      default: {
+      }
+    }
+  };
+
   const cancelEventDialogContent = () => {
     return (
       <Box>
@@ -274,9 +290,10 @@ const EventDetailPage = () => {
           heading="Chi tiết sự kiện"
           links={[
             { name: 'Trang chủ', to: '/' },
-            detailData?.eventType === 'Sự kiện cố định theo lịch bệnh viện'
-              ? { name: 'Danh sách sự kiện theo lịch bệnh viện', to: '/event/schedule-list/' }
-              : { name: 'Danh sách sự kiện cố định', to: '/event/fixed-list/' },
+            {
+              name: eventListNavigator(detailData?.eventType)?.label,
+              to: eventListNavigator(detailData?.eventType)?.link,
+            },
             { name: `${detailData?.name}` },
           ]}
         />
@@ -387,22 +404,34 @@ const EventDetailPage = () => {
             <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật mô tả'}</Box>
           </Box>
 
-          <Grid rowSpacing={2} columnSpacing={2} container>
+          <Grid rowSpacing={3} container>
             <InfoItemWithIconStyle lg={6} xs={12} item>
               <Stack className="info-item">
                 <Box className="info-item_icon">
                   <Icon icon="solid-location-pin" className="info-item_icon_item" />
                 </Box>
                 <Box sx={{ width: '90%' }}>
-                  <Typography className="info-item_title">
-                    {detailData?.eventLocations[0]?.location.name ??
-                      detailData?.area
-                        .map((item) => {
-                          return item.name;
-                        })
-                        .join(', ')}
-                  </Typography>
-                  <Typography>{detailData?.eventLocations[0]?.location.address ?? ''}</Typography>
+                  {detailData?.eventType === 'Sự kiện lưu động' ? (
+                    <>
+                      <Typography className="info-item_title">Khu vực lấy máu</Typography>
+                      <Typography>
+                        {detailData?.eventLocations[0]?.location.name ??
+                          detailData?.area
+                            .map((item) => {
+                              return item?.districtName;
+                            })
+                            .join(', ')
+                            .concat(' - ', detailData?.area[0]?.provinceName)}
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <Typography className="info-item_title">
+                        {detailData?.eventLocations[0]?.location.name || ''}
+                      </Typography>
+                      <Typography>{detailData?.eventLocations[0]?.location.address || ''}</Typography>
+                    </>
+                  )}
                 </Box>
               </Stack>
             </InfoItemWithIconStyle>
@@ -486,15 +515,21 @@ const EventDetailPage = () => {
               </Typography>
             </Grid>
 
-            {detailData?.maxParticipant === MAX_INT ? (
-              ''
-            ) : (
+            {detailData?.eventType === 'Sự kiện lưu động' && (
               <Grid md={4} sm={6} xs={12} item>
                 <Typography>
-                  <TitleItemStyle>Số người đăng ký tối đa:</TitleItemStyle> {detailData?.maxParticipant}
+                  <TitleItemStyle>Số người đăng ký tối thiểu:</TitleItemStyle>{' '}
+                  {detailData?.minParticipant ? detailData?.minParticipant : '-'}
                 </Typography>
               </Grid>
             )}
+
+            <Grid md={4} sm={6} xs={12} item>
+              <Typography>
+                <TitleItemStyle>Số người đăng ký tối đa:</TitleItemStyle>{' '}
+                {detailData?.maxParticipant === MAX_INT ? '-' : detailData?.maxParticipant}
+              </Typography>
+            </Grid>
 
             <Grid md={4} sm={6} xs={12} item>
               <Typography>

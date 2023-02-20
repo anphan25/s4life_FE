@@ -487,6 +487,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
   useEffect(() => {
     resetDatetimeField();
+    resetField('isEmergency');
   }, [isEmergency]);
 
   useEffect(() => {
@@ -617,10 +618,9 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
                 <Stack direction="row" spacing={2} alignItems="center">
                   <RHFAutoComplete
-                    multiple
+                    multiple={true}
+                    paramsCompare="bloodTypeId"
                     isRequiredLabel={isEmergency}
-                    isLazyLoad={false}
-                    onScrollToBottom={() => {}}
                     disabled={isEdit ? true : !isEmergency}
                     list={BLOOD_TYPE}
                     name="bloodTypeNeed"

@@ -461,20 +461,22 @@ const HospitalInfoPage = () => {
         </Grid>
         <Grid item md={4} sm={6} xs={12}>
           <Item sx={{ textAlign: 'left' }}>
-            <Stack direction="row">
-              <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
-                <FormControlLabel
-                  control={<Switch onChange={handleSwitchChange} name="gilad" />}
-                  label="Tự động tạo sự kiện theo lịch"
-                />
-              </FormControl>
-              {/* <Tooltip>
+            {user?.role === 'Manager' && (
+              <Stack direction="row">
+                <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
+                  <FormControlLabel
+                    control={<Switch onChange={handleSwitchChange} name="gilad" />}
+                    label="Tự động tạo sự kiện theo lịch"
+                  />
+                </FormControl>
+                {/* <Tooltip>
                 <Icon
                   icon="solid-info-circle"
                   sx={{ color: 'info.main', marginTop: '8px', width: '20px', height: '20px' }}
                 />
               </Tooltip> */}
-            </Stack>
+              </Stack>
+            )}
 
             <Stack direction={'row'} alignItems="center">
               <Avatar sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}>
