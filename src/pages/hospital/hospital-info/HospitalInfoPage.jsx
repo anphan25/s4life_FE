@@ -1,6 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { DashedBox, HospitalImgStyle, Item, LeftContainer } from './HospitalInfoStyle';
-import { Stack, Box, Typography, Button, Grid, Paper, Avatar, styled } from '@mui/material';
+import {
+  Stack,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Paper,
+  Avatar,
+  styled,
+  Switch,
+  FormControl,
+  FormControlLabel,
+  Tooltip,
+} from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
@@ -350,6 +363,8 @@ const HospitalInfoPage = () => {
     return result;
   };
 
+  const handleSwitchChange = () => {};
+
   const fetchHospitalInfoData = async () => {
     setHospitalData(await getHospitalById(hospitalId));
   };
@@ -445,7 +460,24 @@ const HospitalInfoPage = () => {
           </Item>
         </Grid>
         <Grid item md={4} sm={6} xs={12}>
-          <Item>
+          <Item sx={{ textAlign: 'left' }}>
+            {user?.role === 'Manager' && (
+              <Stack direction="row">
+                <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
+                  <FormControlLabel
+                    control={<Switch onChange={handleSwitchChange} name="gilad" />}
+                    label="Tự động tạo sự kiện theo lịch"
+                  />
+                </FormControl>
+                {/* <Tooltip>
+                <Icon
+                  icon="solid-info-circle"
+                  sx={{ color: 'info.main', marginTop: '8px', width: '20px', height: '20px' }}
+                />
+              </Tooltip> */}
+              </Stack>
+            )}
+
             <Stack direction={'row'} alignItems="center">
               <Avatar sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}>
                 <Icon icon="clock" />
