@@ -355,16 +355,16 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     bloodTypeNeed: Yup.array()
-      .transform((value) => {
-        if (!value) return [];
-        return value;
-      })
       .of(
         Yup.object().shape({
           bloodType: Yup.number(),
           isRhNegative: Yup.boolean(),
         })
       )
+      .transform((value) => {
+        if (!value) return [];
+        return value;
+      })
       .min(isEmergency ? 1 : 0, 'Vui lòng chọn nhóm máu cần gấp'),
     isEmergency: Yup.boolean(),
     maxParticipant: Yup.number()
@@ -446,6 +446,11 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   });
 
   const onChangeCheckBox = (newValue) => {
+    if (!newValue) {
+      resetField('bloodTypeNeed');
+      setValue('bloodTypeNeed', null);
+    }
+
     setIsEmergency(newValue);
   };
 
@@ -487,7 +492,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
   useEffect(() => {
     resetDatetimeField();
-    resetField('isEmergency');
+    // resetField('isEmergency');
   }, [isEmergency]);
 
   useEffect(() => {
