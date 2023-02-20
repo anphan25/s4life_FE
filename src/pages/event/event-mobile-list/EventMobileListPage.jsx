@@ -318,7 +318,7 @@ const EventMobileListPage = () => {
           eventCode: data?.eventCode || '-',
           areas: data?.area
             .map((item) => {
-              return item.name;
+              return item.districtName;
             })
             .join(', '),
           time: JSON.stringify({
