@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, MenuItem, Paper, Grid, Button, Box, Typography, FormLabel, IconButton } from '@mui/material';
+import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
 import {
   RHFInput,
   RHFEditor,
@@ -8,10 +8,9 @@ import {
   RHFTimePicker,
   RHFUploadImage,
   CustomSnackBar,
-  Icon,
 } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import moment from 'moment';
@@ -21,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getDistrictsByProvinceId, getAllProvinces, createEvent } from 'api';
-import { RequireLabel, convertErrorCodeToMessage } from 'utils';
+import { convertErrorCodeToMessage } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
@@ -37,7 +36,6 @@ const AddMobileEventForm = () => {
   const [provinces, setProvinces] = useState([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState(0);
   const [connection, setConnection] = useState(null);
-  const [selectedDistricts, setSelectedDistricts] = useState([]);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
@@ -56,7 +54,7 @@ const AddMobileEventForm = () => {
     workingTimeStart: moment(),
     workingTimeEnd: moment().add(1, 'hours'),
     province: 0,
-    districts: [{ district: { id: 0, name: '' } }],
+    districts: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
 
@@ -263,21 +261,11 @@ const AddMobileEventForm = () => {
     districts: Yup.array()
       .of(
         Yup.object().shape({
-          district: Yup.object()
-            .shape({
-              id: Yup.number().required('Vui lòng chọn quận huyện'),
-              name: Yup.string().required('Vui lòng chọn quận huyện'),
-            })
-            .nullable()
-            .transform(function (value, originalValue) {
-              if (!originalValue || originalValue.id === 0 || !originalValue.name) return null;
-
-              return { id: originalValue.id, name: originalValue.name };
-            })
-            .required('Vui lòng chọn quận huyện'),
+          id: Yup.number(),
+          name: Yup.string(),
         })
       )
-      .required('Vui lòng chọn quận huyện'),
+      .min(1, 'Vui lòng chọn quận huyện'),
   });
 
   const { handleSubmit, control, resetField } = useForm({
@@ -287,20 +275,11 @@ const AddMobileEventForm = () => {
     reValidateMode: 'onChange',
   });
 
-  const districtFields = useFieldArray({
-    name: 'districts',
-    control,
-  });
-
-  const handleAddField = () => {
-    districtFields.append({ district: { id: 0, name: '' } });
-  };
-
   const onSubmit = async (data) => {
     setIsButtonLoading(true);
 
     const areas = data?.districts.map((item) => {
-      return { provinceId: data?.province[0]?.id, districtId: item?.district.id };
+      return { provinceId: data?.province[0]?.id, districtId: item?.id };
     });
 
     const mappingData = {
@@ -332,25 +311,6 @@ const AddMobileEventForm = () => {
     setImgUploadFile(file);
   };
 
-  const pushDistrictToDistricts = (district) => {
-    if (!district) return;
-
-    districts.push(district);
-    districts.sort((a, b) => a?.name - b?.name);
-
-    setDistricts(districts);
-  };
-
-  const updateDistrictsWhenRemovingSpecificDistrict = (index) => {
-    const previousDistrictValue = selectedDistricts.find((district) => district.index === index);
-
-    setSelectedDistricts(selectedDistricts.filter((district) => district !== previousDistrictValue));
-
-    delete previousDistrictValue?.index;
-
-    pushDistrictToDistricts(previousDistrictValue);
-  };
-
   const fetchAllProvinces = useCallback(async () => {
     const rawProvinces = await getAllProvinces(0);
     const mappingProvinces = rawProvinces.map((d) => ({ id: d.id, name: d.name }));
@@ -361,15 +321,8 @@ const AddMobileEventForm = () => {
   const fetchDistrictsByProvinceId = useCallback(async () => {
     // Remove district autocomplete when clearing province
     if (!selectedProvinceId || selectedProvinceId === 0) {
-      setSelectedDistricts([]);
-      resetField('districts.district');
-      if (districtFields.fields.length <= 1) return;
-
-      districtFields.fields.forEach((item, index) => {
-        if (index !== 0) {
-          districtFields.remove(index);
-        }
-      });
+      setDistricts([]);
+      resetField('districts');
 
       return;
     }
@@ -462,72 +415,22 @@ const AddMobileEventForm = () => {
                 />
 
                 {selectedProvinceId !== 0 && selectedProvinceId && (
-                  <Box>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ margin: '0 !important' }}
-                    >
-                      <Box>
-                        <FormLabel>
-                          Quận huyện <RequireLabel> *</RequireLabel>
-                        </FormLabel>
-                      </Box>
-                      <IconButton color="primary" onClick={handleAddField}>
-                        <Icon icon="solid-plus" />
-                      </IconButton>
-                    </Stack>
-
-                    {districtFields.fields.map((item, index) => (
-                      <Stack direction="row" spacing={2} key={index}>
-                        <RHFAutoComplete
-                          paramsCompare="id"
-                          name={`districts[${index}].district`}
-                          list={districts}
-                          control={control}
-                          onSelect={(value) => {
-                            if (value) {
-                              //Remove selected district from districts
-                              const filteredDistricts = districts.filter((district) => district?.id !== value.id);
-
-                              setDistricts(filteredDistricts);
-
-                              selectedDistricts.push({ ...value, index });
-                              setSelectedDistricts(selectedDistricts);
-                            } else {
-                              //Add district to districts when clear autocomplete
-                              updateDistrictsWhenRemovingSpecificDistrict(index);
-                            }
-                          }}
-                          placeholder="Chọn quận huyện"
-                          getOptionLabel={(option) => {
-                            return option?.name || '';
-                          }}
-                          renderOption={(props, option) => (
-                            <MenuItem key={option.id} value={option.id} {...props}>
-                              <Typography>{option?.name}</Typography>
-                            </MenuItem>
-                          )}
-                        />
-
-                        <IconButton
-                          sx={{
-                            width: '50px',
-                            height: '50px',
-                          }}
-                          disabled={index === 0}
-                          color="error"
-                          onClick={() => {
-                            districtFields.remove(index);
-                            updateDistrictsWhenRemovingSpecificDistrict(index);
-                          }}
-                        >
-                          <Icon icon="minus-circle" />
-                        </IconButton>
-                      </Stack>
-                    ))}
-                  </Box>
+                  <RHFAutoComplete
+                    multiple={true}
+                    paramsCompare="id"
+                    isRequiredLabel={true}
+                    list={districts}
+                    name="districts"
+                    label="Quận huyện"
+                    control={control}
+                    placeholder="Chọn quận huyện"
+                    getOptionLabel={(option) => option.name}
+                    renderOption={(props, option) => (
+                      <MenuItem key={uuidv4()} value={option} {...props}>
+                        {option.name}
+                      </MenuItem>
+                    )}
+                  />
                 )}
 
                 <Stack spacing={2} direction="row">
