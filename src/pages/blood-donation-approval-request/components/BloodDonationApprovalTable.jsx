@@ -168,9 +168,11 @@ const BloodDonationApprovalTable = ({ detailData }) => {
 
   return (
     <Box>
-      <FormGroup>
-        <FormControlLabel control={<Checkbox onChange={handleRejectAll} />} label="Từ chối tất cả" />
-      </FormGroup>
+      {isProcessing && (
+        <FormGroup>
+          <FormControlLabel control={<Checkbox onChange={handleRejectAll} />} label="Từ chối tất cả" />
+        </FormGroup>
+      )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <TableContainer component={Box} sx={{ maxHeight: 460 }}>
           <Table sx={{ minWidth: 300 }} aria-label="simple table">
@@ -201,7 +203,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
                         options={APPROVAL_OPTIONS.map((option) => option.value)}
                         getOptionLabel={APPROVAL_OPTIONS.map((option) => option.label)}
                         control={control}
-                        // defaultValue={'1'}
                         name={`approvals[${i}].status`}
                         onSelect={(value) => {
                           console.log('value', value);
@@ -251,14 +252,14 @@ const BloodDonationApprovalTable = ({ detailData }) => {
         {isProcessing && (
           <Stack direction="row" mt={2}>
             <Box sx={{ marginLeft: 'auto' }}>
-              <Button
+              {/* <Button
                 sx={{ marginRight: '10px' }}
                 onClick={() => {
                   navigate('/blood-donation-approval-request');
                 }}
               >
                 Hủy
-              </Button>
+              </Button> */}
               <Button variant="contained" onClick={handleConfirmApprovalDialog}>
                 Duyệt
               </Button>
