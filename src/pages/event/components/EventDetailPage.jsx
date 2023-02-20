@@ -394,8 +394,15 @@ const EventDetailPage = () => {
                   <Icon icon="solid-location-pin" className="info-item_icon_item" />
                 </Box>
                 <Box sx={{ width: '90%' }}>
-                  <Typography className="info-item_title">{detailData?.eventLocations[0].location.name}</Typography>
-                  <Typography>{detailData?.eventLocations[0].location.address}</Typography>
+                  <Typography className="info-item_title">
+                    {detailData?.eventLocations[0]?.location.name ??
+                      detailData?.area
+                        .map((item) => {
+                          return item.name;
+                        })
+                        .join(', ')}
+                  </Typography>
+                  <Typography>{detailData?.eventLocations[0]?.location.address ?? ''}</Typography>
                 </Box>
               </Stack>
             </InfoItemWithIconStyle>
