@@ -39,36 +39,6 @@ const ResultItem = ({ item, index }) => {
                 }}
               />
               <Typography fontSize={14} color="grey.900">
-                Tên sự kiện: {item.event.eventName}
-              </Typography>
-            </Stack>
-            <Stack direction={'row'} alignItems="center">
-              <Box
-                sx={{
-                  width: '8px',
-                  height: '4px',
-                  borderRadius: 6,
-                  flexShrink: 0,
-                  backgroundColor: 'primary.main',
-                  mr: '0.75rem',
-                }}
-              />
-              <Typography fontSize={14} color="grey.900">
-                Mã sự kiện: {item.event.eventCode}
-              </Typography>
-            </Stack>
-            <Stack direction={'row'} alignItems="center">
-              <Box
-                sx={{
-                  width: '8px',
-                  height: '4px',
-                  borderRadius: 6,
-                  flexShrink: 0,
-                  backgroundColor: 'primary.main',
-                  mr: '0.75rem',
-                }}
-              />
-              <Typography fontSize={14} color="grey.900">
                 Ngày lấy máu: {moment(item.event.participationDate).format('DD MMMM YYYY HH:mm')}
               </Typography>
             </Stack>
@@ -87,7 +57,7 @@ const ResultItem = ({ item, index }) => {
                 Ghi chú: {item.message}
               </Typography>
             </Stack>
-            {item.status && (
+            {item.status == 1 && (
               <Stack direction={'row'} alignItems="center">
                 <Box
                   sx={{
@@ -100,7 +70,24 @@ const ResultItem = ({ item, index }) => {
                   }}
                 />
                 <Typography fontSize={14} color="grey.900">
-                  Trạng thái lấy máu: {item.status === 1 ? 'Lấy máu thành công' : 'Lấy máu thất bại'}
+                  Trạng thái lấy máu: Lấy máu thành công
+                </Typography>
+              </Stack>
+            )}
+            {item.status == 0 && (
+              <Stack direction={'row'} alignItems="center">
+                <Box
+                  sx={{
+                    width: '8px',
+                    height: '4px',
+                    borderRadius: 6,
+                    flexShrink: 0,
+                    backgroundColor: 'primary.main',
+                    mr: '0.75rem',
+                  }}
+                />
+                <Typography fontSize={14} color="grey.900">
+                  Trạng thái lấy máu: Lấy máu thất bại
                 </Typography>
               </Stack>
             )}

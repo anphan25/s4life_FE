@@ -168,7 +168,7 @@ const RunScriptPage = () => {
 
   function staffConfirm() {
     setRun([]);
-    setResult([]);
+    // setResult([]);
     setLoading(true);
     setRun((prevState) => [
       ...prevState,
@@ -196,9 +196,9 @@ const RunScriptPage = () => {
               bodyTemperature: 36,
               height: 165,
               weight: 50,
-              status: index < result.length / 4 ? 1 : 0,
-              note: index < result.length / 4 ? null : 'Từ chối lấy máu tự động',
-              donationVolume: index < result.length / 4 ? 350 : null,
+              status: index % 2 === 0 / 4 ? 1 : 0,
+              note: index % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+              donationVolume: index % 2 === 0 ? 350 : null,
             },
             res.accessToken
           )
@@ -211,9 +211,9 @@ const RunScriptPage = () => {
                   type: 'success',
                   username: e.username,
                   action: 'Xác nhận hiến máu',
-                  status: index > index / 2 ? 1 : 0,
-                  note: index > index / 2 ? null : 'Từ chối lấy máu tự động',
-                  donationVolume: index > index / 2 ? 350 : null,
+                  status: index % 2 === 0 ? 1 : 0,
+                  note: index % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+                  donationVolume: index % 2 === 0 ? 350 : null,
                 },
               ]);
             })
@@ -226,9 +226,9 @@ const RunScriptPage = () => {
                   message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
                   username: e.username,
                   action: 'Xác nhận hiến máu',
-                  status: index > index / 2 ? 1 : 0,
-                  note: index > index / 2 ? null : 'Từ chối lấy máu tự động',
-                  donationVolume: index > index / 2 ? 350 : null,
+                  status: index % 2 === 0 ? 1 : 0,
+                  note: index % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+                  donationVolume: index % 2 === 0 ? 350 : null,
                 },
               ]);
             })
