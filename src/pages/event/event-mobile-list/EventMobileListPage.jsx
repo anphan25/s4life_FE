@@ -42,7 +42,7 @@ const EventMobileListPage = () => {
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
+  const [isCancelAlertOpen, setIsCancelAlertOpen] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
   const [pageState, setPageState] = useState({
@@ -175,7 +175,7 @@ const EventMobileListPage = () => {
                   if (
                     !isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)
                   ) {
-                    handleEditCancelDialog();
+                    handleCancelDialog();
                     return;
                   }
 
@@ -220,8 +220,8 @@ const EventMobileListPage = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
 
-  const handleEditCancelDialog = () => {
-    setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
+  const handleCancelDialog = () => {
+    setIsCancelAlertOpen(!isCancelAlertOpen);
   };
   useEffect(() => {
     const openConnection = async () => {
@@ -278,7 +278,7 @@ const EventMobileListPage = () => {
     );
   };
 
-  const alertEditCancelDialogContent = () => {
+  const alertCancelDialogContent = () => {
     return (
       <Box>
         <Typography>
@@ -292,7 +292,7 @@ const EventMobileListPage = () => {
           <Button
             variant="contained"
             onClick={() => {
-              handleEditCancelDialog();
+              handleCancelDialog();
             }}
           >
             Ok
@@ -388,7 +388,7 @@ const EventMobileListPage = () => {
           disableFilter={true}
         />
       </Box>
-      {}
+
       <CustomDialog
         isOpen={isCancelEventOpen}
         onClose={handleCancelEventDialog}
@@ -396,12 +396,12 @@ const EventMobileListPage = () => {
         children={cancelEventDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-      {}
+
       <CustomDialog
-        isOpen={isEditCancelAlertOpen}
-        onClose={handleEditCancelDialog}
+        isOpen={isCancelAlertOpen}
+        onClose={handleCancelDialog}
         title=""
-        children={alertEditCancelDialogContent()}
+        children={alertCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}

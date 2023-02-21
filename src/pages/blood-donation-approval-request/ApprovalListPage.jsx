@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, MenuItem, Stack, Button } from '@mui/material';
+import { Box, MenuItem } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -11,7 +11,7 @@ import {
   CustomDialog,
 } from 'components';
 import { getBloodDonationApprovalRequests } from 'api';
-import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle, DialogButtonGroupStyle } from 'utils';
+import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle } from 'utils';
 import ApprovalDetail from './components/ApprovalDetail';
 
 const filterTabValues = [
@@ -21,7 +21,6 @@ const filterTabValues = [
 
 function ApprovalList() {
   const [isApprovalDetailOpen, setIsApprovalDetailOpen] = useState(false);
-  const [selectedProcessingStatus, setSelectedProcessingStatus] = useState(null);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [pageState, setPageState] = useState({
     isLoading: false,
@@ -76,7 +75,6 @@ function ApprovalList() {
               <MenuItem
                 onClick={() => {
                   setSelectedDetailId(params.row.id);
-                  setSelectedProcessingStatus(params.row.isProcessing);
                   handleApprovalDetailDialog();
                 }}
               >
@@ -146,26 +144,6 @@ function ApprovalList() {
     return (
       <Box>
         <ApprovalDetail id={selectedDetailId} />{' '}
-        {/* <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-          {selectedProcessingStatus && (
-            <Stack direction="row" mt={2}>
-              <Box sx={{ marginLeft: 'auto' }}>
-                <Button
-                  sx={{ marginRight: '10px' }}
-                  onClick={() => {
-                    handleApprovalDetailDialog();
-                  }}
-                >
-                  Hủy
-                </Button>
-                <Button variant="contained" onClick={handleConfirmApprovalDialog}>
-                  Duyệt
-                </Button>
-                <Button ref={submitBtnRef}></Button>
-              </Box>
-            </Stack>
-          )}
-        </DialogButtonGroupStyle> */}
       </Box>
     );
   };

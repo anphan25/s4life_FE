@@ -25,7 +25,7 @@ const TagStyleConvert = (status, theme) => {
   }
 };
 
-const DetailRowData = ({ item, index, hospitalId }) => {
+const DetailRowData = ({ item, index }) => {
   const [isDisplayDetail, setIsDisplayDetail] = useState(false);
   const [events, setEvents] = useState([]);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
@@ -41,7 +41,6 @@ const DetailRowData = ({ item, index, hospitalId }) => {
       EventType: 2,
       DateFrom: item?.startWeek,
       DateTo: item?.endWeek,
-      HospitalId: hospitalId,
       GroupByWeek: false,
     });
 

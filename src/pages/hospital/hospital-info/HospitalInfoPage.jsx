@@ -52,6 +52,7 @@ const HospitalInfoPage = () => {
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [connection, setConnection] = useState(null);
   const [hospitalData, setHospitalData] = useState(null);
+  const hospital = useSelector((state) => state?.hospital?.data);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth?.auth?.user);
   const store = useStore();
@@ -148,7 +149,9 @@ const HospitalInfoPage = () => {
     setIsButtonLoading(true);
     setImportParams([]);
     try {
-      editHospital(data).then((value) => dispatch(setHospital(data)));
+      await editHospital(data);
+      dispatch(setHospital(data));
+      await fetchHospitalInfoData();
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
@@ -162,9 +165,9 @@ const HospitalInfoPage = () => {
     setImgUploadFile(null);
 
     try {
-      editHospital(data).then((value) => {
-        dispatch(setHospital(data));
-      });
+      await editHospital(data);
+      dispatch(setHospital(data));
+      await fetchHospitalInfoData();
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
@@ -341,7 +344,7 @@ const HospitalInfoPage = () => {
     //Convert Data to CSV
     let csv = arrayToCsv(arrData);
     //Download
-    downloadBlob(csv, 'hospital_info.csv', 'data:text/csv;charset=utf-16');
+    downloadBlob(csv, 'hospital_info.csv', 'data:text/csv;charset=utf-8');
   };
 
   const getDataFromFile = (values, disabledBtn) => {
@@ -353,7 +356,7 @@ const HospitalInfoPage = () => {
   const mappingHospitalSchedule = (schedule) => {
     if (!schedule) return;
 
-    schedule?.sort();
+    schedule?.sort((a, b) => a?.day - b?.day);
     const sunday = schedule?.find((el) => el.day === 0);
 
     const result = schedule?.filter((item) => item.day !== 0);
@@ -370,28 +373,29 @@ const HospitalInfoPage = () => {
   };
 
   useEffect(() => {
-    if (user?.role !== 'Admin') {
-      const openConnection = async () => {
-        setConnection(await openHubConnection(store));
-      };
-      openConnection();
-    }
+    // if (user?.role === 'Manager') {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+    // }
     fetchHospitalInfoData();
   }, []);
 
   useEffect(() => {
-    if (user?.role !== 'Admin') {
-      listenOnHub(connection, (messageCode) => {
-        setAlert({
-          message: convertErrorCodeToMessage(messageCode),
-          type: messageCode < 0 ? 'error' : 'success',
-          status: true,
-        });
+    // if (user?.role === 'Manager') {
+    listenOnHub(connection, (messageCode) => {
+      console.log('messageCode', messageCode);
+      setAlert({
+        message: convertErrorCodeToMessage(messageCode),
+        type: messageCode < 0 ? 'error' : 'success',
+        status: true,
       });
-      connection?.onclose((e) => {
-        setConnection(null);
-      });
-    }
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+    // }
   }, [connection]);
 
   return (
@@ -488,7 +492,7 @@ const HospitalInfoPage = () => {
             </Stack>
             <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
               {mappingHospitalSchedule(hospitalData?.openingTime)?.map((item, i) => (
-                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={item.id}>
+                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={i}>
                   <Typography fontWeight={600} fontSize={14}>
                     {convertDayLabel(item?.day)}
                   </Typography>

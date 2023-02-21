@@ -89,8 +89,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
       detailData?.bloodDonationApprovals.forEach((item, i) => {
         setValue(`approvals[${i}].status`, '1');
 
-        const newArr = disabledInputIndexes.filter((t) => t !== i);
-        setDisabledInputIndexes(newArr);
+        setDisabledInputIndexes([]);
       });
     }
   };
@@ -252,18 +251,10 @@ const BloodDonationApprovalTable = ({ detailData }) => {
         {isProcessing && (
           <Stack direction="row" mt={2}>
             <Box sx={{ marginLeft: 'auto' }}>
-              {/* <Button
-                sx={{ marginRight: '10px' }}
-                onClick={() => {
-                  navigate('/blood-donation-approval-request');
-                }}
-              >
-                Hủy
-              </Button> */}
+              <Button sx={{ display: 'none' }} type="submit" ref={submitBtnRef}></Button>
               <Button variant="contained" onClick={handleConfirmApprovalDialog}>
                 Duyệt
               </Button>
-              <Button type="submit" ref={submitBtnRef}></Button>
             </Box>
           </Stack>
         )}
