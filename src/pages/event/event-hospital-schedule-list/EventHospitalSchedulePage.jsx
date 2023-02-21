@@ -9,19 +9,16 @@ import {
   TableRow,
   TablePagination,
   CircularProgress,
-  Stack,
 } from '@mui/material';
 import { HeaderBreadcumbs } from 'components';
 import { getEvents } from 'api';
 import { HeaderMainStyle } from 'utils';
 import DetailRowData from '../components/DetailRowData';
-import { useSelector } from 'react-redux';
 
 const EventHospitalSchedulePage = () => {
   const [data, setData] = useState([]);
   const [pagingParams, setPagingParams] = useState({ Page: 0, PageSize: 10 });
   const [isLoading, setIsLoading] = useState(false);
-  const hospital = useSelector((state) => state.auth.auth?.hospital);
 
   const fetchEventHospitalScheduleList = useCallback(async () => {
     setIsLoading(true);
@@ -30,7 +27,6 @@ const EventHospitalSchedulePage = () => {
       EventType: 2,
       Page: pagingParams.Page + 1,
       PageSize: pagingParams.PageSize,
-      HospitalId: hospital?.data?.id,
       GroupByWeek: true,
     });
 
@@ -78,7 +74,7 @@ const EventHospitalSchedulePage = () => {
             ) : (
               <TableBody>
                 {data?.items?.map((item, i) => (
-                  <DetailRowData item={item} index={i} hospitalId={hospital?.data?.id} />
+                  <DetailRowData item={item} index={i} />
                 ))}
               </TableBody>
             )}

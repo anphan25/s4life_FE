@@ -3,6 +3,8 @@ import { PROCESSING_MESSAGE } from 'utils/message';
 export function convertErrorCodeToMessage(code) {
   if (code === undefined || code === null) return;
 
+  if (code < 0) return 'Đã có lỗi xảy ra trong quá trình xử lí';
+
   const message = {
     //Firebase
     10001: 'Tải ảnh thất bại, Vui lòng liên hệ quản trị viên',
@@ -137,7 +139,7 @@ export const errorHandler = (error) => {
   if (response?.data !== null) {
     const code = response.data?.code;
     if (response.status === 400 && !response.data?.code) return 'Dữ liệu truyền vào không hợp lệ';
-    if (code < 0) return 'Đã có lỗi xảy ra';
+    if (code < 0) return 'Đã có lỗi xảy ra trong quá trình xử lí';
 
     var message = convertErrorCodeToMessage(code);
     return message;
