@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Stack, Button } from '@mui/material';
+import { Box, Stack, Button, Divider, MenuItem } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -13,8 +13,13 @@ import {
   RHFSelect,
   AsyncAutocompleteFilter,
   Icon,
+  MoreMenuButton,
 } from 'components';
+import { useNavigate } from 'react-router-dom';
+
 import { GridActionsCellItem } from '@mui/x-data-grid';
+import { useSelector } from 'react-redux';
+
 import {
   errorHandler,
   convertBloodTypeLabel,
@@ -37,6 +42,9 @@ const filterTabValues = [
 ];
 
 const UserListPage = () => {
+  const user = useSelector((state) => state.auth.auth?.user);
+  const navigate = useNavigate();
+
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
@@ -46,8 +54,11 @@ const UserListPage = () => {
     filterMode: 1, //1: Volunteer, 2: Staff, 3: Manager
     hospitalId: '',
   });
+  console.log(pageState);
+
   const [searchParam, setSearchParam] = useState('');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isChangePhoneOpen, setIsChangePhoneOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [hospitals, setHospitals] = useState([]);
   const [filterHospitals, setFilterHospitals] = useState([]);
@@ -125,6 +136,35 @@ const UserListPage = () => {
         width: 90,
         align: 'center',
       },
+      {
+        field: 'actions',
+        type: 'actions',
+        width: 50,
+        sortable: false,
+        filterable: false,
+
+        getActions: (params) => [
+          <MoreMenuButton>
+            <MenuItem
+              onClick={() => {
+                navigate(`/user/${params.row.id}`);
+              }}
+            >
+              <Icon icon={'eye'} />
+              Xem chi tiết
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                handleChangePhoneNumberDialog();
+              }}
+            >
+              <Icon icon={'pen'} />
+              Cập nhật
+            </MenuItem>
+          </MoreMenuButton>,
+        ],
+      },
     ],
     pageState: pageState,
   };
@@ -200,6 +240,9 @@ const UserListPage = () => {
   const handleChangePasswordDialog = () => {
     setIsChangePasswordOpen(!isChangePasswordOpen);
     changePasswordReset();
+  };
+  const handleChangePhoneNumberDialog = () => {
+    setIsChangePhoneOpen(!isChangePhoneOpen);
   };
 
   const handleAddUserDialog = () => {
@@ -385,6 +428,30 @@ const UserListPage = () => {
     );
   };
 
+  const changePhoneNumberDialogContent = () => {
+    return (
+      <Box>
+        <form>
+          <RHFInput
+            label="Số điện thoại mới"
+            name="newPhone"
+            control={changePasswordControl}
+            placeholder="Nhập số điện thoại mới"
+            isRequiredLabel={true}
+          />
+
+          <Stack>
+            <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
+              <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
+                Cập nhật
+              </LoadingButton>
+            </Box>
+          </Stack>
+        </form>
+      </Box>
+    );
+  };
+
   const addUserDialogContent = () => {
     return (
       <Box>
@@ -502,7 +569,6 @@ const UserListPage = () => {
     const data = await getHospitalsList(hospitalFilterParam);
 
     const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
-
     setFilterHospitals(mappingData);
   }, [hospitalFilterParam.PageSize, hospitalFilterParam.SearchKey]);
 
@@ -577,6 +643,14 @@ const UserListPage = () => {
           onClose={handleChangePasswordDialog}
           title={`Đổi mật khẩu cho tài khoản ${changePassWordUserName}`}
           children={changePasswordDialogContent()}
+          sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        />
+        {/* Change phoneNumberDialog*/}
+        <CustomDialog
+          isOpen={isChangePhoneOpen}
+          onClose={handleChangePhoneNumberDialog}
+          title={`Đổi số điện thoại cho tài khoản `}
+          children={changePhoneNumberDialogContent()}
           sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
         />
 
