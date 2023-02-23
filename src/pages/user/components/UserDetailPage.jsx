@@ -22,6 +22,7 @@ import {
   FormControlLabel,
   Tooltip,
   Divider,
+  IconButton,
 } from '@mui/material';
 
 import { useForm } from 'react-hook-form';
@@ -42,57 +43,36 @@ const UserDetailPage = () => {
   const [addBloodDonation, setAddBloodDonation] = useState(false);
   const user = useSelector((state) => state.auth?.auth?.user);
 
-  const ChangePasswordSchema = Yup.object().shape({
-    newPassword: Yup.string().required('Vui lòng nhập mật khẩu mới.').matches(PASSWORD_PATTERN, {
-      message:
-        'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-      excludeEmptyString: false,
-    }),
-    confirmPassword: Yup.string()
-      .required('Vui lòng nhập lại mật khẩu.')
-      .matches(PASSWORD_PATTERN, {
-        message:
-          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-        excludeEmptyString: false,
-      })
-      .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
-  });
-  const handleChangePhoneNumberDialog = () => {
+  const handleAddBloodDonationDialog = () => {
     setAddBloodDonation(!addBloodDonation);
   };
-  const {
-    handleSubmit: handleChangePasswordSubmit,
-    control: changePasswordControl,
-    reset: changePasswordReset,
-  } = useForm({
-    resolver: yupResolver(ChangePasswordSchema),
-    mode: 'onChange',
-    defaultValues: { newPassword: '', confirmPassword: '' },
-    reValidateMode: 'onChange',
-  });
-  const changePhoneNumberDialogContent = () => {
+  const { control: addBloodDonationControl } = useForm({});
+  const addBloodDonationDialogContent = () => {
     return (
       <Box>
         <form>
+          <IconButton onClick={() => {}} sx={{ float: 'right', mb: 2 }}>
+            <Icon icon={'solid-plus'} size={20} />
+          </IconButton>
           <Stack direction={'row'} gap={1}>
             <RHFInput
               label="Số máu"
               name="newPhone"
-              control={changePasswordControl}
+              control={addBloodDonationControl}
               placeholder="Nhập số máu"
               isRequiredLabel={true}
             />{' '}
             <RHFInput
               label="Số túi/Số chứng nhận"
               name="newPhone"
-              control={changePasswordControl}
+              control={addBloodDonationControl}
               placeholder="Nhập số chứng nhận"
               isRequiredLabel={true}
             />{' '}
             <RHFInput
               label="Ngày hiến"
               name="newPhone"
-              control={changePasswordControl}
+              control={addBloodDonationControl}
               placeholder="Nhập ngày hiến"
               isRequiredLabel={true}
             />
@@ -114,9 +94,9 @@ const UserDetailPage = () => {
       <HeaderMainStyle>
         <HeaderBreadcumbs
           heading="Thông tin bệnh viện"
-          links={[{ name: 'Danh sách tài khoản', to: '/user/list' }, { name: 'toàn ' }]}
+          links={[{ name: 'Danh sách tài khoản', to: '/user/list' }, { name: 'Thông tin tài khoản ' }]}
         />
-        <Button startIcon={<Icon icon="solid-pen-line" />} variant="contained" onClick={handleChangePhoneNumberDialog}>
+        <Button startIcon={<Icon icon="solid-pen-line" />} variant="contained" onClick={handleAddBloodDonationDialog}>
           Thêm lịch sử hiến máu
         </Button>
       </HeaderMainStyle>
@@ -130,7 +110,10 @@ const UserDetailPage = () => {
                     <Icon icon="solid-camera" />
                     <Typography variant="caption">Cập nhật ảnh</Typography>
                   </PlaceholderStyle>
-                  <img src="https://source.unsplash.com/random" alt="Ảnh bệnh viện" />
+                  <img
+                    src="https://scontent.fsgn10-2.fna.fbcdn.net/v/t39.30808-6/331098133_751372076185497_1620582518450751546_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=8Nz7wSa_Jf0AX-jLeFV&_nc_ht=scontent.fsgn10-2.fna&oh=00_AfCyMfHOaOuNGwsoEHu7OCsxMgLIlOVck1zDHtZYMXodcw&oe=63FC6A42"
+                    alt="Ảnh đại diện"
+                  />
                 </HospitalImgStyle>
               </Stack>
               <Stack direction={'column'} flexWrap={'wrap'}>
@@ -142,7 +125,7 @@ const UserDetailPage = () => {
                     Họ tên
                   </Typography>
                   <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                    Đoàn Phạm Bitch Hợp
+                    Đoàn Phạm Bich Hợp
                   </Typography>
                 </DashedBox>
                 <Stack direction={'row'} flexWrap={'wrap'}>
@@ -177,7 +160,7 @@ const UserDetailPage = () => {
                       Giới tính
                     </Typography>
                     <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                      Nam
+                      Nữ
                     </Typography>
                   </DashedBox>
                 </Stack>
@@ -187,7 +170,7 @@ const UserDetailPage = () => {
                       Địa chỉ
                     </Typography>
                     <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                      Phường Đống Đa, Hà Lội
+                      Gò Vấp, Hồ Chí Minh city
                     </Typography>
                   </DashedBox>
                 </Stack>
@@ -207,7 +190,7 @@ const UserDetailPage = () => {
                     Nhóm máu
                   </Typography>
                   <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                    0708985897
+                    A
                   </Typography>
                 </DashedBox>
                 <DashedBox>
@@ -215,7 +198,7 @@ const UserDetailPage = () => {
                     Yếu tố Rh
                   </Typography>
                   <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                    01/03/2001
+                    A+
                   </Typography>
                 </DashedBox>
                 <DashedBox>
@@ -223,7 +206,7 @@ const UserDetailPage = () => {
                     Chiều cao
                   </Typography>
                   <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                    01/03/2001
+                    160cm
                   </Typography>
                 </DashedBox>
                 <DashedBox>
@@ -231,7 +214,7 @@ const UserDetailPage = () => {
                     Cân nặng
                   </Typography>
                   <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                    01/03/2001
+                    hihi
                   </Typography>
                 </DashedBox>
               </Stack>
@@ -244,9 +227,9 @@ const UserDetailPage = () => {
       <BloodDonationHistory />
       <CustomDialog
         isOpen={addBloodDonation}
-        onClose={handleChangePhoneNumberDialog}
+        onClose={handleAddBloodDonationDialog}
         title={`Thêm lịch sử hiến máu`}
-        children={changePhoneNumberDialogContent()}
+        children={addBloodDonationDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
       />
     </Box>
