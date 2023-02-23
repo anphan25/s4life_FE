@@ -6,9 +6,9 @@ import { Icon } from 'components';
 export const HeaderBreadcumbs = ({ links, action, heading, sx, ...props }) => {
   const currentLink = links[links.length - 1].name;
 
-  const listActiveLast = links.map((link) => (
+  const listActiveLast = links.map((link, i) => (
     <Box
-      key={link.name}
+      key={i}
       sx={{
         fontSize: 14,
         fontWeight: 500,

@@ -1,5 +1,14 @@
 import { Box, Typography, Button, FormControl, Select, MenuItem } from '@mui/material';
-import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog, Icon } from 'components';
+import {
+  DataTable,
+  FilterTab,
+  FromToDateFilter,
+  SearchBar,
+  CustomSnackBar,
+  CustomDialog,
+  Icon,
+  AsyncAutocompleteFilter,
+} from 'components';
 import { useState, useCallback, useEffect } from 'react';
 import { errorHandler, formatDate } from 'utils';
 import { useParams } from 'react-router-dom';
@@ -7,7 +16,13 @@ import { getEventRegistrations, updateBloodType } from 'api';
 import moment from 'moment';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { BLOOD_TYPE, convertBloodTypeLabel, DialogButtonGroupStyle, InputFilterSectionStyle } from 'utils';
+import {
+  BLOOD_TYPE,
+  convertBloodTypeLabel,
+  DialogButtonGroupStyle,
+  InputFilterSectionStyle,
+  BloodTypeFilterEnum,
+} from 'utils';
 import { useSelector } from 'react-redux';
 
 const filterTabValues = [
@@ -29,6 +44,7 @@ const VolunteerListOfEvent = () => {
     searchPhoneNumber: '',
     dateFrom: null,
     dateTo: null,
+    bloodTypes: null,
   });
   const [alert, setAlert] = useState({
     message: '',
@@ -44,6 +60,36 @@ const VolunteerListOfEvent = () => {
     isRhNegative: '',
   });
   let user = useSelector((state) => state.auth.auth?.user);
+
+  const BloodTypeFilterList = Object.keys(BloodTypeFilterEnum).map((key) => ({
+    name: key,
+    value: BloodTypeFilterEnum[key],
+  }));
+
+  const convertFilterBloodTypeLabel = (bloodTypeValue) => {
+    switch (bloodTypeValue) {
+      case 0:
+        return 'Chưa cập nhật';
+      case 1:
+        return 'A+';
+      case 2:
+        return 'B+';
+      case 3:
+        return 'AB+';
+      case 4:
+        return '0+';
+      case -1:
+        return 'A-';
+      case -2:
+        return 'B-';
+      case -3:
+        return 'AB-';
+      case -4:
+        return 'O-';
+      default:
+        return 'Chưa cập nhật';
+    }
+  };
 
   const gridOptions = {
     columns: [
@@ -162,6 +208,12 @@ const VolunteerListOfEvent = () => {
     setIsUpdateBloodTypeDialogOpen(!isUpdateBloodTypeDialogOpen);
   };
 
+  const handleChooseBloodType = (bloodTypes) => {
+    const bloodTypeString = bloodTypes.map((bloodType) => bloodType.value).join(',');
+
+    setPageState((old) => ({ ...old, bloodTypes: bloodTypeString }));
+  };
+
   const updateBloodTypeDialogContent = () => {
     return (
       <Box>
@@ -241,6 +293,7 @@ const VolunteerListOfEvent = () => {
         SearchPhoneNumber: pageState?.searchPhoneNumber,
         DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
         DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
+        bloodTypes: pageState?.bloodTypes,
       });
 
       const dataRow = data.items?.map((data, i) => ({
@@ -268,6 +321,7 @@ const VolunteerListOfEvent = () => {
     pageState.dateFrom,
     pageState.dateTo,
     pageState.searchPhoneNumber,
+    pageState.bloodTypes,
   ]);
 
   useEffect(() => {
@@ -285,9 +339,20 @@ const VolunteerListOfEvent = () => {
 
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
+            <AsyncAutocompleteFilter
+              multiple
+              sx={{ width: '25%' }}
+              placeholder="Chọn nhóm máu"
+              onSelect={handleChooseBloodType}
+              list={BloodTypeFilterList}
+              isLazyLoad={true}
+              getOptionLabel={(option) => {
+                return convertFilterBloodTypeLabel(option?.value) || '';
+              }}
+            />
             <SearchBar
               type="number"
-              sx={{ width: '50%' }}
+              sx={{ width: '25%' }}
               className="search-bar"
               placeholder="Nhập số điện thoại..."
               onSubmit={handleSearchVolunteerPhoneNumber}
