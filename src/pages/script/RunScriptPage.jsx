@@ -1,4 +1,4 @@
-import { Box, Button, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
@@ -11,7 +11,7 @@ import {
   editRegistrationForm,
 } from './Script';
 import { convertErrorCodeToMessage, errorHandler } from 'utils';
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { loginUserPassword } from 'api';
 
 const categoryList = [
@@ -31,12 +31,13 @@ const RunScriptPage = () => {
   const [loading, setLoading] = useState(false);
   const [run, setRun] = useState([]);
   const [result, setResult] = useState([]);
+  const [listEventId, setListEventId] = useState([]);
   const event = {
     eventId: eventId,
     participationDate: new Date().toISOString(),
-    eventCode: '-',
-    eventName: '-',
   };
+  const [totalApproval, setTotalApproval] = useState(0);
+  const [totalReject, setTotalReject] = useState(0);
 
   const openHubConnection = (token, username) => {
     const hubConnection = new HubConnectionBuilder()
@@ -49,88 +50,150 @@ const RunScriptPage = () => {
       .withAutomaticReconnect()
       .build();
     try {
-      hubConnection.on('ReceiveContent', (id, messageCode) => {
-        console.log('ReceiveContent', id, messageCode);
-        setResult((prevState) => [
-          ...prevState,
-          {
-            event: event,
-            message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
-            type: messageCode !== 7100 ? 'error' : 'success',
-            username: username,
-            eventRegisterId: id,
-            action: 'Đăng ký hiến máu',
-          },
-        ]);
-        if (id !== '') {
-          editRegistrationForm(
+      if (category === 0) {
+        setListEventId([]);
+        hubConnection.on('ReceiveContent', async (id, messageCode) => {
+          console.log('ReceiveContent', id, messageCode);
+          setListEventId((prev) => [...prev, id]);
+          setResult((prevState) => [
+            ...prevState,
             {
-              eventRegistrationId: id,
-              registrationForm: {
-                isFirstTimeDonating: false,
-                isMalariaInfectedOrHadSurgery: false,
-                isDiseasedBefore: false,
-                isBloodTransfused: false,
-                isVaccinatedAroundOneYear: false,
-                isLosingWeightWithoutCause: false,
-                isHadGanglionRelatedDisease: false,
-                isHadDentalTreatmentOrAcupunctureTreatment: false,
-                isGotTatooedOrPierced: false,
-                isUsingDrugs: false,
-                isHadSexualIntercourseWithHIVInfectedPerson: false,
-                isHadHomoeroticSexualIntercourse: false,
-                isHadBronchitisOrPneumoniaOrRubella: false,
-                isVaccinatedAroundOneMonth: false,
-                isTravelledIntoInfectedZone: false,
-                isHadFluAroundOneWeek: false,
-                isUsingAntibiotic: false,
-                isVaccinatedAroundOneWeek: false,
-                isPregnant: false,
-                isHadAPeriodAroundOneWeek: false,
-                isComfirmedToPerformHIVTest: true,
-              },
+              event: event,
+              message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
+              type: messageCode !== 7100 ? 'error' : 'success',
+              username: username,
+              eventRegisterId: id,
+              action: 'Đăng ký hiến máu',
             },
-            token
-          )
-            .then((res) => {
-              setResult((prevState) => [
-                ...prevState,
-                {
-                  event,
-                  message: 'Điền phiếu đăng ký thành công',
-                  type: 'success',
-                  username: username,
-                  action: 'Điền phiếu đăng ký',
+          ]);
+          if (id !== '') {
+            editRegistrationForm(
+              {
+                eventRegistrationId: id,
+                registrationForm: {
+                  isFirstTimeDonating: false,
+                  isMalariaInfectedOrHadSurgery: false,
+                  isDiseasedBefore: false,
+                  isBloodTransfused: false,
+                  isVaccinatedAroundOneYear: false,
+                  isLosingWeightWithoutCause: false,
+                  isHadGanglionRelatedDisease: false,
+                  isHadDentalTreatmentOrAcupunctureTreatment: false,
+                  isGotTatooedOrPierced: false,
+                  isUsingDrugs: false,
+                  isHadSexualIntercourseWithHIVInfectedPerson: false,
+                  isHadHomoeroticSexualIntercourse: false,
+                  isHadBronchitisOrPneumoniaOrRubella: false,
+                  isVaccinatedAroundOneMonth: false,
+                  isTravelledIntoInfectedZone: false,
+                  isHadFluAroundOneWeek: false,
+                  isUsingAntibiotic: false,
+                  isVaccinatedAroundOneWeek: false,
+                  isPregnant: false,
+                  isHadAPeriodAroundOneWeek: false,
+                  isComfirmedToPerformHIVTest: true,
                 },
-              ]);
-            })
-            .catch((error) => {
-              setResult((prevState) => [
-                ...prevState,
-                {
-                  event,
-                  message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
-                  type: 'error',
-                  username: username,
-                  action: 'Điền phiếu đăng ký',
-                },
-              ]);
-            })
-            .finally(() => {
-              console.log('close');
-              setLoading(false);
-              hubConnection.stop();
-            });
-        } else {
-          console.log('close');
-          setLoading(false);
-          hubConnection.stop();
-        }
-      });
+              },
+              token
+            )
+              .then((res) => {
+                setResult((prevState) => [
+                  ...prevState,
+                  {
+                    event,
+                    message: 'Điền phiếu đăng ký thành công',
+                    type: 'success',
+                    username: username,
+                    action: 'Điền phiếu đăng ký',
+                  },
+                ]);
+              })
+              .catch((error) => {
+                setResult((prevState) => [
+                  ...prevState,
+                  {
+                    event,
+                    message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
+                    type: 'error',
+                    username: username,
+                    action: 'Điền phiếu đăng ký',
+                  },
+                ]);
+              })
+              .finally(async () => {
+                await hubConnection.stop();
+                console.log('close');
+                setLoading(false);
+              });
+          } else {
+            await hubConnection.stop();
+            console.log('close');
+            setLoading(false);
+          }
+        });
 
-      hubConnection.start().then(() => {
-        registerEvent({ eventId, participationDate: event.participationDate, eventCode: event.eventCode }, token);
-      });
+        hubConnection.start().then(() => {
+          registerEvent({ eventId, participationDate: event.participationDate }, token);
+        });
+      } else {
+        setTotalApproval(0);
+        setTotalReject(0);
+        setLoading(true);
+        listEventId.forEach(async (e, i) => {
+          if (e !== '') {
+            setRun((prevState) => [
+              ...prevState,
+              {
+                action: 'Xác nhận hiến máu',
+                username,
+              },
+            ]);
+            if (hubConnection.state === HubConnectionState.Disconnected) {
+              await hubConnection.start();
+            }
+
+            confirmRegistrationForm(
+              {
+                eventRegistrationId: e,
+                heartRate: 80,
+                systolicPressure: 120,
+                diastolicPressure: 80,
+                bodyTemperature: 36,
+                height: 165,
+                weight: 50,
+                status: i % 2 === 0 ? 1 : 0,
+                note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+                donationVolume: i % 2 === 0 ? 350 : null,
+              },
+              token
+            );
+            hubConnection.on('ReceiveMessage', async (messageCode) => {
+              console.log('ReceiveMessage', messageCode);
+              if (i % 2 === 0) {
+                setTotalApproval((prev) => prev + 1);
+              } else {
+                setTotalReject((prev) => prev + 1);
+              }
+              setResult((prevState) => [
+                ...prevState,
+                {
+                  event: event,
+                  message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
+                  type: messageCode !== 7200 ? 'error' : 'success',
+                  username: username,
+                  status: i % 2 === 0 ? 1 : 0,
+                  note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+                  donationVolume: i % 2 === 0 ? 350 : null,
+                  action: 'Xác nhận hiến máu',
+                },
+              ]);
+              console.log('close');
+              await hubConnection.stop();
+              setLoading(false);
+            });
+          }
+        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -168,8 +231,8 @@ const RunScriptPage = () => {
 
   function staffConfirm() {
     setRun([]);
-    // setResult([]);
-    setLoading(true);
+    setResult([]);
+
     setRun((prevState) => [
       ...prevState,
       {
@@ -178,65 +241,7 @@ const RunScriptPage = () => {
       },
     ]);
     loginUserPassword(StaffAccount).then((res) => {
-      result.forEach((e, index) => {
-        if (e.eventRegisterId != null && e.eventRegisterId.length > 1) {
-          setRun((prevState) => [
-            ...prevState,
-            {
-              action: 'Xác nhận hiến máu',
-              username: `${StaffAccount.username} - ${e.username}`,
-            },
-          ]);
-          confirmRegistrationForm(
-            {
-              eventRegistrationId: e.eventRegisterId,
-              heartRate: 80,
-              systolicPressure: 120,
-              diastolicPressure: 80,
-              bodyTemperature: 36,
-              height: 165,
-              weight: 50,
-              status: index % 2 === 0 / 4 ? 1 : 0,
-              note: index % 2 === 0 ? null : 'Từ chối lấy máu tự động',
-              donationVolume: index % 2 === 0 ? 350 : null,
-            },
-            res.accessToken
-          )
-            .then((res) => {
-              setResult((prevState) => [
-                ...prevState,
-                {
-                  event: event,
-                  message: 'Xác nhận thành công',
-                  type: 'success',
-                  username: e.username,
-                  action: 'Xác nhận hiến máu',
-                  status: index % 2 === 0 ? 1 : 0,
-                  note: index % 2 === 0 ? null : 'Từ chối lấy máu tự động',
-                  donationVolume: index % 2 === 0 ? 350 : null,
-                },
-              ]);
-            })
-            .catch((error) => {
-              setResult((prevState) => [
-                ...prevState,
-                {
-                  event: event,
-                  type: 'error',
-                  message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
-                  username: e.username,
-                  action: 'Xác nhận hiến máu',
-                  status: index % 2 === 0 ? 1 : 0,
-                  note: index % 2 === 0 ? null : 'Từ chối lấy máu tự động',
-                  donationVolume: index % 2 === 0 ? 350 : null,
-                },
-              ]);
-            })
-            .finally(() => {
-              setLoading(false);
-            });
-        }
-      });
+      openHubConnection(res.accessToken, StaffAccount.username);
     });
   }
 
@@ -257,6 +262,11 @@ const RunScriptPage = () => {
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
+    console.log('event.target.value :', event.target.value);
+    if (event.target.value === 1) {
+      setTotalApproval(0);
+      setTotalReject(0);
+    }
   };
 
   return (
@@ -314,6 +324,7 @@ const RunScriptPage = () => {
           </Button>
         </Stack>
       </HeaderMainStyle>
+
       <Grid container spacing={2}>
         <Grid item md={5} sm={6} xs={12}>
           <RunContainer>
@@ -330,8 +341,36 @@ const RunScriptPage = () => {
           </RunContainer>
         </Grid>
         <Grid item md={7} sm={6} xs={12}>
+          {!loading && category == 1 && (totalApproval > 0 || totalReject > 0) && (
+            <Box sx={{ px: 3, py: 2, backgroundColor: 'white', mb: 2, borderRadius: '0.475rem', width: 'fit-content' }}>
+              <Typography fontSize={16} fontWeight={500}>
+                Kết quả xác nhận lấy máu:
+              </Typography>
+              <Stack direction={'row'} alignItems={'center'} gap={3} sx={{ mt: 1 }}>
+                <Box>
+                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                    <Icon icon="solid-check" sx={{ color: 'success.main' }} />
+                    <Typography fontSize={14}>Chấp nhận</Typography>
+                  </Stack>
+                  <Typography fontSize={22} fontWeight={700} sx={{ ml: 6 }}>
+                    {totalApproval}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                    <Icon icon="solid-times" sx={{ color: 'error.main' }} />
+                    <Typography fontSize={14}>Từ chối</Typography>
+                  </Stack>
+                  <Typography fontSize={22} fontWeight={700} sx={{ ml: 4.5 }}>
+                    {totalReject}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          )}
           <ResultContainer>
             <Box sx={{ height: 'auto' }}></Box>
+
             <Stack direction={'column'} gap="12px" sx={{ overflow: 'auto', padding: '20px 30px 30px' }}>
               {result.length > 0 && result.map((item, index) => <ResultItem item={item} index={index} key={index} />)}
             </Stack>

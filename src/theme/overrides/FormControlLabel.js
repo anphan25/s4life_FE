@@ -13,7 +13,7 @@ export default function FormControlLabel(theme) {
         root: {
           cursor: 'pointer',
           marginBottom: theme.spacing(1),
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: 600,
           color: theme.palette.grey[900],
         },

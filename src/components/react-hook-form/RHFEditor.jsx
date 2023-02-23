@@ -12,7 +12,7 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
       name={name}
       control={control}
       render={({ field: { onChange, ...field }, fieldState: { error } }) => (
-        <FormControl sx={{ mb: 2 }} fullWidth>
+        <FormControl sx={{ mb: 3 }} fullWidth>
           <InputLabel
             sx={{
               cursor: 'pointer',

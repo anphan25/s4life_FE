@@ -18,7 +18,7 @@ export const RHFAutoComplete = ({
       name={name}
       control={control}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <FormControl sx={{ mb: 2 }} fullWidth>
+        <FormControl sx={{ mb: 3 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
             {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
