@@ -6,7 +6,8 @@ export default function Input(theme) {
           backgroundColor: '#FFFF',
           padding: '0',
           fontWeight: 400,
-          borderRadius: '12px',
+          fontSize: 14,
+          borderRadius: '8px',
           border: `2px solid #D0D0D0`,
           '&.Mui-disabled': {
             '& svg': { color: theme.palette.grey[600] },
@@ -32,7 +33,7 @@ export default function Input(theme) {
 
         input: {
           outline: '0',
-          padding: '12px !important',
+          padding: '14px 12px !important',
           '&::placeholder': {
             opacity: 1,
             color: theme.palette.grey[600],
@@ -85,7 +86,7 @@ export default function Input(theme) {
           '& .MuiOutlinedInput-notchedOutline': {
             borderBottom: 'none',
           },
-          borderRadius: '12px',
+          borderRadius: '8px',
         },
       },
     },

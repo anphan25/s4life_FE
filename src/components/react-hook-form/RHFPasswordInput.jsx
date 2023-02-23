@@ -12,7 +12,7 @@ export const RHFPasswordInput = ({ control, label, name, isRequiredLabel, ...pro
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <FormControl sx={{ mb: 2 }} fullWidth>
+        <FormControl sx={{ mb: 3 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
             {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
@@ -26,8 +26,8 @@ export const RHFPasswordInput = ({ control, label, name, isRequiredLabel, ...pro
             helperText={error?.message?.toString()}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleClickShowPassword}>
+                <InputAdornment position="end" sx={{ ml: 0 }}>
+                  <IconButton onClick={handleClickShowPassword} sx={{ p: 0 }}>
                     <Icon icon={!showPassword ? 'eye' : 'eye-slash'} size={20} />
                   </IconButton>
                 </InputAdornment>

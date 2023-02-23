@@ -6,7 +6,7 @@ export default function Button(theme) {
       styleOverrides: {
         root: {
           padding: '12px 20px',
-          borderRadius: 12,
+          borderRadius: 10,
           '&:hover': {
             boxShadow: 'none',
           },

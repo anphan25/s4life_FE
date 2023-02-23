@@ -9,7 +9,7 @@ export const RHFRadio = ({ control, label, name, options, isRequiredLabel, onSel
       name={name}
       control={control}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <FormControl sx={{ mb: 1.5 }} fullWidth>
+        <FormControl sx={{ mb: 2 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
             {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}

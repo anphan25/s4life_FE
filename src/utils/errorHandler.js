@@ -103,6 +103,7 @@ export function convertErrorCodeToMessage(code) {
     7161: 'Không thể đăng ký vào sự kiện lưu động đang diễn ra',
     7171: 'Đã điền phiếu đăng kí tham gia hiến máu',
     7181: 'Vui lòng đến tham dự sự kiện hiến máu vào đúng ngày đã đăng kí tham gia',
+    7200: 'Xác nhận hiến máu thành công',
 
     //User Informations
     8000: 'Thay đổi thông tin cá nhân thành công',

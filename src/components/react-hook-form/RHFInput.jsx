@@ -9,7 +9,7 @@ export const RHFInput = ({ control, label, name, isRequiredLabel = false, ...pro
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <FormControl sx={{ mb: 2 }} fullWidth>
+        <FormControl sx={{ mb: 3 }} fullWidth>
           <FormLabel htmlFor={name}>
             {label}
             {isRequiredLabel ? <RequireLabel> *</RequireLabel> : ''}
