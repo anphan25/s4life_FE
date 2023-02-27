@@ -1,10 +1,12 @@
-const { styled, Stack, Paper } = require('@mui/material');
+import { textAlign } from '@mui/system';
+
+const { styled, Stack, Paper, Typography } = require('@mui/material');
 
 export const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'white',
   borderRadius: '.475rem',
   padding: theme.spacing(3.5),
-  textAlign: 'center',
+  // textAlign: 'center',
 }));
 
 export const PlaceholderStyle = styled('div')(({ theme }) => ({
@@ -62,4 +64,17 @@ export const LeftContainer = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
   alignItems: 'center',
   gap: '16px',
+}));
+
+export const TitleTypoStyle = styled(Typography)(({ theme }) => ({
+  textAlign: 'left',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: theme.palette.grey[500],
+}));
+
+export const ContentTypoStyle = styled(Typography)(({ theme }) => ({
+  textAlign: 'left',
+  fontSize: '16px',
+  fontWeight: 600,
 }));

@@ -258,7 +258,7 @@ const EventFixedListPage = () => {
   };
 
   const pageSizeChangeHandler = (newPageSize) => {
-    setPageState((old) => ({ ...old, pageSize: newPageSize }));
+    setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
 
   const handleFilterTabChange = (e, value) => {
@@ -368,7 +368,7 @@ const EventFixedListPage = () => {
       DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
     })
       .then((res) => {
-        const dataRow = res.items?.map((data, i) => ({
+        const dataRow = res.items?.map((data) => ({
           id: data?.id,
           name: data?.name || '-',
           eventCode: data?.eventCode || '-',

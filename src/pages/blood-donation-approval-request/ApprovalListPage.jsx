@@ -126,7 +126,7 @@ function ApprovalList() {
     setPageState((old) => ({ ...old, page: newPage + 1 }));
   };
   const pageSizeChangeHandler = (newPageSize) => {
-    setPageState((old) => ({ ...old, pageSize: newPageSize }));
+    setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
   const handleFilterTabChange = (e, value) => {
     setPageState((old) => ({ ...old, isProcessing: value, page: 1, pageSize: 10 }));

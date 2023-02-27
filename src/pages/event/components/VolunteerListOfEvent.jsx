@@ -189,7 +189,7 @@ const VolunteerListOfEvent = () => {
   };
 
   const pageSizeChangeHandler = (newPageSize) => {
-    setPageState((old) => ({ ...old, pageSize: newPageSize }));
+    setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
 
   const handleFilterTabChange = (e, value) => {
