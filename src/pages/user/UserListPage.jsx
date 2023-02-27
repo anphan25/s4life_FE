@@ -52,7 +52,6 @@ const UserListPage = () => {
     filterMode: 1, //1: Volunteer, 2: Staff, 3: Manager
     hospitalId: '',
   });
-  console.log(pageState);
 
   const [searchParam, setSearchParam] = useState('');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -378,7 +377,7 @@ const UserListPage = () => {
         username: data.username,
         password: data.password,
         role: data.role * 1,
-        hospitalId: data.hospital[0].id,
+        hospitalId: data.hospital[0].id * 1,
       });
 
       setAlert({
@@ -644,7 +643,8 @@ const UserListPage = () => {
           children={changePasswordDialogContent()}
           sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
         />
-        {/* Change phoneNumberDialog*/}
+
+        {/* Change PhoneNumber Dialog*/}
         <CustomDialog
           isOpen={isChangePhoneOpen}
           onClose={handleChangePhoneNumberDialog}

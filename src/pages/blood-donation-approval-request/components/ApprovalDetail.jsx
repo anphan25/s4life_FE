@@ -61,7 +61,7 @@ const ApprovalDetail = ({ id }) => {
             <Grid item sm={12} md={4}>
               <Typography>
                 <TitleItemStyle>Số điện thoại: </TitleItemStyle>
-                {detailData?.user?.userName}
+                {detailData?.user?.phoneNumber}
               </Typography>
             </Grid>
             <Grid item sm={12} md={4}>

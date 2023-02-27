@@ -25,6 +25,7 @@ import { convertErrorCodeToMessage, DialogButtonGroupStyle } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { isValidDate, isValidTime } from 'utils/extensions/datetime';
 
 const minDateHandler = () => {
   return moment().add(1, 'days');
@@ -61,24 +62,6 @@ const AddMobileEventForm = () => {
     districts: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
-
-  function transformDate(value, originalValue) {
-    if (this.isType(value)) {
-      return value;
-    }
-    const result = moment(value, 'dd/MM/yyyy', true).isValid();
-
-    return result;
-  }
-
-  function transformTime(value, originalValue) {
-    if (this.isType(value)) {
-      return value;
-    }
-
-    const result = moment(value, 'HH:mm', true).isValid();
-    return result;
-  }
 
   const addMobileEventHandler = async (params) => {
     setAlert({});
@@ -206,20 +189,20 @@ const AddMobileEventForm = () => {
       .required('Vui lòng nhập số điện thoại liên hệ'),
     beginEvent: Yup.date()
       .nullable()
-      .transform(transformDate)
+      .transform(isValidDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
       .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 1 ngày'),
     workingTimeStart: Yup.date()
       .nullable()
-      .transform(transformTime)
+      .transform(isValidTime)
       .typeError('Giờ không hợp lệ')
       .required('Vui lòng nhập giờ bắt đầu')
       .isStartTimeBeforeEndTime('Giờ bắt đầu phải trước giờ kết thúc')
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     workingTimeEnd: Yup.date()
       .nullable()
-      .transform(transformTime)
+      .transform(isValidTime)
       .typeError('Giờ không hợp lệ')
       .required('Vui lòng nhập giờ kết thúc')
       .isEndTimeAfterStartTime('Giờ kết thúc phải sau giờ bắt đầu')

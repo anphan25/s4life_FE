@@ -10,3 +10,8 @@ export async function getBloodDonationApprovalRequests(params) {
 export async function getBloodDonationApprovalRequestById(id) {
   return await axiosInstance.get(`${apiPath}/${id}`);
 }
+
+export async function updateApproveBloodDonation(requestId, bloodDonationApprovals) {
+  console.log('params', { requestId, bloodDonationApprovals });
+  return await axiosInstance.patch(`${apiPath}`, { requestId, bloodDonationApprovals });
+}

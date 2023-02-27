@@ -7,7 +7,6 @@ export * from './EventRegistrationApi';
 export * from './UserInformationApi';
 export * from './UserApi';
 export * from './GoongApi';
-export * from './BloodDonationApprovalApi';
 export * from './BloodDonationApprovalRequestApi';
 export * from './AdministrativeDivisionApi';
 export * from './BloodDonation';
