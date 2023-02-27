@@ -32,21 +32,17 @@ export const RHFDatePicker = ({ name, control, label, placeholder, isRequiredLab
             }}
             renderInput={(params) => (
               <TextField
-                error={!!error}
+                id={name}
                 {...params}
+                error={!!error}
                 inputProps={{
                   ...params.inputProps,
                   placeholder,
                 }}
+                helperText={error?.message}
               />
             )}
           />
-
-          {!!error && (
-            <FormHelperText error sx={{ mt: 0 }}>
-              {error?.message?.toString()}
-            </FormHelperText>
-          )}
         </FormControl>
       )}
     />

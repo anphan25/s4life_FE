@@ -611,7 +611,7 @@ const EventDetailPage = () => {
           </Grid>
         </Stack>
 
-        <Divider sx={{ margin: '30px' }} />
+        <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
 
         {/* Volunteer of event */}
         <VolunteerListOfEvent />

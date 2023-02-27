@@ -6,3 +6,7 @@ const apiPath = '/blood-donations';
 export async function getBloodDonations(params) {
   return await axiosInstance.get(`${apiPath}?${queryString.stringify(params)}`);
 }
+
+export async function addBloodDonations(params) {
+  return await axiosInstance.post(`${apiPath}`, params);
+}

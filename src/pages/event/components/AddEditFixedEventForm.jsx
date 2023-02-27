@@ -33,6 +33,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { isValidDate } from 'utils/extensions/datetime';
 
 const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
@@ -290,15 +291,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
-  function transformDate(value, originalValue) {
-    if (this.isType(value)) {
-      return value;
-    }
-    const result = moment(value, 'dd/MM/yyyy', true).isValid();
-
-    return result;
-  }
-
   function transformTime(value, originalValue) {
     if (this.isType(value)) {
       return value;
@@ -325,7 +317,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập số điện thoại liên hệ'),
     startDate: Yup.date()
       .nullable()
-      .transform(transformDate)
+      .transform(isValidDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
@@ -333,7 +325,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
     endDate: Yup.date()
       .nullable()
-      .transform(transformDate)
+      .transform(isValidDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày kết thúc')
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')

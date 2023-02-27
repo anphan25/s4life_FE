@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { formatDate, HeaderMainStyle, PASSWORD_PATTERN, convertBloodTypeLabel } from 'utils';
-import { Stack, Box, Typography, Button, Grid, Divider } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { formatDate, HeaderMainStyle, convertBloodTypeLabel, errorHandler, convertErrorCodeToMessage } from 'utils';
+import isValidDate from 'utils/extensions/datetime/isValidDate';
+import { Stack, Box, Button, Grid, Divider, IconButton } from '@mui/material';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -14,77 +15,146 @@ import {
   HospitalImgStyle,
 } from './components/UserDetailStyle';
 import BloodDonationHistory from './components/BloodDonationHistory';
-import { CustomDialog, RHFInput, Icon, HeaderBreadcumbs } from 'components';
+import { CustomDialog, RHFInput, RHFDatePicker, Icon, HeaderBreadcumbs, CustomSnackBar } from 'components';
 import { useParams } from 'react-router-dom';
-import { getUserInfoById } from 'api';
+import { getUserInfoById, addBloodDonations } from 'api';
+import { openHubConnection, listenOnHub, listenOnHubInBulkOperations } from 'config';
+import { useStore } from 'react-redux';
 
 const UserDetailPage = () => {
+  const [connection, setConnection] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [addBloodDonation, setAddBloodDonation] = useState(false);
   const [userInfoData, setUserInfoData] = useState(null);
   const { userId } = useParams();
+  const store = useStore();
+  const [alert, setAlert] = useState({
+    message: '',
+    status: false,
+    type: 'success',
+  });
+  const childRef = useRef();
 
-  const ChangePasswordSchema = Yup.object().shape({
-    newPassword: Yup.string().required('Vui lòng nhập mật khẩu mới.').matches(PASSWORD_PATTERN, {
-      message:
-        'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-      excludeEmptyString: false,
-    }),
-    confirmPassword: Yup.string()
-      .required('Vui lòng nhập lại mật khẩu.')
-      .matches(PASSWORD_PATTERN, {
-        message:
-          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-        excludeEmptyString: false,
+  const AddDonationHistorySchema = Yup.object().shape({
+    bloodDonations: Yup.array().of(
+      Yup.object().shape({
+        donationVolume: Yup.number()
+          .nullable()
+          .transform((value) => {
+            if (!value) return null;
+
+            return value;
+          })
+          .required('Vui lòng nhập số đơn vị máu')
+          .min(1, 'Vui lòng nhập số lớn hơn 0'),
+        bloodBagCode: Yup.string()
+          .required('Vui lòng nhập số túi máu/số chứng nhận')
+          .max(32, 'Vui lòng không nhập quá 32 ký tự'),
+        donationDate: Yup.date()
+          .nullable()
+          .transform(isValidDate)
+          .typeError('Ngày không hợp lệ')
+          .required('Vui lòng nhập ngày hiến'),
       })
-      .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
+    ),
   });
   const handleAddBloodDonationHistoryDialog = () => {
     setAddBloodDonation(!addBloodDonation);
+    reset();
   };
 
-  const {
-    handleSubmit: handleChangePasswordSubmit,
-    control: changePasswordControl,
-    reset: changePasswordReset,
-  } = useForm({
-    resolver: yupResolver(ChangePasswordSchema),
+  const handleAddField = () => {
+    append({ donationVolume: 0, bloodBagCode: '', donationDate: null });
+  };
+
+  const onSubmit = async (data) => {
+    setIsButtonLoading(true);
+    const mappingBloodDonations = data?.bloodDonations?.map((data) => ({
+      ...data,
+      donationDate: data?.donationDate.toISOString(),
+    }));
+
+    try {
+      await addBloodDonations({ userInformationId: userId, bloodDonations: mappingBloodDonations });
+
+      childRef.current.reloadDonationHistories();
+      handleAddBloodDonationHistoryDialog();
+      fetchUserInfo();
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      setIsButtonLoading(false);
+    }
+  };
+
+  const { handleSubmit, control, reset } = useForm({
+    resolver: yupResolver(AddDonationHistorySchema),
     mode: 'onChange',
-    defaultValues: { newPassword: '', confirmPassword: '' },
+    defaultValues: { bloodDonations: [{ donationVolume: 0, bloodBagCode: '', donationDate: null }] },
     reValidateMode: 'onChange',
+  });
+
+  const { fields, remove, append } = useFieldArray({
+    name: 'bloodDonations',
+    control,
   });
 
   const addBloodDonationHistoryDialogContent = () => {
     return (
       <Box>
-        <form>
-          <Stack direction={'row'} gap={1}>
-            <RHFInput
-              label="Số máu"
-              name="newPhone"
-              control={changePasswordControl}
-              placeholder="Nhập số máu"
-              isRequiredLabel={true}
-            />{' '}
-            <RHFInput
-              label="Số túi/Số chứng nhận"
-              name="newPhone"
-              control={changePasswordControl}
-              placeholder="Nhập số chứng nhận"
-              isRequiredLabel={true}
-            />{' '}
-            <RHFInput
-              label="Ngày hiến"
-              name="newPhone"
-              control={changePasswordControl}
-              placeholder="Nhập ngày hiến"
-              isRequiredLabel={true}
-            />
-          </Stack>
+        <Box sx={{ textAlign: 'right' }}>
+          <IconButton color="primary" onClick={handleAddField} sx={{ marginLeft: 'auto' }}>
+            <Icon icon="solid-plus" />
+          </IconButton>
+        </Box>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {fields.map((item, index) => (
+            <Stack direction={'row'} gap={1} key={item.id}>
+              <RHFInput
+                type="number"
+                label="Số đơn vị máu"
+                name={`bloodDonations[${index}].donationVolume`}
+                control={control}
+                placeholder="Nhập số đơn vị máu"
+                isRequiredLabel={true}
+              />
+              <RHFInput
+                label="Số túi máu/Số chứng nhận"
+                name={`bloodDonations[${index}].bloodBagCode`}
+                control={control}
+                placeholder="Nhập số túi máu/số chứng nhận"
+                isRequiredLabel={true}
+              />
+              <RHFDatePicker
+                disableFuture
+                label="Ngày hiến"
+                name={`bloodDonations[${index}].donationDate`}
+                control={control}
+                placeholder="Nhập ngày hiến"
+                isRequiredLabel={true}
+              />
+
+              <IconButton
+                sx={{
+                  width: '50px',
+                  height: '50px',
+                }}
+                disabled={index === 0}
+                color="error"
+                onClick={() => {
+                  console.log('index', index);
+                  remove(index);
+                }}
+              >
+                <Icon icon="minus-circle" />
+              </IconButton>
+            </Stack>
+          ))}
 
           <Stack>
             <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
-              <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
+              <LoadingButton type="submit" variant="contained" loading={isButtonLoading}>
                 Thêm
               </LoadingButton>
             </Box>
@@ -101,6 +171,23 @@ const UserDetailPage = () => {
   useEffect(() => {
     fetchUserInfo();
   }, [fetchUserInfo]);
+
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHubInBulkOperations(connection, (result, messageCode) => {
+      console.log('result', result);
+      console.log('messageCode', messageCode);
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
 
   return (
     <Box>
@@ -131,17 +218,14 @@ const UserDetailPage = () => {
                 </HospitalImgStyle>
               </Stack>
               <Stack direction={'column'} flexWrap={'wrap'}>
-                <Typography align="left" fontSize={'16px'} fontWeight={600} sx={{ mb: 1 }}>
-                  Thông tin liên hệ
-                </Typography>
                 <DashedBox>
                   <TitleTypoStyle>Họ tên</TitleTypoStyle>
-                  <ContentTypoStyle>{userInfoData?.fullName}</ContentTypoStyle>
+                  <ContentTypoStyle>{userInfoData?.fullName || '-'}</ContentTypoStyle>
                 </DashedBox>
                 <Stack direction={'row'} flexWrap={'wrap'}>
                   <DashedBox>
                     <TitleTypoStyle>Số điện thoại</TitleTypoStyle>
-                    <ContentTypoStyle>{userInfoData?.phoneNumber}</ContentTypoStyle>
+                    <ContentTypoStyle>{userInfoData?.phoneNumber || '-'}</ContentTypoStyle>
                   </DashedBox>
                   <DashedBox>
                     <TitleTypoStyle>Ngày tháng năm sinh</TitleTypoStyle>
@@ -151,17 +235,17 @@ const UserDetailPage = () => {
                 <Stack direction={'row'} flexWrap={'wrap'}>
                   <DashedBox>
                     <TitleTypoStyle>CMND/CCCD</TitleTypoStyle>
-                    <ContentTypoStyle>{userInfoData?.nationalId}</ContentTypoStyle>
+                    <ContentTypoStyle>{userInfoData?.nationalId || '-'}</ContentTypoStyle>
                   </DashedBox>
                   <DashedBox>
                     <TitleTypoStyle>Giới tính</TitleTypoStyle>
-                    <ContentTypoStyle>{userInfoData?.gender}</ContentTypoStyle>
+                    <ContentTypoStyle>{userInfoData?.gender || '-'}</ContentTypoStyle>
                   </DashedBox>
                 </Stack>
                 <Stack direction={'row'}>
                   <DashedBox>
                     <TitleTypoStyle>Địa chỉ</TitleTypoStyle>
-                    <ContentTypoStyle>{userInfoData?.address}</ContentTypoStyle>
+                    <ContentTypoStyle>{userInfoData?.address || '-'}</ContentTypoStyle>
                   </DashedBox>
                 </Stack>
               </Stack>
@@ -169,13 +253,9 @@ const UserDetailPage = () => {
           </Item>
         </Grid>
         <Grid item md={4} xs={12}>
-          <Box>
-            <Item>
+          <Box sx={{ height: '100%' }}>
+            <Item sx={{ height: '100%' }}>
               <Stack direction={'column'}>
-                <Typography align="left" fontSize={'16px'} fontWeight={600} sx={{ mb: 1 }}>
-                  Thông tin sức khoẻ
-                </Typography>
-
                 <Stack direction={'row'} flexWrap={'wrap'}>
                   <DashedBox>
                     <TitleTypoStyle>Nhóm máu</TitleTypoStyle>
@@ -189,11 +269,11 @@ const UserDetailPage = () => {
                   </DashedBox>
                   <DashedBox>
                     <TitleTypoStyle>Chiều cao</TitleTypoStyle>
-                    <ContentTypoStyle>01/03/2001</ContentTypoStyle>
+                    <ContentTypoStyle>{userInfoData?.height || '-'}</ContentTypoStyle>
                   </DashedBox>
                   <DashedBox>
                     <TitleTypoStyle>Cân nặng</TitleTypoStyle>
-                    <ContentTypoStyle>01/03/2001</ContentTypoStyle>
+                    <ContentTypoStyle>{userInfoData?.weight || '-'}</ContentTypoStyle>
                   </DashedBox>
                 </Stack>
               </Stack>
@@ -201,17 +281,21 @@ const UserDetailPage = () => {
           </Box>
         </Grid>
       </Grid>
-      <Divider sx={{ margin: '30px' }} />
 
-      <BloodDonationHistory />
+      <Divider sx={{ margin: ' 40px 0 30px' }} />
 
+      <BloodDonationHistory ref={childRef} />
+
+      {/* Add blood donation dialog */}
       <CustomDialog
         isOpen={addBloodDonation}
         onClose={handleAddBloodDonationHistoryDialog}
         title={`Thêm lịch sử hiến máu`}
         children={addBloodDonationHistoryDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { maxWidth: '70%', maxHeight: '500px' } }}
       />
+
+      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </Box>
   );
 };

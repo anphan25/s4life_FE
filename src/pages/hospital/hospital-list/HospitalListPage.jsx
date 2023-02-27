@@ -126,6 +126,14 @@ const HospitalListPage = () => {
             <MoreMenuButton>
               <MenuItem
                 onClick={() => {
+                  navigate(`/hospital/${params.row.id}`);
+                }}
+              >
+                <Icon sx={{ height: 20, width: 20 }} icon="eye" />
+                Xem chi tiết
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
                   if (pageState.filterTabMode === 1) {
                     setDisableHospitalId(params.row.id);
                     openDisableHospitalConfirm(params.row.name);
@@ -140,14 +148,6 @@ const HospitalListPage = () => {
                   icon={pageState.filterTabMode === 1 ? 'trash' : 'trash-slash'}
                 />
                 {pageState.filterTabMode === 1 ? 'Vô hiệu' : 'Kích hoạt'}
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  navigate(`/hospital/${params.row.id}`);
-                }}
-              >
-                <Icon sx={{ height: 20, width: 20 }} icon="eye" />
-                Xem chi tiết
               </MenuItem>
             </MoreMenuButton>
           );

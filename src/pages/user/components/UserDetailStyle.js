@@ -6,7 +6,6 @@ export const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'white',
   borderRadius: '.475rem',
   padding: theme.spacing(3.5),
-  // textAlign: 'center',
 }));
 
 export const PlaceholderStyle = styled('div')(({ theme }) => ({

@@ -126,7 +126,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
 
     setAlert({});
     setIsButtonLoading(true);
-
+    
     try {
       await updateApproveBloodDonation(detailData?.id, bloodDonationApprovalMappingData);
 
@@ -148,9 +148,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
     openConnection();
   }, []);
 
-  useEffect(() => {
-    console.log('disabledInputIndexes', disabledInputIndexes);
-  }, [disabledInputIndexes]);
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
@@ -204,7 +201,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
                         control={control}
                         name={`approvals[${i}].status`}
                         onSelect={(value) => {
-                          console.log('value', value);
                           //Rejecting will enable note textfield
                           if (value * 1 === 0) {
                             //When Approving

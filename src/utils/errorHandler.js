@@ -59,6 +59,8 @@ export function convertErrorCodeToMessage(code) {
     4111: 'Sự kiện lưu động phải có khu vực di chuyển của xe',
     4121: 'Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa 30 ngày',
     4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
+    4141: 'Số lượng người tham gia tối thiểu phải bé hơn số lượng người tham gia tối đa',
+    4151: 'Số lượng người tham gia tối thiểu ở sự kiện lưu động là 1',
     4100: 'Chỉnh sửa sự kiện thành công',
     4200: 'Hủy sự kiện thành công',
     4300: 'Tạo sự kiện thành công',
@@ -79,6 +81,7 @@ export function convertErrorCodeToMessage(code) {
     6000: PROCESSING_MESSAGE,
     6003: 'Từ chối yêu cầu truy cập lịch sử hiến máu',
     6004: 'Không tìm thấy lịch sử hiến máu',
+    6100: 'Thêm lịch sử hiến máu thành công',
 
     //Event Registration
     7000: PROCESSING_MESSAGE,
@@ -94,7 +97,6 @@ export function convertErrorCodeToMessage(code) {
     7071: 'Thiếu thông tin phiếu đăng ký',
     7081: 'Thiếu số lượng máu hiến',
     7091: 'Sự kiện đã bắt đầu, không thể hủy đăng ký',
-    7100: 'Đăng kí sự kiện thành công',
     7101: 'Thời gian dự kiến tham gia không hợp lệ',
     7111: 'Khoảng cách giữa 2 lần hiến máu gần nhất phải tối thiểu 90 ngày',
     7131: 'Nhóm máu của tình nguyện viên không nằm trong danh sách của sự kiện',
@@ -103,7 +105,9 @@ export function convertErrorCodeToMessage(code) {
     7161: 'Không thể đăng ký vào sự kiện lưu động đang diễn ra',
     7171: 'Đã điền phiếu đăng kí tham gia hiến máu',
     7181: 'Vui lòng đến tham dự sự kiện hiến máu vào đúng ngày đã đăng kí tham gia',
-    7200: 'Xác nhận hiến máu thành công',
+    7100: 'Đăng kí sự kiện thành công',
+    7200: 'Cập nhật thông tin đăng kí sự kiện thành công',
+    7300: 'Hủy đăng kí sự kiện thành công',
 
     //User Informations
     8000: 'Thay đổi thông tin cá nhân thành công',
@@ -138,8 +142,8 @@ export const errorHandler = (error) => {
   if (error?.response?.status === 401) return;
   const { response } = error;
   if (response?.data !== null) {
-    const code = response.data?.code;
-    if (response.status === 400 && !response.data?.code) return 'Dữ liệu truyền vào không hợp lệ';
+    const code = response?.data?.code;
+    if (response?.status === 400 && !response?.data?.code) return 'Dữ liệu truyền vào không hợp lệ';
     if (code < 0) return 'Đã có lỗi xảy ra trong quá trình xử lí';
 
     var message = convertErrorCodeToMessage(code);
