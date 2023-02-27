@@ -252,7 +252,7 @@ const StatisticsPage = Loadable(lazy(() => import('pages/statistics/StatisticsPa
 
 //user
 const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
-const UserDetailPage = Loadable(lazy(() => import('pages/user/components/UserDetailPage')));
+const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
 
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));

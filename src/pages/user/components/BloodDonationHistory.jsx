@@ -1,42 +1,23 @@
-import { Box, Typography, Button, FormControl, Select, MenuItem } from '@mui/material';
-import { DataTable, FilterTab, FromToDateFilter, SearchBar, CustomSnackBar, CustomDialog, Icon } from 'components';
-import { useState, useCallback, useEffect } from 'react';
-import { errorHandler, formatDate } from 'utils';
-import { useParams } from 'react-router-dom';
-import { getEventRegistrations, updateBloodType } from 'api';
-import moment from 'moment';
-import { GridActionsCellItem } from '@mui/x-data-grid';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { BLOOD_TYPE, convertBloodTypeLabel, DialogButtonGroupStyle, InputFilterSectionStyle } from 'utils';
-import { useSelector } from 'react-redux';
+import { Typography, Stack } from '@mui/material';
+import { DataTable, CustomSnackBar } from 'components';
+import React, { useState, useCallback, useEffect } from 'react';
+import { formatDate } from 'utils';
+import { getBloodDonations } from 'api';
 
 const BloodDonationHistory = () => {
-  const { eventId } = useParams();
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
     total: 0,
     page: 1,
     pageSize: 10,
-    status: 2, //Cancelled = 1 ,NotYetAttended = 2, Attended = 3,
-    searchPhoneNumber: '',
-    dateFrom: null,
-    dateTo: null,
+    // date:""
   });
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
-  const [isUpdateBloodTypeDialogOpen, setIsUpdateBloodTypeDialogOpen] = useState(false);
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [bloodType, setBloodType] = useState('');
-  const [updateBloodTypeParams, setUpdateBloodTypeParams] = useState({
-    userInformationId: '',
-    bloodTypeId: '',
-    isRhNegative: '',
-  });
-  let user = useSelector((state) => state.auth.auth?.user);
 
   const gridOptions = {
     columns: [
@@ -51,24 +32,24 @@ const BloodDonationHistory = () => {
         hide: true,
       },
       {
-        headerName: 'Số máu',
-        field: 'fullName',
-        type: 'string',
-        minWidth: 300,
-        flex: 1,
+        headerName: 'Số đơn vị máu',
+        field: 'donationVolume',
+        type: 'number',
+        width: 300,
       },
 
       {
-        headerName: 'Số túi/Số chứng nhận',
-        field: 'phoneNumber',
-        type: 'string',
-        width: 300,
+        headerName: 'Số túi máu/Số chứng nhận',
+        field: 'bloodBagCode',
+        type: 'number',
+        flex: 1,
+        minWidth: 300,
       },
       {
         headerName: 'Ngày hiến',
-        field: 'bloodType',
-        type: 'date',
-        width: 300,
+        field: 'donationDate',
+        type: 'string',
+        width: 200,
       },
     ],
     pageState: pageState,
@@ -79,43 +60,46 @@ const BloodDonationHistory = () => {
   };
 
   const pageSizeChangeHandler = (newPageSize) => {
-    setPageState((old) => ({ ...old, pageSize: newPageSize }));
+    setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
 
-  const handleFromToDateFilter = (params) => {
-    setPageState((old) => ({ ...old, page: 1, dateFrom: params.startDate, dateTo: params.endDate }));
-  };
+  const fetchBloodDonationList = useCallback(async () => {
+    const response = await getBloodDonations({ Page: pageState?.page, PageSize: pageState?.pageSize });
 
-  const handleSearchVolunteerPhoneNumber = (searchValue) => {
-    setPageState((old) => ({ ...old, page: 1, searchPhoneNumber: searchValue.searchTerm }));
-  };
+    const dataRow = response?.items?.map((data, i) => ({
+      no: i + 1,
+      id: data?.id,
+      donationDate: formatDate(data?.donationDate, 2),
+      donationVolume: data?.donationVolume || '-',
+      bloodBagCode: data?.bloodBagCode || '-',
+    }));
 
-  const handleUpdateBloodTypeDialog = () => {
-    setIsUpdateBloodTypeDialogOpen(!isUpdateBloodTypeDialogOpen);
-  };
+    setPageState((old) => ({ ...old, data: dataRow, total: response.total }));
+  }, [pageState?.pageSize, pageState?.page]);
+
+  useEffect(() => {
+    fetchBloodDonationList();
+  }, [fetchBloodDonationList]);
 
   return (
     <>
-      <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
-        Lịch sử hiến máu
-      </Typography>
-      <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
-        <Box>
-          <InputFilterSectionStyle>
-            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
-          </InputFilterSectionStyle>
-        </Box>
-        <DataTable
-          gridOptions={gridOptions}
-          onPageChange={pageChangeHandler}
-          onPageSizeChange={pageSizeChangeHandler}
-          disableFilter={true}
-        />
-      </Box>
+      <Stack>
+        <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
+          Lịch sử hiến máu
+        </Typography>
+      </Stack>
+
+      <DataTable
+        sx={{ paddingTop: '24px' }}
+        gridOptions={gridOptions}
+        onPageChange={pageChangeHandler}
+        onPageSizeChange={pageSizeChangeHandler}
+        disableFilter={true}
+      />
 
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };
 
-export default BloodDonationHistory;
+export default React.memo(BloodDonationHistory);

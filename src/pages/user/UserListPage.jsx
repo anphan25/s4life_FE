@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Stack, Button, Divider, MenuItem } from '@mui/material';
+import { Box, Stack, Button, MenuItem } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -16,10 +16,8 @@ import {
   MoreMenuButton,
 } from 'components';
 import { useNavigate } from 'react-router-dom';
-
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import { useSelector } from 'react-redux';
-
 import {
   errorHandler,
   convertBloodTypeLabel,
@@ -147,7 +145,7 @@ const UserListPage = () => {
           <MoreMenuButton>
             <MenuItem
               onClick={() => {
-                navigate(`/user/${params.row.id}`);
+                navigate(`/user/${params.row.userInformationId}`);
               }}
             >
               <Icon icon={'eye'} />
@@ -224,7 +222,7 @@ const UserListPage = () => {
   };
 
   const pageSizeChangeHandler = (newPageSize) => {
-    setPageState((old) => ({ ...old, pageSize: newPageSize }));
+    setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
 
   const handleFilterTabChange = (e, value) => {
@@ -546,6 +544,7 @@ const UserListPage = () => {
                 : '-',
               dateOfBirth: formatDate(data?.userInformation?.dateOfBirth, 4) || '-',
               gender: data?.userInformation?.gender || '-',
+              userInformationId: data?.userInformationId,
             }))
           : data.items?.map((data, i) => ({
               id: data?.id,

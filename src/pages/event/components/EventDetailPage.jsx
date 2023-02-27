@@ -386,7 +386,7 @@ const EventDetailPage = () => {
             {detailData ? (
               <img
                 className="event-img"
-                src={detailData?.eventImages[0]?.imageUrl || DEFAULT_EVENT_IMAGE_URL}
+                src={detailData?.images ? detailData?.images[0] : DEFAULT_EVENT_IMAGE_URL}
                 alt="Ảnh sự kiện"
               />
             ) : (

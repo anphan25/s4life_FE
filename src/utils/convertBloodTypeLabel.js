@@ -14,7 +14,7 @@ export const convertBloodTypeLabel = (bloodTypeId, isRhNegative) => {
     }
 
     default: {
-      return 'Tất cả';
+      return '-';
     }
   }
 };
