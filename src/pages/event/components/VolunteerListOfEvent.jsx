@@ -258,6 +258,8 @@ const VolunteerListOfEvent = () => {
                     isRhNegative: updateBloodTypeParams.isRhNegative,
                   },
                 });
+
+                setAlert({ message: 'Cập nhật nhóm máu thành công', status: true, type: 'success' });
                 await fetchVolunteersOfEvent();
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });

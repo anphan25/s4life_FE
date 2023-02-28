@@ -147,7 +147,7 @@ export default function Router() {
               ),
             },
             {
-              path: ':userId',
+              path: ':userInformationId',
               element: (
                 <ProtectedRouter roles={['Admin']}>
                   <UserDetailPage />

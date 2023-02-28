@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { formatDate, HeaderMainStyle, convertBloodTypeLabel, errorHandler, convertErrorCodeToMessage } from 'utils';
 import isValidDate from 'utils/extensions/datetime/isValidDate';
-import { Stack, Box, Button, Grid, Divider, IconButton } from '@mui/material';
+import { Stack, Box, Button, Grid, Divider, IconButton, Typography } from '@mui/material';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
@@ -18,7 +18,7 @@ import BloodDonationHistory from './components/BloodDonationHistory';
 import { CustomDialog, RHFInput, RHFDatePicker, Icon, HeaderBreadcumbs, CustomSnackBar } from 'components';
 import { useParams } from 'react-router-dom';
 import { getUserInfoById, addBloodDonations } from 'api';
-import { openHubConnection, listenOnHub, listenOnHubInBulkOperations } from 'config';
+import { openHubConnection, listenOnHubInBulkOperations } from 'config';
 import { useStore } from 'react-redux';
 
 const UserDetailPage = () => {
@@ -26,7 +26,10 @@ const UserDetailPage = () => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [addBloodDonation, setAddBloodDonation] = useState(false);
   const [userInfoData, setUserInfoData] = useState(null);
-  const { userId } = useParams();
+  const { userInformationId } = useParams();
+  const [importBloodDonation, setImportBloodDonation] = useState(false);
+  const [addBloodDonationOptions, setAddBloodDonationOptions] = useState(false);
+
   const store = useStore();
   const [alert, setAlert] = useState({
     message: '',
@@ -63,6 +66,14 @@ const UserDetailPage = () => {
     reset();
   };
 
+  const handleImportBloodDonationHistoryDialog = () => {
+    setImportBloodDonation(!importBloodDonation);
+  };
+
+  const handleAddBloodDonationHistoryOptionDialog = () => {
+    setAddBloodDonationOptions(!addBloodDonationOptions);
+  };
+
   const handleAddField = () => {
     append({ donationVolume: 0, bloodBagCode: '', donationDate: null });
   };
@@ -75,7 +86,9 @@ const UserDetailPage = () => {
     }));
 
     try {
-      await addBloodDonations({ userInformationId: userId, bloodDonations: mappingBloodDonations });
+      await addBloodDonations({ userInformationId: userInformationId, bloodDonations: mappingBloodDonations });
+
+      setAlert({ message: 'Thêm lịch sử hiến máu thành công', status: true, type: 'success' });
 
       childRef.current.reloadDonationHistories();
       handleAddBloodDonationHistoryDialog();
@@ -164,8 +177,47 @@ const UserDetailPage = () => {
     );
   };
 
+  const importBloodDonationHistoryDialogContent = () => {
+    return <Box></Box>;
+  };
+
+  const addBloodDonationHistoryOptionDialogContent = () => {
+    return (
+      <Box>
+        <Stack gap={3}>
+          <Button
+            startIcon={<Icon icon="solid-pen-line" />}
+            variant="contained"
+            onClick={() => {
+              handleAddBloodDonationHistoryOptionDialog();
+              handleAddBloodDonationHistoryDialog();
+            }}
+          >
+            Thêm bằng cách nhập
+          </Button>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Divider sx={{ width: '40%' }} />
+            <Typography>Hoặc</Typography>
+            <Divider sx={{ width: '40%' }} />
+          </Stack>
+
+          <Button
+            startIcon={<Icon icon="solid-upload-alt" />}
+            variant="contained"
+            onClick={() => {
+              handleAddBloodDonationHistoryOptionDialog();
+              handleImportBloodDonationHistoryDialog();
+            }}
+          >
+            Thêm từ file
+          </Button>
+        </Stack>
+      </Box>
+    );
+  };
+
   const fetchUserInfo = useCallback(async () => {
-    setUserInfoData(await getUserInfoById(userId));
+    setUserInfoData(await getUserInfoById(userInformationId));
   }, []);
 
   useEffect(() => {
@@ -196,14 +248,15 @@ const UserDetailPage = () => {
           heading="Thông tin tình nguyện viên"
           links={[{ name: 'Danh sách tài khoản', to: '/user/list' }, { name: `${userInfoData?.fullName}` }]}
         />
-
-        <Button
-          startIcon={<Icon icon="solid-plus" />}
-          variant="contained"
-          onClick={handleAddBloodDonationHistoryDialog}
-        >
-          Thêm lịch sử hiến máu
-        </Button>
+        <Stack gap={1} direction="row">
+          <Button
+            startIcon={<Icon icon="solid-plus" />}
+            variant="contained"
+            onClick={handleAddBloodDonationHistoryOptionDialog}
+          >
+            Thêm lịch sử hiến máu
+          </Button>
+        </Stack>
       </HeaderMainStyle>
       <Grid container spacing={2}>
         <Grid item md={8} xs={12}>
@@ -284,7 +337,16 @@ const UserDetailPage = () => {
 
       <Divider sx={{ margin: ' 40px 0 30px' }} />
 
-      <BloodDonationHistory ref={childRef} />
+      <BloodDonationHistory ref={childRef} userInformationId={userInformationId} />
+
+      {/* blood donation add option dialog */}
+      <CustomDialog
+        isOpen={addBloodDonationOptions}
+        onClose={handleAddBloodDonationHistoryOptionDialog}
+        title={`Thêm lịch sử hiến máu`}
+        children={addBloodDonationHistoryOptionDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+      />
 
       {/* Add blood donation dialog */}
       <CustomDialog
@@ -292,6 +354,15 @@ const UserDetailPage = () => {
         onClose={handleAddBloodDonationHistoryDialog}
         title={`Thêm lịch sử hiến máu`}
         children={addBloodDonationHistoryDialogContent()}
+        sx={{ '& .MuiDialog-paper': { maxWidth: '70%', maxHeight: '500px' } }}
+      />
+
+      {/* Import blood donation dialog */}
+      <CustomDialog
+        isOpen={importBloodDonation}
+        onClose={handleImportBloodDonationHistoryDialog}
+        title={`Thêm lịch sử hiến máu từ file`}
+        children={importBloodDonationHistoryDialogContent()}
         sx={{ '& .MuiDialog-paper': { maxWidth: '70%', maxHeight: '500px' } }}
       />
 

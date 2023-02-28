@@ -5,7 +5,7 @@ import { formatDate, InputFilterSectionStyle } from 'utils';
 import { getBloodDonations } from 'api';
 import moment from 'moment';
 
-const BloodDonationHistory = forwardRef((props, ref) => {
+const BloodDonationHistory = forwardRef(({ userInformationId }, ref) => {
   const [pageState, setPageState] = useState({
     isLoading: false,
     data: [],
@@ -65,10 +65,11 @@ const BloodDonationHistory = forwardRef((props, ref) => {
 
   const fetchBloodDonationList = useCallback(async () => {
     const response = await getBloodDonations({
+      UserInformationId: userInformationId,
       Page: pageState?.page,
       PageSize: pageState?.pageSize,
-      DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
-      DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
+      ...(pageState?.dateFrom && { DateFrom: moment(pageState?.dateFrom).format('yyyy-MM-DD') }),
+      ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
     });
 
     const dataRow = response?.items?.map((data, i) => ({
