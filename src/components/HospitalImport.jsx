@@ -1,55 +1,12 @@
-import { Controller } from 'react-hook-form';
-import { FormControl, TextField, styled, Stack, Box, Typography } from '@mui/material';
+import { FormControl, TextField, Stack, Box, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import moment from 'moment';
 import { CSVFileIcon } from 'assets';
-import { Icon } from 'components';
+import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'utils';
 
-const DropZone = styled(Stack)(({ theme }) => ({
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '24px',
-  border: `1px dashed ${theme.palette.primary.main}`,
-  backgroundColor: theme.palette.grey[50],
-  fontSize: '14px',
-  borderRadius: 12,
-  cursor: 'pointer',
-
-  '& .file_input': {
-    display: 'none',
-  },
-}));
-
-const ClearFile = styled(Icon)(({ theme }) => ({
-  border: '0',
-  background: 'transparent',
-  color: theme.palette.error.main,
-  width: '1.5rem',
-  cursor: 'pointer',
-  marginRight: '5px',
-}));
-
-const ErrorMessageList = styled(Box)(({ theme }) => ({
-  color: theme.palette.error.main,
-  marginTop: '10px',
-
-  '& ul': {
-    listStyleType: 'none',
-  },
-}));
-
-const ImportTextDisplayStyle = styled(Stack)(({ theme }) => ({
-  justifyContent: 'center',
-  gap: '8px',
-
-  '& .import_icon': { color: theme.palette.primary.main, fontSize: '32px' },
-  '& .import_description': { color: theme.palette.primary.main },
-  '& .import_require': { color: theme.palette.grey[600] },
-}));
-
-export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...props }) => {
+export const HospitalImport = ({ label, onImport, isEdit = false, maxSize, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
 
@@ -57,7 +14,7 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
     accept: {
       'text/csv': [],
     },
-    maxSize: 1000000,
+    maxSize: maxSize,
     maxFiles: 1,
     minSize: 0,
     multiple: false,
@@ -164,7 +121,6 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
   };
 
   const validateCSVFileContent = (dataList) => {
-    // tempErrorFileContent = [];
     if (isEdit) {
       if (dataList.length > 1) {
         displayInvalidFileContent('too-much-record');
@@ -347,32 +303,17 @@ export const RHFImport = ({ control, label, name, onImport, isEdit = false, ...p
 
       {!selectedFile && (
         <DropZone {...getRootProps({ onClick: (e) => e.preventDefault() })}>
-          <Controller
-            name={name}
-            control={control}
-            render={({ field, fieldState: { error } }) => (
-              <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
-                <ImportTextDisplayStyle>
-                  <Box>
-                    <CSVFileIcon />
-                  </Box>
-                  <Typography className="import_description">{label}</Typography>
-                  <Typography className="import_require">CSV tối đa 1MB</Typography>
-                </ImportTextDisplayStyle>
+          <FormControl sx={{ padding: '10px', textAlign: 'center' }} fullWidth>
+            <ImportTextDisplayStyle>
+              <Box>
+                <CSVFileIcon />
+              </Box>
+              <Typography className="import_description">{label}</Typography>
+              <Typography className="import_require">CSV tối đa 1MB</Typography>
+            </ImportTextDisplayStyle>
 
-                <TextField
-                  className="file_input"
-                  type="file"
-                  id={name}
-                  {...field}
-                  {...props}
-                  error={!!error}
-                  helperText={error?.message?.toString()}
-                  {...getInputProps()}
-                />
-              </FormControl>
-            )}
-          />
+            <TextField className="file_input" type="file" {...getInputProps()} />
+          </FormControl>
         </DropZone>
       )}
       {fileRejections && (

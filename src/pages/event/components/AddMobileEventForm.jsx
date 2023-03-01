@@ -21,11 +21,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getDistrictsByProvinceId, getAllProvinces, createEvent } from 'api';
-import { convertErrorCodeToMessage, DialogButtonGroupStyle } from 'utils';
+import { convertErrorCodeToMessage, DialogButtonGroupStyle, isValidDate, isValidTime } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-import { isValidDate, isValidTime } from 'utils/extensions/datetime';
 
 const minDateHandler = () => {
   return moment().add(1, 'days');

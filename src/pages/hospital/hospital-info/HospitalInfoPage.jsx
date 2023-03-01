@@ -12,9 +12,8 @@ import {
   Switch,
   FormControl,
   FormControlLabel,
-  Tooltip,
 } from '@mui/material';
-import { CustomDialog, CustomSnackBar, RHFUploadImage, RHFImport, Icon, HeaderBreadcumbs } from 'components';
+import { CustomDialog, CustomSnackBar, RHFUploadImage, HospitalImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   errorHandler,
@@ -181,7 +180,7 @@ const HospitalInfoPage = () => {
       <Paper>
         <form onSubmit={handleSubmitHospitalInfo(onSubmitHospitalInfo)}>
           <Stack justifyContent="center" spacing={2}>
-            <RHFImport
+            <HospitalImport
               control={hospitalInfoControl}
               name="hospitalFile"
               label="Kéo thả hoặc nhấn vào để gửi lên"
