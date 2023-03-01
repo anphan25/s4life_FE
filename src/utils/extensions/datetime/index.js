@@ -1,2 +1,2 @@
-export { default as isValidDate } from './isValidDate';
-export { default as isValidTime } from './isValidTime';
+export * from './isValidDate';
+export * from './isValidTime';

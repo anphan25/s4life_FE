@@ -1,7 +1,7 @@
 import { Button, Stack, Box, Typography, MenuItem } from '@mui/material';
 import {
   CustomDialog,
-  RHFImport,
+  HospitalImport,
   DataTable,
   HeaderBreadcumbs,
   CustomSnackBar,
@@ -13,8 +13,7 @@ import {
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from 'config';
+
 import {
   formatDate,
   errorHandler,
@@ -22,6 +21,7 @@ import {
   HeaderMainStyle,
   DialogButtonGroupStyle,
   DEFAULT_HOSPITAL_IMAGE_URL,
+  handleDownloadTemplate,
 } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DownloadLink } from './HospitalListStyle';
@@ -268,7 +268,8 @@ const HospitalListPage = () => {
     setIsImportBtnDisabled(disabledBtn);
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (e) => {
+    e.preventDefault();
     if (importParams.length <= 0) {
       return;
     }
@@ -294,21 +295,37 @@ const HospitalListPage = () => {
 
   const addHospitalDialogContent = () => {
     return (
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={onSubmit}>
         <Stack spacing={3} sx={{ height: '100%' }}>
-          <RHFImport
-            control={control}
-            name="hospitalFile"
-            label="Kéo thả hoặc nhấn vào để chọn file"
-            onImport={getDataFromFile}
-          />
+          <HospitalImport label="Kéo thả hoặc nhấn vào để chọn file" onImport={getDataFromFile} />
 
           <DownloadLink ref={downloadRef} download />
           <Stack direction="row" justifyContent="space-between">
             <Button
               sx={{ width: '150px' }}
               startIcon={<Icon icon="solid-file-download" />}
-              onClick={handleDownloadTemplate}
+              onClick={async () => {
+                try {
+                  await handleDownloadTemplate('template_import/hospital_import_template.csv', downloadRef);
+                } catch (error) {
+                  setAlert({});
+                  switch (error.code) {
+                    case 'storage/object-not-found':
+                      setAlert({
+                        message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
+                        status: true,
+                        type: 'error',
+                      });
+                      break;
+
+                    case 'storage/unknown':
+                      // Unknown error occurred, inspect the server response
+                      break;
+                    default: {
+                    }
+                  }
+                }
+              }}
             >
               Tải file mẫu
             </Button>
@@ -322,10 +339,6 @@ const HospitalListPage = () => {
                 loading={isButtonLoading}
                 disabled={isImportBtnDisabled}
                 className="dialog_button"
-                sx={{
-                  backgroundColor: 'error.main',
-                  '&:hover': { backgroundColor: 'error.dark' },
-                }}
                 type="submit"
                 variant="contained"
               >
@@ -338,31 +351,6 @@ const HospitalListPage = () => {
     );
   };
 
-  const handleDownloadTemplate = async () => {
-    getDownloadURL(ref(storage, 'template_import/hospital_import_template.csv'))
-      .then((url) => {
-        downloadRef.current.setAttribute('href', url);
-        downloadRef.current.click();
-      })
-      .catch((error) => {
-        setAlert({});
-        switch (error.code) {
-          case 'storage/object-not-found':
-            setAlert({
-              message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
-              status: true,
-              type: 'error',
-            });
-            break;
-
-          case 'storage/unknown':
-            // Unknown error occurred, inspect the server response
-            break;
-          default: {
-          }
-        }
-      });
-  };
   const fetchHospitalData = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
     try {
