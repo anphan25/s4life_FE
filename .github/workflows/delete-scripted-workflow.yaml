@@ -1,0 +1,19 @@
+name: Delete Scripted Volunteer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Connecting-To-Server-And-Restart:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Restarting
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          ./delete_scripted.sh
+          echo Server is restarting
