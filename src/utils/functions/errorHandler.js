@@ -1,4 +1,4 @@
-import { PROCESSING_MESSAGE } from 'utils/message';
+import { PROCESSING_MESSAGE } from 'utils';
 
 export function convertErrorCodeToMessage(code) {
   if (code === undefined || code === null) return;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Paper, Grid, Stack, Box, Typography, styled, Divider, useMediaQuery } from '@mui/material';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
-import { formatNumber } from 'utils/formatNumber';
+import { formatNumber } from 'utils/functions/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';

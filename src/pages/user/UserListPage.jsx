@@ -14,10 +14,11 @@ import {
   AsyncAutocompleteFilter,
   Icon,
   MoreMenuButton,
+  Tag,
+  styled,
 } from 'components';
 import { useNavigate } from 'react-router-dom';
 import { GridActionsCellItem } from '@mui/x-data-grid';
-import { useSelector } from 'react-redux';
 import {
   errorHandler,
   convertBloodTypeLabel,
@@ -39,8 +40,11 @@ const filterTabValues = [
   { label: 'Nhân viên', value: 2 },
 ];
 
+const StatusTagConvertLabel = (value) => {
+  return value ? 'success' : 'error';
+};
+
 const UserListPage = () => {
-  const user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
 
   const [pageState, setPageState] = useState({
@@ -187,12 +191,22 @@ const UserListPage = () => {
         minWidth: 250,
       },
       {
+        headerName: 'Trạng thái',
+        field: 'isActive',
+        type: 'boolean',
+        width: 130,
+        renderCell: (value) => {
+          return <Tag status={StatusTagConvertLabel(value)}>{value ? 'Đang hoạt động' : 'Vô hiệu hóa'}</Tag>;
+        },
+      },
+      {
         headerName: 'Ngày tạo',
         type: 'string',
         field: 'addDate',
         width: 150,
         align: 'left',
       },
+
       {
         field: 'actions',
         type: 'actions',
@@ -550,6 +564,7 @@ const UserListPage = () => {
               userName: data?.userName || '-',
               hospitalName: data?.hospital?.name || '-',
               addDate: formatDate(data?.addDate, 4) || '-',
+              isActive: data?.isActive,
             }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
