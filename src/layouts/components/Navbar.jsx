@@ -30,7 +30,6 @@ const Navbar = ({ onOpen }) => {
             <Icon icon="solid-menu-left-alt" />
           </IconButton>
         )}
-        <Searchbar />
       </Stack>
 
       <Stack direction="row" gap={3}>

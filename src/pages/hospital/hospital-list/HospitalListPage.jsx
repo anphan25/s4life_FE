@@ -11,9 +11,7 @@ import {
   MoreMenuButton,
 } from 'components';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
-
 import {
   formatDate,
   errorHandler,
@@ -64,8 +62,6 @@ const HospitalListPage = () => {
   ];
 
   const downloadRef = useRef();
-
-  const { handleSubmit, control } = useForm({});
 
   const gridOptions = {
     columns: [

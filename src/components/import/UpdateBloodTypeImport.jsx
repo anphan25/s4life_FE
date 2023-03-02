@@ -6,7 +6,7 @@ import moment from 'moment';
 import { CSVFileIcon } from 'assets';
 import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'utils';
 
-export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
+export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
 
@@ -37,16 +37,12 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
         return 'Vui lòng không chỉnh sửa tên cột hoặc thêm cột mới';
       }
 
-      case 'invalid-openingTime': {
-        return 'Thời gian làm việc của các ngày trong tuần đang trống';
+      case 'invalid-blood-type': {
+        return 'Nhóm máu không hợp lệ';
       }
 
-      case 'invalid-starttime-endTime': {
-        return 'Thời gian bắt đầu phải trước thời gian kết thúc';
-      }
-
-      case 'too-much-record': {
-        return 'Khi chỉnh sửa chỉ cần 1 dòng thông tin';
+      case 'invalid-isRhNegative': {
+        return 'Yếu tố Rh không hợp lệ';
       }
 
       default: {
@@ -80,23 +76,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
   let tempErrorFileContent = [];
 
-  const daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
-
-  const validHeader = [
-    'Tên*',
-    'Ðịa Chỉ*',
-    'Số Ðiện Thoại*',
-    'Email',
-    'Kinh Ðộ*',
-    'Vĩ Ðộ*',
-    'Thứ 2',
-    'Thứ 3',
-    'Thứ 4',
-    'Thứ 5',
-    'Thứ 6',
-    'Thứ 7',
-    'Chủ Nhật',
-  ];
+  const validHeader = ['CMND/CCCD*', 'Nhóm máu*', 'Yếu tố Rh*'];
 
   const displayInvalidFileContent = (code) => {
     if (!tempErrorFileContent.includes(code)) {
@@ -105,42 +85,19 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
     }
   };
 
-  //Mode 1: get startTime, Mode 2: get endTime
-  const getTimeFromDay = (dayString, mode) => {
-    const timeArr = dayString.split('-');
-
-    //Validate start and end time
-    if (!moment(timeArr[0], 'HH:mm').isBefore(moment(timeArr[1], 'HH:mm'))) {
-      displayInvalidFileContent('invalid-starttime-endTime');
-
-      return;
-    }
-    const timeSplit = timeArr[mode - 1].trim().split(':');
-
-    return moment().hour(timeSplit[0]).minute(timeSplit[1]).second(0).format('HH:mm:ss');
-  };
-
   const validateCSVFileContent = (dataList) => {
-    if (isEdit) {
-      if (dataList.length > 1) {
-        displayInvalidFileContent('too-much-record');
-
-        return;
-      }
-    }
-
     dataList.forEach((data) => {
       for (const property in data) {
-        if (!data[property] && property !== 'email') {
+        if (!data[property]) {
           displayInvalidFileContent('required-filed-missing');
         }
 
-        if (property === 'openingTime') {
-          let isNoDayOpen = data[property].every((day) => day.isEnabled === false);
+        if (!['A', 'B', 'O', 'AB'].includes(data['bloodType'])) {
+          displayInvalidFileContent('invalid-blood-type');
+        }
 
-          if (isNoDayOpen) {
-            displayInvalidFileContent('invalid-openingTime');
-          }
+        if (!['-', '+'].includes(data['isRhNegative'])) {
+          displayInvalidFileContent('invalid-isRhNegative');
         }
       }
     });
@@ -153,28 +110,10 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       }
     }
 
-    const openingTime = daysOfWeek.map((day) => {
-      return obj[day]
-        ? {
-            day: day,
-            startTime: getTimeFromDay(obj[day], 1),
-            endTime: getTimeFromDay(obj[day], 2),
-            isEnabled: true,
-          }
-        : {
-            day: day,
-            isEnabled: false,
-          };
-    });
-
     return {
-      name: obj['name'],
-      address: obj['address'],
-      longitude: obj['longitude'],
-      latitude: obj['latitude'],
-      email: obj['email'] || null,
-      phoneNumber: obj['phoneNumber'],
-      openingTime,
+      nationalId: obj['nationalId'],
+      bloodType: obj['bloodType'],
+      isRhNegative: obj['isRhNegative'],
     };
   };
 
@@ -194,46 +133,15 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
         }
 
         switch (headerName) {
-          case 'Tên*': {
-            return 'name';
+          case 'CMND/CCCD*': {
+            return 'nationalId';
           }
-          case 'Ðịa Chỉ*': {
-            return 'address';
+          case 'Nhóm máu*': {
+            return 'bloodType';
           }
-          case 'Email': {
-            return 'email';
+          case 'Yếu tố Rh*': {
+            return 'isRhNegative';
           }
-          case 'Số Ðiện Thoại*': {
-            return 'phoneNumber';
-          }
-          case 'Kinh Ðộ*': {
-            return 'longitude';
-          }
-          case 'Vĩ Ðộ*': {
-            return 'latitude';
-          }
-          case 'Thứ 2': {
-            return 1;
-          }
-          case 'Thứ 3': {
-            return 2;
-          }
-          case 'Thứ 4': {
-            return 3;
-          }
-          case 'Thứ 5': {
-            return 4;
-          }
-          case 'Thứ 6': {
-            return 5;
-          }
-          case 'Thứ 7': {
-            return 6;
-          }
-          case 'Chủ Nhật': {
-            return 0;
-          }
-
           default: {
             return 'unknown';
           }
@@ -246,10 +154,11 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       comments: false,
       step: undefined,
       complete: function (results) {
-        const hospitalData = results.data
+        const data = results.data
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
-        validateCSVFileContent(hospitalData);
+        console.log('data', data);
+        validateCSVFileContent(data);
         if (tempErrorFileContent.length > 0) {
           onImport([], true);
           setSelectedFile(null);
@@ -257,7 +166,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
         }
         tempErrorFileContent = [];
         setErrorFileContent([]);
-        onImport(hospitalData, false);
+        onImport(data, false);
       },
       error: function (errors) {
         console.log('Import error : ', errors);
