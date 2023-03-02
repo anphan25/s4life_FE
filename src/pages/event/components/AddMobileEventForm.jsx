@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
 import {
   RHFInput,
@@ -8,6 +8,7 @@ import {
   RHFTimePicker,
   RHFUploadImage,
   CustomSnackBar,
+  CustomDialog,
 } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
@@ -20,13 +21,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getDistrictsByProvinceId, getAllProvinces, createEvent } from 'api';
-import { convertErrorCodeToMessage, isValidDate, isValidTime } from 'utils';
+import { convertErrorCodeToMessage, DialogButtonGroupStyle, isValidDate, isValidTime } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 
 const minDateHandler = () => {
-  return moment().add(7, 'days');
+  return moment().add(1, 'days');
 };
 
 const AddMobileEventForm = () => {
@@ -36,11 +37,14 @@ const AddMobileEventForm = () => {
   const [provinces, setProvinces] = useState([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState(0);
   const [connection, setConnection] = useState(null);
+  const [isConfirmAddOpen, setIsConfirmAddOpen] = useState(false);
   const [alert, setAlert] = useState({
     message: '',
     status: false,
     type: 'success',
   });
+
+  const confirmAddBtnRef = useRef();
 
   const store = useStore();
 
@@ -50,7 +54,7 @@ const AddMobileEventForm = () => {
     name: '',
     eventCode: '',
     description: '',
-    beginEvent: moment().add(7, 'days'),
+    beginEvent: moment().add(1, 'days'),
     workingTimeStart: moment(),
     workingTimeEnd: moment().add(1, 'hours'),
     province: 0,
@@ -161,27 +165,11 @@ const AddMobileEventForm = () => {
       const beginEvent = context.parent.beginEvent;
 
       return (
-        moment().add(7, 'days').isSameOrBefore(moment(beginEvent), 'dates') ||
+        moment().add(1, 'days').isSameOrBefore(moment(beginEvent), 'dates') ||
         createError({ path, message: errorMessage })
       );
     });
   });
-
-  function transformTime(value, originalValue) {
-    if (this.isType(value)) {
-      return value;
-    }
-
-    return isValidTime(value);
-  }
-
-  function transformDate(value, originalValue) {
-    if (this.isType(value)) {
-      return value;
-    }
-
-    return isValidDate(value);
-  }
 
   const AddEventSchema = Yup.object().shape({
     name: Yup.string()
@@ -200,20 +188,20 @@ const AddMobileEventForm = () => {
       .required('Vui lòng nhập số điện thoại liên hệ'),
     beginEvent: Yup.date()
       .nullable()
-      .transform(transformDate)
+      .transform(isValidDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 7 ngày'),
+      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 1 ngày'),
     workingTimeStart: Yup.date()
       .nullable()
-      .transform(transformTime)
+      .transform(isValidTime)
       .typeError('Giờ không hợp lệ')
       .required('Vui lòng nhập giờ bắt đầu')
       .isStartTimeBeforeEndTime('Giờ bắt đầu phải trước giờ kết thúc')
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
     workingTimeEnd: Yup.date()
       .nullable()
-      .transform(transformTime)
+      .transform(isValidTime)
       .typeError('Giờ không hợp lệ')
       .required('Vui lòng nhập giờ kết thúc')
       .isEndTimeAfterStartTime('Giờ kết thúc phải sau giờ bắt đầu')
@@ -309,6 +297,30 @@ const AddMobileEventForm = () => {
     setImgUploadFile(file);
   };
 
+  const handleAddConfirmDialog = () => {
+    setIsConfirmAddOpen(!isConfirmAddOpen);
+  };
+
+  const addConfirmDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Sự kiện lưu động sẽ không thể chỉnh sửa, hãy chắc chắn rằng những thông tin trên là đúng
+        </Typography>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <LoadingButton
+            loading={isButtonLoading}
+            variant="contained"
+            onClick={() => {
+              confirmAddBtnRef.current.click();
+            }}
+          >
+            Tạo
+          </LoadingButton>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
   const fetchAllProvinces = useCallback(async () => {
     const rawProvinces = await getAllProvinces(0);
     const mappingProvinces = rawProvinces.map((d) => ({ id: d.id, name: d.name }));
@@ -502,6 +514,7 @@ const AddMobileEventForm = () => {
 
                 <Stack direction="row">
                   <Box sx={{ marginLeft: 'auto' }}>
+                    <Button sx={{ display: 'none' }} type="submit" ref={confirmAddBtnRef}></Button>
                     <Button
                       sx={{ marginRight: '10px' }}
                       onClick={() => {
@@ -510,9 +523,9 @@ const AddMobileEventForm = () => {
                     >
                       Hủy
                     </Button>
-                    <LoadingButton type="submit" loading={isButtonLoading} variant="contained">
+                    <Button onClick={handleAddConfirmDialog} variant="contained">
                       Tạo
-                    </LoadingButton>
+                    </Button>
                   </Box>
                 </Stack>
               </Stack>
@@ -521,6 +534,13 @@ const AddMobileEventForm = () => {
         </Grid>
       </form>
 
+      <CustomDialog
+        isOpen={isConfirmAddOpen}
+        onClose={handleAddConfirmDialog}
+        title="Xác nhận tạo sự kiện"
+        children={addConfirmDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
+      />
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );

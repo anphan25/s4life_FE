@@ -58,7 +58,6 @@ const VolunteerListOfEvent = () => {
     userInformationId: '',
     bloodTypeId: '',
     isRhNegative: '',
-    nationalId: '',
   });
   let user = useSelector((state) => state.auth.auth?.user);
 
@@ -157,7 +156,6 @@ const VolunteerListOfEvent = () => {
                 userInformationId: '',
                 bloodTypeId: '',
                 isRhNegative: '',
-                nationalId: '',
               });
 
               if (params.row.bloodTypeId != null) {
@@ -174,7 +172,6 @@ const VolunteerListOfEvent = () => {
               setUpdateBloodTypeParams((old) => ({
                 ...old,
                 userInformationId: params.row.userInformationId,
-                nationalId: params.row.nationalId,
               }));
               handleUpdateBloodTypeDialog();
             }}
@@ -255,14 +252,11 @@ const VolunteerListOfEvent = () => {
                 await updateBloodType({
                   userInformationId: updateBloodTypeParams.userInformationId,
                   updateMode: 1,
-                  volunteerBloodTypeUpdationInformations: [
-                    {
-                      eventId: eventId,
-                      bloodType: updateBloodTypeParams.bloodTypeId,
-                      isRhNegative: updateBloodTypeParams.isRhNegative,
-                      nationalId: updateBloodTypeParams.nationalId,
-                    },
-                  ],
+                  volunteerBloodTypeUpdationInformation: {
+                    eventId: eventId,
+                    bloodType: updateBloodTypeParams.bloodTypeId,
+                    isRhNegative: updateBloodTypeParams.isRhNegative,
+                  },
                 });
 
                 setAlert({ message: 'Cập nhật nhóm máu thành công', status: true, type: 'success' });
