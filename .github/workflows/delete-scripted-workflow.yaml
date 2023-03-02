@@ -1,11 +1,14 @@
 name: Delete Scripted Volunteer
 
 on:
-  workflow_dispatch:
+  push:
+    branches: 
+      - "Configure/NamTH/Add_workflow"
 
 jobs:
   Connecting-To-Server-And-Restart:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/Configure/NamTH/Add_workflow'
     steps:
     - name: Restarting
       uses: appleboy/ssh-action@master
@@ -15,5 +18,5 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          ./delete_scripted.sh
+          bash delete_scripted.sh
           echo Server is restarting
