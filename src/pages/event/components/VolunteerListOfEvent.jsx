@@ -1,4 +1,4 @@
-import { Box, Typography, Button, FormControl, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Button, FormControl, Select, MenuItem, Stack, styled } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -8,8 +8,9 @@ import {
   CustomDialog,
   Icon,
   AsyncAutocompleteFilter,
+  UpdateBloodTypeImport,
 } from 'components';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { errorHandler, formatDate } from 'utils';
 import { useParams } from 'react-router-dom';
 import { getEventRegistrations, updateBloodType } from 'api';
@@ -22,6 +23,7 @@ import {
   DialogButtonGroupStyle,
   InputFilterSectionStyle,
   BloodTypeFilterEnum,
+  handleDownloadTemplate,
 } from 'utils';
 import { useSelector } from 'react-redux';
 
@@ -31,6 +33,10 @@ const filterTabValues = [
   { label: 'Đã hủy đăng ký', value: 1 },
   { label: 'Không đủ điều kiện sức khỏe', value: 4 },
 ];
+
+export const DownloadLink = styled('a')(({ theme }) => ({
+  display: 'none',
+}));
 
 const VolunteerListOfEvent = () => {
   const { eventId } = useParams();
@@ -52,8 +58,11 @@ const VolunteerListOfEvent = () => {
     type: 'success',
   });
   const [isUpdateBloodTypeDialogOpen, setIsUpdateBloodTypeDialogOpen] = useState(false);
+  const [isImportBloodTypeDialogOpen, setIsImportBloodTypeDialogOpen] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [bloodType, setBloodType] = useState('');
+  const [importParams, setImportParams] = useState([]);
+  const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [updateBloodTypeParams, setUpdateBloodTypeParams] = useState({
     userInformationId: '',
     bloodTypeId: '',
@@ -66,6 +75,8 @@ const VolunteerListOfEvent = () => {
     name: key,
     value: BloodTypeFilterEnum[key],
   }));
+
+  const downloadRef = useRef();
 
   const convertFilterBloodTypeLabel = (bloodTypeValue) => {
     switch (bloodTypeValue) {
@@ -211,6 +222,11 @@ const VolunteerListOfEvent = () => {
     setIsUpdateBloodTypeDialogOpen(!isUpdateBloodTypeDialogOpen);
   };
 
+  const handleImportBloodTypeDialog = () => {
+    setIsImportBloodTypeDialogOpen(!isImportBloodTypeDialogOpen);
+    setIsImportBtnDisabled(true);
+  };
+
   const handleChooseBloodType = (bloodTypes) => {
     const bloodTypeString = bloodTypes.map((bloodType) => bloodType.value).join(',');
 
@@ -289,6 +305,102 @@ const VolunteerListOfEvent = () => {
       </Box>
     );
   };
+
+  const getDataFromFile = (values, disabledBtn) => {
+    setImportParams([]);
+    setImportParams(values);
+    setIsImportBtnDisabled(disabledBtn);
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (importParams.length <= 0) {
+      return;
+    }
+    setAlert({});
+    setIsButtonLoading(true);
+    setImportParams([]);
+
+    const importParamsWithEventId = importParams?.map((item, i) => ({
+      ...item,
+      isRhNegative: item?.isRhNegative === '-',
+      eventId,
+    }));
+
+    try {
+      await updateBloodType({
+        userInformationId: updateBloodTypeParams.userInformationId,
+        updateMode: 1,
+        volunteerBloodTypeUpdationInformations: importParamsWithEventId,
+      });
+      setAlert({ message: 'Cập nhật nhóm máu thành công', status: true, type: 'success' });
+      await fetchVolunteersOfEvent();
+    } catch (error) {
+      setAlert({ message: errorHandler(error), type: 'error', status: true });
+    } finally {
+      handleImportBloodTypeDialog();
+      setIsButtonLoading(false);
+    }
+  };
+
+  const importBloodTypeDialogContent = () => {
+    return (
+      <form onSubmit={onSubmit}>
+        <Stack spacing={3} sx={{ height: '100%' }}>
+          <UpdateBloodTypeImport label="Kéo thả hoặc nhấn vào để chọn file" onImport={getDataFromFile} />
+
+          <DownloadLink ref={downloadRef} download />
+          <Stack direction="row" justifyContent="space-between">
+            <Button
+              sx={{ width: '150px' }}
+              startIcon={<Icon icon="solid-file-download" />}
+              onClick={async () => {
+                try {
+                  await handleDownloadTemplate('template_import/update_bloodtype_import_template.csv', downloadRef);
+                } catch (error) {
+                  setAlert({});
+                  switch (error.code) {
+                    case 'storage/object-not-found':
+                      setAlert({
+                        message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
+                        status: true,
+                        type: 'error',
+                      });
+                      break;
+
+                    case 'storage/unknown':
+                      // Unknown error occurred, inspect the server response
+                      break;
+                    default: {
+                    }
+                  }
+                }
+              }}
+            >
+              Tải file mẫu
+            </Button>
+            <DialogButtonGroupStyle>
+              <Box>
+                <Button className="dialog_button" onClick={handleImportBloodTypeDialog}>
+                  Hủy
+                </Button>
+              </Box>
+              <LoadingButton
+                loading={isButtonLoading}
+                disabled={isImportBtnDisabled}
+                className="dialog_button"
+                type="submit"
+                variant="contained"
+              >
+                Cập nhật
+              </LoadingButton>
+            </DialogButtonGroupStyle>
+          </Stack>
+        </Stack>
+      </form>
+    );
+  };
+
   const fetchVolunteersOfEvent = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
 
@@ -338,9 +450,21 @@ const VolunteerListOfEvent = () => {
 
   return (
     <>
-      <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
-        Danh sách người đăng ký
-      </Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
+          Danh sách người đăng ký
+        </Typography>
+        {user.role === 'Manager' && (
+          <Button
+            variant="contained"
+            onClick={handleImportBloodTypeDialog}
+            sx={{ marginBottom: '13px', marginRight: '15px' }}
+          >
+            Cập nhật nhóm máu từ file
+          </Button>
+        )}
+      </Stack>
+
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.status} />
@@ -381,6 +505,15 @@ const VolunteerListOfEvent = () => {
         onClose={handleUpdateBloodTypeDialog}
         title="Cập nhật nhóm máu"
         children={updateBloodTypeDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
+      />
+
+      {/* Import Blood Type Dialog */}
+      <CustomDialog
+        isOpen={isImportBloodTypeDialogOpen}
+        onClose={handleImportBloodTypeDialog}
+        title="Cập nhật nhóm máu từ file"
+        children={importBloodTypeDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 

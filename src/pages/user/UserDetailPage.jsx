@@ -75,6 +75,7 @@ const UserDetailPage = () => {
 
   const handleImportBloodDonationHistoryDialog = () => {
     setImportBloodDonation(!importBloodDonation);
+    setIsImportBtnDisabled(true);
   };
 
   const handleAddBloodDonationHistoryOptionDialog = () => {
