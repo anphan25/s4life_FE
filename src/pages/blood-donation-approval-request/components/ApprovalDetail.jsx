@@ -88,14 +88,6 @@ const ApprovalDetail = ({ id }) => {
                 {detailData?.user?.userInformation?.address}
               </Typography>
             </Grid>
-            <Grid item sm={12} md={4}>
-              <Typography>
-                <TitleItemStyle>Trạng thái phê duyệt: </TitleItemStyle>
-                <Tag status={detailData?.isProcessing ? 'warning' : 'success'}>
-                  {detailData?.isProcessing ? 'Đang xử lý' : 'Đã xử lý'}
-                </Tag>
-              </Typography>
-            </Grid>
           </Grid>
 
           <Grid container spacing={4} mb={5}>
