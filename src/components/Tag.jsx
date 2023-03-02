@@ -10,7 +10,7 @@ const TagStyle = styled('span')(({ theme, styleState }) => {
     whiteSpace: 'nowrap',
     display: 'inline-flex',
     justifyContent: 'center',
-    padding: '6px 8px',
+    padding: '8px 10px',
     color: theme.palette.grey[900],
     fontSize: 12,
     backgroundColor: theme.palette.grey[300],

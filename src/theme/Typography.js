@@ -1,4 +1,4 @@
-import { responsiveFontSizes } from 'utils/getFontValue';
+import { responsiveFontSizes } from 'utils/functions/getFontValue';
 
 const FONT_PRIMARY = 'Inter, sans-serif';
 

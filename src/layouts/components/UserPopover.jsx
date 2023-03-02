@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
-import { getVietnameseRole } from 'utils/getVietnameseRole';
+import { getVietnameseRole } from 'utils';
 import { getHospital } from 'app/slices/HospitalSlice';
 import useResponsive from 'hooks/useResponsive';
 
