@@ -15,8 +15,8 @@ import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle } fr
 import ApprovalDetail from './components/ApprovalDetail';
 
 const filterTabValues = [
-  { label: 'Đang xử lý', value: true },
-  { label: 'Đã xử lý', value: false },
+  { label: 'Đang xử lý', value: 1 },
+  { label: 'Đã xử lý', value: 2 },
 ];
 
 function ApprovalList() {
@@ -129,7 +129,7 @@ function ApprovalList() {
     setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, isProcessing: value, page: 1, pageSize: 10 }));
+    setPageState((old) => ({ ...old, isProcessing: value === 1, page: 1, pageSize: 10 }));
   };
 
   const handleSearchBloodBag = (searchValue) => {
@@ -158,7 +158,11 @@ function ApprovalList() {
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.isProcessing} />
+          <FilterTab
+            tabs={filterTabValues}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.isProcessing ? 1 : 2}
+          />
           <InputFilterSectionStyle>
             <SearchBar
               sx={{ width: '100%' }}

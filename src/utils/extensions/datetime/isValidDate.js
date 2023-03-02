@@ -1,8 +1,7 @@
 import moment from 'moment';
 
-export const isValidDate = (value, originalValue) => {
-  if (this.isType(value)) {
-    return value;
-  }
+export const isValidDate = (value) => {
+  if (!value) return false;
+
   return moment(value, 'dd/MM/yyyy', true).isValid();
 };

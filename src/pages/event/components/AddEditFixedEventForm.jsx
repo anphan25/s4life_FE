@@ -23,6 +23,8 @@ import {
   PHONE_NUMBER_PATTERN,
   BLOOD_TYPE,
   convertErrorCodeToMessage,
+  isValidTime,
+  isValidDate,
 } from 'utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ref, uploadBytesResumable, getDownloadURL, getStorage, deleteObject } from 'firebase/storage';
@@ -33,7 +35,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-import { isValidDate } from 'utils/extensions/datetime';
 
 const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   const [locations, setLocations] = useState([]);
@@ -296,8 +297,15 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       return value;
     }
 
-    const result = moment(value, 'HH:mm', true).isValid();
-    return result;
+    return isValidTime(value);
+  }
+
+  function transformDate(value, originalValue) {
+    if (this.isType(value)) {
+      return value;
+    }
+
+    return isValidDate(value);
   }
 
   const AddEventSchema = Yup.object().shape({
@@ -317,7 +325,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập số điện thoại liên hệ'),
     startDate: Yup.date()
       .nullable()
-      .transform(isValidDate)
+      .transform(transformDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
@@ -325,7 +333,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
     endDate: Yup.date()
       .nullable()
-      .transform(isValidDate)
+      .transform(transformDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày kết thúc')
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
