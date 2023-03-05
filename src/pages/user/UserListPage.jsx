@@ -524,8 +524,8 @@ const UserListPage = () => {
   };
 
   const fetchUserListData = useCallback(async () => {
-    setPageState((old) => ({ ...old, isLoading: true, data: [] }));
-
+    setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
+    setAlert({});
     try {
       const getVolunteerParam = {
         Role: pageState.filterMode,
@@ -566,11 +566,11 @@ const UserListPage = () => {
               addDate: formatDate(data?.addDate, 4) || '-',
               isActive: data?.isActive,
             }));
-      setPageState({ ...pageState, data: dataRow, total: data.total });
+      setPageState((pre) => ({ ...pre, data: dataRow, total: data.total }));
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
-      setPageState((old) => ({ ...old, isLoading: false }));
+      setPageState((pre) => ({ ...pre, isLoading: false }));
     }
   }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId]);
 

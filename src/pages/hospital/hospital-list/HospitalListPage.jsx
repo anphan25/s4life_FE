@@ -348,7 +348,8 @@ const HospitalListPage = () => {
   };
 
   const fetchHospitalData = useCallback(async () => {
-    setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+    setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
+    setAlert({});
     try {
       const data = await getHospitalsList({
         FilterMode: 'All',
@@ -368,11 +369,11 @@ const HospitalListPage = () => {
         addDate: formatDate(data?.addDate, 4) || '-',
       }));
 
-      setPageState({ ...pageState, data: dataRow, total: data.total });
+      setPageState((pre) => ({ ...pre, data: dataRow, total: data.total }));
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
     } finally {
-      setPageState((old) => ({ ...old, isLoading: false }));
+      setPageState((pre) => ({ ...pre, isLoading: false }));
     }
   }, [pageState.pageSize, pageState.page, pageState.filterTabMode, pageState.searchKey]);
 

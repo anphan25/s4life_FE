@@ -344,6 +344,9 @@ const UserDetailPage = () => {
         setIsMultipleAlertOpen(true);
       }
     });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
   }, [connection]);
 
   return (
