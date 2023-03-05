@@ -74,7 +74,7 @@ export function convertErrorCodeToMessage(code) {
     5004: 'Không tìm thấy yêu cầu',
     5031: 'Thông tin nhập lịch sử hiến máu không hợp lệ',
     5041: 'Thiếu thông tin lịch sử hiến máu',
-    5051: 'Thông tin xét duyệt đã tồn tại trong hệ thống',
+    5051: 'Lịch sử hiến máu đã tồn tại trong hệ thống',
     5100: 'Tạo yêu cầu xét duyệt lịch sử hiến máu thành công',
     5200: 'Cập nhật yêu cầu xét duyệt lịch sử hiến máu thành công',
     //Blood Donation

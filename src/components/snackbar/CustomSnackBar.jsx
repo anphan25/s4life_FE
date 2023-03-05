@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Snackbar, Alert, useTheme } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
 
 export const CustomSnackBar = ({ message, type, sx }) => {
   const [isOpen, setIsOpen] = useState(true);
