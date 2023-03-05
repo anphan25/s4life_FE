@@ -551,7 +551,7 @@ const UserListPage = () => {
               name: data?.userInformation?.fullName || '-',
               address: data?.userInformation?.address || '-',
               nationalId: data?.userInformation?.nationalId || '-',
-              phoneNumber: data?.userName || '-',
+              phoneNumber: data?.phoneNumber || '-',
               bloodType: data?.userInformation?.bloodTypeId
                 ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
                 : '-',

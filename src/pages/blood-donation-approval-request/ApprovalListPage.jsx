@@ -52,8 +52,14 @@ function ApprovalList() {
         flex: 1,
       },
       {
+        headerName: 'Số điện thoại',
+        type: 'string',
+        field: 'phoneNumber',
+        width: 200,
+      },
+      {
         headerName: 'CMND/CCCD',
-        type: 'number',
+        type: 'string',
         field: 'nationalId',
         width: 200,
       },
@@ -107,6 +113,7 @@ function ApprovalList() {
         name: data?.user?.userInformation?.fullName || '-',
         nationalId: data?.user?.userInformation?.nationalId || '-',
         addDate: formatDate(data?.addDate, 4) || '-',
+        phoneNumber: data?.user?.phoneNumber || '-',
         isProcessing: data?.isProcessing,
       }));
 
