@@ -53,7 +53,7 @@ const EventFixedListPage = () => {
     pageSize: 10,
     filterMode: 2, // 1: All, 2: FilterAndSearch, 3: EventRegisterable, 4: MostRecent
     status: 1, // 1: unstarted, 2: started, 3: finished, 4: canceled
-    eventType: 1, // 1: sk cố định, 2: sk theo lịch bv, 3: sk lưu động
+
     searchKey: '',
     dateFrom: null,
     dateTo: null,
@@ -360,12 +360,17 @@ const EventFixedListPage = () => {
   };
 
   const fetchEventListData = useCallback(async () => {
-    setPageState((old) => ({ ...old, isLoading: true }));
-
+    setPageState((pre) => ({ ...pre, isLoading: true }));
+    setAlert({});
     getEvents({
-      ...pageState,
-      DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
-      DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
+      Page: pageState?.page,
+      PageSize: pageState?.pageSize,
+      FilterMode: pageState?.filterMode,
+      Status: pageState?.status,
+      EventType: 1, // 1: sk cố định, 2: sk theo lịch bv, 3: sk lưu động
+      SearchKey: pageState?.searchKey,
+      ...(pageState?.dateFrom && { DateFrom: moment(pageState?.dateFrom).format('yyyy-MM-DD') }),
+      ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
     })
       .then((res) => {
         const dataRow = res.items?.map((data) => ({
@@ -386,12 +391,12 @@ const EventFixedListPage = () => {
           status: data?.status || '',
           isEmergency: data?.isEmergency,
         }));
-        setPageState({ ...pageState, data: dataRow, total: res.total });
+        setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
       })
       .catch((error) => {
         setAlert({ message: errorHandler(error), type: 'error', status: true });
       })
-      .finally(() => setPageState((old) => ({ ...old, isLoading: false })));
+      .finally(() => setPageState((pre) => ({ ...pre, isLoading: false })));
   }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.status, pageState.dateFrom, pageState.dateTo]);
 
   useEffect(() => {

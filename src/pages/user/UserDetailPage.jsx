@@ -317,6 +317,9 @@ const UserDetailPage = () => {
     connection?.onclose((e) => {
       setConnection(null);
     });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
   }, [connection]);
 
   return (

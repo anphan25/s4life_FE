@@ -53,7 +53,6 @@ const EventMobileListPage = () => {
     pageSize: 10,
     filterMode: 2,
     status: 1,
-    eventType: 3,
     searchKey: '',
     dateFrom: null,
     dateTo: null,
@@ -303,12 +302,17 @@ const EventMobileListPage = () => {
   };
 
   const fetchEventListData = useCallback(async () => {
-    setPageState((old) => ({ ...old, isLoading: true }));
-
+    setPageState((pre) => ({ ...pre, isLoading: true }));
+    setAlert({});
     getEvents({
-      ...pageState,
-      DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
-      DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
+      Page: pageState?.page,
+      PageSize: pageState?.pageSize,
+      FilterMode: pageState?.filterMode,
+      Status: pageState?.status,
+      EventType: 3,
+      SearchKey: pageState?.searchKey,
+      ...(pageState?.dateFrom && { DateFrom: moment(pageState?.dateFrom).format('yyyy-MM-DD') }),
+      ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
     })
       .then((res) => {
         console.log(res);
@@ -336,12 +340,12 @@ const EventMobileListPage = () => {
           numberOfRegistration: data?.numberOfRegistration || 0,
           status: data?.status || '',
         }));
-        setPageState({ ...pageState, data: dataRow, total: res.total });
+        setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
       })
       .catch((error) => {
         setAlert({ message: errorHandler(error), type: 'error', status: true });
       })
-      .finally(() => setPageState((old) => ({ ...old, isLoading: false })));
+      .finally(() => setPageState((pre) => ({ ...pre, isLoading: false })));
   }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.status, pageState.dateFrom, pageState.dateTo]);
 
   useEffect(() => {
