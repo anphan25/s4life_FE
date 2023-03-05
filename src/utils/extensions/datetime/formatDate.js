@@ -22,6 +22,11 @@ export function formatDate(date, type) {
       break;
     }
 
+    case 5: {
+      dateStringFormat = moment(date).format('yyyy-MM-DD');
+      break;
+    }
+
     default: {
       dateStringFormat = moment(date).format('DD/MM/yyy');
       break;
