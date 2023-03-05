@@ -126,7 +126,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
 
     setAlert({});
     setIsButtonLoading(true);
-    
+
     try {
       await updateApproveBloodDonation(detailData?.id, bloodDonationApprovalMappingData);
 
@@ -147,7 +147,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
     };
     openConnection();
   }, []);
-
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
@@ -171,7 +170,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
       )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <TableContainer component={Box} sx={{ maxHeight: 460 }}>
-          <Table sx={{ minWidth: 300 }} aria-label="simple table">
+          <Table sx={{ minWidth: 300 }}>
             <TableHead>
               <TableRow>
                 <TableCell align="right">Số túi máu</TableCell>

@@ -29,7 +29,7 @@ export const openHubConnection = async (store) => {
 export const listenOnHub = (connection, onReceive) => {
   if (!connection) return;
   try {
-    connection.on('ReceiveMessage', (messageCode) => {
+    connection?.on('ReceiveMessage', (messageCode) => {
       onReceive(messageCode);
     });
   } catch (error) {
@@ -40,7 +40,7 @@ export const listenOnHub = (connection, onReceive) => {
 export const listenOnHubInBulkOperations = (connection, onReceive) => {
   if (!connection) return;
   try {
-    connection.on('ReceiveResult', (result, messageCode) => {
+    connection?.on('ReceiveResult', (result, messageCode) => {
       onReceive(result, messageCode);
     });
   } catch (error) {

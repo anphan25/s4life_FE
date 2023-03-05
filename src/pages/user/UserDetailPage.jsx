@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { HeaderMainStyle, errorHandler, isValidDate, DialogButtonGroupStyle, handleDownloadTemplate } from 'utils';
+import {
+  HeaderMainStyle,
+  errorHandler,
+  isValidDate,
+  DialogButtonGroupStyle,
+  handleDownloadTemplate,
+  formatDate,
+} from 'utils';
 import { Stack, Box, Button, Divider, IconButton, Typography, styled } from '@mui/material';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,6 +21,8 @@ import {
   HeaderBreadcumbs,
   CustomSnackBar,
   BloodDonationHistoryImport,
+  MultipleAlertSnackBar,
+  DetailAlertDialog,
 } from 'components';
 import UserInformation from './components/UserInformation';
 import { useParams } from 'react-router-dom';
@@ -35,6 +44,9 @@ const UserDetailPage = () => {
   const [addBloodDonationOptions, setAddBloodDonationOptions] = useState(false);
   const [importParams, setImportParams] = useState([]);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
+  const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
+  const [alertResult, setAlertResult] = useState(null);
+
   const downloadRef = useRef();
 
   const store = useStore();
@@ -43,6 +55,8 @@ const UserDetailPage = () => {
     status: false,
     type: 'success',
   });
+
+  const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
   const childRef = useRef();
 
   const AddDonationHistorySchema = Yup.object().shape({
@@ -82,12 +96,17 @@ const UserDetailPage = () => {
     setAddBloodDonationOptions(!addBloodDonationOptions);
   };
 
+  const handleDetailAlertDialog = () => {
+    setIsDetailAlertOpen(!isDetailAlertOpen);
+  };
+
   const handleAddField = () => {
     append({ donationVolume: 0, bloodBagCode: '', donationDate: null });
   };
 
   const onSubmitManualAdd = async (data) => {
     setIsButtonLoading(true);
+    setAlert({});
     const mappingBloodDonations = data?.bloodDonations?.map((data) => ({
       ...data,
       donationDate: data?.donationDate.toISOString(),
@@ -95,8 +114,6 @@ const UserDetailPage = () => {
 
     try {
       await addBloodDonations({ userInformationId, bloodDonations: mappingBloodDonations });
-
-      setAlert({ message: 'Thêm lịch sử hiến máu thành công', status: true, type: 'success' });
 
       childRef.current.reloadDonationHistories();
       handleAddBloodDonationHistoryDialog();
@@ -111,10 +128,9 @@ const UserDetailPage = () => {
   const onSubmitImportAdd = async (e) => {
     e.preventDefault();
     setIsButtonLoading(true);
+    setAlert({});
     try {
       await addBloodDonations({ userInformationId, bloodDonations: importParams });
-
-      setAlert({ message: 'Thêm lịch sử hiến máu thành công', status: true, type: 'success' });
 
       childRef.current.reloadDonationHistories();
       handleImportBloodDonationHistoryDialog();
@@ -182,7 +198,6 @@ const UserDetailPage = () => {
                 disabled={index === 0}
                 color="error"
                 onClick={() => {
-                  console.log('index', index);
                   remove(index);
                 }}
               >
@@ -311,11 +326,23 @@ const UserDetailPage = () => {
 
   useEffect(() => {
     listenOnHubInBulkOperations(connection, (result, messageCode) => {
-      console.log('result', result);
-      console.log('messageCode', messageCode);
-    });
-    connection?.onclose((e) => {
-      setConnection(null);
+      if (result) {
+        setIsMultipleAlertOpen(false);
+        const formatedDateSuccessList = result?.successList.map((data) => ({
+          ...data,
+          donationDate: formatDate(data?.donationDate, 2),
+        }));
+        const formatedDateFailList = result?.failedList.map((data) => ({
+          errorCode: data?.errorCode,
+          data: { ...data.data, donationDate: formatDate(data?.data.donationDate, 2) },
+        }));
+
+        result['successList'] = formatedDateSuccessList;
+        result['failedList'] = formatedDateFailList;
+
+        setAlertResult(result);
+        setIsMultipleAlertOpen(true);
+      }
     });
   }, [connection]);
 
@@ -370,7 +397,34 @@ const UserDetailPage = () => {
         sx={{ '& .MuiDialog-paper': { maxWidth: '70% !important', maxHeight: '500px' } }}
       />
 
+      {/* Detail alerts dialog */}
+      <DetailAlertDialog
+        isOpen={isDetailAlertOpen}
+        onClose={handleDetailAlertDialog}
+        title={'Chi tiết kết quả'}
+        successList={alertResult?.successList || []}
+        failedList={alertResult?.failedList || []}
+        columns={[
+          { name: 'Ngày hiến', field: 'donationDate' },
+          { name: 'Số đơn vị máu', field: 'donationVolume' },
+          { name: 'Số túi máu', field: 'bloodBagCode' },
+        ]}
+        sx={{ '& .MuiDialog-paper': { width: '80% !important', maxHeight: '600px' } }}
+      />
+
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
+
+      {isMultipleAlertOpen && (
+        <MultipleAlertSnackBar
+          onClose={() => {
+            setIsMultipleAlertOpen(false);
+          }}
+          isOpen={isMultipleAlertOpen}
+          numberOfSuccess={alertResult?.successList.length}
+          numberOfFailure={alertResult?.failedList.length}
+          onClick={handleDetailAlertDialog}
+        />
+      )}
     </Box>
   );
 };

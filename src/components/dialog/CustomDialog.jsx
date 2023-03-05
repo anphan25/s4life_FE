@@ -2,7 +2,7 @@ import { Dialog, DialogTitle, Divider, Stack, styled, Box } from '@mui/material'
 import React from 'react';
 
 import Slide from '@mui/material/Slide';
-import { Icon } from './Icon';
+import { Icon } from '../Icon';
 
 const DialogContentStyle = styled(Box)(({ theme }) => ({
   padding: '10px 20px 20px',
