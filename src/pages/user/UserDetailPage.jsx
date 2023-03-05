@@ -59,6 +59,14 @@ const UserDetailPage = () => {
   const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
   const childRef = useRef();
 
+  function transformDate(value, originalValue) {
+    if (this.isType(value)) {
+      return value;
+    }
+
+    return isValidDate(value);
+  }
+
   const AddDonationHistorySchema = Yup.object().shape({
     bloodDonations: Yup.array().of(
       Yup.object().shape({
@@ -76,7 +84,7 @@ const UserDetailPage = () => {
           .max(32, 'Vui lòng không nhập quá 32 ký tự'),
         donationDate: Yup.date()
           .nullable()
-          .transform(isValidDate)
+          .transform(transformDate)
           .typeError('Ngày không hợp lệ')
           .required('Vui lòng nhập ngày hiến'),
       })
