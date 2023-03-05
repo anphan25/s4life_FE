@@ -98,7 +98,7 @@ export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx,
                 </Table>
               </TableContainer>
             ) : (
-              <Typography fontWeight={500} sx={{ textAlign: 'center' }}>
+              <Typography fontWeight={500} sx={{ textAlign: 'center', marginTop: '10px' }}>
                 Không có dữ liệu
               </Typography>
             )}
@@ -144,7 +144,7 @@ export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx,
                 </TreeItem>
               ))
             ) : (
-              <Typography fontWeight={500} sx={{ textAlign: 'center' }}>
+              <Typography fontWeight={500} sx={{ textAlign: 'center', marginTop: '10px' }}>
                 Không có dữ liệu
               </Typography>
             )}

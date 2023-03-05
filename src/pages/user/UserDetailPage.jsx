@@ -117,7 +117,7 @@ const UserDetailPage = () => {
     setAlert({});
     const mappingBloodDonations = data?.bloodDonations?.map((data) => ({
       ...data,
-      donationDate: data?.donationDate.toISOString(),
+      donationDate: formatDate(data?.donationDate, 5),
     }));
 
     try {
