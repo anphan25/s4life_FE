@@ -286,8 +286,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     return this.test(`test-valid-date`, errorMessage, function (value, context) {
       const { path, createError } = this;
 
-      console.log('value', value);
-
       return value !== 'Invalid Date' || createError({ path, message: errorMessage });
     });
   });
