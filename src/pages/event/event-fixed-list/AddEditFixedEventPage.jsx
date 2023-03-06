@@ -18,26 +18,27 @@ const AddEditFixedEventPage = () => {
 
   const fetchEventDetailData = useCallback(async () => {
     const data = await getEventDetailByEventId(eventId);
+    console.log('data', data);
 
     setEventEditData({
-      description: data.description,
-      name: data.name,
-      eventCode: data.eventCode,
-      contactInformation: data.contactInformation,
+      description: data?.description,
+      name: data?.name,
+      eventCode: data?.eventCode,
+      contactInformation: data?.contactInformation,
       locations: {
-        name: data.eventLocations[0].location.name,
-        address: data.eventLocations[0].location.address,
+        name: data?.eventLocations[0].location.name,
+        address: data?.eventLocations[0].location.address,
         placeId: '',
-        latitude: data.eventLocations[0].location.latitude * 1,
-        longitude: data.eventLocations[0].location.longitude * 1,
+        latitude: data?.eventLocations[0].location.latitude * 1,
+        longitude: data?.eventLocations[0].location.longitude * 1,
       },
-      bloodTypeNeed: data.bloodTypeNeed,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      workingTimeStart: data.workingTimeStart,
-      workingTimeEnd: data.workingTimeEnd,
-      maxParticipant: data.maxParticipant,
-      imageUrls: data.eventImages[0].imageUrl,
+      bloodTypeNeed: data?.bloodTypeNeed,
+      startDate: data?.startDate,
+      endDate: data?.endDate,
+      workingTimeStart: data?.workingTimeStart,
+      workingTimeEnd: data?.workingTimeEnd,
+      maxParticipant: data?.maxParticipant,
+      imageUrls: data?.images ? data?.images[0] : null,
       isEmergency: data.isEmergency,
     });
   }, []);
