@@ -9,6 +9,8 @@ import {
   Icon,
   AsyncAutocompleteFilter,
   UpdateBloodTypeImport,
+  MultipleAlertSnackBar,
+  DetailAlertDialog,
 } from 'components';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { errorHandler, formatDate } from 'utils';
@@ -24,8 +26,11 @@ import {
   InputFilterSectionStyle,
   BloodTypeFilterEnum,
   handleDownloadTemplate,
+  BloodTypeEnum,
 } from 'utils';
 import { useSelector } from 'react-redux';
+import { openHubConnection, listenOnHubInBulkOperations } from 'config';
+import { useStore } from 'react-redux';
 
 const filterTabValues = [
   { label: 'Chưa tham gia', value: 2 },
@@ -69,7 +74,14 @@ const VolunteerListOfEvent = () => {
     isRhNegative: '',
     nationalId: '',
   });
+  const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
+  const [alertResult, setAlertResult] = useState(null);
+  const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
+  const [connection, setConnection] = useState(null);
+
   let user = useSelector((state) => state.auth.auth?.user);
+
+  const store = useStore();
 
   const BloodTypeFilterList = Object.keys(BloodTypeFilterEnum).map((key) => ({
     name: key,
@@ -233,6 +245,10 @@ const VolunteerListOfEvent = () => {
     setPageState((old) => ({ ...old, bloodTypes: bloodTypeString }));
   };
 
+  const handleDetailAlertDialog = () => {
+    setIsDetailAlertOpen(!isDetailAlertOpen);
+  };
+
   const updateBloodTypeDialogContent = () => {
     return (
       <Box>
@@ -280,8 +296,6 @@ const VolunteerListOfEvent = () => {
                     },
                   ],
                 });
-
-                setAlert({ message: 'Cập nhật nhóm máu thành công', status: true, type: 'success' });
                 await fetchVolunteersOfEvent();
               } catch (error) {
                 setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -333,7 +347,6 @@ const VolunteerListOfEvent = () => {
         updateMode: 1,
         volunteerBloodTypeUpdationInformations: importParamsWithEventId,
       });
-      setAlert({ message: 'Cập nhật nhóm máu thành công', status: true, type: 'success' });
       await fetchVolunteersOfEvent();
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -448,6 +461,45 @@ const VolunteerListOfEvent = () => {
     fetchVolunteersOfEvent();
   }, [fetchVolunteersOfEvent]);
 
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHubInBulkOperations(connection, (result, messageCode) => {
+      if (result) {
+        setIsMultipleAlertOpen(false);
+
+        const convertBloodTypeSuccessList = result?.successList?.map((data) => ({
+          ...data,
+          bloodType: Object.values(BloodTypeEnum).find((value) => value.value === data.bloodType).description,
+          isRhNegative: data.isRhNegative ? '-' : '+',
+        }));
+
+        const convertBloodTypeFailList = result?.failedList.map((data) => ({
+          errorCode: data?.errorCode,
+          data: {
+            ...data.data,
+            bloodType: Object.values(BloodTypeEnum).find((value) => value.value === data.data.bloodType).description,
+            isRhNegative: data.data.isRhNegative ? '-' : '+',
+          },
+        }));
+
+        result['successList'] = convertBloodTypeSuccessList;
+        result['failedList'] = convertBloodTypeFailList;
+
+        setAlertResult(result);
+        setIsMultipleAlertOpen(true);
+      }
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
+
   return (
     <>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -517,7 +569,34 @@ const VolunteerListOfEvent = () => {
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
+      {/* Detail alerts dialog */}
+      <DetailAlertDialog
+        isOpen={isDetailAlertOpen}
+        onClose={handleDetailAlertDialog}
+        title={'Chi tiết kết quả'}
+        successList={alertResult?.successList || []}
+        failedList={alertResult?.failedList || []}
+        columns={[
+          { name: 'CMND/CCCD', field: 'nationalId' },
+          { name: 'Nhóm máu', field: 'bloodType' },
+          { name: 'Yếu tố Rh', field: 'isRhNegative' },
+        ]}
+        sx={{ '& .MuiDialog-paper': { width: '80% !important', maxHeight: '600px' } }}
+      />
+
       {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
+
+      {isMultipleAlertOpen && (
+        <MultipleAlertSnackBar
+          onClose={() => {
+            setIsMultipleAlertOpen(false);
+          }}
+          isOpen={isMultipleAlertOpen}
+          numberOfSuccess={alertResult?.successList.length}
+          numberOfFailure={alertResult?.failedList.length}
+          onClick={handleDetailAlertDialog}
+        />
+      )}
     </>
   );
 };
