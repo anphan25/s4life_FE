@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Paper, Grid, Stack, Box, Typography, styled, Divider, useMediaQuery } from '@mui/material';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
@@ -6,6 +6,8 @@ import { formatNumber } from 'utils/functions/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';
+import { getDashboardData } from 'api';
+import { DashBoardEnum } from 'utils';
 
 const PageTitle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
@@ -107,8 +109,104 @@ const BloodVolume = styled(Paper)(({ theme }) => ({
   },
 }));
 
+const getFirstAndLastDateInCurrentQuarter = () => {
+  const currentMonth = moment().get('month');
+  const currentYear = moment().get('year');
+
+  console.log('currentMonth', currentMonth);
+
+  switch (true) {
+    case 1 <= currentMonth <= 3: {
+      return {
+        DateStart: moment().set('date', 1).set({ month: 0, year: currentYear }),
+        DateEnd: moment().set('date', 31).set({ month: 2, year: currentYear }),
+      };
+    }
+
+    case 4 <= currentMonth <= 6: {
+      return {
+        DateStart: moment().set('date', 1).set({ month: 3, year: currentYear }),
+        DateEnd: moment().set('date', 30).set({ month: 5, year: currentYear }),
+      };
+    }
+
+    case 7 <= currentMonth <= 9: {
+      return {
+        DateStart: moment().set('date', 1).set({ month: 6, year: currentYear }),
+        DateEnd: moment().set('date', 30).set({ month: 8, year: currentYear }),
+      };
+    }
+
+    case 10 <= currentMonth <= 12: {
+      return {
+        DateStart: moment().set('date', 1).set({ month: 9, year: currentYear }),
+        DateEnd: moment().set('date', 31).set({ month: 11, year: currentYear }),
+      };
+    }
+
+    default: {
+      break;
+    }
+  }
+};
+
+const resultFromGroup = (arr, groupNumber) => {
+  if (!arr || groupNumber === null) return;
+
+  return arr?.find((item) => item.group === groupNumber)?.result;
+};
+
 const DashboardPage = () => {
+  const [data, setData] = useState(null);
   const theme = useTheme();
+
+  const eventStatistics = data?.eventStatistics || 0;
+  const eventRegistrationStatistics = data?.eventRegistrationStatistics || 0;
+  const bloodVolumeStatistics = data?.bloodVolumeStatistics || 0;
+  const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics || 0;
+
+  // Events
+  const unstartedEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.UNSTARTED_GROUP);
+  const startedEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.STARTED_GROUP);
+  const finishedEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.FINISHED_GROUP);
+  const canceledEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.CANCELED_GROUP);
+
+  // Event Registration
+  const totalEventRegistrations = resultFromGroup(
+    eventRegistrationStatistics,
+    DashBoardEnum.EventRegistrationStatistic.TOTAL_GROUP
+  );
+  const notAttendedEventRegistrations = resultFromGroup(
+    eventRegistrationStatistics,
+    DashBoardEnum.EventRegistrationStatistic.NOT_ATTENDED_GROUP
+  );
+  const attendedEventRegistrations = resultFromGroup(
+    eventRegistrationStatistics,
+    DashBoardEnum.EventRegistrationStatistic.ATTENDED_GROUP
+  );
+
+  // Blood Volume
+  const receivedBlood = resultFromGroup(bloodVolumeStatistics, DashBoardEnum.BloodVolumeStatistic.RECEIVED_GROUP);
+  const expectedBloodReceive = resultFromGroup(
+    bloodVolumeStatistics,
+    DashBoardEnum.BloodVolumeStatistic.EXPECTED_RECEIVE_GROUP
+  );
+
+  // Blood Type
+  const oBloodTypeVolume = resultFromGroup(bloodVolumeTypeStatistics, DashBoardEnum.BloodTypeStatistic.O_GROUP);
+
+  const fetchDashboardData = useCallback(async () => {
+    const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.toISOString();
+    const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.toISOString();
+
+    const response = await getDashboardData(startDate, endDate);
+
+    setData(response[0]?.statistic);
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -118,8 +216,8 @@ const DashboardPage = () => {
         </Typography>
         <Paper elevation={0} sx={{ padding: '.65rem 1.25rem', borderRadius: '.475rem' }}>
           <Typography sx={{ textTransform: 'capitalize', fontSize: 12, fontWeight: 600 }}>
-            {moment('2001-09-05T00:00:00').locale('vi').format('MMMM, YYYY')} -{' '}
-            {moment('2001-12-05T00:00:00').locale('vi').format('MMMM, YYYY')}
+            {getFirstAndLastDateInCurrentQuarter().DateStart.format('MMMM, YYYY')} -{' '}
+            {getFirstAndLastDateInCurrentQuarter().DateEnd.format('MMMM, YYYY')}
           </Typography>
         </Paper>
       </PageTitle>
@@ -134,7 +232,9 @@ const DashboardPage = () => {
             </Stack>
 
             <Stack className="tab_content">
-              <Typography className="tab_content--number">{formatNumber(50046)}</Typography>
+              <Typography className="tab_content--number">
+                {formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents)}
+              </Typography>
 
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">
@@ -142,7 +242,7 @@ const DashboardPage = () => {
                     <Icon icon="solid-check" className="status_icon success" />
                     <Typography className="status_text">Đã hoàn thành</Typography>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                  <Typography className="status_number">{formatNumber(finishedEvents)}</Typography>
                 </Box>
 
                 <Box>
@@ -154,7 +254,7 @@ const DashboardPage = () => {
                     <Icon icon="solid-times" className="status_icon fail" />
                     <Typography className="status_text">Chưa hoàn thành</Typography>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                  <Typography className="status_number">{formatNumber(unstartedEvents + startedEvents)}</Typography>
                 </Box>
               </Stack>
             </Stack>
@@ -165,11 +265,11 @@ const DashboardPage = () => {
           <StatisticTabContainer elevation={0}>
             <Stack className="tab_title" direction="row" alignItems="center">
               <Icon icon="solid-users-group" className="tab_title--icon" />
-              <Typography className="tab_title--text">Số lượt hiến máu</Typography>
+              <Typography className="tab_title--text">Số lượt đăng ký</Typography>
             </Stack>
 
             <Stack className="tab_content">
-              <Typography className="tab_content--number">{formatNumber(5000)}</Typography>
+              <Typography className="tab_content--number">{formatNumber(totalEventRegistrations)}</Typography>
 
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">
@@ -177,7 +277,7 @@ const DashboardPage = () => {
                     <Icon icon="solid-check" className="status_icon success" />
                     <Typography className="status_text">Đã hiến máu</Typography>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                  <Typography className="status_number">{formatNumber(attendedEventRegistrations)}</Typography>
                 </Box>
 
                 <Box>
@@ -189,7 +289,7 @@ const DashboardPage = () => {
                     <Icon icon="solid-times" className="status_icon fail" />
                     <Typography className="status_text">Chưa hiến máu</Typography>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                  <Typography className="status_number">{formatNumber(notAttendedEventRegistrations)}</Typography>
                 </Box>
               </Stack>
             </Stack>
@@ -204,7 +304,7 @@ const DashboardPage = () => {
             </Stack>
 
             <Stack className="tab_content">
-              <Typography className="tab_content--number">{formatNumber(500000)}</Typography>
+              <Typography className="tab_content--number">{formatNumber(receivedBlood)}</Typography>
 
               <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                 <Box className="status_box">
@@ -212,7 +312,7 @@ const DashboardPage = () => {
                     <Icon icon="solid-check" className="status_icon success" />
                     <Typography className="status_text">Đã nhận được</Typography>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                  <Typography className="status_number">{formatNumber(receivedBlood)}</Typography>
                 </Box>
 
                 <Box>
@@ -224,7 +324,7 @@ const DashboardPage = () => {
                     <Icon icon="solid-line-chart-dots" className="status_icon fail" />
                     <Typography className="status_text">Dự kiến nhận</Typography>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(5000)}</Typography>
+                  <Typography className="status_number">{formatNumber(expectedBloodReceive)}</Typography>
                 </Box>
               </Stack>
             </Stack>
@@ -242,7 +342,7 @@ const DashboardPage = () => {
               <Stack className="blood_volume--item" direction="row">
                 <TypeOBloodIcon className="blood-type" />
                 <Box>
-                  <Typography className="blood-volume-number">{formatNumber(60034)} ml</Typography>
+                  <Typography className="blood-volume-number">{formatNumber(oBloodTypeVolume)} ml</Typography>
                   <Typography>Nhóm máu O</Typography>
                 </Box>
               </Stack>

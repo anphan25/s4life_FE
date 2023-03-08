@@ -27,6 +27,7 @@ export const RHFAutoComplete = ({
             id={name}
             {...props}
             autoHighlight
+            filterOptions={(x) => x}
             freeSolo
             options={list}
             value={list?.find((item) => value && item[paramsCompare] === value[paramsCompare]) || undefined}

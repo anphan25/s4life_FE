@@ -15,7 +15,6 @@ import {
   Icon,
   MoreMenuButton,
   Tag,
-  styled,
 } from 'components';
 import { useNavigate } from 'react-router-dom';
 import { GridActionsCellItem } from '@mui/x-data-grid';
@@ -310,7 +309,7 @@ const UserListPage = () => {
     hospital: Yup.array()
       .of(
         Yup.object().shape({
-          id: Yup.string().required('Vui lòng chọn bệnh viện'),
+          id: Yup.string(),
           name: Yup.string(),
         })
       )

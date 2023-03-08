@@ -19,13 +19,13 @@ import { formatDate } from 'utils';
 
 const rows = [
   {
-    name: 'Hiến máu cho người nghèo',
+    name: 'Hiến máu tháng 2',
     address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
     startDate: new Date(),
     endDate: new Date(),
   },
   {
-    name: 'Hiến máu cho người nghèo, người khuyết tật, người thiếu máu',
+    name: 'Hiến máu Quận 9',
     address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
     startDate: new Date(),
     endDate: new Date(),
@@ -70,18 +70,6 @@ const NewEventList = () => {
                     <MenuItem>
                       <Icon icon={'eye'} />
                       Xem chi tiết
-                    </MenuItem>
-
-                    <MenuItem>
-                      <Icon icon={'pen'} />
-                      Cập nhật
-                    </MenuItem>
-
-                    <Divider sx={{ borderStyle: 'dashed' }} />
-
-                    <MenuItem sx={{ color: 'error.main' }}>
-                      <Icon icon={'trash'} />
-                      Huỷ
                     </MenuItem>
                   </MoreMenuButton>
                 </TableCell>
