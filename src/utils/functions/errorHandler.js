@@ -20,6 +20,8 @@ export function convertErrorCodeToMessage(code) {
 
     //Register
     2001: 'Tên tài khoản đã tồn tại',
+    2011: 'Số điện thoại đã được đăng ký',
+    2021: 'Số CMND/CCCD đã được đăng ký',
     2031: 'Bệnh viện không tồn tại',
     2100: 'Tạo tài khoản thành công',
 
@@ -68,10 +70,10 @@ export function convertErrorCodeToMessage(code) {
     //Blood Donation Approval
     5000: PROCESSING_MESSAGE,
     5001: 'Không thể trích xuất lịch sử hiến máu từ ảnh',
-    5011: 'Thiếu trường thông tin ghi chú khi từ chối phê duyệt',
-    5021: 'Yêu cầu này đã được xử lí',
     5003: 'Từ chối  yêu cầu truy cập',
     5004: 'Không tìm thấy yêu cầu',
+    5011: 'Thiếu trường thông tin ghi chú khi từ chối phê duyệt',
+    5021: 'Yêu cầu này đã được xử lí',
     5031: 'Thông tin nhập lịch sử hiến máu không hợp lệ',
     5041: 'Thiếu thông tin lịch sử hiến máu',
     5051: 'Lịch sử hiến máu đã tồn tại trong hệ thống',
@@ -110,16 +112,18 @@ export function convertErrorCodeToMessage(code) {
     7300: 'Hủy đăng kí sự kiện thành công',
 
     //User Informations
-    8000: 'Thay đổi thông tin cá nhân thành công',
+    8000: 'Cập nhật thông tin cá nhân thành công',
     8001: 'Nhóm máu không hợp lệ',
     8011: 'Thông tin tình nguyện viên không hợp lệ',
     8003: 'Từ chối yêu cầu truy cập thông tin người dùng',
-    // 8013: 'Yêu cầu cập nhật không phù hợp',
+    8013: 'Lỗi khi cập nhật, vui lòng liện hệ quản trị viên',
     8004: 'Không tìm thấy thông tin người dùng',
     8014: 'Thời gian cập nhật nhóm máu tối đa là 3 ngày sau khi sự kiện kết thúc',
     8015: 'Cập nhật nhóm máu đang được xử lý',
     8016: 'Tình nguyện viên chưa hiến máu',
     8100: 'Cập nhật nhóm máu thành công',
+    8101: 'Thông tin cập nhật nhóm máu không hợp lệ',
+    8200: 'Yêu cầu thay đổi thông tin tình nguyện viên đang được xử lí',
 
     //Event Direction
     10003: 'Từ chối yêu cầu truy cập thông tin đường đi của sự kiện',

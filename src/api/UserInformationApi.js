@@ -1,9 +1,8 @@
 import { axiosInstance } from 'config';
-import queryString from 'query-string';
 
 const apiPath = '/user-informations';
 
-export async function updateBloodType(params) {
+export async function updateUserInfo(params) {
   return await axiosInstance.patch(apiPath, params);
 }
 

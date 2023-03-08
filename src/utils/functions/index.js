@@ -8,3 +8,4 @@ export * from './getVietnameseRole';
 export * from './convertBloodTypeLabel';
 export * from './formatNumber';
 export * from './groupDataByErrorCode';
+export * from './formatPhoneNumber';

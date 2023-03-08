@@ -11,7 +11,7 @@ import {
   CustomDialog,
 } from 'components';
 import { getBloodDonationApprovalRequests } from 'api';
-import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle } from 'utils';
+import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle, formatPhoneNumber } from 'utils';
 import ApprovalDetail from './components/ApprovalDetail';
 
 const filterTabValues = [
@@ -113,7 +113,7 @@ function ApprovalList() {
         name: data?.user?.userInformation?.fullName || '-',
         nationalId: data?.user?.userInformation?.nationalId || '-',
         addDate: formatDate(data?.addDate, 4) || '-',
-        phoneNumber: data?.user?.phoneNumber || '-',
+        phoneNumber: formatPhoneNumber(data?.user?.phoneNumber) || '-',
         isProcessing: data?.isProcessing,
       }));
 

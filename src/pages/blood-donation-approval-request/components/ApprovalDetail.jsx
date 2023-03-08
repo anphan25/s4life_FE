@@ -1,9 +1,8 @@
 import { styled, Paper, Box, Typography, Grid, Backdrop, CircularProgress } from '@mui/material';
 import React, { useEffect, useState, useCallback } from 'react';
-import { formatDate } from 'utils';
+import { formatDate, formatPhoneNumber } from 'utils';
 import { getBloodDonationApprovalRequestById } from 'api';
 import BloodDonationApprovalTable from './BloodDonationApprovalTable';
-import { Tag } from 'components';
 
 const TitleItemStyle = styled('span')(({ theme }) => ({
   fontWeight: 'bold',
@@ -61,7 +60,7 @@ const ApprovalDetail = ({ id }) => {
             <Grid item sm={12} md={4}>
               <Typography>
                 <TitleItemStyle>Số điện thoại: </TitleItemStyle>
-                {detailData?.user?.phoneNumber}
+                {formatPhoneNumber(detailData?.user?.phoneNumber)}
               </Typography>
             </Grid>
             <Grid item sm={12} md={4}>
