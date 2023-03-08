@@ -10,3 +10,4 @@ export * from './GoongApi';
 export * from './BloodDonationApprovalRequestApi';
 export * from './AdministrativeDivisionApi';
 export * from './BloodDonation';
+export * from './StatisticApi';
