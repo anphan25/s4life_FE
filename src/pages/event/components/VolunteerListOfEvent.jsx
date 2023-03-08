@@ -13,9 +13,9 @@ import {
   DetailAlertDialog,
 } from 'components';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { errorHandler, formatDate } from 'utils';
+import { errorHandler, formatDate, UserInformationUpdateModeEnum } from 'utils';
 import { useParams } from 'react-router-dom';
-import { getEventRegistrations, updateBloodType } from 'api';
+import { getEventRegistrations, updateUserInfo } from 'api';
 import moment from 'moment';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -284,9 +284,9 @@ const VolunteerListOfEvent = () => {
               setAlert({});
               setIsButtonLoading(true);
               try {
-                await updateBloodType({
+                await updateUserInfo({
                   userInformationId: updateBloodTypeParams.userInformationId,
-                  updateMode: 1,
+                  updateMode: UserInformationUpdateModeEnum.BloodTypeFilling,
                   volunteerBloodTypeUpdationInformations: [
                     {
                       eventId: eventId,
@@ -342,9 +342,9 @@ const VolunteerListOfEvent = () => {
     }));
 
     try {
-      await updateBloodType({
+      await updateUserInfo({
         userInformationId: updateBloodTypeParams.userInformationId,
-        updateMode: 1,
+        updateMode: UserInformationUpdateModeEnum.BloodTypeFilling,
         volunteerBloodTypeUpdationInformations: importParamsWithEventId,
       });
       await fetchVolunteersOfEvent();

@@ -18,7 +18,6 @@ const AddEditFixedEventPage = () => {
 
   const fetchEventDetailData = useCallback(async () => {
     const data = await getEventDetailByEventId(eventId);
-    console.log('data', data);
 
     setEventEditData({
       description: data?.description,

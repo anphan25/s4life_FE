@@ -318,7 +318,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập mô tả')
       .max(512, 'Mô tả không được dài quá 512 kí tự'),
     contactInformation: Yup.string()
-      .trim('Số điện thoại liên hệ không hợp lệ ')
+      .trim('Số điện thoại liên hệ không hợp lệ')
       .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại liên hệ không hợp lệ', excludeEmptyString: false })
       .required('Vui lòng nhập số điện thoại liên hệ'),
     startDate: Yup.date()

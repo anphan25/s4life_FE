@@ -113,8 +113,6 @@ const getFirstAndLastDateInCurrentQuarter = () => {
   const currentMonth = moment().get('month');
   const currentYear = moment().get('year');
 
-  console.log('currentMonth', currentMonth);
-
   switch (true) {
     case 1 <= currentMonth <= 3: {
       return {

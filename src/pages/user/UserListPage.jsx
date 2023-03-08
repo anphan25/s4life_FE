@@ -26,6 +26,7 @@ import {
   USERNAME_PATTERN,
   InputFilterSectionStyle,
   HeaderMainStyle,
+  formatPhoneNumber,
 } from 'utils';
 import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -58,7 +59,6 @@ const UserListPage = () => {
 
   const [searchParam, setSearchParam] = useState('');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-  const [isChangePhoneOpen, setIsChangePhoneOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [hospitals, setHospitals] = useState([]);
   const [filterHospitals, setFilterHospitals] = useState([]);
@@ -156,7 +156,7 @@ const UserListPage = () => {
 
             <MenuItem
               onClick={() => {
-                handleChangePhoneNumberDialog();
+                navigate(`/user/${params.row.userInformationId}/edit`);
               }}
             >
               <Icon icon={'pen'} />
@@ -250,9 +250,6 @@ const UserListPage = () => {
   const handleChangePasswordDialog = () => {
     setIsChangePasswordOpen(!isChangePasswordOpen);
     changePasswordReset();
-  };
-  const handleChangePhoneNumberDialog = () => {
-    setIsChangePhoneOpen(!isChangePhoneOpen);
   };
 
   const handleAddUserDialog = () => {
@@ -438,30 +435,6 @@ const UserListPage = () => {
     );
   };
 
-  const changePhoneNumberDialogContent = () => {
-    return (
-      <Box>
-        <form>
-          <RHFInput
-            label="Số điện thoại mới"
-            name="newPhone"
-            control={changePasswordControl}
-            placeholder="Nhập số điện thoại mới"
-            isRequiredLabel={true}
-          />
-
-          <Stack>
-            <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
-              <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
-                Cập nhật
-              </LoadingButton>
-            </Box>
-          </Stack>
-        </form>
-      </Box>
-    );
-  };
-
   const addUserDialogContent = () => {
     return (
       <Box>
@@ -550,7 +523,7 @@ const UserListPage = () => {
               name: data?.userInformation?.fullName || '-',
               address: data?.userInformation?.address || '-',
               nationalId: data?.userInformation?.nationalId || '-',
-              phoneNumber: data?.phoneNumber || '-',
+              phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
               bloodType: data?.userInformation?.bloodTypeId
                 ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
                 : '-',
@@ -655,15 +628,6 @@ const UserListPage = () => {
           onClose={handleChangePasswordDialog}
           title={`Đổi mật khẩu cho tài khoản ${changePassWordUserName}`}
           children={changePasswordDialogContent()}
-          sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
-        />
-
-        {/* Change PhoneNumber Dialog*/}
-        <CustomDialog
-          isOpen={isChangePhoneOpen}
-          onClose={handleChangePhoneNumberDialog}
-          title={`Đổi số điện thoại cho tài khoản `}
-          children={changePhoneNumberDialogContent()}
           sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
         />
 

@@ -154,6 +154,14 @@ export default function Router() {
                 </ProtectedRouter>
               ),
             },
+            {
+              path: ':userInformationId/edit',
+              element: (
+                <ProtectedRouter roles={['Admin']}>
+                  <EditUserInformationPage />
+                </ProtectedRouter>
+              ),
+            },
           ],
         },
 
@@ -253,6 +261,7 @@ const StatisticsPage = Loadable(lazy(() => import('pages/statistics/StatisticsPa
 //user
 const UserListPage = Loadable(lazy(() => import('pages/user/UserListPage')));
 const UserDetailPage = Loadable(lazy(() => import('pages/user/UserDetailPage')));
+const EditUserInformationPage = Loadable(lazy(() => import('pages/user/EditUserInformationPage')));
 
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
