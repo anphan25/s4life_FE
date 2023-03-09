@@ -81,6 +81,8 @@ const UserListPage = () => {
     { label: 'Quản lý viên', value: 3 },
   ];
 
+  const isVolunteerFilterMode = pageState.filterMode === FilterRoleEnum.Volunteer.value;
+
   const volunteerGridOptions = {
     columns: [
       {
@@ -511,32 +513,29 @@ const UserListPage = () => {
         PageSize: pageState.pageSize,
       };
 
-      const data = await getUsers(
-        pageState.filterMode === FilterRoleEnum.Volunteer.value ? getVolunteerParam : getManagerStaffParam
-      );
+      const data = await getUsers(isVolunteerFilterMode ? getVolunteerParam : getManagerStaffParam);
 
-      const dataRow =
-        pageState.filterMode === FilterRoleEnum.Volunteer.value
-          ? data.items?.map((data, i) => ({
-              id: data?.userInformation?.userId,
-              name: data?.userInformation?.fullName || '-',
-              address: data?.userInformation?.address || '-',
-              nationalId: data?.userInformation?.nationalId || '-',
-              phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
-              bloodType: data?.userInformation?.bloodTypeId
-                ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
-                : '-',
-              dateOfBirth: formatDate(data?.userInformation?.dateOfBirth, 4) || '-',
-              gender: data?.userInformation?.gender || '-',
-              userInformationId: data?.userInformationId,
-            }))
-          : data.items?.map((data, i) => ({
-              id: data?.id,
-              userName: data?.userName || '-',
-              hospitalName: data?.hospital?.name || '-',
-              addDate: formatDate(data?.addDate, 4) || '-',
-              isActive: data?.isActive,
-            }));
+      const dataRow = isVolunteerFilterMode
+        ? data.items?.map((data, i) => ({
+            id: data?.userInformation?.userId,
+            name: data?.userInformation?.fullName || '-',
+            address: data?.userInformation?.address || '-',
+            nationalId: data?.userInformation?.nationalId || '-',
+            phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
+            bloodType: data?.userInformation?.bloodTypeId
+              ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
+              : '-',
+            dateOfBirth: formatDate(data?.userInformation?.dateOfBirth, 4) || '-',
+            gender: data?.userInformation?.gender || '-',
+            userInformationId: data?.userInformationId,
+          }))
+        : data.items?.map((data, i) => ({
+            id: data?.id,
+            userName: data?.userName || '-',
+            hospitalName: data?.hospital?.name || '-',
+            addDate: formatDate(data?.addDate, 4) || '-',
+            isActive: data?.isActive,
+          }));
       setPageState((pre) => ({ ...pre, data: dataRow, total: data.total }));
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -609,21 +608,17 @@ const UserListPage = () => {
             )}
 
             <SearchBar
-              sx={{ width: pageState.filterMode === FilterRoleEnum.Volunteer.value ? '100%' : '50%' }}
-              type={pageState.filterMode === FilterRoleEnum.Volunteer.value ? 'number' : 'text'}
+              sx={{ width: isVolunteerFilterMode ? '100%' : '50%' }}
+              type={isVolunteerFilterMode ? 'number' : 'text'}
               className="search-bar"
-              placeholder={
-                pageState.filterMode === FilterRoleEnum.Volunteer.value ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'
-              }
+              placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
               onSubmit={handleUserSearch}
             />
           </InputFilterSectionStyle>
         </Box>
 
         <DataTable
-          gridOptions={
-            pageState.filterMode === FilterRoleEnum.Volunteer.value ? volunteerGridOptions : managerStaffGridOptions
-          }
+          gridOptions={isVolunteerFilterMode ? volunteerGridOptions : managerStaffGridOptions}
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}
           disableFilter={true}

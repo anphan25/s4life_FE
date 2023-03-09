@@ -27,17 +27,12 @@ import {
   BloodTypeFilterEnum,
   handleDownloadTemplate,
   BloodTypeEnum,
+  EventRegistrationStatusFilterEnum,
+  getFilterTabValuesFromEnum,
 } from 'utils';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations } from 'config';
 import { useStore } from 'react-redux';
-
-const filterTabValues = [
-  { label: 'Chưa tham gia', value: 2 },
-  { label: 'Đã tham gia', value: 3 },
-  { label: 'Đã hủy đăng ký', value: 1 },
-  { label: 'Không đủ điều kiện sức khỏe', value: 4 },
-];
 
 export const DownloadLink = styled('a')(({ theme }) => ({
   display: 'none',
@@ -51,7 +46,7 @@ const VolunteerListOfEvent = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    status: 2, //Cancelled = 1 ,NotYetAttended = 2, Attended = 3,
+    status: EventRegistrationStatusFilterEnum.NotYetAttended.value,
     searchPhoneNumber: '',
     dateFrom: null,
     dateTo: null,
@@ -520,7 +515,11 @@ const VolunteerListOfEvent = () => {
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.status} />
+          <FilterTab
+            tabs={getFilterTabValuesFromEnum(EventRegistrationStatusFilterEnum)}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.status}
+          />
 
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
