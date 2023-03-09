@@ -1,4 +1,5 @@
 export const formatPhoneNumber = (phoneNumber) => {
-  const formattedPhoneNumber = phoneNumber.replaceAll('+84', '0');
+  if (!phoneNumber) return;
+  const formattedPhoneNumber = phoneNumber?.replaceAll('+84', '0');
   return formattedPhoneNumber;
 };
