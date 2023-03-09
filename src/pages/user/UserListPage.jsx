@@ -27,18 +27,15 @@ import {
   InputFilterSectionStyle,
   HeaderMainStyle,
   formatPhoneNumber,
+  FilterRoleEnum,
+  getFilterTabValuesFromEnum,
+  HospitalFilterEnum,
 } from 'utils';
 import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-
-const filterTabValues = [
-  { label: 'Tình nguyện viên', value: 1 },
-  { label: 'Quản lý viên', value: 3 },
-  { label: 'Nhân viên', value: 2 },
-];
 
 const StatusTagConvertLabel = (value) => {
   return value ? 'success' : 'error';
@@ -53,7 +50,7 @@ const UserListPage = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    filterMode: 1, //1: Volunteer, 2: Staff, 3: Manager
+    filterMode: FilterRoleEnum.Volunteer.value,
     hospitalId: '',
   });
 
@@ -79,7 +76,7 @@ const UserListPage = () => {
     type: 'success',
   });
 
-  const roleList = [
+  const roleSelectOption = [
     { label: 'Nhân viên', value: 2 },
     { label: 'Quản lý viên', value: 3 },
   ];
@@ -255,7 +252,7 @@ const UserListPage = () => {
   const handleAddUserDialog = () => {
     //When dialog closes, reset the HospitalsGetParam
     if (!isAddUserOpen) {
-      setHospitalsGetParam({ FilterMode: 2, Page: 1, PageSize: 10, SearchKey: '' });
+      setHospitalsGetParam({ FilterMode: HospitalFilterEnum.All, Page: 1, PageSize: 10, SearchKey: '' });
     }
     setIsAddUserOpen(!isAddUserOpen);
 
@@ -353,7 +350,7 @@ const UserListPage = () => {
   } = useForm({
     resolver: yupResolver(AddUserSchema),
     mode: 'onChange',
-    defaultValues: { username: '', hospital: [], password: '', confirmPassword: '', role: roleList[0].value },
+    defaultValues: { username: '', hospital: [], password: '', confirmPassword: '', role: roleSelectOption[0].value },
     reValidateMode: 'onChange',
   });
 
@@ -455,7 +452,7 @@ const UserListPage = () => {
               }}
             />
             <RHFSelect name="role" label="Vai trò" control={addUserControl} isRequiredLabel={true}>
-              {roleList.map((option, i) => (
+              {roleSelectOption.map((option, i) => (
                 <option key={i} value={option?.value}>
                   {option?.label}
                 </option>
@@ -514,10 +511,12 @@ const UserListPage = () => {
         PageSize: pageState.pageSize,
       };
 
-      const data = await getUsers(pageState.filterMode === 1 ? getVolunteerParam : getManagerStaffParam);
+      const data = await getUsers(
+        pageState.filterMode === FilterRoleEnum.Volunteer.value ? getVolunteerParam : getManagerStaffParam
+      );
 
       const dataRow =
-        pageState.filterMode === 1
+        pageState.filterMode === FilterRoleEnum.Volunteer.value
           ? data.items?.map((data, i) => ({
               id: data?.userInformation?.userId,
               name: data?.userInformation?.fullName || '-',
@@ -587,10 +586,14 @@ const UserListPage = () => {
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.filterMode} />
+          <FilterTab
+            tabs={getFilterTabValuesFromEnum(FilterRoleEnum)}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.filterMode}
+          />
 
           <InputFilterSectionStyle>
-            {pageState.filterMode !== 1 && (
+            {pageState.filterMode !== FilterRoleEnum.Volunteer.value && (
               <AsyncAutocompleteFilter
                 sx={{ width: '50%' }}
                 placeholder="Nhập tên bệnh viện"
@@ -606,17 +609,21 @@ const UserListPage = () => {
             )}
 
             <SearchBar
-              sx={{ width: pageState.filterMode === 1 ? '100%' : '50%' }}
-              type={pageState.filterMode === 1 ? 'number' : 'text'}
+              sx={{ width: pageState.filterMode === FilterRoleEnum.Volunteer.value ? '100%' : '50%' }}
+              type={pageState.filterMode === FilterRoleEnum.Volunteer.value ? 'number' : 'text'}
               className="search-bar"
-              placeholder={pageState.filterMode === 1 ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
+              placeholder={
+                pageState.filterMode === FilterRoleEnum.Volunteer.value ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'
+              }
               onSubmit={handleUserSearch}
             />
           </InputFilterSectionStyle>
         </Box>
 
         <DataTable
-          gridOptions={pageState.filterMode === 1 ? volunteerGridOptions : managerStaffGridOptions}
+          gridOptions={
+            pageState.filterMode === FilterRoleEnum.Volunteer.value ? volunteerGridOptions : managerStaffGridOptions
+          }
           onPageChange={pageChangeHandler}
           onPageSizeChange={pageSizeChangeHandler}
           disableFilter={true}
