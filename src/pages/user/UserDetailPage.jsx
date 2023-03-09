@@ -342,7 +342,7 @@ const UserDetailPage = () => {
         }));
         const formatedDateFailList = result?.failedList.map((data) => ({
           errorCode: data?.errorCode,
-          data: { ...data.data, donationDate: formatDate(data?.data.donationDate, 2) },
+          data: { ...data?.data, donationDate: formatDate(data?.data?.donationDate, 2), index: data?.index + 1 },
         }));
 
         result['successList'] = formatedDateSuccessList;

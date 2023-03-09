@@ -39,6 +39,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx, isOpen, columns, ...other }) => {
   const fields = columns.map((item) => item.field);
+
+  const failedColumns = [{ name: 'Dòng', field: 'index' }, ...columns];
+  const failedFields = [{ name: 'Dòng', field: 'index' }, ...columns].map((item) => item.field);
+
   const errorCodeGroupedData = groupDataByErrorCode(failedList);
   const errorCodeKeys = Object.keys(errorCodeGroupedData);
 
@@ -125,7 +129,7 @@ export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx,
                     <Table sx={{ minWidth: 300 }}>
                       <TableHead>
                         <TableRow>
-                          {columns?.map((head, i) => (
+                          {failedColumns?.map((head, i) => (
                             <TableCell key={i}>{head.name}</TableCell>
                           ))}
                         </TableRow>
@@ -133,7 +137,7 @@ export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx,
                       <TableBody>
                         {errorCodeGroupedData[errorCode].map((item, i) => (
                           <TableRow key={i}>
-                            {fields.map((field, i) => (
+                            {failedFields.map((field, i) => (
                               <TableCell key={i}> {item[field]}</TableCell>
                             ))}
                           </TableRow>

@@ -23,17 +23,14 @@ import {
   HeaderMainStyle,
   DialogButtonGroupStyle,
   InputFilterSectionStyle,
+  EventTypeEnum,
+  EventFilterEnum,
+  EventStatusEnum,
+  getFilterTabValuesFromEnum,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-
-const filterTabValues = [
-  { label: 'Chưa diễn ra', value: 1 },
-  { label: 'Đang diễn ra', value: 2 },
-  { label: 'Đã kết thúc', value: 3 },
-  { label: 'Đã hủy', value: 4 },
-];
 
 const EventFixedListPage = () => {
   const user = useSelector((state) => state.auth.auth?.user);
@@ -51,9 +48,8 @@ const EventFixedListPage = () => {
     data: [],
     page: 1,
     pageSize: 10,
-    filterMode: 2, // 1: All, 2: FilterAndSearch, 3: EventRegisterable, 4: MostRecent
-    status: 1, // 1: unstarted, 2: started, 3: finished, 4: canceled
-
+    filterMode: EventFilterEnum.FilterAndSearch,
+    status: EventStatusEnum.Unstarted.value,
     searchKey: '',
     dateFrom: null,
     dateTo: null,
@@ -200,8 +196,8 @@ const EventFixedListPage = () => {
 
               <MenuItem
                 disabled={
-                  params.row.status === 'Đã kết thúc' ||
-                  params.row.status === 'Đã bị hủy' ||
+                  params.row.status === EventStatusEnum.Finished.description ||
+                  params.row.status === EventStatusEnum.Cancelled.description ||
                   params.row.isEmergency ||
                   user.role === 'Admin'
                 }
@@ -224,8 +220,8 @@ const EventFixedListPage = () => {
 
               <MenuItem
                 disabled={
-                  params.row.status === 'Đã kết thúc' ||
-                  params.row.status === 'Đã bị hủy' ||
+                  params.row.status === EventStatusEnum.Finished.description ||
+                  params.row.status === EventStatusEnum.Cancelled.description ||
                   (params.row.isEmergency && user.role === 'Manager')
                 }
                 onClick={() => {
@@ -367,7 +363,7 @@ const EventFixedListPage = () => {
       PageSize: pageState?.pageSize,
       FilterMode: pageState?.filterMode,
       Status: pageState?.status,
-      EventType: 1, // 1: sk cố định, 2: sk theo lịch bv, 3: sk lưu động
+      EventType: EventTypeEnum.PermanentEvent,
       SearchKey: pageState?.searchKey,
       ...(pageState?.dateFrom && { DateFrom: moment(pageState?.dateFrom).format('yyyy-MM-DD') }),
       ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
@@ -424,7 +420,11 @@ const EventFixedListPage = () => {
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab tabs={filterTabValues} onChangeTab={handleFilterTabChange} defaultValue={pageState.status} />
+          <FilterTab
+            tabs={getFilterTabValuesFromEnum(EventStatusEnum)}
+            onChangeTab={handleFilterTabChange}
+            defaultValue={pageState.status}
+          />
 
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '100%' }} />

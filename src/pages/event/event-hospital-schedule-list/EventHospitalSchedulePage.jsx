@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { HeaderBreadcumbs } from 'components';
 import { getEvents } from 'api';
-import { HeaderMainStyle } from 'utils';
+import { HeaderMainStyle, EventTypeEnum, EventFilterEnum } from 'utils';
 import DetailRowData from '../components/DetailRowData';
 
 const EventHospitalSchedulePage = () => {
@@ -23,8 +23,8 @@ const EventHospitalSchedulePage = () => {
   const fetchEventHospitalScheduleList = useCallback(async () => {
     setIsLoading(true);
     const response = await getEvents({
-      FilterMode: 2,
-      EventType: 2,
+      FilterMode: EventFilterEnum.FilterAndSearch,
+      EventType: EventTypeEnum.PermanentScheduledEvent,
       Page: pagingParams.Page + 1,
       PageSize: pagingParams.PageSize,
       GroupByWeek: true,

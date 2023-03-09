@@ -20,6 +20,9 @@ import {
   DialogButtonGroupStyle,
   DEFAULT_HOSPITAL_IMAGE_URL,
   handleDownloadTemplate,
+  HospitalFilterEnum,
+  HospitalStatusEnum,
+  getFilterTabValuesFromEnum,
 } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DownloadLink } from './HospitalListStyle';
@@ -45,7 +48,7 @@ const HospitalListPage = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    filterTabMode: 1,
+    status: HospitalStatusEnum.Active.value,
     searchKey: '',
   });
   const [alert, setAlert] = useState({
@@ -55,13 +58,9 @@ const HospitalListPage = () => {
   });
   const store = useStore();
   const navigate = useNavigate();
-
-  const filterTabValues = [
-    { label: 'Đang hoạt động', value: 1 },
-    { label: 'Ngưng hoạt động', value: 2 },
-  ];
-
   const downloadRef = useRef();
+
+  const isHospitalActive = pageState.status === HospitalStatusEnum.Active.value;
 
   const gridOptions = {
     columns: [
@@ -130,7 +129,7 @@ const HospitalListPage = () => {
               </MenuItem>
               <MenuItem
                 onClick={() => {
-                  if (pageState.filterTabMode === 1) {
+                  if (isHospitalActive) {
                     setDisableHospitalId(params.row.id);
                     openDisableHospitalConfirm(params.row.name);
                   } else {
@@ -140,10 +139,14 @@ const HospitalListPage = () => {
                 }}
               >
                 <Icon
-                  sx={{ height: 20, width: 20, color: pageState.filterTabMode === 1 ? 'error.main' : '' }}
-                  icon={pageState.filterTabMode === 1 ? 'trash' : 'trash-slash'}
+                  sx={{
+                    height: 20,
+                    width: 20,
+                    color: isHospitalActive ? 'error.main' : '',
+                  }}
+                  icon={isHospitalActive ? 'trash' : 'trash-slash'}
                 />
-                {pageState.filterTabMode === 1 ? 'Vô hiệu' : 'Kích hoạt'}
+                {isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
               </MenuItem>
             </MoreMenuButton>
           );
@@ -185,7 +188,7 @@ const HospitalListPage = () => {
   };
 
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, filterTabMode: value, page: 1 }));
+    setPageState((old) => ({ ...old, status: value, page: 1 }));
   };
 
   const handleSearchHospitalName = (searchValue) => {
@@ -352,10 +355,10 @@ const HospitalListPage = () => {
     setAlert({});
     try {
       const data = await getHospitalsList({
-        FilterMode: 'All',
+        FilterMode: HospitalFilterEnum.All,
         Page: pageState.page,
         PageSize: pageState.pageSize,
-        Status: pageState.filterTabMode === 1,
+        Status: isHospitalActive,
         SearchKey: pageState.searchKey,
       });
 
@@ -375,7 +378,7 @@ const HospitalListPage = () => {
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
     }
-  }, [pageState.pageSize, pageState.page, pageState.filterTabMode, pageState.searchKey]);
+  }, [pageState.pageSize, pageState.page, pageState.status, pageState.searchKey]);
 
   useEffect(() => {
     fetchHospitalData();
@@ -415,9 +418,9 @@ const HospitalListPage = () => {
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
-            tabs={filterTabValues}
+            tabs={getFilterTabValuesFromEnum(HospitalStatusEnum)}
             onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.filterTabMode}
+            defaultValue={pageState.status}
           />
           <SearchBar
             className="search-bar"
