@@ -15,6 +15,8 @@ export const DashBoardEnum = Object.freeze({
   BloodVolumeStatistic: {
     RECEIVED_GROUP: 1,
     EXPECTED_RECEIVE_GROUP: 2,
+    RH_NEGATIVE: 3,
+    RH_POSITIVE: 4,
   },
   BloodTypeStatistic: {
     UNKNOWN_GROUP: 0,
