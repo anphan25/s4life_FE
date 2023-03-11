@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { Paper, Grid, Stack, Box, Typography, styled, Divider, useMediaQuery } from '@mui/material';
+import { Paper, Grid, Stack, Box, Typography, styled, Divider, useMediaQuery, CircularProgress } from '@mui/material';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
 import { formatNumber } from 'utils/functions/formatNumber';
@@ -193,13 +193,15 @@ const DashboardPage = () => {
   // Blood Type
   const oBloodTypeVolume = resultFromGroup(bloodVolumeTypeStatistics, DashBoardEnum.BloodTypeStatistic.O_GROUP);
 
+  const rhNegativeVolume = resultFromGroup(bloodVolumeStatistics, DashBoardEnum.BloodVolumeStatistic.RH_NEGATIVE);
+
   const fetchDashboardData = useCallback(async () => {
     const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.toISOString();
     const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.toISOString();
 
-    const response = await getDashboardData(startDate, endDate);
+    const response = await getDashboardData(startDate, endDate, false);
 
-    setData(response[0]?.statistic);
+    setData(response);
   }, []);
 
   useEffect(() => {
@@ -224,108 +226,133 @@ const DashboardPage = () => {
       <Grid container rowSpacing={4} columnSpacing={{ xl: 5, lg: 3 }} sx={{ marginBottom: '50px' }}>
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            <Stack className="tab_title" direction="row" alignItems="center">
-              <Icon icon="solid-calendar-star" className="tab_title--icon" />
-              <Typography className="tab_title--text">Số sự kiện</Typography>
-            </Stack>
+            {data ? (
+              <>
+                <Stack className="tab_title" direction="row" alignItems="center">
+                  <Icon icon="solid-calendar-star" className="tab_title--icon" />
+                  <Typography className="tab_title--text">Số sự kiện</Typography>
+                </Stack>
 
-            <Stack className="tab_content">
-              <Typography className="tab_content--number">
-                {formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents)}
-              </Typography>
+                <Stack className="tab_content">
+                  <Typography className="tab_content--number">
+                    {formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents)}
+                  </Typography>
 
-              <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
-                <Box className="status_box">
-                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <Icon icon="solid-check" className="status_icon success" />
-                    <Typography className="status_text">Đã hoàn thành</Typography>
+                  <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
+                    <Box className="status_box">
+                      <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                        <Icon icon="solid-check" className="status_icon success" />
+                        <Typography className="status_text">Đã hoàn thành</Typography>
+                      </Stack>
+                      <Typography className="status_number">{formatNumber(finishedEvents)}</Typography>
+                    </Box>
+
+                    <Box>
+                      <Divider orientation="vertical" />
+                    </Box>
+
+                    <Box className="status_box">
+                      <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                        <Icon icon="solid-times" className="status_icon fail" />
+                        <Typography className="status_text">Chưa hoàn thành</Typography>
+                      </Stack>
+                      <Typography className="status_number">{formatNumber(unstartedEvents + startedEvents)}</Typography>
+                    </Box>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(finishedEvents)}</Typography>
-                </Box>
-
-                <Box>
-                  <Divider orientation="vertical" />
-                </Box>
-
-                <Box className="status_box">
-                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <Icon icon="solid-times" className="status_icon fail" />
-                    <Typography className="status_text">Chưa hoàn thành</Typography>
-                  </Stack>
-                  <Typography className="status_number">{formatNumber(unstartedEvents + startedEvents)}</Typography>
-                </Box>
-              </Stack>
-            </Stack>
+                </Stack>
+              </>
+            ) : (
+              <Box textAlign="center">
+                <CircularProgress />
+              </Box>
+            )}
           </StatisticTabContainer>
         </Grid>
 
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            <Stack className="tab_title" direction="row" alignItems="center">
-              <Icon icon="solid-users-group" className="tab_title--icon" />
-              <Typography className="tab_title--text">Số lượt đăng ký</Typography>
-            </Stack>
+            {data ? (
+              <>
+                <Stack className="tab_title" direction="row" alignItems="center">
+                  <Icon icon="solid-users-group" className="tab_title--icon" />
+                  <Typography className="tab_title--text">Số lượt đăng ký</Typography>
+                </Stack>
 
-            <Stack className="tab_content">
-              <Typography className="tab_content--number">{formatNumber(totalEventRegistrations)}</Typography>
+                <Stack className="tab_content">
+                  <Typography className="tab_content--number">{formatNumber(totalEventRegistrations)}</Typography>
 
-              <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
-                <Box className="status_box">
-                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <Icon icon="solid-check" className="status_icon success" />
-                    <Typography className="status_text">Đã hiến máu</Typography>
+                  <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
+                    <Box className="status_box">
+                      <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                        <Icon icon="solid-check" className="status_icon success" />
+                        <Typography className="status_text">Đã hiến máu</Typography>
+                      </Stack>
+                      <Typography className="status_number">{formatNumber(attendedEventRegistrations)}</Typography>
+                    </Box>
+
+                    <Box>
+                      <Divider orientation="vertical" />
+                    </Box>
+
+                    <Box className="status_box">
+                      <Stack className="status_title" direction="row" alignItems="center">
+                        <Icon icon="solid-times" className="status_icon fail" />
+                        <Typography className="status_text">Chưa hiến máu</Typography>
+                      </Stack>
+                      <Typography className="status_number">{formatNumber(notAttendedEventRegistrations)}</Typography>
+                    </Box>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(attendedEventRegistrations)}</Typography>
-                </Box>
-
-                <Box>
-                  <Divider orientation="vertical" />
-                </Box>
-
-                <Box className="status_box">
-                  <Stack className="status_title" direction="row" alignItems="center">
-                    <Icon icon="solid-times" className="status_icon fail" />
-                    <Typography className="status_text">Chưa hiến máu</Typography>
-                  </Stack>
-                  <Typography className="status_number">{formatNumber(notAttendedEventRegistrations)}</Typography>
-                </Box>
-              </Stack>
-            </Stack>
+                </Stack>
+              </>
+            ) : (
+              <Box textAlign="center">
+                <CircularProgress />
+              </Box>
+            )}
           </StatisticTabContainer>
         </Grid>
 
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            <Stack className="tab_title" direction="row" alignItems="center">
-              <Icon icon="solid-droplet" className="tab_title--icon" />
-              <Typography className="tab_title--text">Số (ml) máu nhận được</Typography>
-            </Stack>
+            {data ? (
+              <>
+                <Stack className="tab_title" direction="row" alignItems="center">
+                  <Icon icon="solid-droplet" className="tab_title--icon" />
+                  <Typography className="tab_title--text">Số (ml) máu</Typography>
+                </Stack>
+                <Stack className="tab_content">
+                  <Typography className="tab_content--number">
+                    {formatNumber(receivedBlood + expectedBloodReceive)}
+                  </Typography>
 
-            <Stack className="tab_content">
-              <Typography className="tab_content--number">{formatNumber(receivedBlood)}</Typography>
+                  <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
+                    <Box className="status_box">
+                      <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
+                        <Icon icon="solid-check" className="status_icon success" />
+                        <Typography className="status_text">Đã nhận được</Typography>
+                      </Stack>
+                      <Typography className="status_number">{formatNumber(receivedBlood)}</Typography>
+                    </Box>
 
-              <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
-                <Box className="status_box">
-                  <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                    <Icon icon="solid-check" className="status_icon success" />
-                    <Typography className="status_text">Đã nhận được</Typography>
+                    <Box>
+                      <Divider orientation="vertical" />
+                    </Box>
+
+                    <Box className="status_box">
+                      <Stack className="status_title" direction="row" alignItems="center">
+                        <Icon icon="solid-line-chart-dots" className="status_icon fail" />
+                        <Typography className="status_text">Dự kiến nhận</Typography>
+                      </Stack>
+                      <Typography className="status_number">{formatNumber(expectedBloodReceive)}</Typography>
+                    </Box>
                   </Stack>
-                  <Typography className="status_number">{formatNumber(receivedBlood)}</Typography>
-                </Box>
-
-                <Box>
-                  <Divider orientation="vertical" />
-                </Box>
-
-                <Box className="status_box">
-                  <Stack className="status_title" direction="row" alignItems="center">
-                    <Icon icon="solid-line-chart-dots" className="status_icon fail" />
-                    <Typography className="status_text">Dự kiến nhận</Typography>
-                  </Stack>
-                  <Typography className="status_number">{formatNumber(expectedBloodReceive)}</Typography>
-                </Box>
-              </Stack>
-            </Stack>
+                </Stack>{' '}
+              </>
+            ) : (
+              <Box textAlign="center">
+                <CircularProgress />
+              </Box>
+            )}
           </StatisticTabContainer>
         </Grid>
       </Grid>
@@ -359,7 +386,7 @@ const DashboardPage = () => {
               <Stack className="blood_volume--item" direction="row">
                 <TypeRHSubtractIcon className="blood-type" />
                 <Box>
-                  <Typography className="blood-volume-number">{formatNumber(60034)} ml</Typography>
+                  <Typography className="blood-volume-number">{formatNumber(rhNegativeVolume)} ml</Typography>
                   <Typography>Nhóm máu Rh-</Typography>
                 </Box>
               </Stack>
