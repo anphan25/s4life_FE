@@ -73,9 +73,9 @@ const EventHospitalSchedulePage = () => {
               </TableBody>
             ) : (
               <TableBody>
-                {data?.items?.map((item, i) => (
-                  <DetailRowData item={item} index={i} />
-                ))}
+                {data?.items?.map((item, i) => <DetailRowData item={item} index={i} />) || (
+                  <Box sx={{ height: '439.5px' }}>Không tìm thấy dữ liệu</Box>
+                )}
               </TableBody>
             )}
           </Table>

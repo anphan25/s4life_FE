@@ -29,6 +29,7 @@ import {
   BloodTypeEnum,
   EventRegistrationStatusFilterEnum,
   getFilterTabValuesFromEnum,
+  formatPhoneNumber,
 } from 'utils';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations } from 'config';
@@ -131,10 +132,16 @@ const VolunteerListOfEvent = () => {
       },
 
       {
-        headerName: 'CMND/CCCD',
+        headerName: 'CCCD',
         field: 'nationalId',
         type: 'string',
         width: 200,
+      },
+      {
+        headerName: 'CMND',
+        field: 'citizenId',
+        type: 'string',
+        width: 120,
       },
       {
         headerName: 'Số điện thoại',
@@ -430,7 +437,8 @@ const VolunteerListOfEvent = () => {
         userInformationId: data?.userInformationId,
         fullName: data?.fullName || '-',
         nationalId: data?.nationalId || '-',
-        phoneNumber: data?.phoneNumber || '-',
+        citizenId: data?.citizenId || '-',
+        phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
         bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
         bloodTypeId: data?.bloodTypeId,
         isRhNegative: data?.isRhNegative,

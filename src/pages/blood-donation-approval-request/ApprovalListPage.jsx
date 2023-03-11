@@ -58,10 +58,17 @@ function ApprovalList() {
         width: 200,
       },
       {
-        headerName: 'CMND/CCCD',
+        headerName: 'CCCD',
         type: 'string',
         field: 'nationalId',
-        width: 200,
+        width: 120,
+      },
+
+      {
+        headerName: 'CMND',
+        type: 'string',
+        field: 'citizenId',
+        width: 100,
       },
       {
         headerName: 'Ngày tạo',
@@ -112,6 +119,7 @@ function ApprovalList() {
         id: data?.id || '-',
         name: data?.user?.userInformation?.fullName || '-',
         nationalId: data?.user?.userInformation?.nationalId || '-',
+        citizenId: data?.user?.userInformation?.citizenId || '-',
         addDate: formatDate(data?.addDate, 4) || '-',
         phoneNumber: formatPhoneNumber(data?.user?.phoneNumber) || '-',
         isProcessing: data?.isProcessing,
