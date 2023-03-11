@@ -1,7 +1,7 @@
 import { DashedBox, ContentTypoStyle, Item, LeftContainer, TitleTypoStyle, HospitalImgStyle } from './UserDetailStyle';
 import React from 'react';
 import { Stack, Box, Grid } from '@mui/material';
-import { formatDate, convertBloodTypeLabel } from 'utils';
+import { formatDate, convertBloodTypeLabel, formatPhoneNumber } from 'utils';
 
 const UserInformation = ({ userInfoData }) => {
   return (
@@ -25,7 +25,7 @@ const UserInformation = ({ userInfoData }) => {
               <Stack direction={'row'} flexWrap={'wrap'}>
                 <DashedBox>
                   <TitleTypoStyle>Số điện thoại</TitleTypoStyle>
-                  <ContentTypoStyle>{userInfoData?.phoneNumber || '-'}</ContentTypoStyle>
+                  <ContentTypoStyle>{formatPhoneNumber(userInfoData?.phoneNumber) || '-'}</ContentTypoStyle>
                 </DashedBox>
                 <DashedBox>
                   <TitleTypoStyle>Ngày tháng năm sinh</TitleTypoStyle>
@@ -34,15 +34,19 @@ const UserInformation = ({ userInfoData }) => {
               </Stack>
               <Stack direction={'row'} flexWrap={'wrap'}>
                 <DashedBox>
-                  <TitleTypoStyle>CMND/CCCD</TitleTypoStyle>
+                  <TitleTypoStyle>CCCD</TitleTypoStyle>
                   <ContentTypoStyle>{userInfoData?.nationalId || '-'}</ContentTypoStyle>
                 </DashedBox>
+                <DashedBox>
+                  <TitleTypoStyle>CMND</TitleTypoStyle>
+                  <ContentTypoStyle>{userInfoData?.citizenId || '-'}</ContentTypoStyle>
+                </DashedBox>
+              </Stack>
+              <Stack direction={'row'}>
                 <DashedBox>
                   <TitleTypoStyle>Giới tính</TitleTypoStyle>
                   <ContentTypoStyle>{userInfoData?.gender || '-'}</ContentTypoStyle>
                 </DashedBox>
-              </Stack>
-              <Stack direction={'row'}>
                 <DashedBox>
                   <TitleTypoStyle>Địa chỉ</TitleTypoStyle>
                   <ContentTypoStyle>{userInfoData?.address || '-'}</ContentTypoStyle>

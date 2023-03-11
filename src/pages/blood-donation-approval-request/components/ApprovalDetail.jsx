@@ -77,10 +77,18 @@ const ApprovalDetail = ({ id }) => {
             </Grid>
             <Grid item sm={12} md={4}>
               <Typography>
-                <TitleItemStyle>CMND/CCCD: </TitleItemStyle>
-                {detailData?.user?.userInformation?.nationalId}
+                <TitleItemStyle>CCCD: </TitleItemStyle>
+                {detailData?.user?.userInformation?.nationalId || '-'}
               </Typography>
             </Grid>
+
+            <Grid item sm={12} md={4}>
+              <Typography>
+                <TitleItemStyle>CMND: </TitleItemStyle>
+                {detailData?.user?.userInformation?.citizenId || '-'}
+              </Typography>
+            </Grid>
+
             <Grid item sm={12} md={4}>
               <Typography>
                 <TitleItemStyle>Địa chỉ: </TitleItemStyle>

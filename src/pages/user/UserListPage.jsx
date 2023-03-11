@@ -103,10 +103,16 @@ const UserListPage = () => {
         flex: 1,
       },
       {
-        headerName: 'CMND/CCCD',
+        headerName: 'CCCD',
         type: 'number',
         field: 'nationalId',
         width: 120,
+      },
+      {
+        headerName: 'CMND',
+        type: 'number',
+        field: 'citizenId',
+        width: 100,
       },
       {
         headerName: 'Giới tính',
@@ -521,6 +527,7 @@ const UserListPage = () => {
             name: data?.userInformation?.fullName || '-',
             address: data?.userInformation?.address || '-',
             nationalId: data?.userInformation?.nationalId || '-',
+            citizenId: data?.userInformation?.citizenId || '-',
             phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
             bloodType: data?.userInformation?.bloodTypeId
               ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
