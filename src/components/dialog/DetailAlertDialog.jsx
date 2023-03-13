@@ -40,8 +40,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx, isOpen, columns, ...other }) => {
   const fields = columns.map((item) => item.field);
 
-  const failedColumns = [{ name: 'Dòng', field: 'index' }, ...columns];
-  const failedFields = [{ name: 'Dòng', field: 'index' }, ...columns].map((item) => item.field);
+  const failedColumns = [{ name: 'STT', field: 'index' }, ...columns];
+  const failedFields = [{ name: 'STT', field: 'index' }, ...columns].map((item) => item.field);
 
   const errorCodeGroupedData = groupDataByErrorCode(failedList);
   const errorCodeKeys = Object.keys(errorCodeGroupedData);

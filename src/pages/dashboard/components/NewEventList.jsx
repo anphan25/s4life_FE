@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { MoreMenuButton, Icon } from 'components';
 import moment from 'moment';
@@ -17,22 +18,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from 'utils';
 
-const rows = [
-  {
-    name: 'Hiến máu tháng 2',
-    address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
-    startDate: new Date(),
-    endDate: new Date(),
-  },
-  {
-    name: 'Hiến máu Quận 9',
-    address: '60 Lê Văn Việt, Phường Hiệp Phú, Quận 9, Tp Hồ Chí Minh',
-    startDate: new Date(),
-    endDate: new Date(),
-  },
-];
-
-const NewEventList = () => {
+const NewEventList = ({ events }) => {
   const navigate = useNavigate();
   return (
     <Box sx={{ py: 3, borderRadius: '20px', backgroundColor: 'white' }}>
@@ -40,44 +26,55 @@ const NewEventList = () => {
         Sự kiện hiến máu mới
       </Typography>
 
-      <TableContainer sx={{ width: '100%' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Sự kiện</TableCell>
-              <TableCell>Địa điểm</TableCell>
-              <TableCell>Thời gian</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.name}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.address}</TableCell>
-                <TableCell>
-                  <Box>
-                    <Typography sx={{ fontSize: 12 }} whiteSpace="nowrap">
-                      {formatDate(row.startDate, 4)} - {formatDate(row.endDate, 4)}
-                    </Typography>
-                    <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
-                      {moment(row.startDate).format('HH:mm')} - {moment(row.endDate).format('HH:mm')}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell align="right">
-                  <MoreMenuButton>
-                    <MenuItem>
-                      <Icon icon={'eye'} />
-                      Xem chi tiết
-                    </MenuItem>
-                  </MoreMenuButton>
-                </TableCell>
+      {events.length > 0 ? (
+        <TableContainer sx={{ width: '100%' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell width="30%">Sự kiện</TableCell>
+                <TableCell width="50%">Địa điểm</TableCell>
+                <TableCell width="20%">Thời gian</TableCell>
+                <TableCell />
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {events?.map((row) => (
+                <TableRow key={row?.id}>
+                  <TableCell>{row?.name}</TableCell>
+                  <TableCell>{row?.eventLocations[0]?.location?.address}</TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography sx={{ fontSize: 12 }} whiteSpace="nowrap">
+                        {formatDate(row?.startDate, 4)} - {formatDate(row?.endDate, 4)}
+                      </Typography>
+                      <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
+                        {moment(row?.startDate).format('HH:mm')} - {moment(row?.endDate).format('HH:mm')}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">
+                    <MoreMenuButton>
+                      <MenuItem>
+                        <Icon
+                          icon={'eye'}
+                          onClick={() => {
+                            navigate('/event/fixed-list');
+                          }}
+                        />
+                        Xem chi tiết
+                      </MenuItem>
+                    </MoreMenuButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Box textAlign="center" height="200px">
+          <CircularProgress sx={{ marginTop: '80px' }} />
+        </Box>
+      )}
 
       <Divider />
 
@@ -95,4 +92,4 @@ const NewEventList = () => {
   );
 };
 
-export default NewEventList;
+export default React.memo(NewEventList);

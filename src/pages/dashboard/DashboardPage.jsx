@@ -6,8 +6,8 @@ import { formatNumber } from 'utils/functions/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';
-import { getDashboardData } from 'api';
-import { DashBoardEnum } from 'utils';
+import { getDashboardData, getEvents } from 'api';
+import { DashBoardEnum, EventFilterEnum } from 'utils';
 
 const PageTitle = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
@@ -156,6 +156,7 @@ const resultFromGroup = (arr, groupNumber) => {
 
 const DashboardPage = () => {
   const [data, setData] = useState(null);
+  const [eventList, setEventList] = useState([]);
   const theme = useTheme();
 
   const eventStatistics = data?.eventStatistics || 0;
@@ -204,8 +205,13 @@ const DashboardPage = () => {
     setData(response);
   }, []);
 
+  const fetchMostRecentEvents = useCallback(async () => {
+    setEventList(await getEvents({ FilterMode: EventFilterEnum.MostRecent }));
+  }, []);
+
   useEffect(() => {
     fetchDashboardData();
+    fetchMostRecentEvents();
   }, [fetchDashboardData]);
 
   return (
@@ -359,7 +365,7 @@ const DashboardPage = () => {
 
       <Grid container spacing={3}>
         <Grid item lg={9} xs={12}>
-          <NewEventList />
+          <NewEventList events={eventList} />
         </Grid>
         <Grid item lg={3} xs={12}>
           <BloodVolume>
