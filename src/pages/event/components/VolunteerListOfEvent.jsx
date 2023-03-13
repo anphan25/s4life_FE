@@ -488,7 +488,7 @@ const VolunteerListOfEvent = () => {
             ...data.data,
             bloodType: Object.values(BloodTypeEnum).find((value) => value.value === data.data.bloodType).description,
             isRhNegative: data.data.isRhNegative ? '-' : '+',
-            index: data?.index + 1,
+            index: data?.index,
           },
         }));
 
