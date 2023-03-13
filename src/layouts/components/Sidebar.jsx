@@ -65,6 +65,11 @@ export const Sidebar = ({ toggle, onClose }) => {
       to: '/blood-donation-approval-request/list',
     },
     {
+      name: 'Thống kê',
+      icon: <Icon icon="chart-pie" />,
+      to: '/statistics',
+    },
+    {
       name: 'Giả lập',
       icon: <Icon icon="code-square" />,
       to: '/script',
@@ -92,6 +97,11 @@ export const Sidebar = ({ toggle, onClose }) => {
       ],
     },
     { name: 'Thông tin bệnh viện', icon: <Icon icon="hospital" />, to: `/hospital/${hospital?.id}` },
+    {
+      name: 'Thống kê',
+      icon: <Icon icon="chart-pie" />,
+      to: '/statistics',
+    },
   ];
 
   const renderContent = (
