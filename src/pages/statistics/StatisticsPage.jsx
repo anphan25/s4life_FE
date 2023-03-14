@@ -96,7 +96,7 @@ const StatisticsPage = () => {
       },
       title: {
         display: true,
-        text: `Tỉ lệ nhóm máu năm ${bloodTypeRatioYearFilter}`,
+        text: `Tỉ lệ nhóm máu nhận được năm ${bloodTypeRatioYearFilter}`,
       },
     },
   };
@@ -105,7 +105,7 @@ const StatisticsPage = () => {
     labels: ['A', 'B', 'AB', 'O'],
     datasets: [
       {
-        label: 'Tỉ lệ nhóm máu',
+        label: 'Tỉ lệ nhóm máu nhận được',
         data: bloodTypeRatio,
         backgroundColor: [
           theme.palette.error.main,
@@ -262,7 +262,7 @@ const StatisticsPage = () => {
         </Button> */}
       </HeaderMainStyle>
 
-      <Grid container rowSpacing={3} columnSpacing={3}>
+      <Grid container rowSpacing={5} columnSpacing={4}>
         {/* Total Blood Donation */}
 
         <Grid lg={8} xs={12} item>

@@ -58,6 +58,7 @@ const EventImageStyle = styled(Box)(({ theme }) => ({
   maxHeight: '500px',
 
   '& .event-img': {
+    objectFit: 'contain',
     width: '100%',
     height: 'auto',
     maxHeight: '500px',
