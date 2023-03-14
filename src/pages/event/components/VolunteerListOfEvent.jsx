@@ -51,7 +51,7 @@ const VolunteerListOfEvent = () => {
     searchPhoneNumber: '',
     dateFrom: null,
     dateTo: null,
-    bloodTypes: null,
+    bloodTypes: [],
   });
   const [alert, setAlert] = useState({
     message: '',
@@ -97,7 +97,7 @@ const VolunteerListOfEvent = () => {
       case 3:
         return 'AB+';
       case 4:
-        return '0+';
+        return 'O+';
       case -1:
         return 'A-';
       case -2:
@@ -533,6 +533,7 @@ const VolunteerListOfEvent = () => {
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
             <AsyncAutocompleteFilter
               multiple
+              filterOptions={(options) => options.filter(({ value }) => !pageState?.bloodTypes?.includes(value))}
               sx={{ width: '25%' }}
               placeholder="Chọn nhóm máu"
               onSelect={handleChooseBloodType}
