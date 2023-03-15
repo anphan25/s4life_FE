@@ -27,6 +27,7 @@ import {
   isEventEditableOrCancelable,
   convertErrorCodeToMessage,
   isStartAndEndDateIsSame,
+  EventTypeEnum,
 } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
@@ -49,21 +50,6 @@ const HeaderMainStyle = styled(Stack)(({ theme }) => ({
     flexDirection: 'column',
     justifyContent: 'start',
     gap: '20px',
-  },
-}));
-
-const EventImageStyle = styled(Box)(({ theme }) => ({
-  width: '100%',
-  height: 'auto',
-  maxHeight: '500px',
-
-  '& .event-img': {
-    objectFit: 'contain',
-    width: '100%',
-    height: 'auto',
-    maxHeight: '500px',
-    margin: '0 auto',
-    borderRadius: '20px',
   },
 }));
 
@@ -136,6 +122,7 @@ const EventDetailPage = () => {
   const { eventId } = useParams();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
+  const [isHospitalScheduleEvent, setIsHospitalScheduleEvent] = useState(false);
   const [connection, setConnection] = useState(null);
   const [alert, setAlert] = useState({
     message: '',
@@ -174,6 +161,21 @@ const EventDetailPage = () => {
     fontSize: '12px',
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.grey[100],
+  }));
+
+  const EventImageStyle = styled(Box)(({ theme }) => ({
+    width: '100%',
+    height: 'auto',
+    maxHeight: '500px',
+
+    '& .event-img': {
+      objectFit: isHospitalScheduleEvent ? 'contain' : 'cover',
+      width: '100%',
+      height: 'auto',
+      maxHeight: '500px',
+      margin: '0 auto',
+      borderRadius: '20px',
+    },
   }));
 
   const handleCancelEventDialog = () => {
@@ -258,6 +260,8 @@ const EventDetailPage = () => {
   const fetchEventDetailData = useCallback(async () => {
     try {
       const data = await getEventDetailByEventId(eventId);
+      setIsHospitalScheduleEvent(data.eventTypeId === EventTypeEnum.PermanentScheduledEvent);
+
       setDetailData(data);
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
