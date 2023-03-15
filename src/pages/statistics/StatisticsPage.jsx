@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { HeaderMainStyle } from 'utils';
+import { HeaderMainStyle, formatNumber } from 'utils';
 import { HeaderBreadcumbs } from 'components';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import { Stack, Button, MenuItem, Paper, Select, Grid, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import moment from 'moment';
+import ChartDetailLegend from './components/ChartDetailLegend';
 
 const ChartPaper = styled(Paper)(({ theme }) => ({
   padding: '20px',
@@ -34,10 +35,6 @@ const StatisticsPage = () => {
   // Blood Type Ratio
   const [bloodTypeRatio, setBloodTypeRatio] = useState([]);
   const [bloodTypeRatioYearFilter, setBloodTypeRatioYearFilter] = useState(getLastFiveYear()[0]);
-
-  // Donation Time
-  const [donationTimes, setDonationTimes] = useState([]);
-  const [donationTimeYearFilter, setDonationTimeYearFilter] = useState(getLastFiveYear()[0]);
 
   // Blood Bag
   const [bloodBagMonths, setBloodBagMonths] = useState([]);
@@ -87,12 +84,26 @@ const StatisticsPage = () => {
       },
     ],
   };
-  const bloodTypeRatioPieChartOptions = {
-    responsive: true,
 
+  const textCenter = {
+    id: 'textCenter',
+    beforeDatasetsDraw(chart, args, pluginOptions) {
+      const { ctx, data } = chart;
+
+      ctx.save();
+      ctx.font = '40px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${formatNumber(6900)}`, chart.getDatasetMeta(0)?.data[0]?.x, chart.getDatasetMeta(0)?.data[0]?.y);
+    },
+  };
+
+  const bloodTypeRatioDoughnutChartOptions = {
+    responsive: true,
+    cutout: '80%',
     plugins: {
       legend: {
-        position: 'bottom',
+        display: false,
       },
       title: {
         display: true,
@@ -101,42 +112,12 @@ const StatisticsPage = () => {
     },
   };
 
-  const bloodTypeRatioPieChartData = {
+  const bloodTypeRatioDoughnutChartData = {
     labels: ['A', 'B', 'AB', 'O'],
     datasets: [
       {
         label: 'Tỉ lệ nhóm máu nhận được',
         data: bloodTypeRatio,
-        backgroundColor: [
-          theme.palette.error.main,
-          theme.palette.success.main,
-          theme.palette.info.main,
-          theme.palette.warning.main,
-        ],
-      },
-    ],
-  };
-
-  const donationTimePieChartOptions = {
-    responsive: true,
-
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      title: {
-        display: true,
-        text: `Tỉ lệ số lần hiến máu trong năm ${donationTimeYearFilter}`,
-      },
-    },
-  };
-
-  const donationTimePieChartData = {
-    labels: ['1 lần', '2 lần', '3 lần', '4 lần'],
-    datasets: [
-      {
-        label: 'Tỉ lệ số lần hiến máu trong năm',
-        data: donationTimes,
         backgroundColor: [
           theme.palette.error.main,
           theme.palette.success.main,
@@ -204,10 +185,6 @@ const StatisticsPage = () => {
     setBloodTypeRatioYearFilter(e.target.value);
   };
 
-  const handelChooseDonationTimeYear = (e) => {
-    setDonationTimeYearFilter(e.target.value);
-  };
-
   const handelChooseBloodBagYear = (e) => {
     setBloodBagYearFilter(e.target.value);
   };
@@ -217,8 +194,6 @@ const StatisticsPage = () => {
     setTotalBloodDonation([1124, 1243, 524, 234, 235, 324, 465, 457, 6746, 460, 537, 3453]);
 
     setBloodTypeRatio([340, 324, 100, 642]);
-
-    setDonationTimes([1203, 230, 49, 4]);
 
     setBloodBagMonths(
       [
@@ -264,9 +239,8 @@ const StatisticsPage = () => {
 
       <Grid container rowSpacing={5} columnSpacing={4}>
         {/* Total Blood Donation */}
-
         <Grid lg={8} xs={12} item>
-          <ChartPaper>
+          <ChartPaper sx={{ height: '100%' }}>
             <Stack direction="row" justifyContent="flex-end">
               <Select
                 sx={{ width: '100px', backgroundColor: '#FFFF' }}
@@ -287,7 +261,7 @@ const StatisticsPage = () => {
 
         {/* Blood Type Ratio Chart */}
         <Grid lg={4} xs={12} item>
-          <ChartPaper sx={{ height: '100%' }}>
+          <ChartPaper>
             <Stack direction="row" justifyContent="flex-end">
               <Select
                 sx={{ width: '100px', backgroundColor: '#FFFF', marginBottom: '20px' }}
@@ -302,33 +276,17 @@ const StatisticsPage = () => {
                 ))}
               </Select>
             </Stack>
-            <Pie options={bloodTypeRatioPieChartOptions} data={bloodTypeRatioPieChartData} />
-          </ChartPaper>
-        </Grid>
-
-        {/* Donation Time Chart */}
-        <Grid lg={4} xs={12} item>
-          <ChartPaper sx={{ height: '100%' }}>
-            <Stack direction="row" justifyContent="flex-end">
-              <Select
-                sx={{ width: '100px', backgroundColor: '#FFFF', marginBottom: '20px' }}
-                value={donationTimeYearFilter}
-                label="Year"
-                onChange={handelChooseDonationTimeYear}
-              >
-                {getLastFiveYear().map((year, i) => (
-                  <MenuItem key={i} value={year}>
-                    {year}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Stack>
-            <Pie options={donationTimePieChartOptions} data={donationTimePieChartData} />
+            <Doughnut
+              options={bloodTypeRatioDoughnutChartOptions}
+              data={bloodTypeRatioDoughnutChartData}
+              plugins={[textCenter]}
+            />
+            <ChartDetailLegend sx={{ marginTop: '12px' }} />
           </ChartPaper>
         </Grid>
 
         {/* Blood Bags Chart */}
-        <Grid lg={8} xs={12} item>
+        <Grid xs={12} item>
           <ChartPaper>
             <Stack direction="row" justifyContent="flex-end">
               <Select
