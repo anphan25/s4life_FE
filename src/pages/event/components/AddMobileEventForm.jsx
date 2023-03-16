@@ -242,7 +242,7 @@ const AddMobileEventForm = () => {
     province: Yup.array()
       .of(
         Yup.object().shape({
-          id: Yup.number().required('Vui lòng chọn tỉnh thành'),
+          id: Yup.number(),
           name: Yup.string(),
         })
       )
