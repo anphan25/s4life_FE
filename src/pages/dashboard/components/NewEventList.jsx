@@ -16,7 +16,7 @@ import { MoreMenuButton, Icon } from 'components';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatDate } from 'utils';
+import { formatDate, EventTypeEnum } from 'utils';
 
 const NewEventList = ({ events }) => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const NewEventList = ({ events }) => {
             <TableHead>
               <TableRow>
                 <TableCell width="30%">Sự kiện</TableCell>
-                <TableCell width="50%">Địa điểm</TableCell>
+                <TableCell width="50%">Địa điểm/Khu vực</TableCell>
                 <TableCell width="20%">Thời gian</TableCell>
                 <TableCell />
               </TableRow>
@@ -41,7 +41,16 @@ const NewEventList = ({ events }) => {
               {events?.map((row) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.name}</TableCell>
-                  <TableCell>{row?.eventLocations[0]?.location?.address}</TableCell>
+                  <TableCell>
+                    {row?.eventTypeId === EventTypeEnum.MobileEvent
+                      ? row?.area
+                          .map((item) => {
+                            return item?.districtName;
+                          })
+                          .join(', ')
+                          .concat(' - ', row?.area[0]?.provinceName)
+                      : row?.eventLocations[0]?.location?.address}
+                  </TableCell>
                   <TableCell>
                     <Box>
                       <Typography sx={{ fontSize: 12 }} whiteSpace="nowrap">
@@ -56,7 +65,7 @@ const NewEventList = ({ events }) => {
                     <MoreMenuButton>
                       <MenuItem>
                         <Icon
-                          icon={'eye'}
+                          icon={'solid-eye'}
                           onClick={() => {
                             navigate('/event/fixed-list');
                           }}

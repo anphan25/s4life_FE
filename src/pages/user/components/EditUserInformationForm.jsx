@@ -170,7 +170,7 @@ const EditUserInformationForm = ({ userInfoData }) => {
     try {
       await updateUserInfo(editParams);
       setTimeout(() => {
-        navigate('/user/list');
+        navigate(`/user/${userInformationId}`);
       }, [1500]);
     } catch (error) {
       setAlert({ message: errorHandler(error), type: 'error', status: true });
@@ -271,7 +271,7 @@ const EditUserInformationForm = ({ userInfoData }) => {
               <Button
                 sx={{ marginRight: '10px' }}
                 onClick={() => {
-                  navigate('/user/list');
+                  navigate(`/user/${userInformationId}`);
                 }}
               >
                 Hủy

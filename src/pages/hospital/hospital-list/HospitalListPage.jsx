@@ -124,10 +124,11 @@ const HospitalListPage = () => {
                   navigate(`/hospital/${params.row.id}`);
                 }}
               >
-                <Icon sx={{ height: 20, width: 20 }} icon="eye" />
+                <Icon sx={{ height: 20, width: 20 }} icon="solid-eye" />
                 Xem chi tiết
               </MenuItem>
               <MenuItem
+                sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
                 onClick={() => {
                   if (isHospitalActive) {
                     setDisableHospitalId(params.row.id);
@@ -142,7 +143,6 @@ const HospitalListPage = () => {
                   sx={{
                     height: 20,
                     width: 20,
-                    color: isHospitalActive ? 'error.main' : '',
                   }}
                   icon={isHospitalActive ? 'trash' : 'trash-slash'}
                 />
