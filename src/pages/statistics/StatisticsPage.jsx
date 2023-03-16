@@ -13,11 +13,11 @@ const ChartPaper = styled(Paper)(({ theme }) => ({
   borderRadius: '20px',
 }));
 
-const getLastFiveYear = () => {
+const getLastThreeYear = () => {
   const currentYear = Number(moment().get('years'));
   const years = [];
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     const year = currentYear - i;
     years.push(year);
   }
@@ -30,16 +30,16 @@ const StatisticsPage = () => {
   // Total Blood Donation
   const [totalDonationBloodMonths, setTotalDonationBloodMonths] = useState([]);
   const [totalBloodDonation, setTotalBloodDonation] = useState([]);
-  const [totalBloodDonationYearFilter, setTotalBloodDonationYearFilter] = useState(getLastFiveYear()[0]);
+  const [totalBloodDonationYearFilter, setTotalBloodDonationYearFilter] = useState(getLastThreeYear()[0]);
 
   // Blood Type Ratio
   const [bloodTypeRatio, setBloodTypeRatio] = useState([]);
-  const [bloodTypeRatioYearFilter, setBloodTypeRatioYearFilter] = useState(getLastFiveYear()[0]);
+  const [bloodTypeRatioYearFilter, setBloodTypeRatioYearFilter] = useState(getLastThreeYear()[0]);
 
   // Blood Bag
   const [bloodBagMonths, setBloodBagMonths] = useState([]);
   const [bloodBags, setBloodBags] = useState([]);
-  const [bloodBagYearFilter, setBloodBagYearFilter] = useState(getLastFiveYear()[0]);
+  const [bloodBagYearFilter, setBloodBagYearFilter] = useState(getLastThreeYear()[0]);
 
   ChartJS?.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -248,7 +248,7 @@ const StatisticsPage = () => {
                 label="Year"
                 onChange={handelChooseTotalDonationYear}
               >
-                {getLastFiveYear().map((year, i) => (
+                {getLastThreeYear().map((year, i) => (
                   <MenuItem key={i} value={year}>
                     {year}
                   </MenuItem>
@@ -269,7 +269,7 @@ const StatisticsPage = () => {
                 label="Year"
                 onChange={handelChooseBloodTypeRatioYear}
               >
-                {getLastFiveYear().map((year, i) => (
+                {getLastThreeYear().map((year, i) => (
                   <MenuItem key={i} value={year}>
                     {year}
                   </MenuItem>
@@ -295,7 +295,7 @@ const StatisticsPage = () => {
                 label="Year"
                 onChange={handelChooseBloodBagYear}
               >
-                {getLastFiveYear().map((year, i) => (
+                {getLastThreeYear().map((year, i) => (
                   <MenuItem key={i} value={year}>
                     {year}
                   </MenuItem>

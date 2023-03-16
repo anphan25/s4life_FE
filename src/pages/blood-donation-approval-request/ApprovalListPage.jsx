@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, MenuItem } from '@mui/material';
-import {
-  DataTable,
-  FilterTab,
-  HeaderBreadcumbs,
-  SearchBar,
-  Icon,
-  CustomSnackBar,
-  MoreMenuButton,
-  CustomDialog,
-} from 'components';
+import { Box, Tooltip } from '@mui/material';
+import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomSnackBar, CustomDialog } from 'components';
 import { getBloodDonationApprovalRequests } from 'api';
 import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle, formatPhoneNumber } from 'utils';
 import ApprovalDetail from './components/ApprovalDetail';
@@ -84,17 +75,20 @@ function ApprovalList() {
         filterable: false,
         renderCell: (params) => {
           return (
-            <MoreMenuButton>
-              <MenuItem
-                onClick={() => {
-                  setSelectedDetailId(params.row.id);
-                  handleApprovalDetailDialog();
-                }}
-              >
-                <Icon icon="file-text-edit" sx={{ fontSize: 18 }} />
-                {params.row.isProcessing ? 'Xét duyệt' : 'Xem chi tiết'}
-              </MenuItem>
-            </MoreMenuButton>
+            <div>
+              <Tooltip title={params.row.isProcessing ? 'Phê duyệt' : 'Xem chi tiết'} placement="bottom">
+                <Box>
+                  <Icon
+                    onClick={() => {
+                      setSelectedDetailId(params.row.id);
+                      handleApprovalDetailDialog();
+                    }}
+                    sx={{ cursor: 'pointer', fontSize: 18 }}
+                    icon={params.row.isProcessing ? 'solid-file-text-edit' : 'solid-eye'}
+                  />
+                </Box>
+              </Tooltip>
+            </div>
           );
         },
       },

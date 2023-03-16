@@ -1,13 +1,29 @@
 import { DashedBox, ContentTypoStyle, Item, LeftContainer, TitleTypoStyle, HospitalImgStyle } from './UserDetailStyle';
 import React from 'react';
-import { Stack, Box, Grid } from '@mui/material';
+import { Stack, Box, Grid, Button } from '@mui/material';
 import { formatDate, convertBloodTypeLabel, formatPhoneNumber } from 'utils';
+import { Icon } from 'components';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const UserInformation = ({ userInfoData }) => {
+  const navigate = useNavigate();
+  const { userInformationId } = useParams();
   return (
     <Grid container spacing={2}>
       <Grid item md={8} xs={12}>
         <Item>
+          <Stack direction="row" justifyContent="flex-end">
+            <Button
+              sx={{ fontSize: '12px' }}
+              startIcon={<Icon icon="solid-pen" />}
+              variant="contained"
+              onClick={() => {
+                navigate(`/user/${userInformationId}/edit`);
+              }}
+            >
+              Cập nhật
+            </Button>
+          </Stack>
           <LeftContainer>
             <Stack direction={'column'}>
               <HospitalImgStyle>

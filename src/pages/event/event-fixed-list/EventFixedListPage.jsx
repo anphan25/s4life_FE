@@ -190,7 +190,7 @@ const EventFixedListPage = () => {
                   navigate(`/event/${params.row.id}`);
                 }}
               >
-                <Icon icon={'eye'} />
+                <Icon icon={'solid-eye'} />
                 Xem chi tiết
               </MenuItem>
 
@@ -212,7 +212,7 @@ const EventFixedListPage = () => {
                   navigate(`/event/fixed-list/${params.row.id}/edit`);
                 }}
               >
-                <Icon icon={'pen'} />
+                <Icon icon={'solid-pen'} />
                 Cập nhật
               </MenuItem>
 

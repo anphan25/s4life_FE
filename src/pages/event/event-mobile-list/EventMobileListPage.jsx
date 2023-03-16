@@ -156,7 +156,7 @@ const EventMobileListPage = () => {
                   navigate(`/event/${params.row.id}`);
                 }}
               >
-                <Icon icon={'eye'} />
+                <Icon icon={'solid-eye'} />
                 Xem chi tiết
               </MenuItem>
               <Divider sx={{ borderStyle: 'dashed' }} />

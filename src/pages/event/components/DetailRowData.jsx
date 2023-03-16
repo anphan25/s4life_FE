@@ -112,7 +112,7 @@ const DetailRowData = ({ item, index }) => {
                         <TableCell>
                           <Icon
                             sx={{ cursor: 'pointer' }}
-                            icon="eye"
+                            icon="solid-eye"
                             onClick={() => {
                               navigate(`/event/${event?.id}`);
                             }}

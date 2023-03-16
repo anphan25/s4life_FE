@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Stack, Button, MenuItem } from '@mui/material';
+import { Box, Stack, Button, Tooltip } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -13,11 +13,9 @@ import {
   RHFSelect,
   AsyncAutocompleteFilter,
   Icon,
-  MoreMenuButton,
   Tag,
 } from 'components';
 import { useNavigate } from 'react-router-dom';
-import { GridActionsCellItem } from '@mui/x-data-grid';
 import {
   errorHandler,
   convertBloodTypeLabel,
@@ -99,34 +97,13 @@ const UserListPage = () => {
         headerName: 'Địa chỉ',
         type: 'string',
         field: 'address',
-        minWidth: 200,
         flex: 1,
       },
       {
-        headerName: 'CCCD',
-        type: 'number',
-        field: 'nationalId',
-        width: 120,
-      },
-      {
-        headerName: 'CMND',
-        type: 'number',
-        field: 'citizenId',
-        width: 100,
-      },
-      {
-        headerName: 'Giới tính',
+        headerName: 'CCCD/CMND',
         type: 'string',
-        field: 'gender',
-        minWidth: 30,
-        align: 'center',
-      },
-      {
-        headerName: 'Ngày sinh',
-        type: 'date',
-        field: 'dateOfBirth',
-        width: 130,
-        align: 'center',
+        field: 'nationalIdAndCitizenId',
+        width: 120,
       },
       {
         headerName: 'Số điện thoại',
@@ -147,28 +124,23 @@ const UserListPage = () => {
         width: 50,
         sortable: false,
         filterable: false,
-
-        getActions: (params) => [
-          <MoreMenuButton>
-            <MenuItem
-              onClick={() => {
-                navigate(`/user/${params.row.userInformationId}`);
-              }}
-            >
-              <Icon icon={'eye'} />
-              Xem chi tiết
-            </MenuItem>
-
-            <MenuItem
-              onClick={() => {
-                navigate(`/user/${params.row.userInformationId}/edit`);
-              }}
-            >
-              <Icon icon={'pen'} />
-              Cập nhật
-            </MenuItem>
-          </MoreMenuButton>,
-        ],
+        renderCell: (params) => {
+          return (
+            <div>
+              <Tooltip title="Xem chi tiết" placement="bottom">
+                <Box>
+                  <Icon
+                    onClick={() => {
+                      navigate(`/user/${params.row.userInformationId}`);
+                    }}
+                    sx={{ cursor: 'pointer', fontSize: 18 }}
+                    icon={'solid-eye'}
+                  />
+                </Box>
+              </Tooltip>
+            </div>
+          );
+        },
       },
     ],
     pageState: pageState,
@@ -217,18 +189,25 @@ const UserListPage = () => {
         width: 50,
         sortable: false,
         filterable: false,
-        getActions: (params) => [
-          <GridActionsCellItem
-            icon={<Icon icon="key" sx={{ fontSize: 18 }} />}
-            onClick={() => {
-              setChangePassWordUserName(params.row.userName);
-              setChangePassWordId(params.row.id);
-              handleChangePasswordDialog();
-            }}
-            label="Đổi mật khẩu"
-            showInMenu
-          />,
-        ],
+        renderCell: (params) => {
+          return (
+            <div>
+              <Tooltip title="Đổi mật khẩu" placement="bottom">
+                <Box>
+                  <Icon
+                    onClick={() => {
+                      setChangePassWordUserName(params.row.userName);
+                      setChangePassWordId(params.row.id);
+                      handleChangePasswordDialog();
+                    }}
+                    sx={{ cursor: 'pointer', fontSize: 18 }}
+                    icon={'solid-key'}
+                  />
+                </Box>
+              </Tooltip>
+            </div>
+          );
+        },
       },
     ],
     pageState,
@@ -526,14 +505,11 @@ const UserListPage = () => {
             id: data?.userInformation?.userId,
             name: data?.userInformation?.fullName || '-',
             address: data?.userInformation?.address || '-',
-            nationalId: data?.userInformation?.nationalId || '-',
-            citizenId: data?.userInformation?.citizenId || '-',
+            nationalIdAndCitizenId: data?.userInformation?.nationalId || data?.userInformation?.citizenId,
             phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
             bloodType: data?.userInformation?.bloodTypeId
               ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
               : '-',
-            dateOfBirth: formatDate(data?.userInformation?.dateOfBirth, 4) || '-',
-            gender: data?.userInformation?.gender || '-',
             userInformationId: data?.userInformationId,
           }))
         : data.items?.map((data, i) => ({
