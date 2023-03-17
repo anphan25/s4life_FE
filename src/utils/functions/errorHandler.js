@@ -93,7 +93,7 @@ export function convertErrorCodeToMessage(code) {
     7011: 'Phiếu đăng ký không hợp lệ',
     7021: 'Sự kiện không thể đăng ký, đã vượt quá sớ người tham gia',
     7031: 'Thiếu thông tin địa điểm đăng ký',
-    7041: 'Trạng thái đăng ký không hợp lệ',
+    7041: 'Trạng thái phiếu đăng ký không hợp lệ',
     7051: 'Phiếu đăng ký chỉ được điền từ 1 ngày trước khi sự kiện bắt đầu cho tới khi nó kết thúc',
     7061: 'Thiếu lý do hủy bỏ đăng ký hiến máu',
     7071: 'Thiếu thông tin phiếu đăng ký',
@@ -136,6 +136,13 @@ export function convertErrorCodeToMessage(code) {
     //Config number
     12000: 'Yêu cầu thay đổi hệ thống đang được xử lí',
     12100: 'Thay đổi cấu hình hệ thống thành công',
+
+    //Registration Form
+    14000: 'Yêu cầu tạo link tải xuống đang được xử lí',
+    14001: 'Chỉ được tải xuống phiếu đăng kí cho tình nguyện viên đã tham gia',
+    14003: 'Từ chối yêu cầu tải xuống phiếu đăng kí',
+    14100: 'Tải xuống thành công',
+
     //Internal Error
     5555: 'Có lỗi xảy ra, Vui lòng liên hệ quản trị viên',
   };

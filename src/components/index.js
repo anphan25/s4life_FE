@@ -26,5 +26,6 @@ export * from './filter/FilterTab';
 export * from './filter/SearchBar';
 export * from './filter/FromToDateFilter';
 export * from './filter/AsyncAutocompleteFilter';
+export * from './filter/AutocompleteFilter';
 export * from './Tag';
 export * from './MoreMenuButton';

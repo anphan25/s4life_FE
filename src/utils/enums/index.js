@@ -10,3 +10,4 @@ export * from './FilterRoleEnum';
 export * from './HospitalFilterEnum';
 export * from './HospitalStatusEnum';
 export * from './EventRegistrationStatusFilterEnum';
+export * from './EventRegistrationOperationEnum';
