@@ -47,3 +47,14 @@ export const listenOnHubInBulkOperations = (connection, onReceive) => {
     console.log(error);
   }
 };
+
+export const listenOnHubToGetContent = (connection, onReceive) => {
+  if (!connection) return;
+  try {
+    connection?.on('ReceiveContent', (result, messageCode) => {
+      onReceive(result, messageCode);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -7,15 +7,15 @@ import {
   CustomSnackBar,
   CustomDialog,
   Icon,
-  AsyncAutocompleteFilter,
+  AutocompleteFilter,
   UpdateBloodTypeImport,
   MultipleAlertSnackBar,
   DetailAlertDialog,
 } from 'components';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { errorHandler, formatDate, UserInformationUpdateModeEnum } from 'utils';
+import { errorHandler, formatDate, UserInformationUpdateModeEnum, convertErrorCodeToMessage } from 'utils';
 import { useParams } from 'react-router-dom';
-import { getEventRegistrations, updateUserInfo } from 'api';
+import { getEventRegistrations, updateUserInfo, getEventRegistrationById } from 'api';
 import moment from 'moment';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -30,9 +30,11 @@ import {
   EventRegistrationStatusFilterEnum,
   getFilterTabValuesFromEnum,
   formatPhoneNumber,
+  EventRegistrationOperationEnum,
+  getFilterBloodTypeLabels,
 } from 'utils';
 import { useSelector } from 'react-redux';
-import { openHubConnection, listenOnHubInBulkOperations } from 'config';
+import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent } from 'config';
 import { useStore } from 'react-redux';
 
 export const DownloadLink = styled('a')(({ theme }) => ({
@@ -79,37 +81,7 @@ const VolunteerListOfEvent = () => {
 
   const store = useStore();
 
-  const BloodTypeFilterList = Object.keys(BloodTypeFilterEnum).map((key) => ({
-    name: key,
-    value: BloodTypeFilterEnum[key],
-  }));
-
   const downloadRef = useRef();
-
-  const convertFilterBloodTypeLabel = (bloodTypeValue) => {
-    switch (bloodTypeValue) {
-      case 0:
-        return 'Chưa cập nhật';
-      case 1:
-        return 'A+';
-      case 2:
-        return 'B+';
-      case 3:
-        return 'AB+';
-      case 4:
-        return 'O+';
-      case -1:
-        return 'A-';
-      case -2:
-        return 'B-';
-      case -3:
-        return 'AB-';
-      case -4:
-        return 'O-';
-      default:
-        return 'Chưa cập nhật';
-    }
-  };
 
   const gridOptions = {
     columns: [
@@ -168,14 +140,12 @@ const VolunteerListOfEvent = () => {
         sortable: false,
         filterable: false,
         align: 'center',
+
         getActions: (params) => [
           <GridActionsCellItem
-            disabled={pageState.status !== 3 || user.role !== 'Manager'}
-            icon={
-              <Box sx={{ '& .action-icon': { color: 'warning.main' } }}>
-                <Icon icon="solid-user-edit" className="action-icon" />
-              </Box>
-            }
+            label="Cập nhật nhóm máu"
+            disabled={pageState.status !== EventRegistrationStatusFilterEnum.Attended.value || user.role !== 'Manager'}
+            icon={<Icon sx={{ color: 'warning.main' }} icon="solid-user-edit" />}
             onClick={() => {
               setBloodType('');
               setUpdateBloodTypeParams({
@@ -203,8 +173,21 @@ const VolunteerListOfEvent = () => {
               }));
               handleUpdateBloodTypeDialog();
             }}
-            label="Cập nhật nhóm máu"
             showInMenu
+          />,
+          <GridActionsCellItem
+            disabled={pageState.status !== EventRegistrationStatusFilterEnum.Attended.value || user.role !== 'Manager'}
+            icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
+            label="Tải phiếu đăng ký"
+            showInMenu
+            onClick={async () => {
+              setAlert({
+                message: 'Tiến hành xử lý yêu cầu',
+                type: 'info',
+                status: true,
+              });
+              await getEventRegistrationById(params.row.id, EventRegistrationOperationEnum.GetLink);
+            }}
           />,
         ],
       },
@@ -242,7 +225,15 @@ const VolunteerListOfEvent = () => {
   };
 
   const handleChooseBloodType = (bloodTypes) => {
-    const bloodTypeString = bloodTypes.map((bloodType) => bloodType.value).join(',');
+    const mappingBloodTypeValues = [];
+
+    for (const property in BloodTypeFilterEnum) {
+      if (bloodTypes.includes(BloodTypeFilterEnum[property].label)) {
+        mappingBloodTypeValues.push(BloodTypeFilterEnum[property].value);
+      }
+    }
+
+    const bloodTypeString = mappingBloodTypeValues.toString();
 
     setPageState((old) => ({ ...old, bloodTypes: bloodTypeString }));
   };
@@ -499,6 +490,19 @@ const VolunteerListOfEvent = () => {
         setIsMultipleAlertOpen(true);
       }
     });
+
+    listenOnHubToGetContent(connection, (result, messageCode) => {
+      setAlert({});
+      if (messageCode === 14100) {
+        window.open(result, '_self');
+      } else {
+        setAlert({
+          message: convertErrorCodeToMessage(messageCode),
+          type: messageCode < 0 ? 'error' : 'success',
+          status: true,
+        });
+      }
+    });
     connection?.onclose((e) => {
       setConnection(null);
     });
@@ -531,16 +535,14 @@ const VolunteerListOfEvent = () => {
 
           <InputFilterSectionStyle>
             <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
-            <AsyncAutocompleteFilter
+            <AutocompleteFilter
               multiple
-              filterOptions={(options) => options.filter(({ value }) => !pageState?.bloodTypes?.includes(value))}
               sx={{ width: '25%' }}
               placeholder="Chọn nhóm máu"
               onSelect={handleChooseBloodType}
-              list={BloodTypeFilterList}
-              isLazyLoad={true}
+              list={getFilterBloodTypeLabels()}
               getOptionLabel={(option) => {
-                return convertFilterBloodTypeLabel(option?.value) || '';
+                return option || '';
               }}
             />
             <SearchBar
