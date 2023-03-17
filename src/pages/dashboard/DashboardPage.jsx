@@ -6,7 +6,7 @@ import { formatNumber } from 'utils/functions/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';
-import { getDashboardData, getEvents } from 'api';
+import { getStatisticData, getEvents } from 'api';
 import { DashBoardEnum, EventFilterEnum } from 'utils';
 import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
 
@@ -101,7 +101,7 @@ const DashboardPage = () => {
     const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.toISOString();
     const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.toISOString();
 
-    const response = await getDashboardData(startDate, endDate, false);
+    const response = await getStatisticData(startDate, endDate, false);
 
     setData(response);
   }, []);

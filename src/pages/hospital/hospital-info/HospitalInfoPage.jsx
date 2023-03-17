@@ -12,6 +12,8 @@ import {
   Switch,
   FormControl,
   FormControlLabel,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
 import { CustomDialog, CustomSnackBar, RHFUploadImage, HospitalImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -365,26 +367,40 @@ const HospitalInfoPage = () => {
     return result;
   };
 
-  const handleSwitchChange = () => {};
+  const handleSwitchChange = async (e) => {
+    console.log(e.target.checked);
+    if (e.target.checked) {
+      await editHospital({
+        hospitalConfig: {
+          autoGenerateScheduledEvent: true,
+        },
+      });
+    } else {
+      await editHospital({
+        openingTime: null,
+        hospitalConfig: {
+          autoGenerateScheduledEvent: false,
+        },
+      });
+    }
+
+    fetchHospitalInfoData();
+  };
 
   const fetchHospitalInfoData = async () => {
     setHospitalData(await getHospitalById(hospitalId));
   };
 
   useEffect(() => {
-    // if (user?.role === 'Manager') {
     const openConnection = async () => {
       setConnection(await openHubConnection(store));
     };
     openConnection();
-    // }
     fetchHospitalInfoData();
   }, []);
 
   useEffect(() => {
-    // if (user?.role === 'Manager') {
     listenOnHub(connection, (messageCode) => {
-      console.log('messageCode', messageCode);
       setAlert({
         message: convertErrorCodeToMessage(messageCode),
         type: messageCode < 0 ? 'error' : 'success',
@@ -394,7 +410,6 @@ const HospitalInfoPage = () => {
     connection?.onclose((e) => {
       setConnection(null);
     });
-    // }
   }, [connection]);
 
   return (
@@ -465,20 +480,26 @@ const HospitalInfoPage = () => {
         <Grid item md={4} sm={6} xs={12}>
           <Item sx={{ textAlign: 'left' }}>
             {user?.role === 'Manager' && (
-              <Stack direction="row">
+              <Box>
                 <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
                   <FormControlLabel
-                    control={<Switch onChange={handleSwitchChange} name="gilad" />}
+                    control={
+                      <Switch
+                        checked={hospitalData?.hospitalConfig?.autoGenerateScheduledEvent}
+                        onChange={handleSwitchChange}
+                      />
+                    }
                     label="Tự động tạo sự kiện theo lịch"
                   />
                 </FormControl>
-                {/* <Tooltip>
-                <Icon
-                  icon="solid-info-circle"
-                  sx={{ color: 'info.main', marginTop: '8px', width: '20px', height: '20px' }}
-                />
-              </Tooltip> */}
-              </Stack>
+                <Tooltip
+                  title={`Khi bật sẽ tự động tạo sự kiện theo lịch cho tuần sau vào cuối ngày chủ nhật tuần này`}
+                >
+                  <IconButton>
+                    <Icon icon="solid-info-circle" sx={{ color: 'info.main', width: '20px', height: '20px' }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             )}
 
             <Stack direction={'row'} alignItems="center">

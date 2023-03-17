@@ -3,10 +3,11 @@ import { HeaderMainStyle, formatNumber } from 'utils';
 import { HeaderBreadcumbs } from 'components';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { Stack, Button, MenuItem, Paper, Select, Grid, styled } from '@mui/material';
+import { Stack, MenuItem, Paper, Select, Grid, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import moment from 'moment';
 import ChartDetailLegend from './components/ChartDetailLegend';
+import { getStatisticData } from 'api';
 
 const ChartPaper = styled(Paper)(({ theme }) => ({
   padding: '20px',
@@ -22,6 +23,10 @@ const getLastThreeYear = () => {
     years.push(year);
   }
   return years;
+};
+
+const getYearFilterParam = (year) => {
+  return { DateStart: `1/1/${year}`, DateEnd: `31/12/${year}` };
 };
 
 const StatisticsPage = () => {
@@ -189,6 +194,10 @@ const StatisticsPage = () => {
     setBloodBagYearFilter(e.target.value);
   };
 
+  const fetchStatisticData = async () => {
+    await getStatisticData({});
+  };
+
   useEffect(() => {
     setTotalDonationBloodMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => mothLabels[month]));
     setTotalBloodDonation([1124, 1243, 524, 234, 235, 324, 465, 457, 6746, 460, 537, 3453]);
@@ -231,10 +240,6 @@ const StatisticsPage = () => {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs heading="Thống kê" links={[{ name: 'Trang chủ', to: '/' }, { name: 'Thống kê' }]} />
-
-        {/* <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserDialog}>
-          Tải file thống kê
-        </Button> */}
       </HeaderMainStyle>
 
       <Grid container rowSpacing={5} columnSpacing={4}>

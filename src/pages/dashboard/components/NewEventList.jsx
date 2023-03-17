@@ -63,13 +63,12 @@ const NewEventList = ({ events }) => {
                   </TableCell>
                   <TableCell align="right">
                     <MoreMenuButton>
-                      <MenuItem>
-                        <Icon
-                          icon={'solid-eye'}
-                          onClick={() => {
-                            navigate('/event/fixed-list');
-                          }}
-                        />
+                      <MenuItem
+                        onClick={() => {
+                          navigate(`/event/${row?.id}`);
+                        }}
+                      >
+                        <Icon icon={'solid-eye'} />
                         Xem chi tiết
                       </MenuItem>
                     </MoreMenuButton>
