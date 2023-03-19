@@ -27,7 +27,7 @@ import {
   BloodTypeFilterEnum,
   handleDownloadTemplate,
   BloodTypeEnum,
-  EventRegistrationStatusFilterEnum,
+  EventRegistrationStatusEnum,
   getFilterTabValuesFromEnum,
   formatPhoneNumber,
   EventRegistrationOperationEnum,
@@ -49,7 +49,7 @@ const VolunteerListOfEvent = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    status: EventRegistrationStatusFilterEnum.NotYetAttended.value,
+    status: EventRegistrationStatusEnum.Registered.value,
     searchPhoneNumber: '',
     dateFrom: null,
     dateTo: null,
@@ -144,7 +144,7 @@ const VolunteerListOfEvent = () => {
         getActions: (params) => [
           <GridActionsCellItem
             label="Cập nhật nhóm máu"
-            disabled={pageState.status !== EventRegistrationStatusFilterEnum.Attended.value || user.role !== 'Manager'}
+            disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value || user.role !== 'Manager'}
             icon={<Icon sx={{ color: 'warning.main' }} icon="solid-user-edit" />}
             onClick={() => {
               setBloodType('');
@@ -176,7 +176,7 @@ const VolunteerListOfEvent = () => {
             showInMenu
           />,
           <GridActionsCellItem
-            disabled={pageState.status !== EventRegistrationStatusFilterEnum.Attended.value || user.role !== 'Manager'}
+            disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value || user.role !== 'Manager'}
             icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
             label="Tải phiếu đăng ký"
             showInMenu
@@ -528,7 +528,7 @@ const VolunteerListOfEvent = () => {
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
-            tabs={getFilterTabValuesFromEnum(EventRegistrationStatusFilterEnum)}
+            tabs={getFilterTabValuesFromEnum(EventRegistrationStatusEnum)}
             onChangeTab={handleFilterTabChange}
             defaultValue={pageState.status}
           />

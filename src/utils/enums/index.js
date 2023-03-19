@@ -1,6 +1,6 @@
 export * from './BloodTypeFilterEnum';
 export * from './BloodTypeEnum';
-export * from './DashBoardEnum';
+export * from './StatisticEnum';
 export * from './GenderEnum';
 export * from './UserInformationUpdateModeEnum';
 export * from './EventFilterEnum';
@@ -9,5 +9,6 @@ export * from './EventStatusEnum';
 export * from './FilterRoleEnum';
 export * from './HospitalFilterEnum';
 export * from './HospitalStatusEnum';
-export * from './EventRegistrationStatusFilterEnum';
+export * from './EventRegistrationStatusEnum';
 export * from './EventRegistrationOperationEnum';
+export * from './StatisticFilterModeEnum';

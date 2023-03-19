@@ -28,7 +28,6 @@ export const FilterTab = ({ tabs, sx, defaultValue, onChangeTab, ...props }) => 
         sx={{
           float: props.orientation === 'vertical' ? 'left' : 'center',
           '& .MuiTab-root': {
-            minWidth: 106,
             color: 'grey.900',
             fontWeight: 600,
             mb: 0.5,

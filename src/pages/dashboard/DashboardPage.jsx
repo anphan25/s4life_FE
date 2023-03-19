@@ -7,7 +7,7 @@ import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';
 import { getStatisticData, getEvents } from 'api';
-import { DashBoardEnum, EventFilterEnum } from 'utils';
+import { StatisticEnum, EventFilterEnum, StatisticFilterModeEnum, getStatisticResultFromGroup } from 'utils';
 import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
 
 const getFirstAndLastDateInCurrentQuarter = () => {
@@ -49,59 +49,62 @@ const getFirstAndLastDateInCurrentQuarter = () => {
   }
 };
 
-const resultFromGroup = (arr, groupNumber) => {
-  if (!arr || groupNumber === null) return;
-
-  return arr?.find((item) => item.group === groupNumber)?.result;
-};
-
 const DashboardPage = () => {
   const [data, setData] = useState(null);
   const [eventList, setEventList] = useState([]);
   const theme = useTheme();
 
-  const eventStatistics = data?.eventStatistics || 0;
-  const eventRegistrationStatistics = data?.eventRegistrationStatistics || 0;
-  const bloodVolumeStatistics = data?.bloodVolumeStatistics || 0;
-  const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics || 0;
+  const eventStatistics = data?.eventStatistics;
+  const eventRegistrationStatistics = data?.eventRegistrationStatistics;
+  const bloodVolumeStatistics = data?.bloodVolumeStatistics;
+  const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics;
 
   // Events
-  const unstartedEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.UNSTARTED_GROUP);
-  const startedEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.STARTED_GROUP);
-  const finishedEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.FINISHED_GROUP);
-  const canceledEvents = resultFromGroup(eventStatistics, DashBoardEnum.EventStatistic.CANCELED_GROUP);
+  const unstartedEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.UNSTARTED_GROUP);
+  const startedEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.STARTED_GROUP);
+  const finishedEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.FINISHED_GROUP);
+  const canceledEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.CANCELED_GROUP);
   const totalEvents = formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents);
 
   // Event Registration
   const totalEventRegistrations = formatNumber(
-    resultFromGroup(eventRegistrationStatistics, DashBoardEnum.EventRegistrationStatistic.TOTAL_GROUP)
+    getStatisticResultFromGroup(eventRegistrationStatistics, StatisticEnum.EventRegistrationStatistic.TOTAL_GROUP)
   );
-  const notAttendedEventRegistrations = resultFromGroup(
+  const notAttendedEventRegistrations = getStatisticResultFromGroup(
     eventRegistrationStatistics,
-    DashBoardEnum.EventRegistrationStatistic.NOT_ATTENDED_GROUP
+    StatisticEnum.EventRegistrationStatistic.NOT_ATTENDED_GROUP
   );
-  const attendedEventRegistrations = resultFromGroup(
+  const attendedEventRegistrations = getStatisticResultFromGroup(
     eventRegistrationStatistics,
-    DashBoardEnum.EventRegistrationStatistic.ATTENDED_GROUP
+    StatisticEnum.EventRegistrationStatistic.ATTENDED_GROUP
   );
 
   // Blood Volume
-  const receivedBlood = resultFromGroup(bloodVolumeStatistics, DashBoardEnum.BloodVolumeStatistic.RECEIVED_GROUP);
-  const expectedBloodReceive = resultFromGroup(
+  const receivedBlood = getStatisticResultFromGroup(
     bloodVolumeStatistics,
-    DashBoardEnum.BloodVolumeStatistic.EXPECTED_RECEIVE_GROUP
+    StatisticEnum.BloodVolumeStatistic.RECEIVED_GROUP
+  );
+  const expectedBloodReceive = getStatisticResultFromGroup(
+    bloodVolumeStatistics,
+    StatisticEnum.BloodVolumeStatistic.EXPECTED_RECEIVE_GROUP
   );
 
   // Blood Type
-  const oBloodTypeVolume = resultFromGroup(bloodVolumeTypeStatistics, DashBoardEnum.BloodTypeStatistic.O_GROUP);
+  const oBloodTypeVolume = getStatisticResultFromGroup(
+    bloodVolumeTypeStatistics,
+    StatisticEnum.BloodTypeStatistic.O_GROUP
+  );
 
-  const rhNegativeVolume = resultFromGroup(bloodVolumeStatistics, DashBoardEnum.BloodVolumeStatistic.RH_NEGATIVE);
+  const rhNegativeVolume = getStatisticResultFromGroup(
+    bloodVolumeStatistics,
+    StatisticEnum.BloodVolumeStatistic.RH_NEGATIVE
+  );
 
   const fetchDashboardData = useCallback(async () => {
     const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.toISOString();
     const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.toISOString();
 
-    const response = await getStatisticData(startDate, endDate, false);
+    const response = await getStatisticData(StatisticFilterModeEnum.All, startDate, endDate, false);
 
     setData(response);
   }, []);

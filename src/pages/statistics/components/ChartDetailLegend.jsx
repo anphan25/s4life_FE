@@ -28,6 +28,11 @@ const BloodRatioTypo = styled(Typography)(({ theme }) => ({
 const ChartDetailLegend = ({ sx, data }) => {
   const theme = useTheme();
 
+  const typeA = data?.find((data) => data.type === 'A');
+  const typeB = data?.find((data) => data.type === 'B');
+  const typeAB = data?.find((data) => data.type === 'AB');
+  const typeO = data?.find((data) => data.type === 'O');
+
   return (
     <Stack sx={{ padding: '10px', flexDirection: 'row', justifyContent: 'space-around', ...sx }}>
       <Stack spacing={0.8}>
@@ -36,8 +41,8 @@ const ChartDetailLegend = ({ sx, data }) => {
           <Box>A</Box>
         </DetailLegendLabel>
 
-        <BloodVolumeTypo>514ml</BloodVolumeTypo>
-        <BloodRatioTypo>50%</BloodRatioTypo>
+        <BloodVolumeTypo>{typeA?.volume}ml</BloodVolumeTypo>
+        <BloodRatioTypo>{typeA?.ratio?.toFixed(2)}%</BloodRatioTypo>
       </Stack>
 
       <Stack spacing={0.8}>
@@ -46,8 +51,8 @@ const ChartDetailLegend = ({ sx, data }) => {
           <Box>B</Box>
         </DetailLegendLabel>
 
-        <BloodVolumeTypo>514ml</BloodVolumeTypo>
-        <BloodRatioTypo>50%</BloodRatioTypo>
+        <BloodVolumeTypo>{typeB?.volume}ml</BloodVolumeTypo>
+        <BloodRatioTypo>{typeB?.ratio?.toFixed(2)}%</BloodRatioTypo>
       </Stack>
 
       <Stack spacing={0.8}>
@@ -56,8 +61,8 @@ const ChartDetailLegend = ({ sx, data }) => {
           <Box>AB</Box>
         </DetailLegendLabel>
 
-        <BloodVolumeTypo>514ml</BloodVolumeTypo>
-        <BloodRatioTypo>50%</BloodRatioTypo>
+        <BloodVolumeTypo>{typeAB?.volume}ml</BloodVolumeTypo>
+        <BloodRatioTypo>{typeAB?.ratio?.toFixed(2)}%</BloodRatioTypo>
       </Stack>
 
       <Stack spacing={0.8}>
@@ -66,8 +71,8 @@ const ChartDetailLegend = ({ sx, data }) => {
           <Box>O</Box>
         </DetailLegendLabel>
 
-        <BloodVolumeTypo>514ml</BloodVolumeTypo>
-        <BloodRatioTypo>50%</BloodRatioTypo>
+        <BloodVolumeTypo>{typeO?.volume}ml</BloodVolumeTypo>
+        <BloodRatioTypo>{typeO?.ratio?.toFixed(2)}%</BloodRatioTypo>
       </Stack>
     </Stack>
   );
