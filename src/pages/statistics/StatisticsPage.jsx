@@ -1,21 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import { HeaderMainStyle, formatNumber } from 'utils';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  HeaderMainStyle,
+  formatNumber,
+  StatisticFilterModeEnum,
+  getStatisticResultFromGroup,
+  StatisticEnum,
+} from 'utils';
 import { HeaderBreadcumbs } from 'components';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { Stack, MenuItem, Paper, Select, Grid, styled } from '@mui/material';
+import { Stack, MenuItem, Paper, Select, Grid, styled, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import moment from 'moment';
 import ChartDetailLegend from './components/ChartDetailLegend';
 import { getStatisticData } from 'api';
+import { NotFoundIcon } from 'assets';
+
+const StyledGridOverlay = styled(Stack)(({ theme }) => ({
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  height: '337px',
+
+  [theme.breakpoints.down('md')]: {
+    height: '200px',
+  },
+}));
 
 const ChartPaper = styled(Paper)(({ theme }) => ({
   padding: '20px',
   borderRadius: '20px',
 }));
 
+const currentYear = Number(moment().get('years'));
+
+const mothLabels = [
+  'Tháng 1',
+  'Tháng 2',
+  'Tháng 3',
+  'Tháng 4',
+  'Tháng 5',
+  'Tháng 6',
+  'Tháng 7',
+  'Tháng 8',
+  'Tháng 9',
+  'Tháng 10',
+  'Tháng 11',
+  'Tháng 12',
+];
+
 const getLastThreeYear = () => {
-  const currentYear = Number(moment().get('years'));
   const years = [];
 
   for (let i = 0; i < 3; i++) {
@@ -26,45 +61,34 @@ const getLastThreeYear = () => {
 };
 
 const getYearFilterParam = (year) => {
-  return { DateStart: `1/1/${year}`, DateEnd: `31/12/${year}` };
+  return { DateStart: `${year}-1-1`, DateEnd: `${year}-12-31` };
+};
+
+const bloodVolumeRatioCalculator = (partialValue, totalValue) => {
+  return (100 * partialValue) / totalValue;
 };
 
 const StatisticsPage = () => {
   const theme = useTheme();
 
   // Total Blood Donation
-  const [totalDonationBloodMonths, setTotalDonationBloodMonths] = useState([]);
   const [totalBloodDonation, setTotalBloodDonation] = useState([]);
   const [totalBloodDonationYearFilter, setTotalBloodDonationYearFilter] = useState(getLastThreeYear()[0]);
 
   // Blood Type Ratio
   const [bloodTypeRatio, setBloodTypeRatio] = useState([]);
   const [bloodTypeRatioYearFilter, setBloodTypeRatioYearFilter] = useState(getLastThreeYear()[0]);
+  const [totalVolume, setTotalVolume] = useState(0);
 
   // Blood Bag
-  const [bloodBagMonths, setBloodBagMonths] = useState([]);
   const [bloodBags, setBloodBags] = useState([]);
   const [bloodBagYearFilter, setBloodBagYearFilter] = useState(getLastThreeYear()[0]);
 
   ChartJS?.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
-  const mothLabels = {
-    1: 'Tháng 1',
-    2: 'Tháng 2',
-    3: 'Tháng 3',
-    4: 'Tháng 4',
-    5: 'Tháng 5',
-    6: 'Tháng 6',
-    7: 'Tháng 7',
-    8: 'Tháng 8',
-    9: 'Tháng 9',
-    10: 'Tháng 10',
-    11: 'Tháng 11',
-    12: 'Tháng 12',
-  };
-
   //////////////////////// Chart Config ////////////////////
 
+  //////////// Bar Chart
   const barChartOptions = {
     responsive: true,
 
@@ -80,7 +104,7 @@ const StatisticsPage = () => {
   };
 
   const barChartData = {
-    labels: totalDonationBloodMonths,
+    labels: mothLabels,
     datasets: [
       {
         label: 'Số ml máu',
@@ -99,9 +123,15 @@ const StatisticsPage = () => {
       ctx.font = '40px Inter,sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${formatNumber(6900)}`, chart.getDatasetMeta(0)?.data[0]?.x, chart.getDatasetMeta(0)?.data[0]?.y);
+      ctx.fillText(
+        `${formatNumber(totalVolume)}ml`,
+        chart.getDatasetMeta(0)?.data[0]?.x,
+        chart.getDatasetMeta(0)?.data[0]?.y
+      );
     },
   };
+
+  //////////// Doughnut Chart
 
   const bloodTypeRatioDoughnutChartOptions = {
     responsive: true,
@@ -122,7 +152,7 @@ const StatisticsPage = () => {
     datasets: [
       {
         label: 'Tỉ lệ nhóm máu nhận được',
-        data: bloodTypeRatio,
+        data: bloodTypeRatio?.map((data) => data.volume) || [],
         backgroundColor: [
           theme.palette.error.main,
           theme.palette.success.main,
@@ -154,8 +184,10 @@ const StatisticsPage = () => {
     },
   };
 
+  //////////// Stacked Bar Chart
+
   const stackedBarChartData = {
-    labels: bloodBagMonths,
+    labels: mothLabels,
     datasets: [
       {
         label: '250ml',
@@ -194,47 +226,124 @@ const StatisticsPage = () => {
     setBloodBagYearFilter(e.target.value);
   };
 
-  const fetchStatisticData = async () => {
-    await getStatisticData({});
-  };
+  const fetchTotalBloodDonation = useCallback(async () => {
+    const response = await getStatisticData(
+      StatisticFilterModeEnum.BloodVolumeStatistic,
+      getYearFilterParam(totalBloodDonationYearFilter).DateStart,
+      getYearFilterParam(totalBloodDonationYearFilter).DateEnd,
+      true
+    );
+
+    const totalBloodVolumePerMonth = response?.map((data) =>
+      getStatisticResultFromGroup(data?.bloodVolumeStatistics, StatisticEnum.BloodVolumeStatistic.RECEIVED_GROUP)
+    );
+
+    setTotalBloodDonation(totalBloodVolumePerMonth);
+  }, [totalBloodDonationYearFilter]);
+
+  const fetchBloodTypeRatio = useCallback(async () => {
+    const data = await getStatisticData(
+      StatisticFilterModeEnum.BloodVolumeTypeStatistic,
+      getYearFilterParam(bloodTypeRatioYearFilter).DateStart,
+      getYearFilterParam(bloodTypeRatioYearFilter).DateEnd,
+      false
+    );
+
+    const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics;
+
+    const typeAVolume = getStatisticResultFromGroup(
+      bloodVolumeTypeStatistics,
+      StatisticEnum.BloodTypeStatistic.A_GROUP
+    );
+
+    const typeBVolume = getStatisticResultFromGroup(
+      bloodVolumeTypeStatistics,
+      StatisticEnum.BloodTypeStatistic.B_GROUP
+    );
+
+    const typeABVolume = getStatisticResultFromGroup(
+      bloodVolumeTypeStatistics,
+      StatisticEnum.BloodTypeStatistic.AB_GROUP
+    );
+
+    const typeOVolume = getStatisticResultFromGroup(
+      bloodVolumeTypeStatistics,
+      StatisticEnum.BloodTypeStatistic.O_GROUP
+    );
+
+    const totalBloodTypeVolume = typeAVolume + typeBVolume + typeABVolume + typeOVolume;
+
+    setBloodTypeRatio(
+      bloodVolumeTypeStatistics?.length > 0
+        ? [
+            {
+              type: 'A',
+              volume: typeAVolume,
+              ratio: bloodVolumeRatioCalculator(typeAVolume, totalBloodTypeVolume),
+            },
+            {
+              type: 'B',
+              volume: typeBVolume,
+              ratio: bloodVolumeRatioCalculator(typeBVolume, totalBloodTypeVolume),
+            },
+            {
+              type: 'AB',
+              volume: typeABVolume,
+              ratio: bloodVolumeRatioCalculator(typeABVolume, totalBloodTypeVolume),
+            },
+            {
+              type: 'O',
+              volume: typeOVolume,
+              ratio: bloodVolumeRatioCalculator(typeOVolume, totalBloodTypeVolume),
+            },
+          ]
+        : []
+    );
+
+    setTotalVolume(totalBloodTypeVolume);
+  }, [bloodTypeRatioYearFilter]);
+
+  const fetchBloodBagVolume = useCallback(async () => {
+    const response = await getStatisticData(
+      StatisticFilterModeEnum.BloodBagVolumeStatistic,
+      getYearFilterParam(bloodBagYearFilter).DateStart,
+      getYearFilterParam(bloodBagYearFilter).DateEnd,
+      true
+    );
+
+    const totalBloodBagVolumePerMonth = response?.map((data) => ({
+      volume250: getStatisticResultFromGroup(
+        data?.bloodBagVolumeStatistics,
+        StatisticEnum.BloodBagVolumeStatistic.GROUP_250
+      ),
+      volume350: getStatisticResultFromGroup(
+        data?.bloodBagVolumeStatistics,
+        StatisticEnum.BloodBagVolumeStatistic.GROUP_350
+      ),
+      volume375: getStatisticResultFromGroup(
+        data?.bloodBagVolumeStatistics,
+        StatisticEnum.BloodBagVolumeStatistic.GROUP_375
+      ),
+      volume450: getStatisticResultFromGroup(
+        data?.bloodBagVolumeStatistics,
+        StatisticEnum.BloodBagVolumeStatistic.GROUP_450
+      ),
+    }));
+
+    setBloodBags(totalBloodBagVolumePerMonth);
+  }, [bloodBagYearFilter]);
 
   useEffect(() => {
-    setTotalDonationBloodMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => mothLabels[month]));
-    setTotalBloodDonation([1124, 1243, 524, 234, 235, 324, 465, 457, 6746, 460, 537, 3453]);
+    fetchTotalBloodDonation();
+  }, [fetchTotalBloodDonation]);
 
-    setBloodTypeRatio([340, 324, 100, 642]);
+  useEffect(() => {
+    fetchBloodTypeRatio();
+  }, [fetchBloodTypeRatio]);
 
-    setBloodBagMonths(
-      [
-        { month: 1, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 2, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 3, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 4, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 5, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 6, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 7, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 8, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 9, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 10, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 11, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-        { month: 12, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      ]?.map((data) => mothLabels[data.month])
-    );
-    setBloodBags([
-      { month: 1, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 2, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 3, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 4, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 5, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 6, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 7, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 8, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 9, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 10, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 11, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-      { month: 12, volume250: 340, volume350: 460, volume375: 120, volume450: 45 },
-    ]);
-  }, []);
+  useEffect(() => {
+    fetchBloodBagVolume();
+  }, [fetchBloodBagVolume]);
 
   return (
     <>
@@ -260,6 +369,7 @@ const StatisticsPage = () => {
                 ))}
               </Select>
             </Stack>
+
             <Bar options={barChartOptions} data={barChartData} />
           </ChartPaper>
         </Grid>
@@ -281,18 +391,29 @@ const StatisticsPage = () => {
                 ))}
               </Select>
             </Stack>
-            <Doughnut
-              options={bloodTypeRatioDoughnutChartOptions}
-              data={bloodTypeRatioDoughnutChartData}
-              plugins={[textCenter]}
-            />
-            <ChartDetailLegend sx={{ marginTop: '12px' }} />
+            {bloodTypeRatio.length > 0 ? (
+              <>
+                <Doughnut
+                  options={bloodTypeRatioDoughnutChartOptions}
+                  data={bloodTypeRatioDoughnutChartData}
+                  plugins={[textCenter]}
+                />
+                <ChartDetailLegend sx={{ marginTop: '12px' }} data={bloodTypeRatio} />
+              </>
+            ) : (
+              <StyledGridOverlay>
+                <NotFoundIcon />
+                <Typography fontSize={14} fontWeight={500} sx={{ mt: 1 }}>
+                  Không có dữ liệu trong năm {bloodTypeRatioYearFilter}
+                </Typography>
+              </StyledGridOverlay>
+            )}
           </ChartPaper>
         </Grid>
 
         {/* Blood Bags Chart */}
         <Grid xs={12} item>
-          <ChartPaper>
+          <ChartPaper sx={{ height: '100%' }}>
             <Stack direction="row" justifyContent="flex-end">
               <Select
                 sx={{ width: '100px', backgroundColor: '#FFFF' }}
@@ -307,6 +428,7 @@ const StatisticsPage = () => {
                 ))}
               </Select>
             </Stack>
+
             <Bar options={stackedBarChartOptions} data={stackedBarChartData} />
           </ChartPaper>
         </Grid>

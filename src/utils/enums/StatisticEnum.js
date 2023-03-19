@@ -1,4 +1,4 @@
-export const DashBoardEnum = Object.freeze({
+export const StatisticEnum = Object.freeze({
   EventStatistic: {
     UNSTARTED_GROUP: 1,
     STARTED_GROUP: 2,
@@ -24,5 +24,13 @@ export const DashBoardEnum = Object.freeze({
     B_GROUP: 2,
     AB_GROUP: 3,
     O_GROUP: 4,
+  },
+
+  BloodBagVolumeStatistic: {
+    UNKNOWN_GROUP: 0,
+    GROUP_250: 1,
+    GROUP_350: 2,
+    GROUP_375: 3,
+    GROUP_450: 4,
   },
 });

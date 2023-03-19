@@ -400,6 +400,7 @@ const HospitalInfoPage = () => {
   }, []);
 
   useEffect(() => {
+    setAlert({});
     listenOnHub(connection, (messageCode) => {
       setAlert({
         message: convertErrorCodeToMessage(messageCode),

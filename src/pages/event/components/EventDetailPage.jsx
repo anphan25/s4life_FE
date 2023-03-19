@@ -198,6 +198,7 @@ const EventDetailPage = () => {
         return { label: 'Danh sách sự kiện lưu động', link: '/event/mobile-list/' };
       }
       default: {
+        return '-';
       }
     }
   };
@@ -301,10 +302,10 @@ const EventDetailPage = () => {
           links={[
             { name: 'Trang chủ', to: '/' },
             {
-              name: eventListNavigator(detailData?.eventType)?.label,
-              to: eventListNavigator(detailData?.eventType)?.link,
+              name: eventListNavigator(detailData?.eventType)?.label || '-',
+              to: eventListNavigator(detailData?.eventType)?.link || '-',
             },
-            { name: `${detailData?.name}` },
+            { name: `${detailData?.name || '-'}` },
           ]}
         />
       </HeaderMainStyle>
