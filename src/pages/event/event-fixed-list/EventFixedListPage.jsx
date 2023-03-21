@@ -7,7 +7,6 @@ import {
   FilterTab,
   CustomDialog,
   FromToDateFilter,
-  CustomSnackBar,
   Icon,
   MoreMenuButton,
 } from 'components';
@@ -31,6 +30,7 @@ import {
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const EventFixedListPage = () => {
   const user = useSelector((state) => state.auth.auth?.user);
@@ -54,12 +54,7 @@ const EventFixedListPage = () => {
     dateFrom: null,
     dateTo: null,
   });
-
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
 
   const gridOptions = {
     columns: [
@@ -281,16 +276,13 @@ const EventFixedListPage = () => {
       setConnection(await openHubConnection(store));
     };
     openConnection();
-    setAlert({});
   }, []);
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({});
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -310,12 +302,14 @@ const EventFixedListPage = () => {
             loading={isButtonLoading}
             onClick={async () => {
               setIsButtonLoading(true);
-              setAlert({});
               try {
                 await cancelEvent(cancelEventId);
                 await fetchEventListData();
               } catch (error) {
-                setAlert({ message: errorHandler(error), type: 'error', status: true });
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
               } finally {
                 handleCancelEventDialog();
                 setIsButtonLoading(false);
@@ -357,7 +351,6 @@ const EventFixedListPage = () => {
 
   const fetchEventListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true }));
-    setAlert({});
     getEvents({
       Page: pageState?.page,
       PageSize: pageState?.pageSize,
@@ -390,7 +383,10 @@ const EventFixedListPage = () => {
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
       })
       .catch((error) => {
-        setAlert({ message: errorHandler(error), type: 'error', status: true });
+        enqueueSnackbar(errorHandler(error), {
+          variant: 'error',
+          persist: false,
+        });
       })
       .finally(() => setPageState((pre) => ({ ...pre, isLoading: false })));
   }, [pageState.pageSize, pageState.page, pageState.searchKey, pageState.status, pageState.dateFrom, pageState.dateTo]);
@@ -459,7 +455,6 @@ const EventFixedListPage = () => {
         children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };

@@ -22,9 +22,10 @@ import { errorHandler, formatDate, convertErrorCodeToMessage, DialogButtonGroupS
 import React, { useEffect, useState, useRef } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-import { CustomSnackBar, Tag, CustomDialog, RHFInput, RHFRadio } from 'components';
+import { Tag, CustomDialog, RHFInput, RHFRadio } from 'components';
 import { useNavigate } from 'react-router-dom';
 import { updateApproveBloodDonation } from 'api';
+import { useSnackbar } from 'notistack';
 
 // 0: Reject, 1: Approve
 const APPROVAL_OPTIONS = [
@@ -61,14 +62,10 @@ const BloodDonationApprovalTable = ({ detailData }) => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [disabledInputIndexes, setDisabledInputIndexes] = useState([]);
   const [isConfirmApprovalOpen, setIsConfirmApprovalOpen] = useState(false);
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
   const store = useStore();
   const navigate = useNavigate();
   const submitBtnRef = useRef();
+  const { enqueueSnackbar } = useSnackbar();
 
   const isProcessing = detailData?.isProcessing;
 
@@ -124,7 +121,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
       note: item?.note || '',
     }));
 
-    setAlert({});
     setIsButtonLoading(true);
 
     try {
@@ -134,7 +130,10 @@ const BloodDonationApprovalTable = ({ detailData }) => {
         navigate('/blood-donation-approval-request');
       }, [1500]);
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
       handleConfirmApprovalDialog();
@@ -150,10 +149,9 @@ const BloodDonationApprovalTable = ({ detailData }) => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -263,8 +261,6 @@ const BloodDonationApprovalTable = ({ detailData }) => {
         children={confirmApprovalDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </Box>
   );
 };

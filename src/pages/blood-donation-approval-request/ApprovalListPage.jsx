@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Tooltip } from '@mui/material';
-import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomSnackBar, CustomDialog } from 'components';
+import { DataTable, FilterTab, HeaderBreadcumbs, SearchBar, Icon, CustomDialog } from 'components';
 import { getBloodDonationApprovalRequests } from 'api';
 import { errorHandler, formatDate, InputFilterSectionStyle, HeaderMainStyle, formatPhoneNumber } from 'utils';
 import ApprovalDetail from './components/ApprovalDetail';
+import { useSnackbar } from 'notistack';
 
 const filterTabValues = [
   { label: 'Đang xử lý', value: 1 },
@@ -11,6 +12,7 @@ const filterTabValues = [
 ];
 
 function ApprovalList() {
+  const { enqueueSnackbar } = useSnackbar();
   const [isApprovalDetailOpen, setIsApprovalDetailOpen] = useState(false);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [pageState, setPageState] = useState({
@@ -21,12 +23,6 @@ function ApprovalList() {
     pageSize: 10,
     isProcessing: true,
     searchKey: '',
-  });
-
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
   });
 
   const bloodDonationApprovalGridOptions = {
@@ -98,7 +94,7 @@ function ApprovalList() {
 
   const fetchBloodDonationApprovals = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
-    setAlert({});
+
     try {
       const approvalParams = {
         IsProcessing: pageState.isProcessing,
@@ -121,7 +117,10 @@ function ApprovalList() {
 
       setPageState((pre) => ({ ...pre, data: dataRow, total: data.total }));
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
     }
@@ -198,8 +197,6 @@ function ApprovalList() {
         children={approvalDetailDialogContent()}
         sx={{ '& .MuiDialog-paper': { maxWidth: '90% !important', maxHeight: '90%' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 }

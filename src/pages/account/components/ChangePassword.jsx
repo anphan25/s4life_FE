@@ -1,5 +1,5 @@
 import { Box, styled, Stack, Typography } from '@mui/material';
-import { RHFPasswordInput, CustomSnackBar } from 'components';
+import { RHFPasswordInput } from 'components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
@@ -7,8 +7,11 @@ import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { changePassword } from 'api';
 import { PASSWORD_PATTERN, errorHandler } from 'utils';
+import { useSnackbar } from 'notistack';
 
 const ChangePassword = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const ChangePasswordStackStyle = styled(Stack)(({ theme }) => ({ padding: '20px', gap: '20px' }));
   const TitleStyle = styled(Typography)(({ theme }) => ({
     fontSize: '20px',
@@ -40,30 +43,27 @@ const ChangePassword = () => {
     mode: 'onChange',
   });
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
 
   const onSubmit = async (data) => {
-    setAlert({});
     setIsButtonLoading(true);
 
     try {
       data.changeMode = 0;
       await changePassword(data);
-      setAlert({
-        message: 'Thay đổi mật khẩu thành công.',
-        status: true,
-        type: 'success',
+
+      enqueueSnackbar('Thay đổi mật khẩu thành công', {
+        variant: 'success',
+        persist: false,
       });
       reset();
       data.currentPassword = '';
       data.changePassword = '';
       data.confirmPassword = '';
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -102,8 +102,6 @@ const ChangePassword = () => {
           </Box>
         </Stack>
       </form>
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </ChangePasswordStackStyle>
   );
 };
