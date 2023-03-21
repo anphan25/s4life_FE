@@ -15,7 +15,7 @@ import {
   Tooltip,
   IconButton,
 } from '@mui/material';
-import { CustomDialog, CustomSnackBar, RHFUploadImage, HospitalImport, Icon, HeaderBreadcumbs } from 'components';
+import { CustomDialog, RHFUploadImage, HospitalImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   errorHandler,
@@ -37,16 +37,12 @@ import { setHospital } from 'app/slices/HospitalSlice';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 const HospitalInfoPage = () => {
   const [isUpdateHospitalOpen, setIsUpdateHospitalOpen] = useState(false);
   const [isUpdateHospitalImgOpen, setIsUpdateHospitalImgOpen] = useState(false);
-
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [importParams, setImportParams] = useState([]);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
@@ -146,7 +142,6 @@ const HospitalInfoPage = () => {
   };
 
   const updateHospitalInfoHandler = async (data) => {
-    setAlert({});
     setIsButtonLoading(true);
     setImportParams([]);
     try {
@@ -154,7 +149,10 @@ const HospitalInfoPage = () => {
       dispatch(setHospital(data));
       await fetchHospitalInfoData();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
       handleUpdateHospitalDialog();
@@ -162,7 +160,6 @@ const HospitalInfoPage = () => {
   };
 
   const updateHospitalImgHandler = async (data) => {
-    setAlert({});
     setImgUploadFile(null);
 
     try {
@@ -170,7 +167,10 @@ const HospitalInfoPage = () => {
       dispatch(setHospital(data));
       await fetchHospitalInfoData();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
       handleUpdateHospitalImgDialog();
@@ -400,12 +400,10 @@ const HospitalInfoPage = () => {
   }, []);
 
   useEffect(() => {
-    setAlert({});
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -573,8 +571,6 @@ const HospitalInfoPage = () => {
         children={updateHospitalImgDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '30% !important', maxHeight: '700px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };

@@ -4,7 +4,6 @@ import {
   FilterTab,
   FromToDateFilter,
   SearchBar,
-  CustomSnackBar,
   CustomDialog,
   Icon,
   AutocompleteFilter,
@@ -37,12 +36,14 @@ import {
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent } from 'config';
 import { useStore } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 export const DownloadLink = styled('a')(({ theme }) => ({
   display: 'none',
 }));
 
 const VolunteerListOfEvent = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const { eventId } = useParams();
   const [pageState, setPageState] = useState({
     isLoading: false,
@@ -56,11 +57,7 @@ const VolunteerListOfEvent = () => {
     dateTo: null,
     bloodTypes: [],
   });
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+
   const [isUpdateBloodTypeDialogOpen, setIsUpdateBloodTypeDialogOpen] = useState(false);
   const [isImportBloodTypeDialogOpen, setIsImportBloodTypeDialogOpen] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
@@ -188,11 +185,10 @@ const VolunteerListOfEvent = () => {
               label="Tải phiếu đăng ký"
               showInMenu
               onClick={async () => {
-                setAlert({
-                  message: 'Tiến hành xử lý yêu cầu',
-                  type: 'info',
-                  status: true,
-                });
+                enqueueSnackbar('Tiến hành xử lý yêu cầu', {
+                variant: 'info',
+                persist: false,
+              });
                 await getEventRegistrationById(params.row.id, EventRegistrationOperationEnum.GetLink);
               }}
             />,
@@ -282,7 +278,6 @@ const VolunteerListOfEvent = () => {
             disabled={bloodType ? false : true}
             loading={isButtonLoading}
             onClick={async () => {
-              setAlert({});
               setIsButtonLoading(true);
               try {
                 await updateUserInfo({
@@ -299,7 +294,10 @@ const VolunteerListOfEvent = () => {
                 });
                 await fetchVolunteersOfEvent();
               } catch (error) {
-                setAlert({ message: errorHandler(error), type: 'error', status: true });
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
               } finally {
                 handleUpdateBloodTypeDialog();
                 setIsButtonLoading(false);
@@ -332,7 +330,6 @@ const VolunteerListOfEvent = () => {
     if (importParams.length <= 0) {
       return;
     }
-    setAlert({});
     setIsButtonLoading(true);
     setImportParams([]);
 
@@ -350,7 +347,10 @@ const VolunteerListOfEvent = () => {
       });
       await fetchVolunteersOfEvent();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       handleImportBloodTypeDialog();
       setIsButtonLoading(false);
@@ -372,13 +372,11 @@ const VolunteerListOfEvent = () => {
                 try {
                   await handleDownloadTemplate('template_import/update_bloodtype_import_template.csv', downloadRef);
                 } catch (error) {
-                  setAlert({});
                   switch (error.code) {
                     case 'storage/object-not-found':
-                      setAlert({
-                        message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
-                        status: true,
-                        type: 'error',
+                      enqueueSnackbar('Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên', {
+                        variant: 'error',
+                        persist: false,
                       });
                       break;
 
@@ -447,7 +445,10 @@ const VolunteerListOfEvent = () => {
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setPageState((old) => ({ ...old, isLoading: false }));
     }
@@ -502,14 +503,12 @@ const VolunteerListOfEvent = () => {
     });
 
     listenOnHubToGetContent(connection, (result, messageCode) => {
-      setAlert({});
       if (messageCode === 14100) {
         window.open(result, '_self');
       } else {
-        setAlert({
-          message: convertErrorCodeToMessage(messageCode),
-          type: messageCode < 0 ? 'error' : 'success',
-          status: true,
+        enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+          variant: messageCode < 0 ? 'error' : 'success',
+          persist: false,
         });
       }
     });
@@ -604,8 +603,6 @@ const VolunteerListOfEvent = () => {
         ]}
         sx={{ '& .MuiDialog-paper': { width: '80% !important', maxHeight: '600px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
 
       {isMultipleAlertOpen && (
         <MultipleAlertSnackBar

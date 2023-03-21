@@ -14,7 +14,7 @@ import {
   Button,
   Skeleton,
 } from '@mui/material';
-import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, Icon } from 'components';
+import { HeaderBreadcumbs, CustomDialog, Icon } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -37,6 +37,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -126,11 +127,8 @@ const EventDetailPage = () => {
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
   const [isHospitalScheduleEvent, setIsHospitalScheduleEvent] = useState(false);
   const [connection, setConnection] = useState(null);
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
+
   const navigate = useNavigate();
   let user = useSelector((state) => state.auth.auth?.user);
   const store = useStore();
@@ -217,13 +215,15 @@ const EventDetailPage = () => {
           <LoadingButton
             loading={isButtonLoading}
             onClick={async () => {
-              setAlert({});
               setIsButtonLoading(true);
               try {
                 await cancelEvent(cancelEventId);
                 await fetchEventDetailData();
               } catch (error) {
-                setAlert({ message: errorHandler(error), type: 'error', status: true });
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
               } finally {
                 handleCancelEventDialog();
                 setIsButtonLoading(false);
@@ -270,7 +270,10 @@ const EventDetailPage = () => {
 
       setDetailData(data);
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     }
   }, [eventId]);
 
@@ -284,10 +287,9 @@ const EventDetailPage = () => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -658,8 +660,6 @@ const EventDetailPage = () => {
         children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </Box>
   );
 };

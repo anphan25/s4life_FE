@@ -7,7 +7,6 @@ import {
   RHFInput,
   RHFDatePicker,
   MultipleAlertSnackBar,
-  CustomSnackBar,
   DetailAlertDialog,
 } from 'components';
 import React, { useState, useCallback, useEffect, forwardRef, useRef } from 'react';
@@ -31,6 +30,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useStore } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations } from 'config';
 import { useSelector } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const DownloadLink = styled('a')(({ theme }) => ({
   display: 'none',
@@ -54,16 +54,13 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
   const [alertResult, setAlertResult] = useState(null);
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
   const [connection, setConnection] = useState(null);
   const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
 
   const user = useSelector((state) => state.auth.auth?.user);
   const isModerator = user.role === RoleEnum.Moderator.name;
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const downloadRef = useRef();
 
@@ -295,13 +292,11 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
                 try {
                   await handleDownloadTemplate('template_import/blood_donation_import_template .csv', downloadRef);
                 } catch (error) {
-                  setAlert({});
                   switch (error.code) {
                     case 'storage/object-not-found':
-                      setAlert({
-                        message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
-                        status: true,
-                        type: 'error',
+                      enqueueSnackbar('Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên', {
+                        variant: 'error',
+                        persist: false,
                       });
                       break;
 
@@ -338,7 +333,6 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
 
   const onSubmitManualAdd = async (data) => {
     setIsButtonLoading(true);
-    setAlert({});
     const mappingBloodDonations = data?.bloodDonations?.map((data) => ({
       ...data,
       donationDate: formatDate(data?.donationDate, 5),
@@ -351,7 +345,10 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
       handleAddBloodDonationHistoryDialog();
       fetchUserInfo();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -360,7 +357,6 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
   const onSubmitImportAdd = async (e) => {
     e.preventDefault();
     setIsButtonLoading(true);
-    setAlert({});
     try {
       await addBloodDonations({ userInformationId, bloodDonations: importParams });
 
@@ -368,7 +364,10 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
       handleImportBloodDonationHistoryDialog();
       fetchUserInfo();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -489,8 +488,6 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
         children={importBloodDonationHistoryDialogContent()}
         sx={{ '& .MuiDialog-paper': { maxWidth: '70% !important', maxHeight: '500px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
 
       {isMultipleAlertOpen && (
         <MultipleAlertSnackBar

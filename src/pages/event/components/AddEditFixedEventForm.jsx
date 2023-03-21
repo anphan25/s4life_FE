@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
-import { CustomSnackBar } from 'components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
@@ -35,8 +34,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from './GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const [locations, setLocations] = useState([]);
   const [locationDetail, setLocationDetail] = useState({
     name: '',
@@ -52,11 +53,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const [connection, setConnection] = useState(null);
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
 
   const store = useStore();
 
@@ -75,7 +71,10 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       'state_changed',
       (snapshot) => {},
       (error) => {
-        setAlert({ message: errorHandler({ response: { data: { code: 10001 } } }), type: 'error', status: true });
+        enqueueSnackbar(errorHandler({ response: { data: { code: 10001 } } }), {
+          variant: 'error',
+          persist: false,
+        });
       },
       () => {
         if (isEdit && data?.imageUrls[0] !== DEFAULT_EVENT_IMAGE_URL) {
@@ -87,7 +86,10 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
           deleteObject(desertRef)
             .then(() => {})
             .catch((error) => {
-              setAlert({ message: errorHandler({ response: { data: { code: 10001 } } }), type: 'error', status: true });
+              enqueueSnackbar(errorHandler({ response: { data: { code: 10001 } } }), {
+                variant: 'error',
+                persist: false,
+              });
             });
         }
         getDownloadURL(uploadTask.snapshot.ref)
@@ -166,7 +168,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   };
 
   const addEditEventHandler = async (param) => {
-    setAlert({});
     try {
       if (isEdit) {
         const editParams = {};
@@ -185,7 +186,10 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
         navigate('/event/fixed-list');
       }, [1500]);
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -502,10 +506,9 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -732,8 +735,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
           </Grid>
         </Grid>
       </form>
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };

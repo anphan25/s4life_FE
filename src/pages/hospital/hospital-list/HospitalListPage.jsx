@@ -4,7 +4,6 @@ import {
   HospitalImport,
   DataTable,
   HeaderBreadcumbs,
-  CustomSnackBar,
   FilterTab,
   SearchBar,
   Icon,
@@ -30,6 +29,7 @@ import { DownloadLink } from './HospitalListStyle';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 const HospitalListPage = () => {
   const [isAddHospitalDialogOpen, setIsAddHospitalDialogOpen] = useState(false);
@@ -52,11 +52,8 @@ const HospitalListPage = () => {
     status: HospitalStatusEnum.Active.value,
     searchKey: '',
   });
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
+
   const store = useStore();
   const navigate = useNavigate();
   const downloadRef = useRef();
@@ -213,13 +210,15 @@ const HospitalListPage = () => {
           <LoadingButton
             loading={isButtonLoading}
             onClick={async () => {
-              setAlert({});
               setIsButtonLoading(true);
               try {
                 await disableHospital(disableHospitalId);
                 await fetchHospitalData();
               } catch (error) {
-                setAlert({ message: errorHandler(error), type: 'error', status: true });
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
               } finally {
                 handleDisableHospitalDialog();
                 setIsButtonLoading(false);
@@ -246,13 +245,15 @@ const HospitalListPage = () => {
           <LoadingButton
             loading={isButtonLoading}
             onClick={async () => {
-              setAlert({});
               setIsButtonLoading(true);
               try {
                 await enableHospital(enableHospitalId);
                 await fetchHospitalData();
               } catch (error) {
-                setAlert({ message: errorHandler(error), type: 'error', status: true });
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
               } finally {
                 handleEnableHospitalDialog();
                 setIsButtonLoading(false);
@@ -279,7 +280,7 @@ const HospitalListPage = () => {
     if (importParams.length <= 0) {
       return;
     }
-    setAlert({});
+
     setIsButtonLoading(true);
     setImportParams([]);
 
@@ -292,7 +293,10 @@ const HospitalListPage = () => {
       await importCSVHospitalData(importParamsWithAvatarUrl);
       await fetchHospitalData();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       addHospitalDialogHandler();
       setIsButtonLoading(false);
@@ -314,13 +318,11 @@ const HospitalListPage = () => {
                 try {
                   await handleDownloadTemplate('template_import/hospital_import_template.csv', downloadRef);
                 } catch (error) {
-                  setAlert({});
                   switch (error.code) {
                     case 'storage/object-not-found':
-                      setAlert({
-                        message: 'Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên',
-                        status: true,
-                        type: 'error',
+                      enqueueSnackbar('Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên', {
+                        variant: 'error',
+                        persist: false,
                       });
                       break;
 
@@ -359,7 +361,6 @@ const HospitalListPage = () => {
 
   const fetchHospitalData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
-    setAlert({});
     try {
       const data = await getHospitalsList({
         FilterMode: HospitalFilterEnum.All,
@@ -381,7 +382,10 @@ const HospitalListPage = () => {
 
       setPageState((pre) => ({ ...pre, data: dataRow, total: data.total }));
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
     }
@@ -400,10 +404,9 @@ const HospitalListPage = () => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -473,8 +476,6 @@ const HospitalListPage = () => {
         children={enableHospitalDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };

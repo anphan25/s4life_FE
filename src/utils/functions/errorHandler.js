@@ -19,10 +19,12 @@ export function convertErrorCodeToMessage(code) {
     1100: 'Đổi mật khẩu thành công',
 
     //Register
-    2001: 'Tên tài khoản đã tồn tại',
+    2001: 'Thông tin đăng kí tài khoản không hợp lệ',
     2011: 'Số điện thoại đã được đăng ký',
     2021: 'Số CMND/CCCD đã được đăng ký',
     2031: 'Bệnh viện không tồn tại',
+    2041: 'Tên tài khoản đã tồn tại',
+    2051: 'Bệnh viện này đã được cấp tài khoản quản lí bệnh viện',
     2100: 'Tạo tài khoản thành công',
 
     //Hospital
@@ -157,7 +159,6 @@ export const errorHandler = (error) => {
     const code = response?.data?.code;
     if (response?.status === 400 && !response?.data?.code) return 'Dữ liệu truyền vào không hợp lệ';
     if (code < 0) return 'Đã có lỗi xảy ra trong quá trình xử lí';
-
     var message = convertErrorCodeToMessage(code);
     return message;
   } else {

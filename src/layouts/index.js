@@ -7,3 +7,4 @@ export * from './components/Searchbar';
 export * from './components/SidebarItem';
 export * from './components/SubHeader';
 export * from './components/UserPopover';
+export * from './components/NotistackProvider';
