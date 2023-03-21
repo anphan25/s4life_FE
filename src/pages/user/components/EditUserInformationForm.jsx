@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Stack, Paper, Button, Box } from '@mui/material';
-import { CustomSnackBar } from 'components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { RHFInput, RHFRadio, RHFDatePicker } from 'components';
@@ -19,6 +18,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { useSnackbar } from 'notistack';
 
 const GenderOptionList = Object.keys(GenderEnum).map((key) => ({
   label: GenderEnum[key].description,
@@ -26,11 +26,7 @@ const GenderOptionList = Object.keys(GenderEnum).map((key) => ({
 }));
 
 const EditUserInformationForm = ({ userInfoData }) => {
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const { userInformationId } = useParams();
   const store = useStore();
@@ -154,7 +150,6 @@ const EditUserInformationForm = ({ userInfoData }) => {
 
   const onSubmit = async (data) => {
     setIsButtonLoading(true);
-    setAlert({});
     const changedFields = {};
 
     for (const [key, value] of Object.entries(dirtyFields)) {
@@ -173,7 +168,10 @@ const EditUserInformationForm = ({ userInfoData }) => {
         navigate(`/user/${userInformationId}`);
       }, [1500]);
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -188,10 +186,9 @@ const EditUserInformationForm = ({ userInfoData }) => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -283,8 +280,6 @@ const EditUserInformationForm = ({ userInfoData }) => {
           </Stack>
         </form>
       </Paper>
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };

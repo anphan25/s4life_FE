@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { CustomSnackBar } from 'components';
 import { HeaderBreadcumbs } from 'components';
 import { getUserInfoById } from 'api';
 import { errorHandler, HeaderMainStyle, GenderEnum } from 'utils';
 import { useParams } from 'react-router-dom';
 import EditUserInformationForm from './components/EditUserInformationForm';
 import { formatPhoneNumber } from 'utils';
+import { useSnackbar } from 'notistack';
 
 const EditUserInformationPage = () => {
   const { userInformationId } = useParams();
   const [userInfoData, setUserInfoData] = useState();
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
 
   const fetchUserDetail = useCallback(async () => {
     const data = await getUserInfoById(userInformationId);
@@ -33,7 +29,10 @@ const EditUserInformationPage = () => {
     try {
       fetchUserDetail();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
     }
   }, [fetchUserDetail]);
@@ -51,8 +50,6 @@ const EditUserInformationPage = () => {
         />
       </HeaderMainStyle>
       {userInfoData && <EditUserInformationForm userInfoData={userInfoData} />}
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };

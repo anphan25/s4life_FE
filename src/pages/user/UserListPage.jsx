@@ -4,7 +4,6 @@ import {
   DataTable,
   FilterTab,
   SearchBar,
-  CustomSnackBar,
   CustomDialog,
   RHFPasswordInput,
   HeaderBreadcumbs,
@@ -34,6 +33,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import { useSnackbar } from 'notistack';
 
 const StatusTagConvertLabel = (value) => {
   return value ? 'success' : 'error';
@@ -67,12 +67,8 @@ const UserListPage = () => {
     PageSize: 10,
     SearchKey: '',
   });
-
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const [message, setMessage] = useState();
+  const { enqueueSnackbar } = useSnackbar();
 
   const roleSelectOption = [
     { label: 'Nhân viên', value: 2 },
@@ -342,22 +338,23 @@ const UserListPage = () => {
   });
 
   const onChangePasswordSubmit = async (data) => {
-    setAlert({});
     setIsButtonLoading(true);
 
     try {
       data.changeMode = 1;
       data.userId = changePassWordId;
       await changePassword(data);
-      setAlert({
-        message: 'Thay đổi mật khẩu thành công.',
-        status: true,
-        type: 'success',
+      enqueueSnackbar('Thay đổi mật khẩu thành công', {
+        variant: 'success',
+        persist: false,
       });
       changePasswordReset();
       handleChangePasswordDialog();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -365,7 +362,6 @@ const UserListPage = () => {
 
   const onAddUserSubmit = async (data) => {
     setIsButtonLoading(true);
-    setAlert({});
     try {
       await addUser({
         username: data.username,
@@ -374,16 +370,18 @@ const UserListPage = () => {
         hospitalId: data.hospital[0].id * 1,
       });
 
-      setAlert({
-        message: `Tạo tài khoản thành công`,
-        status: true,
-        type: 'success',
+      enqueueSnackbar('Tạo tài khoản thành công', {
+        variant: 'success',
+        persist: false,
       });
       handleAddUserDialog();
       fetchUserListData();
       addUserReset();
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -481,7 +479,6 @@ const UserListPage = () => {
 
   const fetchUserListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
-    setAlert({});
     try {
       const getVolunteerParam = {
         Role: pageState.filterMode,
@@ -521,7 +518,10 @@ const UserListPage = () => {
           }));
       setPageState((pre) => ({ ...pre, data: dataRow, total: data.total }));
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
     }
@@ -624,8 +624,6 @@ const UserListPage = () => {
           children={addUserDialogContent()}
           sx={{ '& .MuiDialog-paper': { width: '70%' } }}
         />
-
-        {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
       </Box>
     </>
   );

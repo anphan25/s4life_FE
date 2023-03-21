@@ -4,15 +4,12 @@ import { getEventDetailByEventId } from 'api';
 import AddEditFixedEventForm from '../components/AddEditFixedEventForm';
 import { useParams } from 'react-router-dom';
 import { errorHandler, HeaderMainStyle } from 'utils';
+import { useSnackbar } from 'notistack';
 
 const AddEditFixedEventPage = () => {
   const { eventId } = useParams();
   const [eventEditData, setEventEditData] = useState();
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
+  const { enqueueSnackbar } = useSnackbar();
 
   const isEdit = eventId ? true : false;
 
@@ -48,7 +45,10 @@ const AddEditFixedEventPage = () => {
         fetchEventDetailData();
       }
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
     }
   }, [fetchEventDetailData]);

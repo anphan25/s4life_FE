@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
-import {
-  RHFInput,
-  RHFEditor,
-  RHFAutoComplete,
-  RHFDatePicker,
-  RHFTimePicker,
-  RHFUploadImage,
-  CustomSnackBar,
-} from 'components';
+import { RHFInput, RHFEditor, RHFAutoComplete, RHFDatePicker, RHFTimePicker, RHFUploadImage } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -24,23 +16,20 @@ import { convertErrorCodeToMessage, isValidDate, isValidTime } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const minDateHandler = () => {
   return moment().add(7, 'days');
 };
 
 const AddMobileEventForm = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [districts, setDistricts] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState(0);
   const [connection, setConnection] = useState(null);
-  const [alert, setAlert] = useState({
-    message: '',
-    status: false,
-    type: 'success',
-  });
 
   const store = useStore();
 
@@ -59,7 +48,6 @@ const AddMobileEventForm = () => {
   };
 
   const addMobileEventHandler = async (params) => {
-    setAlert({});
     try {
       await createEvent(params);
 
@@ -67,7 +55,10 @@ const AddMobileEventForm = () => {
         navigate('/event/mobile-list');
       }, [1500]);
     } catch (error) {
-      setAlert({ message: errorHandler(error), type: 'error', status: true });
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
     } finally {
       setIsButtonLoading(false);
     }
@@ -88,7 +79,10 @@ const AddMobileEventForm = () => {
       'state_changed',
       (snapshot) => {},
       (error) => {
-        setAlert({ message: errorHandler({ response: { data: { code: 10001 } } }), type: 'error', status: true });
+        enqueueSnackbar(errorHandler({ response: { data: { code: 10001 } } }), {
+          variant: 'error',
+          persist: false,
+        });
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref)
@@ -348,10 +342,9 @@ const AddMobileEventForm = () => {
 
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
-      setAlert({
-        message: convertErrorCodeToMessage(messageCode),
-        type: messageCode < 0 ? 'error' : 'success',
-        status: true,
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
       });
     });
     connection?.onclose((e) => {
@@ -520,8 +513,6 @@ const AddMobileEventForm = () => {
           </Grid>
         </Grid>
       </form>
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </>
   );
 };
