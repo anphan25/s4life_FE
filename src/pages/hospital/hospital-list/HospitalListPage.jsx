@@ -22,11 +22,12 @@ import {
   HospitalFilterEnum,
   HospitalStatusEnum,
   getFilterTabValuesFromEnum,
+  RoleEnum,
 } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DownloadLink } from './HospitalListStyle';
 import { openHubConnection, listenOnHub } from 'config';
-import { useStore } from 'react-redux';
+import { useStore, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
@@ -58,6 +59,9 @@ const HospitalListPage = () => {
   const downloadRef = useRef();
 
   const isHospitalActive = pageState.status === HospitalStatusEnum.Active.value;
+
+  const user = useSelector((state) => state.auth.auth?.user);
+  const isModerator = user.role === RoleEnum.Moderator.name;
 
   const gridOptions = {
     columns: [
@@ -124,27 +128,30 @@ const HospitalListPage = () => {
                 <Icon sx={{ height: 20, width: 20 }} icon="solid-eye" />
                 Xem chi tiết
               </MenuItem>
-              <MenuItem
-                sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
-                onClick={() => {
-                  if (isHospitalActive) {
-                    setDisableHospitalId(params.row.id);
-                    openDisableHospitalConfirm(params.row.name);
-                  } else {
-                    setEnableHospitalId(params.row.id);
-                    openEnableHospitalConfirm(params.row.name);
-                  }
-                }}
-              >
-                <Icon
-                  sx={{
-                    height: 20,
-                    width: 20,
+
+              {isModerator && (
+                <MenuItem
+                  sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
+                  onClick={() => {
+                    if (isHospitalActive) {
+                      setDisableHospitalId(params.row.id);
+                      openDisableHospitalConfirm(params.row.name);
+                    } else {
+                      setEnableHospitalId(params.row.id);
+                      openEnableHospitalConfirm(params.row.name);
+                    }
                   }}
-                  icon={isHospitalActive ? 'trash' : 'trash-slash'}
-                />
-                {isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
-              </MenuItem>
+                >
+                  <Icon
+                    sx={{
+                      height: 20,
+                      width: 20,
+                    }}
+                    icon={isHospitalActive ? 'trash' : 'trash-slash'}
+                  />
+                  {isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
+                </MenuItem>
+              )}
             </MoreMenuButton>
           );
         },
@@ -414,9 +421,11 @@ const HospitalListPage = () => {
           heading="Danh sách bệnh viện"
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
         />
-        <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={addHospitalDialogHandler}>
-          Tạo bệnh viện
-        </Button>
+        {isModerator && (
+          <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={addHospitalDialogHandler}>
+            Tạo bệnh viện
+          </Button>
+        )}
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>

@@ -1,28 +1,35 @@
 import { DashedBox, ContentTypoStyle, Item, LeftContainer, TitleTypoStyle, HospitalImgStyle } from './UserDetailStyle';
 import React from 'react';
 import { Stack, Box, Grid, Button } from '@mui/material';
-import { formatDate, convertBloodTypeLabel, formatPhoneNumber } from 'utils';
+import { formatDate, convertBloodTypeLabel, formatPhoneNumber, RoleEnum } from 'utils';
 import { Icon } from 'components';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const UserInformation = ({ userInfoData }) => {
   const navigate = useNavigate();
   const { userInformationId } = useParams();
+
+  const user = useSelector((state) => state.auth.auth?.user);
+  const isAdmin = user.role === RoleEnum.Admin.name;
+
   return (
     <Grid container spacing={2}>
       <Grid item md={8} xs={12}>
         <Item>
           <Stack direction="row" justifyContent="flex-end">
-            <Button
-              sx={{ fontSize: '12px' }}
-              startIcon={<Icon icon="solid-pen" />}
-              variant="contained"
-              onClick={() => {
-                navigate(`/user/${userInformationId}/edit`);
-              }}
-            >
-              Cập nhật
-            </Button>
+            {isAdmin && (
+              <Button
+                sx={{ fontSize: '12px' }}
+                startIcon={<Icon icon="solid-pen" />}
+                variant="contained"
+                onClick={() => {
+                  navigate(`/user/${userInformationId}/edit`);
+                }}
+              >
+                Cập nhật
+              </Button>
+            )}
           </Stack>
           <LeftContainer>
             <Stack direction={'column'}>

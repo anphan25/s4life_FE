@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
-import { getVietnameseRole } from 'utils';
+import { RoleEnum } from 'utils';
 import { getHospital } from 'app/slices/HospitalSlice';
 import useResponsive from 'hooks/useResponsive';
 
@@ -58,7 +58,7 @@ const UserPopover = () => {
             {user?.username || ''}
           </Typography>
           <Typography noWrap fontSize={14} fontWeight={500}>
-            {getVietnameseRole(user?.role) || ''}
+            {RoleEnum[user?.role].description || ''}
           </Typography>
         </Box>
 

@@ -27,12 +27,14 @@ import {
   FilterRoleEnum,
   getFilterTabValuesFromEnum,
   HospitalFilterEnum,
+  RoleEnum,
 } from 'utils';
 import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 const StatusTagConvertLabel = (value) => {
@@ -51,7 +53,7 @@ const UserListPage = () => {
     filterMode: FilterRoleEnum.Volunteer.value,
     hospitalId: '',
   });
-
+  const user = useSelector((state) => state.auth.auth?.user);
   const [searchParam, setSearchParam] = useState('');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -76,6 +78,7 @@ const UserListPage = () => {
   ];
 
   const isVolunteerFilterMode = pageState.filterMode === FilterRoleEnum.Volunteer.value;
+  const isAdmin = user.role === RoleEnum.Admin.name;
 
   const volunteerGridOptions = {
     columns: [
@@ -558,21 +561,30 @@ const UserListPage = () => {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading="Danh sách tài khoản"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách tài khoản' }]}
+          heading={isAdmin ? 'Danh sách tài khoản' : 'Danh sách tình nguyện viên'}
+          links={[
+            { name: 'Trang chủ', to: '/' },
+            { name: isAdmin ? 'Danh sách tài khoản' : 'Danh sách tình nguyện viên' },
+          ]}
         />
 
-        <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserDialog}>
-          Tạo tài khoản
-        </Button>
+        {isAdmin && (
+          <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserDialog}>
+            Tạo tài khoản
+          </Button>
+        )}
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab
-            tabs={getFilterTabValuesFromEnum(FilterRoleEnum)}
-            onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.filterMode}
-          />
+          {isAdmin ? (
+            <FilterTab
+              tabs={getFilterTabValuesFromEnum(FilterRoleEnum)}
+              onChangeTab={handleFilterTabChange}
+              defaultValue={pageState.filterMode}
+            />
+          ) : (
+            ''
+          )}
 
           <InputFilterSectionStyle>
             {pageState.filterMode !== FilterRoleEnum.Volunteer.value && (

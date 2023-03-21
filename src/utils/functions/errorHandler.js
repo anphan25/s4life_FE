@@ -154,7 +154,8 @@ export function convertErrorCodeToMessage(code) {
 export const errorHandler = (error) => {
   if (error?.response?.status === 401) return;
   const { response } = error;
-  if (response?.data !== null) {
+
+  if (response?.data) {
     const code = response?.data?.code;
     if (response?.status === 400 && !response?.data?.code) return 'Dữ liệu truyền vào không hợp lệ';
     if (code < 0) return 'Đã có lỗi xảy ra trong quá trình xử lí';
@@ -163,7 +164,7 @@ export const errorHandler = (error) => {
   } else {
     switch (response?.status) {
       case 403:
-        return 'Tài khoản không có quyền truy cập';
+        return 'Tài khoản không có quyền thực hiện yêu cầu';
 
       case 500:
         return 'Đã có lỗi xảy ra, Vui lòng liên hệ quản trị viên.';

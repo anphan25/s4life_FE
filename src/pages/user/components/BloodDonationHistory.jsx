@@ -19,6 +19,7 @@ import {
   handleDownloadTemplate,
   formatDate,
   InputFilterSectionStyle,
+  RoleEnum,
 } from 'utils';
 import { addBloodDonations } from 'api';
 import { Stack, Box, Button, Divider, IconButton, Typography, styled } from '@mui/material';
@@ -28,6 +29,7 @@ import * as Yup from 'yup';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useStore } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations } from 'config';
+import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 const DownloadLink = styled('a')(({ theme }) => ({
@@ -55,7 +57,11 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
   const [connection, setConnection] = useState(null);
   const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
 
+  const user = useSelector((state) => state.auth.auth?.user);
+  const isModerator = user.role === RoleEnum.Moderator.name;
+
   const { enqueueSnackbar } = useSnackbar();
+
   const downloadRef = useRef();
 
   const store = useStore();
@@ -430,13 +436,15 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
           Lịch sử hiến máu
         </Typography>
 
-        <Button
-          startIcon={<Icon icon="solid-plus" />}
-          variant="contained"
-          onClick={handleAddBloodDonationHistoryOptionDialog}
-        >
-          Thêm lịch sử hiến máu
-        </Button>
+        {isModerator && (
+          <Button
+            startIcon={<Icon icon="solid-plus" />}
+            variant="contained"
+            onClick={handleAddBloodDonationHistoryOptionDialog}
+          >
+            Thêm lịch sử hiến máu
+          </Button>
+        )}
       </Stack>
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>

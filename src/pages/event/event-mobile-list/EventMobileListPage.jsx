@@ -26,6 +26,7 @@ import {
   EventFilterEnum,
   EventStatusEnum,
   getFilterTabValuesFromEnum,
+  RoleEnum,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
@@ -55,6 +56,9 @@ const EventMobileListPage = () => {
     dateTo: null,
   });
   const { enqueueSnackbar } = useSnackbar();
+
+  const isAdmin = user.role === RoleEnum.Admin.name;
+  const isManager = user.role === RoleEnum.Manager.name;
 
   const gridOptions = {
     columns: [
@@ -154,31 +158,39 @@ const EventMobileListPage = () => {
                 <Icon icon={'solid-eye'} />
                 Xem chi tiết
               </MenuItem>
-              <Divider sx={{ borderStyle: 'dashed' }} />
 
-              <MenuItem
-                disabled={
-                  params.row.status === EventStatusEnum.Finished.description ||
-                  params.row.status === EventStatusEnum.Cancelled.description ||
-                  (params.row.isEmergency && user.role === 'Manager')
-                }
-                onClick={() => {
-                  if (
-                    !isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)
-                  ) {
-                    handleCancelDialog();
-                    return;
-                  }
+              {(isAdmin || isManager) && (
+                <>
+                  <Divider sx={{ borderStyle: 'dashed' }} />
+                  <MenuItem
+                    disabled={
+                      params.row.status === EventStatusEnum.Finished.description ||
+                      params.row.status === EventStatusEnum.Cancelled.description
+                    }
+                    onClick={() => {
+                      if (
+                        !isEventEditableOrCancelable(
+                          params.row?.numberOfRegistration,
+                          params.row?.startDate,
+                          user.role,
+                          2
+                        )
+                      ) {
+                        handleCancelDialog();
+                        return;
+                      }
 
-                  handleCancelEventDialog();
-                  setCancelEventName(params.row.name);
-                  setCancelEventId(params.row.id);
-                }}
-                sx={{ color: 'error.main' }}
-              >
-                <Icon icon={'trash'} />
-                Huỷ
-              </MenuItem>
+                      handleCancelEventDialog();
+                      setCancelEventName(params.row.name);
+                      setCancelEventId(params.row.id);
+                    }}
+                    sx={{ color: 'error.main' }}
+                  >
+                    <Icon icon={'trash'} />
+                    Huỷ
+                  </MenuItem>
+                </>
+              )}
             </MoreMenuButton>
           );
         },
