@@ -23,6 +23,7 @@ import {
   convertErrorCodeToMessage,
   HeaderMainStyle,
   DialogButtonGroupStyle,
+  RoleEnum,
 } from 'utils';
 import { useForm } from 'react-hook-form';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
@@ -53,7 +54,6 @@ const HospitalInfoPage = () => {
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [connection, setConnection] = useState(null);
   const [hospitalData, setHospitalData] = useState(null);
-  const hospital = useSelector((state) => state?.hospital?.data);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth?.auth?.user);
   const store = useStore();
@@ -63,7 +63,7 @@ const HospitalInfoPage = () => {
 
   const downloadRef = useRef();
 
-  // const isAdmin = () => user?.role === 'Admin';
+  const isEmployee = user.role === RoleEnum.Employee.name;
 
   const PlaceholderStyle = styled('div')(({ theme }) => ({
     opacity: 0,
@@ -83,7 +83,7 @@ const HospitalInfoPage = () => {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.shorter,
     }),
-    '&:hover': { opacity: user?.role === 'Admin' ? 0 : 0.72 },
+    '&:hover': { opacity: !isEmployee ? 0 : 0.72 },
   }));
 
   const handleUpdateHospitalDialog = () => {
@@ -423,9 +423,8 @@ const HospitalInfoPage = () => {
             { name: user?.role === 'Admin' ? `${hospitalData?.name}` : 'Thông tin bệnh viện' },
           ]}
         />
-        {user?.role === 'Admin' ? (
-          ''
-        ) : (
+
+        {isEmployee && (
           <Button
             startIcon={<Icon icon="solid-pen-line" />}
             variant="contained"
@@ -440,7 +439,7 @@ const HospitalInfoPage = () => {
           <Item>
             <LeftContainer>
               <HospitalImgStyle>
-                <PlaceholderStyle onClick={user?.role === 'Admin' ? null : handleUpdateHospitalImgDialog}>
+                <PlaceholderStyle onClick={user?.role !== 'Employee' ? null : handleUpdateHospitalImgDialog}>
                   <Icon icon="solid-camera" />
                   <Typography variant="caption">Cập nhật ảnh</Typography>
                 </PlaceholderStyle>
@@ -480,7 +479,7 @@ const HospitalInfoPage = () => {
         </Grid>
         <Grid item md={4} sm={6} xs={12}>
           <Item sx={{ textAlign: 'left' }}>
-            {user?.role === 'Manager' && (
+            {user?.role === 'Employee' && (
               <Box>
                 <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
                   <FormControlLabel

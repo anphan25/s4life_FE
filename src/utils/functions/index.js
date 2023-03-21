@@ -4,7 +4,6 @@ export * from './isStartAndEndDateIsSame';
 export * from './convertDayLabel';
 export * from './errorHandler';
 export * from './getFontValue';
-export * from './getVietnameseRole';
 export * from './convertBloodTypeLabel';
 export * from './formatNumber';
 export * from './groupDataByErrorCode';

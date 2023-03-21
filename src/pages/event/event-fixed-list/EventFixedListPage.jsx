@@ -27,6 +27,7 @@ import {
   EventFilterEnum,
   EventStatusEnum,
   getFilterTabValuesFromEnum,
+  RoleEnum,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
@@ -60,6 +61,9 @@ const EventFixedListPage = () => {
     status: false,
     type: 'success',
   });
+
+  const isAdmin = user.role === RoleEnum.Admin.name;
+  const isManager = user.role === RoleEnum.Manager.name;
 
   const gridOptions = {
     columns: [
@@ -194,53 +198,68 @@ const EventFixedListPage = () => {
                 Xem chi tiết
               </MenuItem>
 
-              <MenuItem
-                disabled={
-                  params.row.status === EventStatusEnum.Finished.description ||
-                  params.row.status === EventStatusEnum.Cancelled.description ||
-                  params.row.isEmergency ||
-                  user.role === 'Admin'
-                }
-                onClick={() => {
-                  if (
-                    !isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 1)
-                  ) {
-                    handleEditCancelDialog();
-                    return;
+              {isManager && (
+                <MenuItem
+                  disabled={
+                    params.row.status === EventStatusEnum.Finished.description ||
+                    params.row.status === EventStatusEnum.Cancelled.description ||
+                    params.row.isEmergency
                   }
+                  onClick={() => {
+                    if (
+                      !isEventEditableOrCancelable(
+                        params.row?.numberOfRegistration,
+                        params.row?.startDate,
+                        user.role,
+                        1
+                      )
+                    ) {
+                      handleEditCancelDialog();
+                      return;
+                    }
 
-                  navigate(`/event/fixed-list/${params.row.id}/edit`);
-                }}
-              >
-                <Icon icon={'solid-pen'} />
-                Cập nhật
-              </MenuItem>
+                    navigate(`/event/fixed-list/${params.row.id}/edit`);
+                  }}
+                >
+                  <Icon icon={'solid-pen'} />
+                  Cập nhật
+                </MenuItem>
+              )}
 
-              <Divider sx={{ borderStyle: 'dashed' }} />
+              {(isAdmin || isManager) && (
+                <>
+                  <Divider sx={{ borderStyle: 'dashed' }} />
 
-              <MenuItem
-                disabled={
-                  params.row.status === EventStatusEnum.Finished.description ||
-                  params.row.status === EventStatusEnum.Cancelled.description ||
-                  (params.row.isEmergency && user.role === 'Manager')
-                }
-                onClick={() => {
-                  if (
-                    !isEventEditableOrCancelable(params.row?.numberOfRegistration, params.row?.startDate, user.role, 2)
-                  ) {
-                    handleEditCancelDialog();
-                    return;
-                  }
+                  <MenuItem
+                    disabled={
+                      params.row.status === EventStatusEnum.Finished.description ||
+                      params.row.status === EventStatusEnum.Cancelled.description ||
+                      (params.row.isEmergency && isManager)
+                    }
+                    onClick={() => {
+                      if (
+                        !isEventEditableOrCancelable(
+                          params.row?.numberOfRegistration,
+                          params.row?.startDate,
+                          user.role,
+                          2
+                        )
+                      ) {
+                        handleEditCancelDialog();
+                        return;
+                      }
 
-                  handleCancelEventDialog();
-                  setCancelEventName(params.row.name);
-                  setCancelEventId(params.row.id);
-                }}
-                sx={{ color: 'error.main' }}
-              >
-                <Icon icon={'trash'} />
-                Huỷ
-              </MenuItem>
+                      handleCancelEventDialog();
+                      setCancelEventName(params.row.name);
+                      setCancelEventId(params.row.id);
+                    }}
+                    sx={{ color: 'error.main' }}
+                  >
+                    <Icon icon={'trash'} />
+                    Huỷ
+                  </MenuItem>
+                </>
+              )}
             </MoreMenuButton>
           );
         },
@@ -406,7 +425,7 @@ const EventFixedListPage = () => {
           heading="Danh sách sự kiện cố định"
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách sự kiện cố định' }]}
         />
-        {user.role === 'Manager' && (
+        {isManager && (
           <Button
             startIcon={<Icon icon="solid-plus" />}
             variant="contained"

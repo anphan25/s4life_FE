@@ -30,7 +30,7 @@ export default function Router() {
       children: [
         {
           element: (
-            <ProtectedRouter roles={['Manager', 'Admin']}>
+            <ProtectedRouter roles={['Manager', 'Admin', 'Moderator', 'Employee']}>
               <DashboardPage />
             </ProtectedRouter>
           ),
@@ -42,7 +42,7 @@ export default function Router() {
             {
               index: true,
               element: (
-                <ProtectedRouter roles={['Admin', 'Manager']}>
+                <ProtectedRouter roles={['Admin']}>
                   <AccountPage />
                 </ProtectedRouter>
               ),
@@ -59,7 +59,7 @@ export default function Router() {
                 {
                   index: true,
                   element: (
-                    <ProtectedRouter roles={['Manager', 'Admin']}>
+                    <ProtectedRouter roles={['Manager', 'Admin', 'Employee', 'Moderator']}>
                       <EventFixedListPage />
                     </ProtectedRouter>
                   ),
@@ -88,7 +88,7 @@ export default function Router() {
                 {
                   index: true,
                   element: (
-                    <ProtectedRouter roles={['Manager', 'Admin']}>
+                    <ProtectedRouter roles={['Manager', 'Employee']}>
                       <EventHospitalSchedulePage />
                     </ProtectedRouter>
                   ),
@@ -101,7 +101,7 @@ export default function Router() {
                 {
                   index: true,
                   element: (
-                    <ProtectedRouter roles={['Manager', 'Admin']}>
+                    <ProtectedRouter roles={['Manager', 'Admin', 'Employee', 'Moderator']}>
                       <EventMobileListPage />
                     </ProtectedRouter>
                   ),
@@ -119,7 +119,7 @@ export default function Router() {
             {
               path: ':eventId',
               element: (
-                <ProtectedRouter roles={['Manager', 'Admin']}>
+                <ProtectedRouter roles={['Manager', 'Admin', 'Employee', 'Moderator']}>
                   <EventDetailPage />
                 </ProtectedRouter>
               ),
@@ -141,7 +141,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Admin']}>
+                <ProtectedRouter roles={['Admin', 'Moderator']}>
                   <UserListPage />
                 </ProtectedRouter>
               ),
@@ -149,7 +149,7 @@ export default function Router() {
             {
               path: ':userInformationId',
               element: (
-                <ProtectedRouter roles={['Admin']}>
+                <ProtectedRouter roles={['Admin', 'Moderator']}>
                   <UserDetailPage />
                 </ProtectedRouter>
               ),
@@ -172,7 +172,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Admin']}>
+                <ProtectedRouter roles={['Moderator', 'Admin']}>
                   <HospitalListPage />
                 </ProtectedRouter>
               ),
@@ -180,7 +180,7 @@ export default function Router() {
             {
               path: ':hospitalId',
               element: (
-                <ProtectedRouter roles={['Manager', 'Admin']}>
+                <ProtectedRouter roles={['Employee', 'Moderator', 'Admin', 'Manager']}>
                   <HospitalInfoPage />
                 </ProtectedRouter>
               ),
@@ -194,7 +194,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Admin']}>
+                <ProtectedRouter roles={['Moderator']}>
                   <ApprovalList />
                 </ProtectedRouter>
               ),
@@ -202,7 +202,7 @@ export default function Router() {
             {
               path: ':id',
               element: (
-                <ProtectedRouter roles={['Admin']}>
+                <ProtectedRouter roles={['Moderator']}>
                   <ApprovalDetail />
                 </ProtectedRouter>
               ),

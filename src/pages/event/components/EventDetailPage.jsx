@@ -28,6 +28,8 @@ import {
   convertErrorCodeToMessage,
   isStartAndEndDateIsSame,
   EventTypeEnum,
+  RoleEnum,
+  EventStatusEnum,
 } from 'utils';
 import parse from 'html-react-parser';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
@@ -139,6 +141,9 @@ const EventDetailPage = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const isAdmin = user.role === RoleEnum.Admin.name;
+  const isManager = user.role === RoleEnum.Manager.name;
 
   const StatusTagStyle = styled(Chip)(({ theme }) => ({
     borderRadius: '8px',
@@ -312,81 +317,94 @@ const EventDetailPage = () => {
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '12px' }}>
         <Stack spacing={2} sx={{ p: 3 }}>
-          <Stack justifyContent="flex-end">
-            <IconButton
-              sx={{ marginLeft: 'auto', width: '40px' }}
-              id="long-button"
-              aria-controls={open ? 'long-menu' : undefined}
-              aria-expanded={open ? 'true' : undefined}
-              aria-haspopup="true"
-              onClick={handleClick}
-            >
-              <Icon icon="more-horizontal-circle" />
-            </IconButton>
-            <Menu
-              id="long-menu"
-              MenuListProps={{
-                'aria-labelledby': 'long-button',
-              }}
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-            >
-              <MenuItem
-                key={1}
-                disabled={
-                  detailData?.eventType === 'Sự kiện cố định theo lịch bệnh viện' ||
-                  detailData?.status === 'Đã kết thúc' ||
-                  detailData?.status === 'Đã bị hủy' ||
-                  detailData?.isEmergency ||
-                  user.role === 'Admin'
-                }
-                onClick={() => {
-                  handleClose();
-                  if (
-                    !isEventEditableOrCancelable(detailData?.numberOfRegistration, detailData?.startDate, user.role, 1)
-                  ) {
-                    handleEditCancelDialog();
-
-                    return;
-                  }
-
-                  navigate(`/event/fixed-list/${eventId}/edit`);
-                }}
+          {(isAdmin || isManager) && (
+            <Stack justifyContent="flex-end">
+              <IconButton
+                sx={{ marginLeft: 'auto', width: '40px' }}
+                id="long-button"
+                aria-controls={open ? 'long-menu' : undefined}
+                aria-expanded={open ? 'true' : undefined}
+                aria-haspopup="true"
+                onClick={handleClick}
               >
-                <Stack key={1} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                  <Icon icon="solid-pen" /> <Typography>Sửa sự kiện</Typography>
-                </Stack>
-              </MenuItem>
-
-              <MenuItem
-                key={2}
-                disabled={
-                  detailData?.eventType === 'Sự kiện cố định theo lịch bệnh viện' ||
-                  detailData?.status === 'Đã kết thúc' ||
-                  detailData?.status === 'Đã bị hủy' ||
-                  (detailData?.isEmergency && user.role === 'Manager')
-                }
-                onClick={() => {
-                  handleClose();
-
-                  if (
-                    !isEventEditableOrCancelable(detailData?.numberOfRegistration, detailData?.startDate, user.role, 2)
-                  ) {
-                    handleEditCancelDialog();
-
-                    return;
-                  }
-                  handleCancelEventDialog();
+                <Icon icon="more-horizontal-circle" />
+              </IconButton>
+              <Menu
+                id="long-menu"
+                MenuListProps={{
+                  'aria-labelledby': 'long-button',
                 }}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
               >
-                <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center', color: 'primary.main' }}>
-                  <Icon icon="solid-trash" />
-                  <Typography>Hủy sự kiện</Typography>
-                </Stack>
-              </MenuItem>
-            </Menu>
-          </Stack>
+                <MenuItem
+                  key={1}
+                  disabled={
+                    detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent ||
+                    detailData?.eventTypeId === EventTypeEnum.MobileEvent ||
+                    detailData?.status === EventStatusEnum.Finished.description ||
+                    detailData?.status === EventStatusEnum.Cancelled.description ||
+                    detailData?.isEmergency ||
+                    isAdmin
+                  }
+                  onClick={() => {
+                    handleClose();
+                    if (
+                      !isEventEditableOrCancelable(
+                        detailData?.numberOfRegistration,
+                        detailData?.startDate,
+                        user.role,
+                        1
+                      )
+                    ) {
+                      handleEditCancelDialog();
+
+                      return;
+                    }
+
+                    navigate(`/event/fixed-list/${eventId}/edit`);
+                  }}
+                >
+                  <Stack key={1} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                    <Icon icon="solid-pen" /> <Typography>Cập nhật</Typography>
+                  </Stack>
+                </MenuItem>
+
+                <MenuItem
+                  key={2}
+                  disabled={
+                    detailData?.eventType === EventTypeEnum.PermanentScheduledEvent ||
+                    detailData?.status === EventStatusEnum.Finished.description ||
+                    detailData?.status === EventStatusEnum.Cancelled.description ||
+                    (detailData?.isEmergency && isManager)
+                  }
+                  onClick={() => {
+                    handleClose();
+
+                    if (
+                      !isEventEditableOrCancelable(
+                        detailData?.numberOfRegistration,
+                        detailData?.startDate,
+                        user.role,
+                        2
+                      )
+                    ) {
+                      handleEditCancelDialog();
+
+                      return;
+                    }
+                    handleCancelEventDialog();
+                  }}
+                >
+                  <Stack key={2} direction="row" spacing={1} sx={{ alignItems: 'center', color: 'primary.main' }}>
+                    <Icon icon="solid-trash" />
+                    <Typography>Hủy sự kiện</Typography>
+                  </Stack>
+                </MenuItem>
+              </Menu>
+            </Stack>
+          )}
 
           <EventImageStyle>
             {detailData ? (

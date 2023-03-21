@@ -32,6 +32,7 @@ import {
   formatPhoneNumber,
   EventRegistrationOperationEnum,
   getFilterBloodTypeLabels,
+  RoleEnum,
 } from 'utils';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent } from 'config';
@@ -78,6 +79,11 @@ const VolunteerListOfEvent = () => {
   const [connection, setConnection] = useState(null);
 
   let user = useSelector((state) => state.auth.auth?.user);
+
+  const isEmployee = user.role === RoleEnum.Employee.name;
+  const isManager = user.role === RoleEnum.Manager.name;
+  const isAdmin = user.role === RoleEnum.Admin.name;
+  const isModerator = user.role === RoleEnum.Moderator.name;
 
   const store = useStore();
 
@@ -136,60 +142,62 @@ const VolunteerListOfEvent = () => {
       {
         field: 'actions',
         type: 'actions',
+        hide: isAdmin || isModerator,
         width: 50,
         sortable: false,
         filterable: false,
         align: 'center',
+        ...((isManager || isEmployee) && {
+          getActions: (params) => [
+            <GridActionsCellItem
+              label="Cập nhật nhóm máu"
+              disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value || !isEmployee}
+              icon={<Icon sx={{ color: 'warning.main' }} icon="solid-user-edit" />}
+              onClick={() => {
+                setBloodType('');
+                setUpdateBloodTypeParams({
+                  userInformationId: '',
+                  bloodTypeId: '',
+                  isRhNegative: '',
+                  nationalId: '',
+                });
 
-        getActions: (params) => [
-          <GridActionsCellItem
-            label="Cập nhật nhóm máu"
-            disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value || user.role !== 'Manager'}
-            icon={<Icon sx={{ color: 'warning.main' }} icon="solid-user-edit" />}
-            onClick={() => {
-              setBloodType('');
-              setUpdateBloodTypeParams({
-                userInformationId: '',
-                bloodTypeId: '',
-                isRhNegative: '',
-                nationalId: '',
-              });
+                if (params.row.bloodTypeId != null) {
+                  setBloodType(
+                    JSON.stringify({ bloodTypeId: params.row.bloodTypeId, isRhNegative: params.row.isRhNegative })
+                  );
 
-              if (params.row.bloodTypeId != null) {
-                setBloodType(
-                  JSON.stringify({ bloodTypeId: params.row.bloodTypeId, isRhNegative: params.row.isRhNegative })
-                );
-
+                  setUpdateBloodTypeParams((old) => ({
+                    ...old,
+                    bloodTypeId: params.row.bloodTypeId,
+                    isRhNegative: params.row.isRhNegative,
+                  }));
+                }
                 setUpdateBloodTypeParams((old) => ({
                   ...old,
-                  bloodTypeId: params.row.bloodTypeId,
-                  isRhNegative: params.row.isRhNegative,
+                  userInformationId: params.row.userInformationId,
+                  nationalId: params.row.nationalId,
                 }));
-              }
-              setUpdateBloodTypeParams((old) => ({
-                ...old,
-                userInformationId: params.row.userInformationId,
-                nationalId: params.row.nationalId,
-              }));
-              handleUpdateBloodTypeDialog();
-            }}
-            showInMenu
-          />,
-          <GridActionsCellItem
-            disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value || user.role !== 'Manager'}
-            icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
-            label="Tải phiếu đăng ký"
-            showInMenu
-            onClick={async () => {
-              setAlert({
-                message: 'Tiến hành xử lý yêu cầu',
-                type: 'info',
-                status: true,
-              });
-              await getEventRegistrationById(params.row.id, EventRegistrationOperationEnum.GetLink);
-            }}
-          />,
-        ],
+                handleUpdateBloodTypeDialog();
+              }}
+              showInMenu
+            />,
+            <GridActionsCellItem
+              disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value}
+              icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
+              label="Tải phiếu đăng ký"
+              showInMenu
+              onClick={async () => {
+                setAlert({
+                  message: 'Tiến hành xử lý yêu cầu',
+                  type: 'info',
+                  status: true,
+                });
+                await getEventRegistrationById(params.row.id, EventRegistrationOperationEnum.GetLink);
+              }}
+            />,
+          ],
+        }),
       },
     ],
     pageState: pageState,
@@ -416,9 +424,11 @@ const VolunteerListOfEvent = () => {
         Status: pageState?.status,
         Page: pageState?.page,
         PageSize: pageState.pageSize,
-        SearchPhoneNumber: pageState?.searchPhoneNumber,
-        DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
-        DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '',
+        ...(pageState?.searchPhoneNumber && { SearchPhoneNumber: pageState?.searchPhoneNumber }),
+        ...(pageState?.dateFrom && {
+          DateFrom: pageState?.dateFrom ? moment(pageState?.dateFrom).format('yyyy-MM-DD') : '',
+        }),
+        ...(pageState?.dateTo && { DateTo: pageState?.dateTo ? moment(pageState?.dateTo).format('yyyy-MM-DD') : '' }),
         bloodTypes: pageState?.bloodTypes,
       });
 
@@ -514,7 +524,7 @@ const VolunteerListOfEvent = () => {
         <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
           Danh sách người đăng ký
         </Typography>
-        {user.role === 'Manager' && (
+        {isEmployee && (
           <Button
             variant="contained"
             onClick={handleImportBloodTypeDialog}

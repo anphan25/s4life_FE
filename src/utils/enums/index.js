@@ -12,3 +12,4 @@ export * from './HospitalStatusEnum';
 export * from './EventRegistrationStatusEnum';
 export * from './EventRegistrationOperationEnum';
 export * from './StatisticFilterModeEnum';
+export * from './RoleEnum';
