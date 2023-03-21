@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { HeaderBreadcumbs, CustomSnackBar } from 'components';
+import { HeaderBreadcumbs } from 'components';
 import { getEventDetailByEventId } from 'api';
 import AddEditFixedEventForm from '../components/AddEditFixedEventForm';
 import { useParams } from 'react-router-dom';
@@ -70,8 +70,6 @@ const AddEditFixedEventPage = () => {
       ) : (
         <AddEditFixedEventForm />
       )}
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </div>
   );
 };

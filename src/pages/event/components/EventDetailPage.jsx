@@ -14,7 +14,7 @@ import {
   Button,
   Skeleton,
 } from '@mui/material';
-import { HeaderBreadcumbs, CustomSnackBar, CustomDialog, Icon } from 'components';
+import { HeaderBreadcumbs, CustomDialog, Icon } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -642,8 +642,6 @@ const EventDetailPage = () => {
         children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </Box>
   );
 };

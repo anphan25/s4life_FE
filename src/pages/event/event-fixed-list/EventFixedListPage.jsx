@@ -7,7 +7,6 @@ import {
   FilterTab,
   CustomDialog,
   FromToDateFilter,
-  CustomSnackBar,
   Icon,
   MoreMenuButton,
 } from 'components';

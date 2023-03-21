@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeaderBreadcumbs, CustomSnackBar } from 'components';
+import { HeaderBreadcumbs } from 'components';
 
 import { HeaderMainStyle } from 'utils';
 import AddMobileEventForm from '../components/AddMobileEventForm';
@@ -19,8 +19,6 @@ const AddMobileEventPage = () => {
       </HeaderMainStyle>
 
       <AddMobileEventForm />
-
-      {alert?.status && <CustomSnackBar message={alert.message} type={alert.type} />}
     </div>
   );
 };
