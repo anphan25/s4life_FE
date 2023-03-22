@@ -74,7 +74,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       }
 
       case 'invalid-openingTime-format': {
-        return 'Định dạng của thời gian làm việc trong tuần là HH:mm-HH:mm';
+        return 'Định dạng của thời gian làm việc trong tuần là HH:mm - HH:mm';
       }
 
       case 'too-much-record': {
