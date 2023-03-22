@@ -2,13 +2,20 @@ import { FormControl, TextField, Stack, Box, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import moment from 'moment';
 import { CSVFileIcon } from 'assets';
 import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'utils';
 
 export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
+  const [missedColumns, setMissedColumns] = useState([]);
+
+  let tempErrorFileContent = [];
+
+  const validHeader = ['CMND/CCCD*', 'Nhóm máu*', 'Yếu tố Rh*'];
+
+  const clonedHeaders = [...validHeader];
+  const checkedHeaders = [];
 
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -34,7 +41,11 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
       }
 
       case 'unknown-columns': {
-        return 'Vui lòng không chỉnh sửa tên cột hoặc thêm cột mới';
+        return 'Vui lòng không thêm cột mới';
+      }
+
+      case 'lack-modified-columns': {
+        return `Vui lòng không xóa hoặc sửa tên các cột mặc định của file (${missedColumns.join(', ')})`;
       }
 
       case 'invalid-blood-type': {
@@ -74,10 +85,6 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
       ''
     );
 
-  let tempErrorFileContent = [];
-
-  const validHeader = ['CMND/CCCD*', 'Nhóm máu*', 'Yếu tố Rh*'];
-
   const displayInvalidFileContent = (code) => {
     if (!tempErrorFileContent.includes(code)) {
       tempErrorFileContent.push(code);
@@ -86,6 +93,26 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
   };
 
   const validateCSVFileContent = (dataList) => {
+    // Check remove or modify column name
+    if (clonedHeaders.length > 0) {
+      setMissedColumns(clonedHeaders);
+      displayInvalidFileContent('lack-modified-columns');
+
+      return;
+    }
+
+    //Check modify or add new columns(s)
+    validHeader.sort();
+    checkedHeaders.sort();
+
+    for (let i = 0; i < validHeader.length; i++) {
+      if (checkedHeaders[i] !== validHeader[i]) {
+        displayInvalidFileContent('unknown-columns');
+
+        return;
+      }
+    }
+
     dataList.forEach((data) => {
       for (const property in data) {
         if (!data[property]) {
@@ -126,11 +153,13 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
       escapeChar: '"',
       header: true,
       transformHeader: function (headerName) {
-        if (!validHeader.includes(headerName)) {
-          displayInvalidFileContent('unknown-columns');
+        if (!headerName) return;
 
-          return;
-        }
+        const index = clonedHeaders.indexOf(headerName);
+
+        if (index > -1) clonedHeaders.splice(index, 1);
+
+        checkedHeaders.push(headerName);
 
         switch (headerName) {
           case 'CMND/CCCD*': {

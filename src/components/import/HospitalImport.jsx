@@ -9,6 +9,30 @@ import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'u
 export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
+  const [missedColumns, setMissedColumns] = useState([]);
+
+  let tempErrorFileContent = [];
+
+  const daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
+
+  const validHeader = [
+    'Tên*',
+    'Ðịa Chỉ*',
+    'Số Ðiện Thoại*',
+    'Email',
+    'Kinh Ðộ*',
+    'Vĩ Ðộ*',
+    'Thứ 2',
+    'Thứ 3',
+    'Thứ 4',
+    'Thứ 5',
+    'Thứ 6',
+    'Thứ 7',
+    'Chủ Nhật',
+  ];
+
+  const clonedHeaders = [...validHeader];
+  const checkedHeaders = [];
 
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -34,7 +58,11 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       }
 
       case 'unknown-columns': {
-        return 'Vui lòng không chỉnh sửa tên cột hoặc thêm cột mới';
+        return 'Vui lòng không thêm cột mới';
+      }
+
+      case 'lack-modified-columns': {
+        return `Vui lòng không xóa hoặc sửa tên các cột mặc định của file (${missedColumns.join(', ')})`;
       }
 
       case 'invalid-openingTime': {
@@ -43,6 +71,10 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
       case 'invalid-starttime-endTime': {
         return 'Thời gian bắt đầu phải trước thời gian kết thúc';
+      }
+
+      case 'invalid-openingTime-format': {
+        return 'Định dạng của thời gian làm việc trong tuần là HH:mm - HH:mm';
       }
 
       case 'too-much-record': {
@@ -78,26 +110,6 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       ''
     );
 
-  let tempErrorFileContent = [];
-
-  const daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
-
-  const validHeader = [
-    'Tên*',
-    'Ðịa Chỉ*',
-    'Số Ðiện Thoại*',
-    'Email',
-    'Kinh Ðộ*',
-    'Vĩ Ðộ*',
-    'Thứ 2',
-    'Thứ 3',
-    'Thứ 4',
-    'Thứ 5',
-    'Thứ 6',
-    'Thứ 7',
-    'Chủ Nhật',
-  ];
-
   const displayInvalidFileContent = (code) => {
     if (!tempErrorFileContent.includes(code)) {
       tempErrorFileContent.push(code);
@@ -121,6 +133,26 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
   };
 
   const validateCSVFileContent = (dataList) => {
+    // Check remove or modify column name
+    if (clonedHeaders.length > 0) {
+      setMissedColumns(clonedHeaders);
+      displayInvalidFileContent('lack-modified-columns');
+
+      return;
+    }
+
+    //Check  add new columns(s)
+    validHeader.sort();
+    checkedHeaders.sort();
+
+    for (let i = 0; i < validHeader.length; i++) {
+      if (checkedHeaders[i] !== validHeader[i]) {
+        displayInvalidFileContent('unknown-columns');
+
+        return;
+      }
+    }
+
     if (isEdit) {
       if (dataList.length > 1) {
         displayInvalidFileContent('too-much-record');
@@ -140,6 +172,8 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
           if (isNoDayOpen) {
             displayInvalidFileContent('invalid-openingTime');
+
+            return;
           }
         }
       }
@@ -150,6 +184,16 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
     for (const prop in obj) {
       if (!obj[prop]) {
         delete obj[prop];
+      }
+    }
+
+    for (let i = 0; i < 7; i++) {
+      if (!obj[i]) continue;
+      if (!obj[i]?.match(/^([01]\d|2[0-3]):([0-5]\d) - ([01]\d|2[0-3]):([0-5]\d)$/)) {
+        console.log('hee');
+        displayInvalidFileContent('invalid-openingTime-format');
+
+        return;
       }
     }
 
@@ -187,11 +231,13 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       escapeChar: '"',
       header: true,
       transformHeader: function (headerName) {
-        if (!validHeader.includes(headerName)) {
-          displayInvalidFileContent('unknown-columns');
+        if (!headerName) return;
 
-          return;
-        }
+        const index = clonedHeaders.indexOf(headerName);
+
+        if (index > -1) clonedHeaders.splice(index, 1);
+
+        checkedHeaders.push(headerName);
 
         switch (headerName) {
           case 'Tên*': {
