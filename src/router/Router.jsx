@@ -42,7 +42,7 @@ export default function Router() {
             {
               index: true,
               element: (
-                <ProtectedRouter roles={['Admin']}>
+                <ProtectedRouter roles={['Manager', 'Admin', 'Employee', 'Moderator']}>
                   <AccountPage />
                 </ProtectedRouter>
               ),

@@ -2,7 +2,7 @@ import { Autocomplete, FormControl, TextField } from '@mui/material';
 
 export const AutocompleteFilter = ({ onSelect, list, placeholder, ...props }) => {
   return (
-    <FormControl sx={props.sx}>
+    <FormControl sx={{ ...props.sx, '& .MuiInputBase-root': { maxHeight: '52px', overflow: 'scroll' } }}>
       <Autocomplete
         {...props}
         sx={{ width: '100%' }}

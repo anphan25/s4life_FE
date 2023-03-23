@@ -25,7 +25,7 @@ import {
   HeaderMainStyle,
   formatPhoneNumber,
   FilterRoleEnum,
-  getFilterTabValuesFromEnum,
+  getValuesFromEnum,
   HospitalFilterEnum,
   RoleEnum,
 } from 'utils';
@@ -578,7 +578,7 @@ const UserListPage = () => {
         <Box>
           {isAdmin ? (
             <FilterTab
-              tabs={getFilterTabValuesFromEnum(FilterRoleEnum)}
+              tabs={getValuesFromEnum(FilterRoleEnum)}
               onChangeTab={handleFilterTabChange}
               defaultValue={pageState.filterMode}
             />

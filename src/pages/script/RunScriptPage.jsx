@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';

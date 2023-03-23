@@ -5,7 +5,7 @@ const TabsContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'isVertical',
 })(({ theme, isVertical }) => ({
   padding: '0.75rem 2.25rem 0',
-  backgroundColor: theme.palette.grey[100],
+  backgroundColor: !isVertical && theme.palette.grey[100],
 
   '& .MuiTabs-indicator': {
     height: '4px',
