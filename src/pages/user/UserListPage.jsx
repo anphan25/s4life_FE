@@ -69,12 +69,12 @@ const UserListPage = () => {
     PageSize: 10,
     SearchKey: '',
   });
-  const [message, setMessage] = useState();
   const { enqueueSnackbar } = useSnackbar();
 
   const roleSelectOption = [
-    { label: 'Nhân viên', value: 2 },
-    { label: 'Quản lý viên', value: 3 },
+    { label: RoleEnum.Employee.description, value: RoleEnum.Employee.value },
+    { label: RoleEnum.Manager.description, value: RoleEnum.Manager.value },
+    { label: RoleEnum.Staff.description, value: RoleEnum.Staff.value },
   ];
 
   const isVolunteerFilterMode = pageState.filterMode === FilterRoleEnum.Volunteer.value;
@@ -576,14 +576,12 @@ const UserListPage = () => {
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          {isAdmin ? (
+          {isAdmin && (
             <FilterTab
               tabs={getValuesFromEnum(FilterRoleEnum)}
               onChangeTab={handleFilterTabChange}
               defaultValue={pageState.filterMode}
             />
-          ) : (
-            ''
           )}
 
           <InputFilterSectionStyle>
