@@ -7,7 +7,7 @@ function DateIcon() {
   return <Icon icon="calendar" />;
 }
 
-export const FromToDateFilter = ({ onChange, sx }) => {
+export const FromToDateFilter = ({ onChange, sx, onClear }) => {
   const [params, setParams] = useState({ startDate: null, endDate: null });
 
   const handleStartDateChange = (newValue) => {

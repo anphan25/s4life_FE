@@ -21,7 +21,7 @@ import {
   handleDownloadTemplate,
   HospitalFilterEnum,
   HospitalStatusEnum,
-  getFilterTabValuesFromEnum,
+  getValuesFromEnum,
   RoleEnum,
 } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -430,7 +430,7 @@ const HospitalListPage = () => {
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
-            tabs={getFilterTabValuesFromEnum(HospitalStatusEnum)}
+            tabs={getValuesFromEnum(HospitalStatusEnum)}
             onChangeTab={handleFilterTabChange}
             defaultValue={pageState.status}
           />

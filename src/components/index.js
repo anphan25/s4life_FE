@@ -27,5 +27,6 @@ export * from './filter/SearchBar';
 export * from './filter/FromToDateFilter';
 export * from './filter/AsyncAutocompleteFilter';
 export * from './filter/AutocompleteFilter';
+export * from './filter/CheckBoxFilter.jsx';
 export * from './Tag';
 export * from './MoreMenuButton';

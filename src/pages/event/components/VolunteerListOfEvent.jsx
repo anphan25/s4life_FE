@@ -1,12 +1,11 @@
 import { Box, Typography, Button, FormControl, Select, MenuItem, Stack, styled } from '@mui/material';
 import {
   DataTable,
-  FilterTab,
+  CheckBoxFilter,
   FromToDateFilter,
   SearchBar,
   CustomDialog,
   Icon,
-  AutocompleteFilter,
   UpdateBloodTypeImport,
   MultipleAlertSnackBar,
   DetailAlertDialog,
@@ -27,10 +26,9 @@ import {
   handleDownloadTemplate,
   BloodTypeEnum,
   EventRegistrationStatusEnum,
-  getFilterTabValuesFromEnum,
+  getValuesFromEnum,
   formatPhoneNumber,
   EventRegistrationOperationEnum,
-  getFilterBloodTypeLabels,
   RoleEnum,
 } from 'utils';
 import { useSelector } from 'react-redux';
@@ -51,7 +49,7 @@ const VolunteerListOfEvent = () => {
     total: 0,
     page: 1,
     pageSize: 10,
-    status: EventRegistrationStatusEnum.Registered.value,
+    status: '',
     searchPhoneNumber: '',
     dateFrom: null,
     dateTo: null,
@@ -130,9 +128,16 @@ const VolunteerListOfEvent = () => {
         type: 'string',
         width: 100,
       },
+
       {
         headerName: 'Ngày tham gia',
         field: 'participationDate',
+        type: 'string',
+        width: 200,
+      },
+      {
+        headerName: 'Trạng thái',
+        field: 'status',
         type: 'string',
         width: 200,
       },
@@ -186,9 +191,9 @@ const VolunteerListOfEvent = () => {
               showInMenu
               onClick={async () => {
                 enqueueSnackbar('Tiến hành xử lý yêu cầu', {
-                variant: 'info',
-                persist: false,
-              });
+                  variant: 'info',
+                  persist: false,
+                });
                 await getEventRegistrationById(params.row.id, EventRegistrationOperationEnum.GetLink);
               }}
             />,
@@ -207,8 +212,12 @@ const VolunteerListOfEvent = () => {
     setPageState((old) => ({ ...old, page: 1, pageSize: newPageSize }));
   };
 
-  const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, status: value, page: 1 }));
+  const handleFilterEventRegistration = (values) => {
+    setPageState((old) => ({ ...old, status: values.join(','), page: 1 }));
+  };
+
+  const handleFilterBloodType = (values) => {
+    setPageState((old) => ({ ...old, bloodTypes: values.join(','), page: 1 }));
   };
 
   const handleFromToDateFilter = (params) => {
@@ -226,20 +235,6 @@ const VolunteerListOfEvent = () => {
   const handleImportBloodTypeDialog = () => {
     setIsImportBloodTypeDialogOpen(!isImportBloodTypeDialogOpen);
     setIsImportBtnDisabled(true);
-  };
-
-  const handleChooseBloodType = (bloodTypes) => {
-    const mappingBloodTypeValues = [];
-
-    for (const property in BloodTypeFilterEnum) {
-      if (bloodTypes.includes(BloodTypeFilterEnum[property].label)) {
-        mappingBloodTypeValues.push(BloodTypeFilterEnum[property].value);
-      }
-    }
-
-    const bloodTypeString = mappingBloodTypeValues.toString();
-
-    setPageState((old) => ({ ...old, bloodTypes: bloodTypeString }));
   };
 
   const handleDetailAlertDialog = () => {
@@ -419,7 +414,7 @@ const VolunteerListOfEvent = () => {
     try {
       const data = await getEventRegistrations({
         EventId: eventId,
-        Status: pageState?.status,
+        ...(pageState?.status && { Status: pageState?.status }),
         Page: pageState?.page,
         PageSize: pageState.pageSize,
         ...(pageState?.searchPhoneNumber && { SearchPhoneNumber: pageState?.searchPhoneNumber }),
@@ -442,6 +437,12 @@ const VolunteerListOfEvent = () => {
         bloodTypeId: data?.bloodTypeId,
         isRhNegative: data?.isRhNegative,
         participationDate: formatDate(data?.participationDate, 2) || '-',
+        status:
+          EventRegistrationStatusEnum[
+            Object.keys(EventRegistrationStatusEnum).find(
+              (key) => EventRegistrationStatusEnum[key].value === data?.status
+            )
+          ].description,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
@@ -536,27 +537,23 @@ const VolunteerListOfEvent = () => {
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
-          <FilterTab
-            tabs={getFilterTabValuesFromEnum(EventRegistrationStatusEnum)}
-            onChangeTab={handleFilterTabChange}
-            defaultValue={pageState.status}
-          />
-
           <InputFilterSectionStyle>
-            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '50%' }} />
-            <AutocompleteFilter
-              multiple
-              sx={{ width: '25%' }}
-              placeholder="Chọn nhóm máu"
-              onSelect={handleChooseBloodType}
-              list={getFilterBloodTypeLabels()}
-              getOptionLabel={(option) => {
-                return option || '';
-              }}
+            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '40%' }} />
+            <CheckBoxFilter
+              options={getValuesFromEnum(BloodTypeFilterEnum)}
+              sx={{ width: '20%' }}
+              onCheck={handleFilterBloodType}
+              placeHolder="Chọn nhóm máu"
+            />
+            <CheckBoxFilter
+              options={getValuesFromEnum(EventRegistrationStatusEnum)}
+              sx={{ width: '20%' }}
+              placeHolder="Chọn trạng thái đăng ký"
+              onCheck={handleFilterEventRegistration}
             />
             <SearchBar
               type="number"
-              sx={{ width: '25%' }}
+              sx={{ width: '20%' }}
               className="search-bar"
               placeholder="Nhập số điện thoại..."
               onSubmit={handleSearchVolunteerPhoneNumber}

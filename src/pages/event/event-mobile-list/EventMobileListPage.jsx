@@ -25,7 +25,7 @@ import {
   EventTypeEnum,
   EventFilterEnum,
   EventStatusEnum,
-  getFilterTabValuesFromEnum,
+  getValuesFromEnum,
   RoleEnum,
 } from 'utils';
 import moment from 'moment';
@@ -136,9 +136,9 @@ const EventMobileListPage = () => {
       // },
 
       {
-        headerName: 'Số người đăng kí',
+        headerName: 'Đã hiến máu/Tổng đăng ký',
         field: 'numberOfRegistration',
-        type: 'number',
+        type: 'string',
         width: 150,
       },
       {
@@ -339,7 +339,7 @@ const EventMobileListPage = () => {
           endDate: data?.endDate,
           // hospitalName: data?.hospital.name,
 
-          numberOfRegistration: data?.numberOfRegistration || 0,
+          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
           status: data?.status || '',
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
@@ -379,7 +379,7 @@ const EventMobileListPage = () => {
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
-            tabs={getFilterTabValuesFromEnum(EventStatusEnum)}
+            tabs={getValuesFromEnum(EventStatusEnum)}
             onChangeTab={handleFilterTabChange}
             defaultValue={pageState.status}
           />
