@@ -9,6 +9,7 @@ import {
   UpdateBloodTypeImport,
   MultipleAlertSnackBar,
   DetailAlertDialog,
+  RegistrationStatusTag,
 } from 'components';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { errorHandler, formatDate, UserInformationUpdateModeEnum, convertErrorCodeToMessage } from 'utils';
@@ -134,9 +135,22 @@ const VolunteerListOfEvent = () => {
       },
       {
         headerName: 'Trạng thái',
-        field: 'status',
+        field: 'statusId',
         type: 'string',
-        width: 120,
+        width: 150,
+        renderCell: ({ value }) => {
+          return (
+            <RegistrationStatusTag status={value}>
+              {
+                EventRegistrationStatusEnum[
+                  Object.keys(EventRegistrationStatusEnum).find(
+                    (key) => EventRegistrationStatusEnum[key].value === value
+                  )
+                ]?.description
+              }
+            </RegistrationStatusTag>
+          );
+        },
       },
       {
         field: 'actions',
@@ -435,12 +449,12 @@ const VolunteerListOfEvent = () => {
         isRhNegative: data?.isRhNegative,
         participationDate: formatDate(data?.participationDate, 2) || '-',
         statusId: data?.status,
-        status:
-          EventRegistrationStatusEnum[
-            Object.keys(EventRegistrationStatusEnum).find(
-              (key) => EventRegistrationStatusEnum[key].value === data?.status
-            )
-          ].description,
+        // status:
+        //   EventRegistrationStatusEnum[
+        //     Object.keys(EventRegistrationStatusEnum).find(
+        //       (key) => EventRegistrationStatusEnum[key].value === data?.status
+        //     )
+        //   ].description,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
