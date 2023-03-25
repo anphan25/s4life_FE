@@ -13,6 +13,7 @@ import {
   PHONE_NUMBER_PATTERN,
 } from 'utils';
 
+
 export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
@@ -91,7 +92,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       case 'invalid-phone-number': {
         return 'Số điện thoại không hợp lệ';
       }
-
+      
       case 'too-much-record': {
         return 'Khi chỉnh sửa chỉ cần 1 dòng thông tin';
       }
@@ -134,7 +135,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
   //Mode 1: get startTime, Mode 2: get endTime
   const getTimeFromDay = (dayString, mode) => {
-    const timeArr = dayString.split('-');
+    const timeArr = dayString.replaceAll(' ', '').split('-');
 
     //Validate start and end time
     if (!moment(timeArr[0], 'HH:mm').isBefore(moment(timeArr[1], 'HH:mm'))) {
@@ -204,6 +205,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
             displayInvalidFileContent('invalid-phone-number');
           }
         }
+
       }
     });
   };
@@ -217,8 +219,9 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
     for (let i = 0; i < 7; i++) {
       if (!obj[i]) continue;
-      if (!obj[i]?.match(/^([01]\d|2[0-3]):([0-5]\d) - ([01]\d|2[0-3]):([0-5]\d)$/)) {
-        console.log('hee');
+
+      const temp = obj[i].replaceAll(' ', '');
+      if (!temp?.match(/^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/)) {
         displayInvalidFileContent('invalid-openingTime-format');
 
         return;

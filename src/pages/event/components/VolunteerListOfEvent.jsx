@@ -30,15 +30,12 @@ import {
   formatPhoneNumber,
   EventRegistrationOperationEnum,
   RoleEnum,
+  DownloadLink,
 } from 'utils';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
-
-export const DownloadLink = styled('a')(({ theme }) => ({
-  display: 'none',
-}));
 
 const VolunteerListOfEvent = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -108,38 +105,38 @@ const VolunteerListOfEvent = () => {
         headerName: 'CCCD',
         field: 'nationalId',
         type: 'string',
-        width: 200,
+        width: 150,
       },
       {
         headerName: 'CMND',
         field: 'citizenId',
         type: 'string',
-        width: 120,
+        width: 150,
       },
       {
         headerName: 'Số điện thoại',
         field: 'phoneNumber',
         type: 'string',
-        width: 170,
+        width: 150,
       },
       {
         headerName: 'Nhóm máu',
         field: 'bloodType',
         type: 'string',
-        width: 100,
+        width: 120,
       },
 
       {
         headerName: 'Ngày tham gia',
         field: 'participationDate',
         type: 'string',
-        width: 200,
+        width: 120,
       },
       {
         headerName: 'Trạng thái',
         field: 'status',
         type: 'string',
-        width: 200,
+        width: 120,
       },
       {
         field: 'actions',
@@ -153,7 +150,7 @@ const VolunteerListOfEvent = () => {
           getActions: (params) => [
             <GridActionsCellItem
               label="Cập nhật nhóm máu"
-              disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value || !isEmployee}
+              disabled={params.row.statusId !== EventRegistrationStatusEnum.Donated.value || !isEmployee}
               icon={<Icon sx={{ color: 'warning.main' }} icon="solid-user-edit" />}
               onClick={() => {
                 setBloodType('');
@@ -185,7 +182,7 @@ const VolunteerListOfEvent = () => {
               showInMenu
             />,
             <GridActionsCellItem
-              disabled={pageState.status !== EventRegistrationStatusEnum.Donated.value}
+              disabled={params.row.statusId !== EventRegistrationStatusEnum.Donated.value}
               icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
               label="Tải phiếu đăng ký"
               showInMenu
@@ -437,6 +434,7 @@ const VolunteerListOfEvent = () => {
         bloodTypeId: data?.bloodTypeId,
         isRhNegative: data?.isRhNegative,
         participationDate: formatDate(data?.participationDate, 2) || '-',
+        statusId: data?.status,
         status:
           EventRegistrationStatusEnum[
             Object.keys(EventRegistrationStatusEnum).find(
