@@ -32,6 +32,18 @@ const TagStyle = styled('span')(({ theme, styleState }) => {
       color: theme.palette.info.main,
       backgroundColor: theme.palette.info.light,
     }),
+    ...(styleState.status === 'missed' && {
+      color: theme.palette.purple.main,
+      backgroundColor: theme.palette.purple.light,
+    }),
+    ...(styleState.status === 'registered' && {
+      color: theme.palette.info.main,
+      backgroundColor: theme.palette.info.light,
+    }),
+    ...(styleState.status === 'discarded' && {
+      color: theme.palette.info.main,
+      backgroundColor: theme.palette.info.light,
+    }),
   };
 });
 

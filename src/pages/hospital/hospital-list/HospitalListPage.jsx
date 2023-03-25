@@ -1,14 +1,6 @@
-import { Button, Stack, Box, Typography, MenuItem } from '@mui/material';
-import {
-  CustomDialog,
-  HospitalImport,
-  DataTable,
-  HeaderBreadcumbs,
-  FilterTab,
-  SearchBar,
-  Icon,
-  MoreMenuButton,
-} from 'components';
+import { Button, Stack, Box, Typography } from '@mui/material';
+import { GridActionsCellItem } from '@mui/x-data-grid';
+import { CustomDialog, HospitalImport, DataTable, HeaderBreadcumbs, FilterTab, SearchBar, Icon } from 'components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getHospitalsList, importCSVHospitalData, disableHospital, enableHospital } from 'api';
 import {
@@ -114,47 +106,35 @@ const HospitalListPage = () => {
         type: 'actions',
         sortable: false,
         filterable: false,
-        width: 50,
+        width: 80,
         align: 'center',
 
-        renderCell: (params) => {
-          return (
-            <MoreMenuButton>
-              <MenuItem
-                onClick={() => {
-                  navigate(`/hospital/${params.row.id}`);
-                }}
-              >
-                <Icon sx={{ height: 20, width: 20 }} icon="solid-eye" />
-                Xem chi tiết
-              </MenuItem>
-
-              {isModerator && (
-                <MenuItem
-                  sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
-                  onClick={() => {
-                    if (isHospitalActive) {
-                      setDisableHospitalId(params.row.id);
-                      openDisableHospitalConfirm(params.row.name);
-                    } else {
-                      setEnableHospitalId(params.row.id);
-                      openEnableHospitalConfirm(params.row.name);
-                    }
-                  }}
-                >
-                  <Icon
-                    sx={{
-                      height: 20,
-                      width: 20,
-                    }}
-                    icon={isHospitalActive ? 'trash' : 'trash-slash'}
-                  />
-                  {isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
-                </MenuItem>
-              )}
-            </MoreMenuButton>
-          );
-        },
+        getActions: (params) => [
+          <GridActionsCellItem
+            label="Xem chi tiết"
+            icon={<Icon icon="solid-eye" />}
+            onClick={() => {
+              navigate(`/hospital/${params.row.id}`);
+            }}
+            showInMenu
+          />,
+          <GridActionsCellItem
+            disabled={!isModerator}
+            sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
+            label={isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
+            icon={<Icon icon={isHospitalActive ? 'solid-trash' : 'solid-trash-slash'} />}
+            onClick={() => {
+              if (isHospitalActive) {
+                setDisableHospitalId(params.row.id);
+                openDisableHospitalConfirm(params.row.name);
+              } else {
+                setEnableHospitalId(params.row.id);
+                openEnableHospitalConfirm(params.row.name);
+              }
+            }}
+            showInMenu
+          />,
+        ],
       },
     ],
     pageState: pageState,

@@ -1,5 +1,5 @@
 import { createTheme, ThemeProvider } from '@mui/material';
-import { palette, breakpoints, typography, Overrides } from 'theme';
+import { palette, breakpoints, typography, Overrides, status } from 'theme';
 import { viVN } from '@mui/material/locale';
 import { viVN as dataGridViVN } from '@mui/x-data-grid';
 import { useMemo } from 'react';
@@ -9,6 +9,7 @@ export const Theme = ({ children }) => {
     palette,
     breakpoints,
     typography,
+    status,
   });
 
   theme.components = Overrides(theme);
