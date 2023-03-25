@@ -494,7 +494,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
   useEffect(() => {
     resetDatetimeField();
-    // resetField('isEmergency');
   }, [isEmergency]);
 
   useEffect(() => {

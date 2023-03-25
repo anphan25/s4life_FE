@@ -262,7 +262,6 @@ const RunScriptPage = () => {
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
-    console.log('event.target.value :', event.target.value);
     if (event.target.value === 1) {
       setTotalApproval(0);
       setTotalReject(0);

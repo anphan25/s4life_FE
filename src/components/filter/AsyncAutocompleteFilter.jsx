@@ -28,6 +28,7 @@ export const AsyncAutocompleteFilter = ({
           if (!onSelect) return;
           onSelect(newValue);
         }}
+        // isOptionEqualToValue={(option, value) => option.id === value.id}
         options={list}
         ListboxProps={{
           role: 'list-box',

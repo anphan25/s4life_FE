@@ -55,7 +55,7 @@ export const RHFAsyncAutoComplete = ({
               },
             }}
             freeSolo
-            filterOptions={(x) => x}
+            // filterOptions={(x) => x}
             includeInputInList
             onInputChange={(e, newValue) => {
               if (!onInput) return;
