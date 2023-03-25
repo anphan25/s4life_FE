@@ -4,7 +4,15 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import moment from 'moment';
 import { CSVFileIcon } from 'assets';
-import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle, EMAIL_PATTERN } from 'utils';
+import {
+  DropZone,
+  ClearFile,
+  ErrorMessageList,
+  ImportTextDisplayStyle,
+  EMAIL_PATTERN,
+  PHONE_NUMBER_PATTERN,
+} from 'utils';
+
 
 export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -81,6 +89,10 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
         return 'Email không hợp lệ';
       }
 
+      case 'invalid-phone-number': {
+        return 'Số điện thoại không hợp lệ';
+      }
+      
       case 'too-much-record': {
         return 'Khi chỉnh sửa chỉ cần 1 dòng thông tin';
       }
@@ -167,6 +179,7 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
     dataList.forEach((data) => {
       for (const property in data) {
+        // Require all field except email
         if (!data[property] && property !== 'email') {
           displayInvalidFileContent('required-filed-missing');
         }
@@ -186,6 +199,13 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
             displayInvalidFileContent('invalid-email');
           }
         }
+
+        if (property === 'phoneNumber') {
+          if (!data[property].match(PHONE_NUMBER_PATTERN)) {
+            displayInvalidFileContent('invalid-phone-number');
+          }
+        }
+
       }
     });
   };
