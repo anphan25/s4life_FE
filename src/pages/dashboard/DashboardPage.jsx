@@ -67,17 +67,43 @@ const DashboardPage = () => {
   const totalEvents = formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents);
 
   // Event Registration
-  const totalEventRegistrations = formatNumber(
-    getStatisticResultFromGroup(eventRegistrationStatistics, StatisticEnum.EventRegistrationStatistic.TOTAL_GROUP)
-  );
-  const notAttendedEventRegistrations = getStatisticResultFromGroup(
+  const cancelledRegistrations = getStatisticResultFromGroup(
     eventRegistrationStatistics,
-    StatisticEnum.EventRegistrationStatistic.NOT_ATTENDED_GROUP
+    StatisticEnum.EventRegistrationStatistic.CANCELLED_GROUP
   );
-  const attendedEventRegistrations = getStatisticResultFromGroup(
+  const registeredRegistrations = getStatisticResultFromGroup(
     eventRegistrationStatistics,
-    StatisticEnum.EventRegistrationStatistic.ATTENDED_GROUP
+    StatisticEnum.EventRegistrationStatistic.REGISTERED_GROUP
   );
+  const donatedRegistrations = getStatisticResultFromGroup(
+    eventRegistrationStatistics,
+    StatisticEnum.EventRegistrationStatistic.DONATED_GROUP
+  );
+  const conditionInsufficientRegistrations = getStatisticResultFromGroup(
+    eventRegistrationStatistics,
+    StatisticEnum.EventRegistrationStatistic.CONDITION_INSUFFICIENT_GROUP
+  );
+  const presentRegistrations = getStatisticResultFromGroup(
+    eventRegistrationStatistics,
+    StatisticEnum.EventRegistrationStatistic.PRESENT_GROUP
+  );
+  const discardedRegistrations = getStatisticResultFromGroup(
+    eventRegistrationStatistics,
+    StatisticEnum.EventRegistrationStatistic.DISCARDED_GROUP
+  );
+  const missedRegistrations = getStatisticResultFromGroup(
+    eventRegistrationStatistics,
+    StatisticEnum.EventRegistrationStatistic.MISSED_GROUP
+  );
+
+  const totalRegistrations =
+    cancelledRegistrations +
+    registeredRegistrations +
+    donatedRegistrations +
+    conditionInsufficientRegistrations +
+    presentRegistrations +
+    discardedRegistrations +
+    missedRegistrations;
 
   // Blood Volume
   const receivedBlood = getStatisticResultFromGroup(
@@ -193,7 +219,7 @@ const DashboardPage = () => {
                 </Stack>
 
                 <Stack className="tab_content">
-                  <Typography className="tab_content--number">{totalEventRegistrations}</Typography>
+                  <Typography className="tab_content--number">{formatNumber(totalRegistrations)}</Typography>
 
                   <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                     <Box className="status_box">
@@ -202,7 +228,7 @@ const DashboardPage = () => {
                         <Typography className="status_text">Đã hiến máu</Typography>
                       </Stack>
                       <Typography className="status_number">
-                        {formatNumber(attendedEventRegistrations)}/{totalEventRegistrations}
+                        {formatNumber(donatedRegistrations)}/{formatNumber(totalRegistrations)}
                       </Typography>
                     </Box>
 
@@ -216,7 +242,7 @@ const DashboardPage = () => {
                         <Typography className="status_text">Chưa hiến máu</Typography>
                       </Stack>
                       <Typography className="status_number">
-                        {formatNumber(notAttendedEventRegistrations)}/{totalEventRegistrations}
+                        {formatNumber(registeredRegistrations)}/{formatNumber(totalRegistrations)}
                       </Typography>
                     </Box>
                   </Stack>

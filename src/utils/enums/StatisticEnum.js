@@ -6,11 +6,13 @@ export const StatisticEnum = Object.freeze({
     CANCELED_GROUP: 4,
   },
   EventRegistrationStatistic: {
-    TOTAL_GROUP: 0,
-    CANCEL_GROUP: 1,
-    NOT_ATTENDED_GROUP: 2,
-    ATTENDED_GROUP: 3,
+    CANCELLED_GROUP: 1,
+    REGISTERED_GROUP: 2,
+    DONATED_GROUP: 3,
     CONDITION_INSUFFICIENT_GROUP: 4,
+    PRESENT_GROUP: 5,
+    DISCARDED_GROUP: 7,
+    MISSED_GROUP: 8,
   },
   BloodVolumeStatistic: {
     RECEIVED_GROUP: 1,

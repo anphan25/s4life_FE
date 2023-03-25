@@ -42,3 +42,7 @@ export const InputFilterSectionStyle = styled(Stack)(({ theme }) => ({
 export const RequireLabel = styled('span')(({ theme }) => ({
   color: theme.palette.error.main,
 }));
+
+export const DownloadLink = styled('a')(({ theme }) => ({
+  display: 'none',
+}));

@@ -20,6 +20,7 @@ import {
   formatDate,
   InputFilterSectionStyle,
   RoleEnum,
+  DownloadLink,
 } from 'utils';
 import { addBloodDonations } from 'api';
 import { Stack, Box, Button, Divider, IconButton, Typography, styled } from '@mui/material';
@@ -31,10 +32,6 @@ import { useStore } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations } from 'config';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-
-const DownloadLink = styled('a')(({ theme }) => ({
-  display: 'none',
-}));
 
 const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) => {
   const [pageState, setPageState] = useState({
@@ -290,7 +287,7 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
               startIcon={<Icon icon="solid-file-download" />}
               onClick={async () => {
                 try {
-                  await handleDownloadTemplate('template_import/blood_donation_import_template .csv', downloadRef);
+                  await handleDownloadTemplate('template_import/blood_donation_import_template.csv', downloadRef);
                 } catch (error) {
                   switch (error.code) {
                     case 'storage/object-not-found':
