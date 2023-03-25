@@ -443,8 +443,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues: isEdit && eventEditData ? editDefaultValues : defaultValues,
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onSubmit',
   });
 
   const onChangeCheckBox = (newValue) => {
@@ -658,51 +657,54 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                     </Typography>
                   </Box>
                 )}
+                {!isEmergency && (
+                  <>
+                    <Stack spacing={2} direction="row">
+                      <RHFDatePicker
+                        disablePast
+                        disabled={isEmergency}
+                        isRequiredLabel={!isEmergency}
+                        name="startDate"
+                        control={control}
+                        label="Ngày bắt đầu"
+                        placeholder="Nhập ngày bắt đầu"
+                        minDate={minDateHandler()}
+                      />
+                      <RHFDatePicker
+                        disablePast
+                        disabled={isEmergency}
+                        isRequiredLabel={!isEmergency}
+                        name="endDate"
+                        control={control}
+                        label="Ngày kết thúc"
+                        placeholder="Nhập ngày kết thúc"
+                        minDate={minDateHandler()}
+                      />
+                    </Stack>
 
-                <Stack spacing={2} direction="row">
-                  <RHFDatePicker
-                    disablePast
-                    disabled={isEmergency}
-                    isRequiredLabel={!isEmergency}
-                    name="startDate"
-                    control={control}
-                    label="Ngày bắt đầu"
-                    placeholder="Nhập ngày bắt đầu"
-                    minDate={minDateHandler()}
-                  />
-                  <RHFDatePicker
-                    disablePast
-                    disabled={isEmergency}
-                    isRequiredLabel={!isEmergency}
-                    name="endDate"
-                    control={control}
-                    label="Ngày kết thúc"
-                    placeholder="Nhập ngày kết thúc"
-                    minDate={minDateHandler()}
-                  />
-                </Stack>
+                    <Stack direction="row" spacing={2}>
+                      <RHFTimePicker
+                        disabled={isEmergency}
+                        mask="__:__"
+                        isRequiredLabel={!isEmergency}
+                        name="workingTimeStart"
+                        control={control}
+                        label="Giờ bắt đầu"
+                        placeholder="Nhập giờ bắt đầu"
+                      />
 
-                <Stack direction="row" spacing={2}>
-                  <RHFTimePicker
-                    disabled={isEmergency}
-                    mask="__:__"
-                    isRequiredLabel={!isEmergency}
-                    name="workingTimeStart"
-                    control={control}
-                    label="Giờ bắt đầu"
-                    placeholder="Nhập giờ bắt đầu"
-                  />
-
-                  <RHFTimePicker
-                    disabled={isEmergency}
-                    mask="__:__"
-                    isRequiredLabel={!isEmergency}
-                    name="workingTimeEnd"
-                    control={control}
-                    label="Giờ kết thúc"
-                    placeholder="Nhập giờ kết thúc"
-                  />
-                </Stack>
+                      <RHFTimePicker
+                        disabled={isEmergency}
+                        mask="__:__"
+                        isRequiredLabel={!isEmergency}
+                        name="workingTimeEnd"
+                        control={control}
+                        label="Giờ kết thúc"
+                        placeholder="Nhập giờ kết thúc"
+                      />
+                    </Stack>
+                  </>
+                )}
 
                 <Stack direction="row" spacing={2}>
                   <RHFInput
