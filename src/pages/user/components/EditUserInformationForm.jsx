@@ -227,22 +227,8 @@ const EditUserInformationForm = ({ userInfoData }) => {
           </Stack>
 
           <Stack spacing={2} direction="row">
-            <RHFInput
-              isRequiredLabel={true}
-              name="citizenId"
-              label="CMND"
-              type="number"
-              control={control}
-              placeholder="Nhập CMND"
-            />
-            <RHFInput
-              isRequiredLabel={true}
-              name="nationalId"
-              label="CCCD"
-              type="number"
-              control={control}
-              placeholder="Nhập CCCD"
-            />
+            <RHFInput name="citizenId" label="CMND" type="number" control={control} placeholder="Nhập CMND" />
+            <RHFInput name="nationalId" label="CCCD" type="number" control={control} placeholder="Nhập CCCD" />
           </Stack>
 
           <RHFInput
