@@ -11,6 +11,8 @@ import {
   ImportTextDisplayStyle,
   EMAIL_PATTERN,
   PHONE_NUMBER_PATTERN,
+  LONGITUDE_PATTERN,
+  LATITUDE_PATTERN,
 } from 'utils';
 
 export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
@@ -140,6 +142,10 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
     }
   };
 
+  function isNumeric(value) {
+    return value.match(/^-?\d+$/);
+  }
+
   //Mode 1: get startTime, Mode 2: get endTime
   const getTimeFromDay = (dayString, mode) => {
     const timeArr = dayString.replaceAll(' ', '').split('-');
@@ -214,13 +220,21 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
         }
 
         if (property === 'longitude') {
-          if (Math.abs(data[property]) < -180 || Math.abs(data[property]) > 180) {
+          if (
+            Math.abs(data[property] * 1) < -180 ||
+            Math.abs(data[property] * 1) > 180 ||
+            !data[property].match(LONGITUDE_PATTERN)
+          ) {
             displayInvalidFileContent('invalid-longitude');
           }
         }
 
         if (property === 'latitude') {
-          if (Math.abs(data[property]) < -90 || Math.abs(data[property]) > 90) {
+          if (
+            Math.abs(data[property] * 1) < -90 ||
+            Math.abs(data[property] * 1) > 90 ||
+            !data[property].match(LATITUDE_PATTERN)
+          ) {
             displayInvalidFileContent('invalid-latitude');
           }
         }
@@ -346,7 +360,6 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
           .map((filteredData) => convertDataToObject(filteredData));
         validateCSVFileContent(hospitalData);
 
-        console.log('hospitalData', hospitalData);
         if (tempErrorFileContent.length > 0) {
           onImport([], true);
           setSelectedFile(null);
