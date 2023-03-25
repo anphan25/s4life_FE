@@ -30,3 +30,4 @@ export * from './filter/AutocompleteFilter';
 export * from './filter/CheckBoxFilter.jsx';
 export * from './Tag';
 export * from './MoreMenuButton';
+export * from './RegistrationStatusTag';

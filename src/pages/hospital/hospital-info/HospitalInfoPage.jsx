@@ -483,6 +483,7 @@ const HospitalInfoPage = () => {
                   <FormControlLabel
                     control={
                       <Switch
+                        color="primary"
                         checked={hospitalData?.hospitalConfig?.autoGenerateScheduledEvent}
                         onChange={handleSwitchChange}
                       />
