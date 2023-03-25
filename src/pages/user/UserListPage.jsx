@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Stack, Button, Tooltip } from '@mui/material';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select } from '@mui/material';
 import {
   DataTable,
   FilterTab,
   SearchBar,
   CustomDialog,
-  RHFPasswordInput,
   HeaderBreadcumbs,
   RHFInput,
   RHFAsyncAutoComplete,
@@ -13,14 +12,15 @@ import {
   AsyncAutocompleteFilter,
   Icon,
   Tag,
+  AccountImport,
+  DetailAlertDialog,
+  MultipleAlertSnackBar,
 } from 'components';
 import { useNavigate } from 'react-router-dom';
 import {
   errorHandler,
   convertBloodTypeLabel,
   formatDate,
-  PASSWORD_PATTERN,
-  USERNAME_PATTERN,
   InputFilterSectionStyle,
   HeaderMainStyle,
   formatPhoneNumber,
@@ -28,8 +28,13 @@ import {
   getValuesFromEnum,
   HospitalFilterEnum,
   RoleEnum,
+  DownloadLink,
+  handleDownloadTemplate,
+  DialogButtonGroupStyle,
+  EMAIL_PATTERN,
+  convertErrorCodeToMessage,
 } from 'utils';
-import { getUsers, changePassword, getHospitalsList, addUser } from 'api';
+import { getUsers, getHospitalsList, addUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -55,21 +60,40 @@ const UserListPage = () => {
   });
   const user = useSelector((state) => state.auth.auth?.user);
   const [searchParam, setSearchParam] = useState('');
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(0);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [hospitals, setHospitals] = useState([]);
   const [filterHospitals, setFilterHospitals] = useState([]);
-  const [changePassWordUserName, setChangePassWordUserName] = useState();
-  const [changePassWordId, setChangePassWordId] = useState();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [hospitalGetParam, setHospitalsGetParam] = useState({ FilterMode: 2, Page: 1, PageSize: 10, SearchKey: '' });
+  const [hospitalGetParam, setHospitalsGetParam] = useState({
+    FilterMode: 2,
+    Page: 1,
+    PageSize: 10,
+    SearchKey: '',
+    Status: true,
+  });
   const [hospitalFilterParam, setHospitalsFilterParam] = useState({
     FilterMode: 2,
     Page: 1,
     PageSize: 10,
     SearchKey: '',
   });
+  const [isAddAccountOptionsOpen, setIsAddAccountOptionsOpen] = useState(false);
+  const [isImportAccountOpen, setIsImportAccountOpen] = useState(false);
+  const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
+  const [importParams, setImportParams] = useState([]);
+  const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
+  const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
+  const [alertResult, setAlertResult] = useState(null);
+  const userStatusOption = [
+    { name: 'Tất cả', value: 0 },
+    { name: 'Đang hoạt động', value: 1 },
+    { name: 'Vô hiệu hóa', value: 2 },
+  ];
+
   const { enqueueSnackbar } = useSnackbar();
+
+  const downloadRef = useRef();
 
   const roleSelectOption = [
     { label: RoleEnum.Employee.description, value: RoleEnum.Employee.value },
@@ -170,7 +194,7 @@ const UserListPage = () => {
         field: 'isActive',
         type: 'boolean',
         width: 130,
-        renderCell: (value) => {
+        renderCell: ({ value }) => {
           return <Tag status={StatusTagConvertLabel(value)}>{value ? 'Đang hoạt động' : 'Vô hiệu hóa'}</Tag>;
         },
       },
@@ -191,16 +215,12 @@ const UserListPage = () => {
         renderCell: (params) => {
           return (
             <div>
-              <Tooltip title="Đổi mật khẩu" placement="bottom">
+              <Tooltip title="Vô hiệu" placement="bottom">
                 <Box>
                   <Icon
-                    onClick={() => {
-                      setChangePassWordUserName(params.row.userName);
-                      setChangePassWordId(params.row.id);
-                      handleChangePasswordDialog();
-                    }}
-                    sx={{ cursor: 'pointer', fontSize: 18 }}
-                    icon={'solid-key'}
+                    onClick={() => {}}
+                    sx={{ color: params.row.isActive ? 'error.main' : 'success.main', cursor: 'pointer', fontSize: 18 }}
+                    icon={params.row.isActive ? 'solid-trash' : 'solid-trash-slash'}
                   />
                 </Box>
               </Tooltip>
@@ -229,16 +249,23 @@ const UserListPage = () => {
     setPageState((old) => ({ ...old, page: 1 }));
     setSearchParam(searchValue.searchTerm);
   };
+  const handleAddUserOption = () => {
+    setIsAddAccountOptionsOpen(!isAddAccountOptionsOpen);
+  };
 
-  const handleChangePasswordDialog = () => {
-    setIsChangePasswordOpen(!isChangePasswordOpen);
-    changePasswordReset();
+  const handleImportAccountDialog = () => {
+    if (!isImportAccountOpen) {
+      setHospitalsGetParam({ FilterMode: HospitalFilterEnum.All, Status: true, Page: 1, PageSize: 10, SearchKey: '' });
+    }
+    setIsImportAccountOpen(!isImportAccountOpen);
+
+    importUserReset();
   };
 
   const handleAddUserDialog = () => {
     //When dialog closes, reset the HospitalsGetParam
     if (!isAddUserOpen) {
-      setHospitalsGetParam({ FilterMode: HospitalFilterEnum.All, Page: 1, PageSize: 10, SearchKey: '' });
+      setHospitalsGetParam({ FilterMode: HospitalFilterEnum.All, Status: true, Page: 1, PageSize: 10, SearchKey: '' });
     }
     setIsAddUserOpen(!isAddUserOpen);
 
@@ -265,24 +292,15 @@ const UserListPage = () => {
     setPageState((pre) => ({ ...pre, hospitalId: value?.id || '' }));
   };
 
-  const ChangePasswordSchema = Yup.object().shape({
-    newPassword: Yup.string().required('Vui lòng nhập mật khẩu mới.').matches(PASSWORD_PATTERN, {
-      message:
-        'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-      excludeEmptyString: false,
-    }),
-    confirmPassword: Yup.string()
-      .required('Vui lòng nhập lại mật khẩu.')
-      .matches(PASSWORD_PATTERN, {
-        message:
-          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-        excludeEmptyString: false,
-      })
-      .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
-  });
+  const handleDetailAlertDialog = () => {
+    setIsDetailAlertOpen(!isDetailAlertOpen);
+  };
 
+  const handleFilterStatusChange = (event) => {
+    setStatusFilter(event.target.value);
+  };
   const AddUserSchema = Yup.object().shape({
-    username: Yup.string().required('Vui lòng nhập tên tài khoản').matches(USERNAME_PATTERN, {
+    username: Yup.string().required('Vui lòng nhập tên tài khoản').matches(EMAIL_PATTERN, {
       message: 'Tên tài khoản không hợp lệ',
       excludeEmptyString: false,
     }),
@@ -303,30 +321,26 @@ const UserListPage = () => {
         ];
       })
       .min(1, 'Vui lòng chọn bệnh viện.'),
-    password: Yup.string().required('Vui lòng nhập mật khẩu.').matches(PASSWORD_PATTERN, {
-      message:
-        'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-      excludeEmptyString: false,
-    }),
-    confirmPassword: Yup.string()
-      .required('Vui lòng nhập lại mật khẩu.')
-      .matches(PASSWORD_PATTERN, {
-        message:
-          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-        excludeEmptyString: false,
-      })
-      .oneOf([Yup.ref('password')], 'Xác nhận mật khẩu không trùng khớp.'),
   });
 
-  const {
-    handleSubmit: handleChangePasswordSubmit,
-    control: changePasswordControl,
-    reset: changePasswordReset,
-  } = useForm({
-    resolver: yupResolver(ChangePasswordSchema),
-    mode: 'onChange',
-    defaultValues: { newPassword: '', confirmPassword: '' },
-    reValidateMode: 'onChange',
+  const ImportUserSchema = Yup.object().shape({
+    hospital: Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.string(),
+          name: Yup.string(),
+        })
+      )
+      .transform(function (value, originalValue) {
+        if (originalValue?.length < 1 || !originalValue) return [];
+        return [
+          {
+            id: originalValue?.id,
+            name: originalValue?.name,
+          },
+        ];
+      })
+      .min(1, 'Vui lòng chọn bệnh viện.'),
   });
 
   const {
@@ -336,47 +350,46 @@ const UserListPage = () => {
   } = useForm({
     resolver: yupResolver(AddUserSchema),
     mode: 'onChange',
-    defaultValues: { username: '', hospital: [], password: '', confirmPassword: '', role: roleSelectOption[0].value },
+    defaultValues: { username: '', hospital: [], role: roleSelectOption[0].value },
     reValidateMode: 'onChange',
   });
 
-  const onChangePasswordSubmit = async (data) => {
-    setIsButtonLoading(true);
-
-    try {
-      data.changeMode = 1;
-      data.userId = changePassWordId;
-      await changePassword(data);
-      enqueueSnackbar('Thay đổi mật khẩu thành công', {
-        variant: 'success',
-        persist: false,
-      });
-      changePasswordReset();
-      handleChangePasswordDialog();
-    } catch (error) {
-      enqueueSnackbar(errorHandler(error), {
-        variant: 'error',
-        persist: false,
-      });
-    } finally {
-      setIsButtonLoading(false);
-    }
-  };
+  const {
+    handleSubmit: handleImportUserSubmit,
+    control: importUserControl,
+    reset: importUserReset,
+  } = useForm({
+    resolver: yupResolver(ImportUserSchema),
+    mode: 'onChange',
+    defaultValues: { hospital: [], role: roleSelectOption[0].value },
+    reValidateMode: 'onChange',
+  });
 
   const onAddUserSubmit = async (data) => {
     setIsButtonLoading(true);
     try {
-      await addUser({
-        username: data.username,
-        password: data.password,
+      const response = await addUser({
         role: data.role * 1,
         hospitalId: data.hospital[0].id * 1,
+        accounts: [
+          {
+            username: data.username,
+          },
+        ],
       });
 
-      enqueueSnackbar('Tạo tài khoản thành công', {
-        variant: 'success',
-        persist: false,
-      });
+      if (response.failedList.length <= 0) {
+        enqueueSnackbar('Tạo tài khoản thành công', {
+          variant: 'success',
+          persist: false,
+        });
+      } else {
+        enqueueSnackbar(convertErrorCodeToMessage(response.failedList[0].errorCode), {
+          variant: 'error',
+          persist: false,
+        });
+      }
+
       handleAddUserDialog();
       fetchUserListData();
       addUserReset();
@@ -390,32 +403,37 @@ const UserListPage = () => {
     }
   };
 
-  const changePasswordDialogContent = () => {
+  const addUserOptionDialogContent = () => {
     return (
       <Box>
-        <form onSubmit={handleChangePasswordSubmit(onChangePasswordSubmit)}>
-          <RHFPasswordInput
-            label="Mật khẩu mới"
-            name="newPassword"
-            control={changePasswordControl}
-            placeholder="Nhập mật khẩu mới"
-            isRequiredLabel={true}
-          />
-          <RHFPasswordInput
-            label="Nhập lại mật khẩu"
-            name="confirmPassword"
-            control={changePasswordControl}
-            placeholder="Nhập lại mật khẩu"
-            isRequiredLabel={true}
-          />
-          <Stack>
-            <Box sx={{ marginLeft: 'auto', marginTop: '20px' }}>
-              <LoadingButton variant="contained" type="submit" loading={isButtonLoading}>
-                Cập nhật
-              </LoadingButton>
-            </Box>
+        <Stack gap={3}>
+          <Button
+            startIcon={<Icon icon="solid-pen-line" />}
+            variant="contained"
+            onClick={() => {
+              handleAddUserOption();
+              handleAddUserDialog();
+            }}
+          >
+            Tạo bằng cách nhập
+          </Button>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Divider sx={{ width: '40%' }} />
+            <Typography>Hoặc</Typography>
+            <Divider sx={{ width: '40%' }} />
           </Stack>
-        </form>
+
+          <Button
+            startIcon={<Icon icon="solid-upload-alt" />}
+            variant="contained"
+            onClick={() => {
+              handleAddUserOption();
+              handleImportAccountDialog();
+            }}
+          >
+            Tạo tài khoản nhân viên y tế từ file
+          </Button>
+        </Stack>
       </Box>
     );
   };
@@ -424,48 +442,33 @@ const UserListPage = () => {
     return (
       <Box>
         <form onSubmit={handleAddUserSubmit(onAddUserSubmit)}>
-          <Stack direction="row" spacing={2}>
-            <RHFAsyncAutoComplete
-              isLazyLoad={true}
-              name="hospital"
-              control={addUserControl}
-              label="Bệnh viện"
-              isRequiredLabel={true}
-              list={hospitals}
-              onInput={handleSearchHospitalOnAutocomplete}
-              onScrollToBottom={handleScrollToBottom}
-              paramsCompare="id"
-              getOptionLabel={(option) => {
-                return option?.name || '';
-              }}
-            />
-            <RHFSelect name="role" label="Vai trò" control={addUserControl} isRequiredLabel={true}>
-              {roleSelectOption.map((option, i) => (
-                <option key={i} value={option?.value}>
-                  {option?.label}
-                </option>
-              ))}
-            </RHFSelect>
-          </Stack>
+          <RHFAsyncAutoComplete
+            isLazyLoad={true}
+            name="hospital"
+            control={addUserControl}
+            label="Bệnh viện"
+            isRequiredLabel={true}
+            list={hospitals}
+            onInput={handleSearchHospitalOnAutocomplete}
+            onScrollToBottom={handleScrollToBottom}
+            paramsCompare="id"
+            getOptionLabel={(option) => {
+              return option?.name || '';
+            }}
+          />
+          <RHFSelect name="role" label="Vai trò" control={addUserControl} isRequiredLabel={true}>
+            {roleSelectOption.map((option, i) => (
+              <option key={i} value={option?.value}>
+                {option?.label}
+              </option>
+            ))}
+          </RHFSelect>
+
           <RHFInput
             label="Tên tài khoản"
             name="username"
             control={addUserControl}
-            placeholder="Nhập mật khẩu"
-            isRequiredLabel={true}
-          />
-          <RHFPasswordInput
-            label="Mật khẩu"
-            name="password"
-            control={addUserControl}
-            placeholder="Nhập mật khẩu"
-            isRequiredLabel={true}
-          />
-          <RHFPasswordInput
-            label="Nhập lại mật khẩu"
-            name="confirmPassword"
-            control={addUserControl}
-            placeholder="Nhập lại mật khẩu"
+            placeholder="Nhập tên tài khoản"
             isRequiredLabel={true}
           />
           <Stack>
@@ -477,6 +480,109 @@ const UserListPage = () => {
           </Stack>
         </form>
       </Box>
+    );
+  };
+
+  const getDataFromFile = (values, disabledBtn) => {
+    setImportParams([]);
+    setImportParams(values);
+    setIsImportBtnDisabled(disabledBtn);
+  };
+
+  const onSubmitImport = async (data) => {
+    setIsButtonLoading(true);
+
+    try {
+      setIsMultipleAlertOpen(false);
+      const response = await addUser({
+        role: RoleEnum.Staff.value,
+        hospitalId: data.hospital[0].id * 1,
+        accounts: importParams,
+      });
+
+      const mappingSuccessList = response?.successList.map((data) => ({
+        data,
+      }));
+
+      const mappingDateFailList = response?.failedList.map((data) => ({
+        errorCode: data?.errorCode,
+        data: { data: data.data, index: data?.index },
+      }));
+
+      setAlertResult({ successList: mappingSuccessList, failedList: mappingDateFailList });
+      setIsMultipleAlertOpen(true);
+      handleImportAccountDialog();
+      fetchUserListData();
+    } catch (error) {
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
+    } finally {
+      setIsButtonLoading(false);
+    }
+  };
+
+  const importAccountDialogContent = () => {
+    return (
+      <form onSubmit={handleImportUserSubmit(onSubmitImport)}>
+        <RHFAsyncAutoComplete
+          isLazyLoad={true}
+          name="hospital"
+          control={importUserControl}
+          label="Bệnh viện"
+          isRequiredLabel={true}
+          list={hospitals}
+          onInput={handleSearchHospitalOnAutocomplete}
+          onScrollToBottom={handleScrollToBottom}
+          paramsCompare="id"
+          getOptionLabel={(option) => {
+            return option?.name || '';
+          }}
+        />
+
+        <Stack spacing={3} sx={{ height: '100%' }}>
+          <AccountImport label="Kéo thả hoặc nhấn vào để chọn file" onImport={getDataFromFile} />
+
+          <DownloadLink ref={downloadRef} download />
+          <Stack direction="row" justifyContent="space-between">
+            <Button
+              sx={{ width: '150px' }}
+              startIcon={<Icon icon="solid-file-download" />}
+              onClick={async () => {
+                try {
+                  await handleDownloadTemplate('template_import/account_template.csv', downloadRef);
+                } catch (error) {
+                  switch (error.code) {
+                    case 'storage/object-not-found':
+                      enqueueSnackbar('Không tìm thấy tệp tin để tải về, Vui lòng liên hệ quản trị viên', {
+                        variant: 'error',
+                        persist: false,
+                      });
+                      break;
+
+                    case 'storage/unknown':
+                      // Unknown error occurred, inspect the server response
+                      break;
+                    default: {
+                    }
+                  }
+                }
+              }}
+            >
+              Tải file mẫu
+            </Button>
+            <DialogButtonGroupStyle>
+              <Box>
+                <Button onClick={handleImportAccountDialog}>Hủy</Button>
+              </Box>
+              <LoadingButton loading={isButtonLoading} disabled={isImportBtnDisabled} type="submit" variant="contained">
+                Thêm
+              </LoadingButton>
+            </DialogButtonGroupStyle>
+          </Stack>
+        </Stack>
+      </form>
     );
   };
 
@@ -494,6 +600,7 @@ const UserListPage = () => {
         Role: pageState.filterMode,
         HospitalId: pageState.hospitalId,
         SearchKey: searchParam,
+        ...(statusFilter > 0 && { IsActive: statusFilter === 1 }),
         Page: pageState.page,
         PageSize: pageState.pageSize,
       };
@@ -528,7 +635,7 @@ const UserListPage = () => {
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
     }
-  }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId]);
+  }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId, statusFilter]);
 
   useEffect(() => {
     fetchUserListData();
@@ -538,7 +645,7 @@ const UserListPage = () => {
     const data = await getHospitalsList(hospitalFilterParam);
 
     const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
-    setFilterHospitals(mappingData);
+    setFilterHospitals(mappingData || []);
   }, [hospitalFilterParam.PageSize, hospitalFilterParam.SearchKey]);
 
   useEffect(() => {
@@ -546,17 +653,19 @@ const UserListPage = () => {
   }, [fetchFilterHospitals]);
 
   const fetchHospitals = useCallback(async () => {
-    if (!isAddUserOpen) return;
-    const data = await getHospitalsList(hospitalGetParam);
+    if (isAddUserOpen || isImportAccountOpen) {
+      const data = await getHospitalsList(hospitalGetParam);
 
-    const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
+      const mappingData = data?.items.map((item) => ({ id: item.id, name: item.name }));
 
-    setHospitals(mappingData);
-  }, [hospitalGetParam.PageSize, hospitalGetParam.SearchKey, isAddUserOpen]);
+      setHospitals(mappingData || []);
+    }
+  }, [hospitalGetParam.PageSize, hospitalGetParam.SearchKey, isAddUserOpen, isImportAccountOpen]);
 
   useEffect(() => {
     fetchHospitals();
   }, [fetchHospitals]);
+
   return (
     <>
       <HeaderMainStyle>
@@ -569,7 +678,7 @@ const UserListPage = () => {
         />
 
         {isAdmin && (
-          <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserDialog}>
+          <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={handleAddUserOption}>
             Tạo tài khoản
           </Button>
         )}
@@ -586,18 +695,54 @@ const UserListPage = () => {
 
           <InputFilterSectionStyle>
             {pageState.filterMode !== FilterRoleEnum.Volunteer.value && (
-              <AsyncAutocompleteFilter
-                sx={{ width: '50%' }}
-                placeholder="Nhập tên bệnh viện"
-                onInput={handleSearchHospitalToFilter}
-                onSelect={handleChooseHospital}
-                list={filterHospitals}
-                isLazyLoad={true}
-                onScrollToBottom={handleScrollToBottomToFilter}
-                getOptionLabel={(option) => {
-                  return option?.name || '';
-                }}
-              />
+              <>
+                <Box>
+                  <Select
+                    renderValue={(selected) => {
+                      if (selected.length === 0) {
+                        return 'Chọn trạng thái';
+                      }
+
+                      return userStatusOption.find((option) => option.value === selected).name;
+                    }}
+                    sx={{ minWidth: 200 }}
+                    name={'status'}
+                    select={'true'}
+                    value={statusFilter}
+                    onChange={handleFilterStatusChange}
+                    displayEmpty
+                  >
+                    {userStatusOption?.map((option) => (
+                      <MenuItem
+                        sx={{ cursor: 'pointer', mb: 1, px: 3, py: 1.5 }}
+                        key={option?.value}
+                        value={option?.value}
+                      >
+                        {option?.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+                <AsyncAutocompleteFilter
+                  sx={{ width: '50%' }}
+                  placeholder="Chọn bệnh viện"
+                  onInput={handleSearchHospitalToFilter}
+                  onSelect={handleChooseHospital}
+                  list={filterHospitals || []}
+                  isLazyLoad={true}
+                  onScrollToBottom={handleScrollToBottomToFilter}
+                  renderOption={(props, option) => {
+                    return (
+                      <li {...props} key={option.id}>
+                        {option.name}
+                      </li>
+                    );
+                  }}
+                  getOptionLabel={(option) => {
+                    return option?.name || '';
+                  }}
+                />
+              </>
             )}
 
             <SearchBar
@@ -617,13 +762,13 @@ const UserListPage = () => {
           disableFilter={true}
         />
 
-        {/* Change Password Dialog */}
+        {/* Add User Option Dialog */}
         <CustomDialog
-          isOpen={isChangePasswordOpen}
-          onClose={handleChangePasswordDialog}
-          title={`Đổi mật khẩu cho tài khoản ${changePassWordUserName}`}
-          children={changePasswordDialogContent()}
-          sx={{ '& .MuiDialog-paper': { width: '70%', maxHeight: '500px' } }}
+          isOpen={isAddAccountOptionsOpen}
+          onClose={handleAddUserOption}
+          title={'Tạo tài khoản'}
+          children={addUserOptionDialogContent()}
+          sx={{ '& .MuiDialog-paper': { width: '70%' } }}
         />
 
         {/* Add User Dialog */}
@@ -634,7 +779,39 @@ const UserListPage = () => {
           children={addUserDialogContent()}
           sx={{ '& .MuiDialog-paper': { width: '70%' } }}
         />
+
+        {/* Import User Dialog */}
+        <CustomDialog
+          isOpen={isImportAccountOpen}
+          onClose={handleImportAccountDialog}
+          title={'Tạo tài khoản nhân viên y tế từ file'}
+          children={importAccountDialogContent()}
+          sx={{ '& .MuiDialog-paper': { width: '70%' } }}
+        />
       </Box>
+
+      {isMultipleAlertOpen && (
+        <MultipleAlertSnackBar
+          onClose={() => {
+            setIsMultipleAlertOpen(false);
+          }}
+          isOpen={isMultipleAlertOpen}
+          numberOfSuccess={alertResult?.successList.length}
+          numberOfFailure={alertResult?.failedList.length}
+          onClick={handleDetailAlertDialog}
+        />
+      )}
+
+      {/* Detail alerts dialog */}
+      <DetailAlertDialog
+        isOpen={isDetailAlertOpen}
+        onClose={handleDetailAlertDialog}
+        title={'Chi tiết kết quả'}
+        successList={alertResult?.successList || []}
+        failedList={alertResult?.failedList || []}
+        columns={[{ name: 'Tài khoản', field: 'data' }]}
+        sx={{ '& .MuiDialog-paper': { width: '80% !important', maxHeight: '600px' } }}
+      />
     </>
   );
 };

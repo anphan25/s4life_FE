@@ -44,6 +44,7 @@ export const DetailAlertDialog = ({ onClose, successList, failedList, title, sx,
   const failedFields = [{ name: 'STT', field: 'index' }, ...columns].map((item) => item.field);
 
   const errorCodeGroupedData = groupDataByErrorCode(failedList);
+
   const errorCodeKeys = Object.keys(errorCodeGroupedData);
 
   return (
