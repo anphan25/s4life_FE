@@ -347,12 +347,18 @@ const EventFixedListPage = () => {
   const alertEditCancelDialogContent = () => {
     return (
       <Box>
-        <Typography>
-          Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-        </Typography>
-        <Typography sx={{ marginTop: '10px' }}>
-          Vui lòng liên hệ quản trị viên nếu bạn muốn hủy vô điều kiện.
-        </Typography>
+        {isAdmin ? (
+          <Typography>Chỉ được hủy sự khi sự kiện không có tình nguyện viên đăng ký.</Typography>
+        ) : (
+          <>
+            <Typography>
+              Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
+            </Typography>
+            <Typography sx={{ marginTop: '10px' }}>
+              Vui lòng liên hệ quản trị viên nếu bạn muốn hủy vô điều kiện.
+            </Typography>
+          </>
+        )}
 
         <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button

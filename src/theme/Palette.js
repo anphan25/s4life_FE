@@ -21,6 +21,7 @@ export const palette = {
     light: alpha('#2BC155', 0.08),
     main: '#2BC155',
   },
+
   grey: {
     0: '#FFFFFF',
     50: alpha('#EAEEF9', 0.2),
