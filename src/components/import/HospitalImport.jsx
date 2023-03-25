@@ -13,7 +13,6 @@ import {
   PHONE_NUMBER_PATTERN,
 } from 'utils';
 
-
 export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
@@ -92,7 +91,15 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       case 'invalid-phone-number': {
         return 'Số điện thoại không hợp lệ';
       }
-      
+
+      case 'invalid-longitude': {
+        return 'Kinh độ không hợp lệ';
+      }
+
+      case 'invalid-latitude': {
+        return 'Vĩ độ không hợp lệ';
+      }
+
       case 'too-much-record': {
         return 'Khi chỉnh sửa chỉ cần 1 dòng thông tin';
       }
@@ -206,6 +213,17 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
           }
         }
 
+        if (property === 'longitude') {
+          if (Math.abs(data[property]) < -180 || Math.abs(data[property]) > 180) {
+            displayInvalidFileContent('invalid-longitude');
+          }
+        }
+
+        if (property === 'latitude') {
+          if (Math.abs(data[property]) < -90 || Math.abs(data[property]) > 90) {
+            displayInvalidFileContent('invalid-latitude');
+          }
+        }
       }
     });
   };
@@ -327,6 +345,8 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
         validateCSVFileContent(hospitalData);
+
+        console.log('hospitalData', hospitalData);
         if (tempErrorFileContent.length > 0) {
           onImport([], true);
           setSelectedFile(null);
