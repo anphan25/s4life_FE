@@ -12,7 +12,7 @@ import {
 } from 'components';
 import { getEvents, cancelEvent } from 'api';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   formatDate,
@@ -43,6 +43,7 @@ const EventFixedListPage = () => {
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
+  const location = useLocation();
   const [pageState, setPageState] = useState({
     isLoading: false,
     total: 0,
@@ -50,7 +51,7 @@ const EventFixedListPage = () => {
     page: 1,
     pageSize: 10,
     filterMode: EventFilterEnum.FilterAndSearch,
-    status: EventStatusEnum.Unstarted.value,
+    status: location.state.isStarted ? EventStatusEnum.Started.value : EventStatusEnum.Unstarted.value,
     searchKey: '',
     dateFrom: null,
     dateTo: null,

@@ -69,7 +69,6 @@ export const Sidebar = ({ toggle, onClose }) => {
 
   const sidebarModerator = [
     { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
-    { name: 'Quản lý bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/list' },
     {
       name: 'Quản lý sự kiện',
       icon: <Icon icon="coupon-star" />,

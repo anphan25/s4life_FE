@@ -183,7 +183,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       }
 
       setTimeout(() => {
-        navigate('/event/fixed-list');
+        navigate('/event/fixed-list', { state: { isStarted: isEmergency } });
       }, [1500]);
     } catch (error) {
       enqueueSnackbar(errorHandler(error), {
@@ -559,9 +559,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                       placeholder="Chọn địa điểm"
                       onInput={handleLocationSearch}
                       onSelect={handleSelectLocation}
-                      getOptionLabel={(option) => {
-                        return option?.name || '';
-                      }}
                       renderOption={(props, option) => (
                         <MenuItem key={uuidv4()} value={option} {...props}>
                           <Stack>
@@ -584,6 +581,9 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                           </Stack>
                         </MenuItem>
                       )}
+                      getOptionLabel={(option) => {
+                        return option?.name || '';
+                      }}
                     />
                   </Box>
 

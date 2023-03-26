@@ -14,6 +14,7 @@ import {
   FormControlLabel,
   Tooltip,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import { CustomDialog, RHFUploadImage, HospitalImport, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -56,10 +57,11 @@ const HospitalInfoPage = () => {
   const { hospitalId } = useParams();
   const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
   const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
+  const [isSwitchLoading, setIsSwitchLoading] = useState(false);
 
   const downloadRef = useRef();
 
-  const isEmployee = user.role === RoleEnum.Employee.name;
+  const isManager = user.role === RoleEnum.Manager.name;
 
   const PlaceholderStyle = styled('div')(({ theme }) => ({
     opacity: 0,
@@ -79,7 +81,7 @@ const HospitalInfoPage = () => {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.shorter,
     }),
-    '&:hover': { opacity: !isEmployee ? 0 : 0.72 },
+    '&:hover': { opacity: !isManager ? 0 : 0.72 },
   }));
 
   const handleUpdateHospitalDialog = () => {
@@ -296,7 +298,7 @@ const HospitalInfoPage = () => {
 
   //Format to HH:mm:ss - HH:mm:ss
   const formatWorkingTimeValue = (dayObject) => {
-    return `${dayObject.startTime} - ${dayObject.endTime}`;
+    return `${moment(dayObject.startTime).format('HH:mm')} - ${moment(dayObject.endTime).format('HH:mm')}`;
   };
 
   const getWorkingTimeOfADay = (arr, day) => {
@@ -368,7 +370,7 @@ const HospitalInfoPage = () => {
   };
 
   const handleSwitchChange = async (e) => {
-    console.log(e.target.checked);
+    setIsSwitchLoading(true);
     if (e.target.checked) {
       await editHospital({
         hospitalConfig: {
@@ -383,7 +385,7 @@ const HospitalInfoPage = () => {
         },
       });
     }
-
+    setIsSwitchLoading(false);
     fetchHospitalInfoData();
   };
 
@@ -422,7 +424,7 @@ const HospitalInfoPage = () => {
           ]}
         />
 
-        {isEmployee && (
+        {isManager && (
           <Button
             startIcon={<Icon icon="solid-pen-line" />}
             variant="contained"
@@ -437,7 +439,7 @@ const HospitalInfoPage = () => {
           <Item>
             <LeftContainer>
               <HospitalImgStyle>
-                <PlaceholderStyle onClick={user?.role !== 'Employee' ? null : handleUpdateHospitalImgDialog}>
+                <PlaceholderStyle onClick={isManager && handleUpdateHospitalImgDialog}>
                   <Icon icon="solid-camera" />
                   <Typography variant="caption">Cập nhật ảnh</Typography>
                 </PlaceholderStyle>
@@ -477,80 +479,96 @@ const HospitalInfoPage = () => {
         </Grid>
         <Grid item md={4} sm={6} xs={12}>
           <Item sx={{ textAlign: 'left' }}>
-            {user?.role === 'Employee' && (
-              <Box>
-                <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={hospitalData?.hospitalConfig?.autoGenerateScheduledEvent}
-                        onChange={handleSwitchChange}
-                      />
-                    }
-                    label="Tự động tạo sự kiện theo lịch"
-                  />
-                </FormControl>
-                <Tooltip
-                  title={`Khi bật sẽ tự động tạo sự kiện theo lịch cho tuần sau vào cuối ngày chủ nhật tuần này`}
-                >
-                  <IconButton>
-                    <Icon icon="solid-info-circle" sx={{ color: 'info.main', width: '20px', height: '20px' }} />
-                  </IconButton>
-                </Tooltip>
+            {isSwitchLoading ? (
+              <Box height="460px">
+                <CircularProgress sx={{ marginTop: '60%', marginLeft: '45%' }} />
               </Box>
-            )}
-
-            <Stack direction={'row'} alignItems="center">
-              <Avatar sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}>
-                <Icon icon="clock" />
-              </Avatar>
-              <Typography fontSize={16} fontWeight={600}>
-                Lịch làm việc
-              </Typography>
-            </Stack>
-            <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
-              {mappingHospitalSchedule(hospitalData?.openingTime)?.map((item, i) => (
-                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={i}>
-                  <Typography fontWeight={600} fontSize={14}>
-                    {convertDayLabel(item?.day)}
-                  </Typography>
-                  <Box key={item.id}>
-                    {item?.isEnabled ? (
-                      <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'grey.700' }} key={item.id}>
-                        <Typography
-                          fontSize={14}
-                          sx={{
-                            padding: '4px 12px',
-                            border: '1px solid',
-                            borderColor: 'grey.300',
-                            borderRadius: '4px',
-                          }}
-                        >
-                          {moment(item?.startTime, 'HH:mm').format('HH:mm')}
-                        </Typography>
-                        <Typography fontSize={14}>đến</Typography>
-                        <Typography
-                          fontSize={14}
-                          sx={{
-                            padding: '4px 12px',
-                            border: '1px solid',
-                            borderColor: 'grey.300',
-                            borderRadius: '4px',
-                          }}
-                        >
-                          {moment(item?.endTime, 'HH:mm').format('HH:mm')}
-                        </Typography>
-                      </Stack>
-                    ) : (
-                      <Typography fontSize={14} sx={{ color: 'error.main' }}>
-                        Đóng cửa
-                      </Typography>
-                    )}
+            ) : (
+              <>
+                {isManager && (
+                  <Box>
+                    <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            color="primary"
+                            checked={hospitalData?.hospitalConfig?.autoGenerateScheduledEvent}
+                            onChange={handleSwitchChange}
+                          />
+                        }
+                        label="Tự động tạo sự kiện theo lịch"
+                      />
+                    </FormControl>
+                    <Tooltip
+                      title={`Khi bật sẽ tự động tạo sự kiện theo lịch cho tuần sau vào cuối ngày chủ nhật tuần này`}
+                    >
+                      <IconButton>
+                        <Icon icon="solid-info-circle" sx={{ color: 'info.main', width: '20px', height: '20px' }} />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
+                )}
+
+                <Stack direction={'row'} alignItems="center">
+                  <Avatar
+                    sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}
+                  >
+                    <Icon icon="clock" />
+                  </Avatar>
+                  <Typography fontSize={16} fontWeight={600}>
+                    Lịch làm việc
+                  </Typography>
                 </Stack>
-              ))}
-            </Stack>
+                <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
+                  {mappingHospitalSchedule(hospitalData?.openingTime)?.map((item, i) => (
+                    <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={i}>
+                      <Typography fontWeight={600} fontSize={14}>
+                        {convertDayLabel(item?.day)}
+                      </Typography>
+                      <Box key={item.id}>
+                        {item?.isEnabled ? (
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                            sx={{ color: 'grey.700' }}
+                            key={item.id}
+                          >
+                            <Typography
+                              fontSize={14}
+                              sx={{
+                                padding: '4px 12px',
+                                border: '1px solid',
+                                borderColor: 'grey.300',
+                                borderRadius: '4px',
+                              }}
+                            >
+                              {moment(item?.startTime, 'HH:mm').format('HH:mm')}
+                            </Typography>
+                            <Typography fontSize={14}>đến</Typography>
+                            <Typography
+                              fontSize={14}
+                              sx={{
+                                padding: '4px 12px',
+                                border: '1px solid',
+                                borderColor: 'grey.300',
+                                borderRadius: '4px',
+                              }}
+                            >
+                              {moment(item?.endTime, 'HH:mm').format('HH:mm')}
+                            </Typography>
+                          </Stack>
+                        ) : (
+                          <Typography fontSize={14} sx={{ color: 'error.main' }}>
+                            Đóng cửa
+                          </Typography>
+                        )}
+                      </Box>
+                    </Stack>
+                  ))}
+                </Stack>
+              </>
+            )}
           </Item>
         </Grid>
       </Grid>
