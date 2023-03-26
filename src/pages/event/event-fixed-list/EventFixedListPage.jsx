@@ -51,7 +51,7 @@ const EventFixedListPage = () => {
     page: 1,
     pageSize: 10,
     filterMode: EventFilterEnum.FilterAndSearch,
-    status: location.state.isStarted ? EventStatusEnum.Started.value : EventStatusEnum.Unstarted.value,
+    status: location?.state?.isStarted ? EventStatusEnum.Started.value : EventStatusEnum.Unstarted.value,
     searchKey: '',
     dateFrom: null,
     dateTo: null,
