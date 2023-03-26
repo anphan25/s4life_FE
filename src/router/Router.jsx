@@ -172,7 +172,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Moderator', 'Admin']}>
+                <ProtectedRouter roles={['Admin']}>
                   <HospitalListPage />
                 </ProtectedRouter>
               ),
@@ -180,7 +180,7 @@ export default function Router() {
             {
               path: ':hospitalId',
               element: (
-                <ProtectedRouter roles={['Employee', 'Moderator', 'Admin', 'Manager']}>
+                <ProtectedRouter roles={['Employee', 'Admin', 'Manager']}>
                   <HospitalInfoPage />
                 </ProtectedRouter>
               ),
