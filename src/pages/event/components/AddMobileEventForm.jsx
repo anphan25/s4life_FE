@@ -236,7 +236,7 @@ const AddMobileEventForm = () => {
     province: Yup.array()
       .of(
         Yup.object().shape({
-          id: Yup.number().required('Vui lòng chọn tỉnh thành'),
+          id: Yup.number(),
           name: Yup.string(),
         })
       )
@@ -263,8 +263,7 @@ const AddMobileEventForm = () => {
   const { handleSubmit, control, resetField } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues,
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onSubmit',
   });
 
   const onSubmit = async (data) => {
