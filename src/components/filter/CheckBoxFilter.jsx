@@ -48,7 +48,7 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, ...props }) 
           }}
         >
           {options.map(({ label, value }) => (
-            <MenuItem key={value} value={value}>
+            <MenuItem key={value} value={value} sx={{ p: '2px' }}>
               <Checkbox checked={values?.indexOf(value) > -1} />
               <ListItemText primary={label} />
             </MenuItem>
