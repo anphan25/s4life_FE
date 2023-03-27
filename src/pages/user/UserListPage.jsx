@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select } from '@mui/material';
+import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select, ListItemText } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -458,9 +458,9 @@ const UserListPage = () => {
           />
           <RHFSelect name="role" label="Vai trò" control={addUserControl} isRequiredLabel={true}>
             {roleSelectOption.map((option, i) => (
-              <option key={i} value={option?.value}>
+              <MenuItem key={i} value={option?.value}>
                 {option?.label}
-              </option>
+              </MenuItem>
             ))}
           </RHFSelect>
 

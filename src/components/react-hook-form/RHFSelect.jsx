@@ -19,7 +19,7 @@ export const RHFSelect = ({ name, control, label, children, isRequiredLabel, ...
             id={name}
             name={name}
             select
-            SelectProps={{ native: true }}
+            //SelectProps={{ native: true }}
             fullWidth
             error={!!error}
             helperText={error?.message?.toString()}
