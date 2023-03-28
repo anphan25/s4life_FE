@@ -1,9 +1,11 @@
-import { Select, Checkbox, FormControl, ListItemText, MenuItem, Box } from '@mui/material';
+import { Select, Checkbox, FormControl, ListItemText, MenuItem, Box, TextField } from '@mui/material';
 import { useState, useRef } from 'react';
 
 // Model of options: [{label:..., value:...},...]
 export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, ...props }) => {
   const [values, setValues] = useState([]);
+  const [checkboxOptions, setCheckboxOptions] = useState(options);
+  const [searchValue, setSearchValue] = useState('');
   const checkingTimeoutRef = useRef(null);
 
   const handleChange = (event) => {
@@ -25,13 +27,25 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, ...props }) 
 
   const convertValueToLabel = (list) => {
     return list.map((item) => {
-      return options.find(({ value }) => value === item).label;
+      return checkboxOptions.find(({ value }) => value === item).label;
     });
+  };
+
+  const handleSearch = (e) => {
+    setSearchValue(e.target.value);
+
+    console.log(
+      'checkboxOptions.filter((option) => option.label.includes(searchValue))',
+      checkboxOptions.filter((option) => option.label.includes(searchValue))
+    );
+
+    setCheckboxOptions(checkboxOptions.filter((option) => option.label.includes(searchValue)));
   };
 
   return (
     <Box sx={sx}>
       <FormControl sx={{ width: '100%' }}>
+        <TextField value={searchValue} onChange={handleSearch} />
         <Select
           {...props}
           displayEmpty={true}
@@ -47,8 +61,8 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, ...props }) 
             handleChange(e);
           }}
         >
-          {options.map(({ label, value }) => (
-            <MenuItem key={value} value={value} sx={{ p: '2px' }}>
+          {checkboxOptions.map(({ label, value }) => (
+            <MenuItem key={value} value={value}>
               <Checkbox checked={values?.indexOf(value) > -1} />
               <ListItemText primary={label} />
             </MenuItem>

@@ -78,13 +78,19 @@ const UserListPage = () => {
     PageSize: 10,
     SearchKey: '',
   });
-  const [isAddAccountOptionsOpen, setIsAddAccountOptionsOpen] = useState(false);
+
   const [isImportAccountOpen, setIsImportAccountOpen] = useState(false);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [importParams, setImportParams] = useState([]);
   const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
   const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
   const [alertResult, setAlertResult] = useState(null);
+  const [isAddAccountOptionsOpen, setIsAddAccountOptionsOpen] = useState(false);
+  const [disableName, setDisableName] = useState('');
+  const [activateName, setActivateName] = useState('');
+  const [isDisableAccountOpen, setIsDisableAccountOpen] = useState(false);
+  const [isActivateAccountOpen, setIsActivateAccountOpen] = useState(false);
+
   const userStatusOption = [
     { name: 'Tất cả', value: 0 },
     { name: 'Đang hoạt động', value: 1 },
@@ -218,9 +224,17 @@ const UserListPage = () => {
               <Tooltip title="Vô hiệu" placement="bottom">
                 <Box>
                   <Icon
-                    onClick={() => {}}
+                    onClick={() => {
+                      if (params.row.isActive) {
+                        setDisableName(params.row.userName);
+                        handleDisableAccountDialog();
+                      } else {
+                        setActivateName(params.row.userName);
+                        handleActivateAccountDialog();
+                      }
+                    }}
                     sx={{ color: params.row.isActive ? 'error.main' : 'success.main', cursor: 'pointer', fontSize: 18 }}
-                    icon={params.row.isActive ? 'solid-trash' : 'solid-trash-slash'}
+                    icon={params.row.isActive ? 'solid-user-slash' : 'solid-user-check'}
                   />
                 </Box>
               </Tooltip>
@@ -241,7 +255,19 @@ const UserListPage = () => {
   };
 
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, filterMode: value, page: 1, pageSize: 10 }));
+    setPageState((old) => ({
+      ...old,
+      filterMode: value,
+      page: 1,
+      pageSize: 10,
+      ...(value === FilterRoleEnum.Volunteer.value && { hospitalId: '' }), // If role is volunteer, filter param for other role will reset
+    }));
+
+    if (value === FilterRoleEnum.Volunteer.value) {
+      setStatusFilter(0);
+      setHospitalsFilterParam((pre) => ({ ...pre, SearchKey: '' }));
+    }
+
     setSearchParam('');
   };
 
@@ -299,6 +325,14 @@ const UserListPage = () => {
   const handleFilterStatusChange = (event) => {
     setStatusFilter(event.target.value);
   };
+
+  const handleDisableAccountDialog = () => {
+    setIsDisableAccountOpen(!isDisableAccountOpen);
+  };
+  const handleActivateAccountDialog = () => {
+    setIsActivateAccountOpen(!isActivateAccountOpen);
+  };
+
   const AddUserSchema = Yup.object().shape({
     username: Yup.string().required('Vui lòng nhập tên tài khoản').matches(EMAIL_PATTERN, {
       message: 'Tên tài khoản không hợp lệ',
@@ -586,6 +620,76 @@ const UserListPage = () => {
     );
   };
 
+  const disableAccountDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Bạn có chắc chắn muốn vô hiệu <b>{disableName}</b> không ?
+        </Typography>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button onClick={handleDisableAccountDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setIsButtonLoading(true);
+              try {
+                // await disableHospital(disableHospitalId);
+                await fetchUserListData();
+              } catch (error) {
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
+              } finally {
+                handleDisableAccountDialog();
+                setIsButtonLoading(false);
+              }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Vô Hiệu
+          </LoadingButton>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
+  const activateAccountDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Bạn có chắc chắn muốn kích hoạt <b>{activateName}</b> không ?
+        </Typography>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button onClick={handleActivateAccountDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setIsButtonLoading(true);
+              try {
+                // await enableHospital(enableHospitalId);
+                await fetchUserListData();
+              } catch (error) {
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
+              } finally {
+                handleActivateAccountDialog();
+                setIsButtonLoading(false);
+              }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Kích hoạt
+          </LoadingButton>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
   const fetchUserListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
     try {
@@ -786,10 +890,9 @@ const UserListPage = () => {
           onClose={handleImportAccountDialog}
           title={'Tạo tài khoản nhân viên y tế từ file'}
           children={importAccountDialogContent()}
-          sx={{ '& .MuiDialog-paper': { width: '70%' } }}
+          sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
         />
       </Box>
-
       {isMultipleAlertOpen && (
         <MultipleAlertSnackBar
           onClose={() => {
@@ -801,7 +904,6 @@ const UserListPage = () => {
           onClick={handleDetailAlertDialog}
         />
       )}
-
       {/* Detail alerts dialog */}
       <DetailAlertDialog
         isOpen={isDetailAlertOpen}
@@ -811,6 +913,24 @@ const UserListPage = () => {
         failedList={alertResult?.failedList || []}
         columns={[{ name: 'Tài khoản', field: 'data' }]}
         sx={{ '& .MuiDialog-paper': { width: '80% !important', maxHeight: '600px' } }}
+      />
+      {/* 
+
+      {/* Disable User Dialog */}
+      <CustomDialog
+        isOpen={isDisableAccountOpen}
+        onClose={handleDisableAccountDialog}
+        title={'Vô hiệu tài khoản'}
+        children={disableAccountDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%' } }}
+      />
+      {/* Activate User Dialog */}
+      <CustomDialog
+        isOpen={isActivateAccountOpen}
+        onClose={handleActivateAccountDialog}
+        title={'Kích hoạt tài khoản'}
+        children={activateAccountDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%' } }}
       />
     </>
   );
