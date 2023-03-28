@@ -21,6 +21,11 @@ export default function Router() {
       index: true,
     },
     {
+      path: 'change-password',
+      element: <PublicChangePassword />,
+      index: true,
+    },
+    {
       path: '/',
       element: (
         <AuthRouter>
@@ -273,3 +278,6 @@ const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')))
 //blood-donation-approval-request
 const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalListPage')));
 const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval-request/components/ApprovalDetail')));
+
+//public change password
+const PublicChangePassword = Loadable(lazy(() => import('pages/account/PublicChangePasswordPage')));
