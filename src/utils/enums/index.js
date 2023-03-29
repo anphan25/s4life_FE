@@ -13,3 +13,4 @@ export * from './EventRegistrationStatusEnum';
 export * from './EventRegistrationOperationEnum';
 export * from './StatisticFilterModeEnum';
 export * from './RoleEnum';
+export * from './UserStatusEnum';

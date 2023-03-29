@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select, ListItemText } from '@mui/material';
+import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -34,13 +34,15 @@ import {
   EMAIL_PATTERN,
   convertErrorCodeToMessage,
 } from 'utils';
-import { getUsers, getHospitalsList, addUser } from 'api';
+import { getUsers, getHospitalsList, addUser, disableUser, enableUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
 
 const StatusTagConvertLabel = (value) => {
   return value ? 'success' : 'error';
@@ -48,6 +50,7 @@ const StatusTagConvertLabel = (value) => {
 
 const UserListPage = () => {
   const navigate = useNavigate();
+  const store = useStore();
 
   const [pageState, setPageState] = useState({
     isLoading: false,
@@ -90,6 +93,9 @@ const UserListPage = () => {
   const [activateName, setActivateName] = useState('');
   const [isDisableAccountOpen, setIsDisableAccountOpen] = useState(false);
   const [isActivateAccountOpen, setIsActivateAccountOpen] = useState(false);
+  const [disableId, setDisableId] = useState();
+  const [enableId, setEnableId] = useState();
+  const [connection, setConnection] = useState(null);
 
   const userStatusOption = [
     { name: 'Tất cả', value: 0 },
@@ -226,9 +232,11 @@ const UserListPage = () => {
                   <Icon
                     onClick={() => {
                       if (params.row.isActive) {
+                        setDisableId(params.row.id);
                         setDisableName(params.row.userName);
                         handleDisableAccountDialog();
                       } else {
+                        setEnableId(params.row.id);
                         setActivateName(params.row.userName);
                         handleActivateAccountDialog();
                       }
@@ -633,7 +641,7 @@ const UserListPage = () => {
             onClick={async () => {
               setIsButtonLoading(true);
               try {
-                // await disableHospital(disableHospitalId);
+                await disableUser(disableId);
                 await fetchUserListData();
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
@@ -668,7 +676,7 @@ const UserListPage = () => {
             onClick={async () => {
               setIsButtonLoading(true);
               try {
-                // await enableHospital(enableHospitalId);
+                await enableUser(enableId);
                 await fetchUserListData();
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
@@ -769,6 +777,25 @@ const UserListPage = () => {
   useEffect(() => {
     fetchHospitals();
   }, [fetchHospitals]);
+
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
 
   return (
     <>
