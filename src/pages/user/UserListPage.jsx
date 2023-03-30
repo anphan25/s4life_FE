@@ -188,7 +188,7 @@ const UserListPage = () => {
         hide: true,
       },
       {
-        headerName: 'Tên đăng nhập',
+        headerName: 'Email',
         field: 'userName',
         type: 'string',
         flex: 1,
@@ -342,8 +342,8 @@ const UserListPage = () => {
   };
 
   const AddUserSchema = Yup.object().shape({
-    username: Yup.string().required('Vui lòng nhập tên tài khoản').matches(EMAIL_PATTERN, {
-      message: 'Tên tài khoản không hợp lệ',
+    username: Yup.string().required('Vui lòng nhập email').matches(EMAIL_PATTERN, {
+      message: 'Email không hợp lệ',
       excludeEmptyString: false,
     }),
     hospital: Yup.array()
@@ -507,10 +507,10 @@ const UserListPage = () => {
           </RHFSelect>
 
           <RHFInput
-            label="Tên tài khoản"
+            label="Email"
             name="username"
             control={addUserControl}
-            placeholder="Nhập tên tài khoản"
+            placeholder="Nhập email"
             isRequiredLabel={true}
           />
           <Stack>
@@ -880,7 +880,7 @@ const UserListPage = () => {
               sx={{ width: isVolunteerFilterMode ? '100%' : '50%' }}
               type={isVolunteerFilterMode ? 'number' : 'text'}
               className="search-bar"
-              placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
+              placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập email'}
               onSubmit={handleUserSearch}
             />
           </InputFilterSectionStyle>

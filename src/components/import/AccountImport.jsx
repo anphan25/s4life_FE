@@ -12,7 +12,7 @@ export const AccountImport = ({ label, onImport, ...props }) => {
 
   let tempErrorFileContent = [];
 
-  const validHeader = ['Tên tài khoản*'];
+  const validHeader = ['Email*'];
 
   const clonedHeaders = [...validHeader];
   const checkedHeaders = [];
@@ -49,7 +49,7 @@ export const AccountImport = ({ label, onImport, ...props }) => {
       }
 
       case 'invalid-username': {
-        return 'Tên tài khoản phải là email';
+        return 'Email không hợp lệ';
       }
 
       default: {
@@ -152,7 +152,7 @@ export const AccountImport = ({ label, onImport, ...props }) => {
         checkedHeaders.push(headerName);
 
         switch (headerName) {
-          case 'Tên tài khoản*': {
+          case 'Email*': {
             return 'username';
           }
           default: {
