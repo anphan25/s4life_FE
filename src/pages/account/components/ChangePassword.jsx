@@ -30,11 +30,6 @@ const ChangePassword = () => {
       .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
     confirmPassword: Yup.string()
       .required('Vui lòng nhập lại mật khẩu')
-      .matches(PASSWORD_PATTERN, {
-        message:
-          'Mật khẩu cần phải lớn hơn 7 ký tự và có ít nhất 1 chữ thường, 1 chữ hoa, 1 chữ số, 1 ký tự đặc biệt (#$^+=!*()@%&/)',
-        excludeEmptyString: false,
-      })
       .oneOf([Yup.ref('newPassword')], 'Xác nhận mật khẩu không trùng khớp.'),
   });
 

@@ -26,6 +26,11 @@ export default function Router() {
       index: true,
     },
     {
+      path: 'forget-password',
+      element: <ForgetPassword />,
+      index: true,
+    },
+    {
       path: '/',
       element: (
         <AuthRouter>
@@ -281,3 +286,6 @@ const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval
 
 //public change password
 const PublicChangePassword = Loadable(lazy(() => import('pages/account/PublicChangePasswordPage')));
+
+//forget password
+const ForgetPassword = Loadable(lazy(() => import('pages/account/ForgetPassword')));
