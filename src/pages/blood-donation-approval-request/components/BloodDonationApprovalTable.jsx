@@ -22,15 +22,15 @@ import { errorHandler, formatDate, convertErrorCodeToMessage, DialogButtonGroupS
 import React, { useEffect, useState, useRef } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
-import { Tag, CustomDialog, RHFInput, RHFRadio } from 'components';
+import { Tag, CustomDialog, RHFInput, RHFRadio, Icon } from 'components';
 import { useNavigate } from 'react-router-dom';
 import { updateApproveBloodDonation } from 'api';
 import { useSnackbar } from 'notistack';
 
 // 0: Reject, 1: Approve
 const APPROVAL_OPTIONS = [
-  { label: 'Chấp nhận', value: 1 },
-  { label: 'Từ chối', value: 0 },
+  { label: <Icon icon="solid-check" sx={{ color: 'success.main', marginTop: '5px' }} />, value: 1 },
+  { label: <Icon mt={1} icon="solid-times" sx={{ color: 'error.main', marginTop: '5px' }} />, value: 0 },
 ];
 
 const RequireLabel = styled('span')(({ theme }) => ({
@@ -189,7 +189,7 @@ const BloodDonationApprovalTable = ({ detailData }) => {
                   <TableCell align="right">{item?.donationVolume}</TableCell>
                   <TableCell align="left">{formatDate(item?.donationDate, 2)}</TableCell>
                   {isProcessing ? (
-                    <TableCell align="left">
+                    <TableCell align="left" width="170px">
                       <RHFRadio
                         sx={{ '& .MuiFormControlLabel-label': { fontSize: '12px' } }}
                         label=""
@@ -221,16 +221,17 @@ const BloodDonationApprovalTable = ({ detailData }) => {
                   )}
                   <TableCell align="left">
                     {isProcessing ? (
-                      <RHFInput
-                        sx={{ padding: '0 !important' }}
-                        placeholder="Nhập ghi chú"
-                        multiline
-                        disabled={disabledInputIndexes?.includes(i) ? false : true}
-                        minRows={1}
-                        maxRows={1}
-                        control={control}
-                        name={`approvals[${i}].note`}
-                      />
+                      <Box sx={{ '& .MuiInputBase-input': { padding: '0 !important' } }}>
+                        <RHFInput
+                          placeholder="Nhập ghi chú"
+                          multiline
+                          disabled={disabledInputIndexes?.includes(i) ? false : true}
+                          minRows={1}
+                          maxRows={1}
+                          control={control}
+                          name={`approvals[${i}].note`}
+                        />
+                      </Box>
                     ) : (
                       <Typography>{item?.note || '-'}</Typography>
                     )}

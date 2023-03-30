@@ -195,7 +195,7 @@ function ApprovalList() {
         onClose={handleApprovalDetailDialog}
         title="Chi tiết yêu cầu"
         children={approvalDetailDialogContent()}
-        sx={{ '& .MuiDialog-paper': { maxWidth: '90% !important', maxHeight: '90%' } }}
+        sx={{ '& .MuiDialog-paper': { width: '95% !important', maxWidth: '95% !important', maxHeight: '90%' } }}
       />
     </>
   );
