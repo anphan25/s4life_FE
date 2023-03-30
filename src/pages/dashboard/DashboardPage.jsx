@@ -51,6 +51,7 @@ const getFirstAndLastDateInCurrentQuarter = () => {
 
 const DashboardPage = () => {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [eventList, setEventList] = useState([]);
   const theme = useTheme();
 
@@ -136,7 +137,9 @@ const DashboardPage = () => {
   }, []);
 
   const fetchMostRecentEvents = useCallback(async () => {
+    setLoading(true);
     setEventList(await getEvents({ FilterMode: EventFilterEnum.MostRecent }));
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -162,7 +165,11 @@ const DashboardPage = () => {
       <Grid container rowSpacing={4} columnSpacing={{ xl: 5, lg: 3 }} sx={{ marginBottom: '50px' }}>
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            {data ? (
+            {loading ? (
+              <Box textAlign="center">
+                <CircularProgress />
+              </Box>
+            ) : (
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-calendar-star" className="tab_title--icon" />
@@ -201,10 +208,6 @@ const DashboardPage = () => {
                   </Stack>
                 </Stack>
               </>
-            ) : (
-              <Box textAlign="center">
-                <CircularProgress />
-              </Box>
             )}
           </StatisticTabContainer>
         </Grid>

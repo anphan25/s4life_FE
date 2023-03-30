@@ -3,7 +3,6 @@ import React from 'react';
 import { EventRegistrationStatusEnum } from 'utils';
 
 const TagStyle = styled('span')(({ theme, statusId }) => {
-  console.log(' styleState', statusId);
   return {
     lineHeight: 1,
     borderRadius: 8,
@@ -50,7 +49,6 @@ const TagStyle = styled('span')(({ theme, statusId }) => {
 });
 
 export const RegistrationStatusTag = ({ status = 'default', children, ...props }) => {
-  console.log('status', status);
   return (
     <TagStyle statusId={status} {...props}>
       {children}

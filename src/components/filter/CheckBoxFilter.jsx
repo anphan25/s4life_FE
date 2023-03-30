@@ -42,7 +42,7 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
 
   const convertValueToLabel = (list) => {
     return list.map((item) => {
-      return options.find(({ value }) => value === item).label;
+      return checkboxOptions.find(({ value }) => value === item).label;
     });
   };
 
@@ -59,6 +59,7 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
   return (
     <Box sx={sx}>
       <FormControl sx={{ width: '100%' }}>
+        <TextField value={searchValue} onChange={handleSearch} />
         <Select
           {...props}
           onAnimationEnd={() => inputRef.current.focus()}
