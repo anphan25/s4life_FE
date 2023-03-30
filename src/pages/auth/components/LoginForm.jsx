@@ -1,4 +1,4 @@
-import { FormHelperText } from '@mui/material';
+import { FormHelperText, Button, Stack } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { loginUserPassword } from 'api/AuthApi';
@@ -90,9 +90,18 @@ const LoginForm = () => {
           {error}
         </FormHelperText>
       )}
-      <LoadingButton variant="contained" type="submit" loading={isBtnLoading}>
-        Đăng nhập
-      </LoadingButton>
+      <Stack justifyContent="center" textAlign="center" spacing={2}>
+        <LoadingButton variant="contained" type="submit" loading={isBtnLoading}>
+          Đăng nhập
+        </LoadingButton>
+        <Button
+          onClick={() => {
+            navigate('/forget-password');
+          }}
+        >
+          Quên mật khẩu ?
+        </Button>
+      </Stack>
     </form>
   );
 };
