@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select, ListItemText } from '@mui/material';
+import { Box, Stack, Button, Tooltip, Divider, Typography, MenuItem, Select } from '@mui/material';
 import {
   DataTable,
   FilterTab,
@@ -215,7 +215,7 @@ const UserListPage = () => {
         renderCell: (params) => {
           return (
             <div>
-              <Tooltip title="Vô hiệu" placement="bottom">
+              <Tooltip title={params.row.isActive ? 'Vô hiệu' : 'Kích hoạt'} placement="bottom">
                 <Box>
                   <Icon
                     onClick={() => {}}

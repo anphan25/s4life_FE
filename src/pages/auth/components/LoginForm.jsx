@@ -73,9 +73,9 @@ const LoginForm = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <RHFInput
         name="username"
-        label="Tên đăng nhập"
+        label="Email"
         control={control}
-        placeholder="Nhập tên đăng nhập"
+        placeholder="Nhập tên email"
         sx={{ marginBottom: '24px' }}
       />
       <RHFPasswordInput
