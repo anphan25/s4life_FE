@@ -9,6 +9,7 @@ import {
   ListSubheader,
   InputAdornment,
   Button,
+  Stack,
 } from '@mui/material';
 import { useState, useRef } from 'react';
 import { Icon } from 'components';
@@ -36,14 +37,18 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
     }
 
     checkingTimeoutRef.current = setTimeout(() => {
-      onCheck(value);
-    }, 300);
+      onCheck(removeNullElement(value));
+    }, 500);
   };
 
   const convertValueToLabel = (list) => {
-    return list.map((item) => {
-      return checkboxOptions.find(({ value }) => value === item).label;
+    return list?.map((item) => {
+      return checkboxOptions?.find(({ value }) => value === item)?.label;
     });
+  };
+
+  const removeNullElement = (list) => {
+    return list?.filter((item) => item);
   };
 
   const handleSearch = (e) => {
@@ -56,16 +61,21 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
     }, 300);
   };
 
+  const handleClearAll = () => {
+    setValues([null]);
+    onCheck([]);
+  };
+
   return (
     <Box sx={sx}>
       <FormControl sx={{ width: '100%' }}>
-        <TextField value={searchValue} onChange={handleSearch} />
         <Select
           {...props}
-          onAnimationEnd={() => inputRef.current.focus()}
+          onAnimationEnd={() => inputRef?.current?.focus()}
           displayEmpty={true}
           renderValue={(selectedValues) => {
-            if (selectedValues.length === 0) {
+            console.log('selectedValues', selectedValues);
+            if (selectedValues.length === 0 || selectedValues) {
               return placeHolder;
             }
             return convertValueToLabel(selectedValues).join(', ');
@@ -114,17 +124,16 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
           {checkboxOptions
             .filter((option) => option.label.toLowerCase().includes(searchValue.toLowerCase()))
             .map(({ label, value }) => (
-              <MenuItem
-                key={value}
-                value={value}
-                // sx={{ '& .MuiPaper-root': { top: '210px !important' } }}
-                disabled={disableOperation}
-              >
+              <MenuItem key={value} value={value} disabled={disableOperation}>
                 <Checkbox checked={values?.indexOf(value) > -1} disabled={disableOperation} />
                 <ListItemText primary={label} />
               </MenuItem>
             ))}
-          <Button>Bỏ chọn</Button>
+          <Stack justifyContent="flex-end">
+            <Button sx={{ marginLeft: 'auto' }} onClick={handleClearAll}>
+              Bỏ chọn
+            </Button>
+          </Stack>
         </Select>
       </FormControl>
     </Box>

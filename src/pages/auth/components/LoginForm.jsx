@@ -75,7 +75,7 @@ const LoginForm = () => {
         name="username"
         label="Email"
         control={control}
-        placeholder="Nhập tên email"
+        placeholder="Nhập email"
         sx={{ marginBottom: '24px' }}
       />
       <RHFPasswordInput
