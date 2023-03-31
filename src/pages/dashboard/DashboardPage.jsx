@@ -165,11 +165,7 @@ const DashboardPage = () => {
       <Grid container rowSpacing={4} columnSpacing={{ xl: 5, lg: 3 }} sx={{ marginBottom: '50px' }}>
         <Grid lg={4} xs={12} item>
           <StatisticTabContainer elevation={0}>
-            {loading ? (
-              <Box textAlign="center">
-                <CircularProgress />
-              </Box>
-            ) : (
+            {data ? (
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-calendar-star" className="tab_title--icon" />
@@ -208,6 +204,10 @@ const DashboardPage = () => {
                   </Stack>
                 </Stack>
               </>
+            ) : (
+              <Box textAlign="center">
+                <CircularProgress />
+              </Box>
             )}
           </StatisticTabContainer>
         </Grid>
@@ -306,7 +306,15 @@ const DashboardPage = () => {
 
       <Grid container spacing={3}>
         <Grid item lg={9} xs={12}>
-          <NewEventList events={eventList} />
+          {loading ? (
+            <StatisticTabContainer>
+              <Box textAlign="center" height="200px">
+                <CircularProgress sx={{ marginTop: '80px' }} />
+              </Box>
+            </StatisticTabContainer>
+          ) : (
+            <NewEventList events={eventList} />
+          )}
         </Grid>
         <Grid item lg={3} xs={12}>
           <BloodVolume>
