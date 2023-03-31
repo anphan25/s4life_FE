@@ -79,8 +79,8 @@ const NewEventList = ({ events }) => {
           </Table>
         </TableContainer>
       ) : (
-        <Box textAlign="center" height="200px">
-          <CircularProgress sx={{ marginTop: '80px' }} />
+        <Box textAlign="center" height="200px" sx={{ verticalAlign: 'middle' }}>
+          <Typography sx={{ marginTop: '120px' }}>Không có sự kiện để hiển thị</Typography>
         </Box>
       )}
 

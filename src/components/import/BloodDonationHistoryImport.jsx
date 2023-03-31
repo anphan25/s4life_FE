@@ -15,8 +15,7 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
 
   const validHeader = ['Ngày hiến*', 'Số đơn vị máu*', 'Số túi máu*'];
 
-  const clonedHeaders = [...validHeader];
-  const checkedHeaders = [];
+  const missingColumns = [...validHeader];
 
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -41,12 +40,8 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
         return 'Vui lòng điền đầy đủ các trường thông tin bắt buộc (*)';
       }
 
-      case 'unknown-columns': {
-        return 'Vui lòng không thêm cột mới';
-      }
-
       case 'lack-modified-columns': {
-        return `Vui lòng không xóa hoặc sửa tên các cột mặc định của file (${missedColumns.join(', ')})`;
+        return `Thiếu các cột bắt buộc (${missedColumns.join(', ')})`;
       }
 
       case 'invalid-donation-volume': {
@@ -98,23 +93,11 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
 
   const validateCSVFileContent = (dataList) => {
     // Check remove or modify column name
-    if (clonedHeaders.length > 0) {
-      setMissedColumns(clonedHeaders);
+    if (missingColumns.length > 0) {
+      setMissedColumns(missingColumns);
       displayInvalidFileContent('lack-modified-columns');
 
       return;
-    }
-
-    //Check  add new columns(s)
-    validHeader.sort();
-    checkedHeaders.sort();
-
-    for (let i = 0; i < validHeader.length; i++) {
-      if (checkedHeaders[i] !== validHeader[i]) {
-        displayInvalidFileContent('unknown-columns');
-
-        return;
-      }
     }
 
     dataList.forEach((data) => {
@@ -165,11 +148,9 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       transformHeader: function (headerName) {
         if (!headerName) return;
 
-        const index = clonedHeaders.indexOf(headerName);
+        const index = missingColumns.indexOf(headerName);
 
-        if (index > -1) clonedHeaders.splice(index, 1);
-
-        checkedHeaders.push(headerName);
+        if (index > -1) missingColumns.splice(index, 1);
 
         switch (headerName) {
           case 'Ngày hiến*': {
