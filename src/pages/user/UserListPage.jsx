@@ -33,6 +33,7 @@ import {
   DialogButtonGroupStyle,
   EMAIL_PATTERN,
   convertErrorCodeToMessage,
+  DonationTimeEnum,
 } from 'utils';
 import { getUsers, getHospitalsList, addUser, disableUser, enableUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -43,9 +44,22 @@ import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
+import DonationTimeFilter from './components/DonationTimeFilter';
+import DonationTimeAnalyticContainer from './components/DonationTimeAnalyticContainer';
 
 const StatusTagConvertLabel = (value) => {
   return value ? 'success' : 'error';
+};
+
+const DonateTimeTagConvertLabel = (time) => {
+  const tag = {
+    1: 'success',
+    2: 'warning',
+    3: 'error',
+    4: 'info',
+  };
+
+  return tag[time];
 };
 
 const UserListPage = () => {
@@ -96,6 +110,9 @@ const UserListPage = () => {
   const [disableId, setDisableId] = useState();
   const [enableId, setEnableId] = useState();
   const [connection, setConnection] = useState(null);
+  const [userYearFilterParam, setUserYearFilterParam] = useState();
+  const [donationTimeParam, setDonationTimeParam] = useState([]);
+  const [isDisableOperation, setIsDisableOperation] = useState(false);
 
   const userStatusOption = [
     { name: 'Tất cả', value: 0 },
@@ -134,12 +151,7 @@ const UserListPage = () => {
         field: 'address',
         flex: 1,
       },
-      {
-        headerName: 'CCCD/CMND',
-        type: 'string',
-        field: 'nationalIdAndCitizenId',
-        width: 120,
-      },
+
       {
         headerName: 'Số điện thoại',
         field: 'phoneNumber',
@@ -152,6 +164,22 @@ const UserListPage = () => {
         type: 'string',
         width: 90,
         align: 'center',
+      },
+      {
+        headerName: `Số lần hiến trong năm ${userYearFilterParam}`,
+        type: 'string',
+        field: 'donateTime',
+        width: 200,
+        renderCell: ({ value }) => {
+          return (
+            <Tag status={DonateTimeTagConvertLabel(value)}>
+              {
+                DonationTimeEnum[Object.keys(DonationTimeEnum).find((key) => DonationTimeEnum[key].value === value)]
+                  ?.description
+              }
+            </Tag>
+          );
+        },
       },
       {
         field: 'actions',
@@ -337,8 +365,14 @@ const UserListPage = () => {
   const handleDisableAccountDialog = () => {
     setIsDisableAccountOpen(!isDisableAccountOpen);
   };
+
   const handleActivateAccountDialog = () => {
     setIsActivateAccountOpen(!isActivateAccountOpen);
+  };
+
+  const handleDonationTimeFilter = (year, times) => {
+    setUserYearFilterParam(year);
+    setDonationTimeParam(times.join(','));
   };
 
   const AddUserSchema = Yup.object().shape({
@@ -700,12 +734,15 @@ const UserListPage = () => {
 
   const fetchUserListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
+    setIsDisableOperation(true);
     try {
       const getVolunteerParam = {
         Role: pageState.filterMode,
         SearchKey: searchParam,
         Page: pageState.page,
         PageSize: pageState.pageSize,
+        ...(donationTimeParam?.length > 0 && { DonateTimeInYear: donationTimeParam }),
+        Year: userYearFilterParam,
       };
 
       const getManagerStaffParam = {
@@ -724,12 +761,13 @@ const UserListPage = () => {
             id: data?.userInformation?.userId,
             name: data?.userInformation?.fullName || '-',
             address: data?.userInformation?.address || '-',
-            nationalIdAndCitizenId: data?.userInformation?.nationalId || data?.userInformation?.citizenId,
+            // nationalIdAndCitizenId: data?.userInformation?.nationalId || data?.userInformation?.citizenId,
             phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
             bloodType: data?.userInformation?.bloodTypeId
               ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
               : '-',
             userInformationId: data?.userInformationId,
+            donateTime: data?.donateTime,
           }))
         : data.items?.map((data, i) => ({
             id: data?.id,
@@ -746,8 +784,17 @@ const UserListPage = () => {
       });
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
+      setIsDisableOperation(false);
     }
-  }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId, statusFilter]);
+  }, [
+    pageState.pageSize,
+    pageState.page,
+    searchParam,
+    pageState.filterMode,
+    pageState.hospitalId,
+    statusFilter,
+    donationTimeParam,
+  ]);
 
   useEffect(() => {
     fetchUserListData();
@@ -814,7 +861,10 @@ const UserListPage = () => {
           </Button>
         )}
       </HeaderMainStyle>
+      {isVolunteerFilterMode && <DonationTimeAnalyticContainer />}
+
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+        {/* Table toolbar */}
         <Box>
           {isAdmin && (
             <FilterTab
@@ -825,7 +875,7 @@ const UserListPage = () => {
           )}
 
           <InputFilterSectionStyle>
-            {pageState.filterMode !== FilterRoleEnum.Volunteer.value && (
+            {!isVolunteerFilterMode && (
               <>
                 <Box>
                   <Select
@@ -876,13 +926,19 @@ const UserListPage = () => {
               </>
             )}
 
-            <SearchBar
-              sx={{ width: isVolunteerFilterMode ? '100%' : '50%' }}
-              type={isVolunteerFilterMode ? 'number' : 'text'}
-              className="search-bar"
-              placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập email'}
-              onSubmit={handleUserSearch}
-            />
+            <Stack direction="row" width="100%" justifyContent="space-between">
+              <SearchBar
+                sx={{ width: isVolunteerFilterMode ? '30%' : '100%' }}
+                type={isVolunteerFilterMode ? 'number' : 'text'}
+                className="search-bar"
+                placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập email'}
+                onSubmit={handleUserSearch}
+              />
+
+              {isVolunteerFilterMode && (
+                <DonationTimeFilter onFilter={handleDonationTimeFilter} disableOperation={isDisableOperation} />
+              )}
+            </Stack>
           </InputFilterSectionStyle>
         </Box>
 

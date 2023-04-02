@@ -74,8 +74,7 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
           onAnimationEnd={() => inputRef?.current?.focus()}
           displayEmpty={true}
           renderValue={(selectedValues) => {
-            console.log('selectedValues', selectedValues);
-            if (selectedValues.length === 0 || selectedValues) {
+            if (selectedValues.length === 0) {
               return placeHolder;
             }
             return convertValueToLabel(selectedValues).join(', ');

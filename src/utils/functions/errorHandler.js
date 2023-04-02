@@ -11,12 +11,13 @@ export function convertErrorCodeToMessage(code) {
 
     //Login
     1003: 'Quyền truy cập bị giới hạn',
-    1004: 'Thông tin đăng nhập không chính xác',
+    1004: 'Tài khoản không tồn tại',
     1005: 'Mật khẩu không chính xác',
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
     1010: 'Vui lòng cung cấp mật khẩu cũ',
     1034: 'Tài khoản đã bị vô hiệu',
+    1031: 'Thông tin đăng nhập không chính xác',
     1100: 'Đổi mật khẩu thành công',
 
     //Register
@@ -30,7 +31,8 @@ export function convertErrorCodeToMessage(code) {
     2100: 'Tạo tài khoản thành công',
     2061: 'Chỉ có thể cập nhật trạng thái cho tài khoản của bệnh viện',
     2071: 'Không thể cập nhật trạng thái tài khoản của bệnh viện không hoạt động',
-    2200: 'Cập nhật tài khoản thành công',
+    2200: 'Kích hoạt tài khoản thành công',
+    2210: 'Vô hiệu hóa tài khoản thành công',
 
     //Hospital
     3000: PROCESSING_MESSAGE,
@@ -118,6 +120,7 @@ export function convertErrorCodeToMessage(code) {
     7191: 'Thiếu thông tin xác nhận hiến máu của nhân viên y tế',
     7100: 'Đăng kí sự kiện thành công',
     7200: 'Cập nhật thông tin đăng kí sự kiện thành công',
+    7201: 'Thời gian đăng kí phải trong khung giờ làm việc của sự kiện',
     7300: 'Hủy đăng kí sự kiện thành công',
 
     //User Informations

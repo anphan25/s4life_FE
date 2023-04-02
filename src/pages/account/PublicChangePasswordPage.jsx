@@ -138,7 +138,7 @@ const PublicChangePasswordPage = () => {
           <Box sx={{ color: 'success.main', textAlign: 'center' }}>
             <Icon icon="solid-check-circle" sx={{ width: '100px', height: '100px', marginBottom: '20px' }} />
             <Typography variant="h4" fontWeight="400">
-              Đổi mật khẩu thành công !!!
+              Đổi mật khẩu thành công!
             </Typography>
             <Button
               variant="contained"
