@@ -11,42 +11,11 @@ import { StatisticEnum, EventFilterEnum, StatisticFilterModeEnum, getStatisticRe
 import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
 
 const getFirstAndLastDateInCurrentQuarter = () => {
-  const currentMonth = moment().get('month');
-  const currentYear = moment().get('year');
-
-  switch (true) {
-    case 1 <= currentMonth <= 3: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 0, year: currentYear }),
-        DateEnd: moment().set('date', 31).set({ month: 2, year: currentYear }),
-      };
-    }
-
-    case 4 <= currentMonth <= 6: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 3, year: currentYear }),
-        DateEnd: moment().set('date', 30).set({ month: 5, year: currentYear }),
-      };
-    }
-
-    case 7 <= currentMonth <= 9: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 6, year: currentYear }),
-        DateEnd: moment().set('date', 30).set({ month: 8, year: currentYear }),
-      };
-    }
-
-    case 10 <= currentMonth <= 12: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 9, year: currentYear }),
-        DateEnd: moment().set('date', 31).set({ month: 11, year: currentYear }),
-      };
-    }
-
-    default: {
-      break;
-    }
-  }
+  const currentQuarter = moment().quarter();
+  return {
+    DateStart: moment().quarter(currentQuarter).startOf('quarter'),
+    DateEnd: moment().quarter(currentQuarter).endOf('quarter'),
+  };
 };
 
 const DashboardPage = () => {
@@ -128,9 +97,8 @@ const DashboardPage = () => {
   );
 
   const fetchDashboardData = useCallback(async () => {
-    const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.toISOString();
-    const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.toISOString();
-
+    const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.format('yyyy-MM-DD');
+    const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.format('yyyy-MM-DD');
     const response = await getStatisticData(StatisticFilterModeEnum.All, startDate, endDate, false);
 
     setData(response);
