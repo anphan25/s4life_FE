@@ -1,6 +1,6 @@
 import { Logo, RHFInput, Icon } from 'components';
 import { useState } from 'react';
-import { Paper, Stack, Box, Typography, styled, Button } from '@mui/material';
+import { Paper, Stack, Box, Typography, styled } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';

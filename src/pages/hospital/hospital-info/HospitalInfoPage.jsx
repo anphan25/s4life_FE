@@ -514,11 +514,11 @@ const HospitalInfoPage = () => {
                         title={
                           <>
                             <span>
-                              - Khi bật hệ thống sẽ tự động tạo sự kiện theo lịch cho tuần sau vào cuối ngày chủ nhật
+                              - Khi bật, hệ thống sẽ tự động tạo sự kiện theo lịch cho tuần sau vào cuối ngày chủ nhật
                               tuần này.
                             </span>
                             <br />
-                            <span>- Khi tắt lịch lấy máu vào tuần sau sẽ tự động chuyển thành "Đóng cửa".</span>
+                            <span>- Khi tắt, lịch lấy máu vào tuần sau sẽ tự động chuyển thành "Đóng cửa".</span>
                           </>
                         }
                       >

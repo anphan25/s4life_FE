@@ -169,7 +169,7 @@ const DashboardPage = () => {
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-calendar-star" className="tab_title--icon" />
-                  <Typography className="tab_title--text">Số sự kiện</Typography>
+                  <Typography className="tab_title--text">Tổng số sự kiện</Typography>
                 </Stack>
 
                 <Stack className="tab_content">
@@ -218,7 +218,7 @@ const DashboardPage = () => {
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-users-group" className="tab_title--icon" />
-                  <Typography className="tab_title--text">Số lượt đăng ký</Typography>
+                  <Typography className="tab_title--text">Tổng số lượt đăng ký sự kiện</Typography>
                 </Stack>
 
                 <Stack className="tab_content">
@@ -265,7 +265,7 @@ const DashboardPage = () => {
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-droplet" className="tab_title--icon" />
-                  <Typography className="tab_title--text">Số (ml) máu</Typography>
+                  <Typography className="tab_title--text">Tổng số (ml) máu nhận được</Typography>
                 </Stack>
                 <Stack className="tab_content">
                   <Typography className="tab_content--number">
