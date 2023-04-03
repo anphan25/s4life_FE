@@ -52,7 +52,9 @@ const mothLabels = [
 ];
 
 const bloodVolumeRatioCalculator = (partialValue, totalValue) => {
-  return (100 * partialValue) / totalValue;
+  const result = (100 * partialValue) / totalValue || 0;
+
+  return result;
 };
 
 const StatisticsPage = () => {
@@ -221,7 +223,7 @@ const StatisticsPage = () => {
       true
     );
 
-    const totalBloodVolumePerMonth = response?.map((data) =>
+    const totalBloodVolumePerMonth = response?.statistics?.map((data) =>
       getStatisticResultFromGroup(data?.bloodVolumeStatistics, StatisticEnum.BloodVolumeStatistic.RECEIVED_GROUP)
     );
 
@@ -236,7 +238,7 @@ const StatisticsPage = () => {
       false
     );
 
-    const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics;
+    const bloodVolumeTypeStatistics = data?.statistics[0]?.bloodVolumeTypeStatistics;
 
     const typeAVolume = getStatisticResultFromGroup(
       bloodVolumeTypeStatistics,
@@ -297,8 +299,7 @@ const StatisticsPage = () => {
       getYearFilterParam(bloodBagYearFilter).DateEnd,
       true
     );
-
-    const totalBloodBagVolumePerMonth = response?.map((data) => ({
+    const totalBloodBagVolumePerMonth = response?.statistics?.map((data) => ({
       volume250: getStatisticResultFromGroup(
         data?.bloodBagVolumeStatistics,
         StatisticEnum.BloodBagVolumeStatistic.GROUP_250
@@ -378,7 +379,7 @@ const StatisticsPage = () => {
                 ))}
               </Select>
             </Stack>
-            {bloodTypeRatio.length > 0 ? (
+            {bloodTypeRatio.some((data) => data?.volume > 0) ? (
               <>
                 <Doughnut
                   options={bloodTypeRatioDoughnutChartOptions}

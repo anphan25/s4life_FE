@@ -46,6 +46,7 @@ import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import DonationTimeFilter from './components/DonationTimeFilter';
 import DonationTimeAnalyticContainer from './components/DonationTimeAnalyticContainer';
+import useResponsive from 'hooks/useResponsive';
 
 const StatusTagConvertLabel = (value) => {
   return value ? 'success' : 'error';
@@ -113,6 +114,7 @@ const UserListPage = () => {
   const [userYearFilterParam, setUserYearFilterParam] = useState();
   const [donationTimeParam, setDonationTimeParam] = useState([]);
   const [isDisableOperation, setIsDisableOperation] = useState(false);
+  const isDesktop = useResponsive('up', 'md');
 
   const userStatusOption = [
     { name: 'Tất cả', value: 0 },
@@ -761,7 +763,6 @@ const UserListPage = () => {
             id: data?.userInformation?.userId,
             name: data?.userInformation?.fullName || '-',
             address: data?.userInformation?.address || '-',
-            // nationalIdAndCitizenId: data?.userInformation?.nationalId || data?.userInformation?.citizenId,
             phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
             bloodType: data?.userInformation?.bloodTypeId
               ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
@@ -794,6 +795,7 @@ const UserListPage = () => {
     pageState.hospitalId,
     statusFilter,
     donationTimeParam,
+    userYearFilterParam,
   ]);
 
   useEffect(() => {
@@ -861,7 +863,7 @@ const UserListPage = () => {
           </Button>
         )}
       </HeaderMainStyle>
-      {isVolunteerFilterMode && <DonationTimeAnalyticContainer />}
+      {isVolunteerFilterMode && isAdmin && <DonationTimeAnalyticContainer />}
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         {/* Table toolbar */}
@@ -886,7 +888,7 @@ const UserListPage = () => {
 
                       return userStatusOption.find((option) => option.value === selected).name;
                     }}
-                    sx={{ minWidth: 200 }}
+                    sx={{ minWidth: 200, width: isDesktop ? '200px' : '100%' }}
                     name={'status'}
                     select={'true'}
                     value={statusFilter}
@@ -905,7 +907,7 @@ const UserListPage = () => {
                   </Select>
                 </Box>
                 <AsyncAutocompleteFilter
-                  sx={{ width: '50%' }}
+                  sx={{ width: isDesktop ? '50%' : '100%' }}
                   placeholder="Chọn bệnh viện"
                   onInput={handleSearchHospitalToFilter}
                   onSelect={handleChooseHospital}
@@ -928,7 +930,7 @@ const UserListPage = () => {
 
             <Stack direction="row" width="100%" justifyContent="space-between">
               <SearchBar
-                sx={{ width: isVolunteerFilterMode ? '30%' : '100%' }}
+                sx={{ width: isVolunteerFilterMode ? (isDesktop ? '30%' : '90%') : '100%' }}
                 type={isVolunteerFilterMode ? 'number' : 'text'}
                 className="search-bar"
                 placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập email'}

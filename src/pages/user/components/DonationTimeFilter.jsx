@@ -1,16 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  Box,
-  Stack,
-  Button,
-  Tooltip,
-  Typography,
-  MenuItem,
-  Select,
-  Popover,
-  Checkbox,
-  ListItemText,
-} from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Stack, Button, Typography, MenuItem, Select, Popover, Checkbox, ListItemText } from '@mui/material';
 import { getLastThreeYear } from 'utils/extensions/year';
 import { Icon } from 'components';
 import moment from 'moment';
@@ -68,7 +57,7 @@ const DonationTimeFilter = ({ onFilter, disableOperation }) => {
 
     checkingTimeoutRef.current = setTimeout(() => {
       onFilter(userYearFilter, donationTimes);
-    }, 500);
+    }, 700);
   }, [userYearFilter, donationTimes]);
 
   return (
@@ -146,7 +135,7 @@ const DonationTimeFilter = ({ onFilter, disableOperation }) => {
           <Button
             startIcon={<Icon icon="trash" />}
             onClick={() => {
-              setUserYearFilter('');
+              setUserYearFilter(currentYear);
               setDonationTimes([]);
             }}
           >

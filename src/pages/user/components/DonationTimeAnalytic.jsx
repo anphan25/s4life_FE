@@ -1,14 +1,11 @@
 import React from 'react';
 import { Stack, Box, Typography, CircularProgress } from '@mui/material';
-import { Icon } from 'components';
 import { formatNumber } from 'utils';
 
-const DonationTimeAnalytic = ({ title, total, icon, color, percent }) => {
+const DonationTimeAnalytic = ({ title, total, color, percent }) => {
   return (
     <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: 1, minWidth: 200 }}>
       <Stack alignItems="center" justifyContent="center" sx={{ position: 'relative' }}>
-        <Icon icon={icon} sx={{ color, width: 24, height: 24, position: 'absolute' }} />
-
         <CircularProgress variant="determinate" value={percent} size={56} thickness={4} sx={{ color, opacity: 0.9 }} />
 
         <CircularProgress
