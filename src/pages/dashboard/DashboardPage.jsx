@@ -24,10 +24,10 @@ const DashboardPage = () => {
   const [eventList, setEventList] = useState([]);
   const theme = useTheme();
 
-  const eventStatistics = data?.eventStatistics;
-  const eventRegistrationStatistics = data?.eventRegistrationStatistics;
-  const bloodVolumeStatistics = data?.bloodVolumeStatistics;
-  const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics;
+  const eventStatistics = data?.statistics[0]?.eventStatistics;
+  const eventRegistrationStatistics = data?.statistics[0]?.eventRegistrationStatistics;
+  const bloodVolumeStatistics = data?.statistics[0]?.bloodVolumeStatistics;
+  const bloodVolumeTypeStatistics = data?.statistics[0]?.bloodVolumeTypeStatistics;
 
   // Events
   const unstartedEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.UNSTARTED_GROUP);
