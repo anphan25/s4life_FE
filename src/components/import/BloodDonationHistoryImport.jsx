@@ -13,7 +13,11 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
 
   let tempErrorFileContent = [];
 
-  const validHeader = ['Ngày hiến*', 'Số đơn vị máu*', 'Số túi máu*'];
+  const validHeader = ['Ngày hiến', 'Số đơn vị máu', 'Số túi máu'];
+
+  const requiredLabels = [...validHeader];
+
+  const requiredFields = ['donationDate', 'donationVolume', 'bloodBagCode'];
 
   const missingColumns = [...validHeader];
 
@@ -37,7 +41,7 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       }
 
       case 'required-filed-missing': {
-        return 'Vui lòng điền đầy đủ các trường thông tin bắt buộc (*)';
+        return `Vui lòng điền đầy đủ các trường thông tin bắt buộc (${requiredLabels.join(', ')})`;
       }
 
       case 'lack-modified-columns': {
@@ -100,10 +104,16 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       return;
     }
 
-    dataList.forEach((data) => {
+    if (dataList?.length <= 0) {
+      displayInvalidFileContent('required-filed-missing');
+      return;
+    }
+
+    dataList?.forEach((data) => {
       for (const property in data) {
-        if (!data[property]) {
+        if (!data[property] && requiredFields.includes(property)) {
           displayInvalidFileContent('required-filed-missing');
+          return;
         }
 
         if (data['donationVolume'] <= 0) {
@@ -153,13 +163,13 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
         if (index > -1) missingColumns.splice(index, 1);
 
         switch (headerName) {
-          case 'Ngày hiến*': {
+          case 'Ngày hiến': {
             return 'donationDate';
           }
-          case 'Số đơn vị máu*': {
+          case 'Số đơn vị máu': {
             return 'donationVolume';
           }
-          case 'Số túi máu*': {
+          case 'Số túi máu': {
             return 'bloodBagCode';
           }
           default: {
