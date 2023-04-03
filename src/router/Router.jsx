@@ -195,6 +195,14 @@ export default function Router() {
                 </ProtectedRouter>
               ),
             },
+            {
+              path: ':hospitalId/edit',
+              element: (
+                <ProtectedRouter roles={['Manager']}>
+                  <EditHospitalInfoPage />
+                </ProtectedRouter>
+              ),
+            },
           ],
         },
         {
@@ -276,6 +284,7 @@ const EditUserInformationPage = Loadable(lazy(() => import('pages/user/EditUserI
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
+const EditHospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/EditHospitalInfoPage')));
 
 //script
 const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
