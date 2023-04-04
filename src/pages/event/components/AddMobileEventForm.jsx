@@ -113,6 +113,8 @@ const AddMobileEventForm = () => {
       const workingTimeStart = moment(context.parent.workingTimeStart);
       const workingTimeEnd = moment(context.parent.workingTimeEnd);
 
+      if (workingTimeStart.isSameOrBefore(workingTimeEnd, 'hours')) clearErrors(['workingTimeStart', 'workingTimeEnd']);
+
       return workingTimeStart.isSameOrBefore(workingTimeEnd, 'hours') || createError({ path, message: errorMessage });
     });
   });
@@ -122,6 +124,8 @@ const AddMobileEventForm = () => {
       const { path, createError } = this;
       const workingTimeStart = moment(context.parent.workingTimeStart);
       const workingTimeEnd = moment(context.parent.workingTimeEnd);
+
+      if (workingTimeEnd.isSameOrAfter(workingTimeStart, 'hours')) clearErrors(['workingTimeStart', 'workingTimeEnd']);
 
       return workingTimeEnd.isSameOrAfter(workingTimeStart, 'hours') || createError({ path, message: errorMessage });
     });
@@ -258,7 +262,7 @@ const AddMobileEventForm = () => {
       .min(1, 'Vui lòng chọn quận huyện'),
   });
 
-  const { handleSubmit, control, resetField } = useForm({
+  const { handleSubmit, control, resetField, clearErrors } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues,
     mode: 'onChange',

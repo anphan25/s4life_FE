@@ -10,3 +10,4 @@ export * from './groupDataByErrorCode';
 export * from './formatPhoneNumber';
 export * from './getValuesFromEnum';
 export * from './getStatisticResultFromGroup';
+export * from './restructureHospitalSchedule';

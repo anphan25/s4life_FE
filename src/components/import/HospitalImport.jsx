@@ -15,7 +15,7 @@ import {
   LATITUDE_PATTERN,
 } from 'utils';
 
-export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) => {
+export const HospitalImport = ({ label, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFileContent, setErrorFileContent] = useState([]);
   const [missedColumns, setMissedColumns] = useState([]);
@@ -71,10 +71,6 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
       case 'lack-modified-columns': {
         return `Thiếu các cột bắt buộc (${missedColumns.join(', ')})`;
-      }
-
-      case 'invalid-openingTime': {
-        return 'Thời gian làm việc của các ngày trong tuần đang trống';
       }
 
       case 'invalid-starttime-endTime': {
@@ -177,16 +173,6 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
           displayInvalidFileContent('required-filed-missing');
 
           return;
-        }
-
-        if (property === 'openingTime') {
-          let isNoDayOpen = data[property].every((day) => day.isEnabled === false);
-
-          if (isNoDayOpen) {
-            displayInvalidFileContent('invalid-openingTime');
-
-            return;
-          }
         }
 
         if (property === 'email' && data[property]) {
