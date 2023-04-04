@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import moment from 'moment';
 import { DEFAULT_EVENT_IMAGE_URL, PHONE_NUMBER_PATTERN, MAX_INT, errorHandler } from 'utils';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -37,7 +37,6 @@ const AddMobileEventForm = () => {
 
   const defaultValues = {
     name: '',
-    eventCode: '',
     description: '',
     beginEvent: moment().add(7, 'days'),
     workingTimeStart: moment(),
@@ -212,7 +211,6 @@ const AddMobileEventForm = () => {
       .required('Vui lòng nhập giờ kết thúc')
       .isEndTimeAfterStartTime('Giờ kết thúc phải sau giờ bắt đầu')
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
-    eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     maxParticipant: Yup.number()
       .nullable()
       .transform((value) => {
@@ -263,7 +261,7 @@ const AddMobileEventForm = () => {
   const { handleSubmit, control, resetField } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues,
-    mode: 'onSubmit',
+    mode: 'onChange',
   });
 
   const onSubmit = async (data) => {
@@ -277,7 +275,6 @@ const AddMobileEventForm = () => {
       name: data?.name,
       description: data?.description,
       eventType: 3,
-      eventCode: data?.eventCode,
       imageUrls: data?.imageUrls,
       areas,
       startDate: moment(data?.beginEvent).format('yyyy-MM-DD'),
@@ -424,13 +421,6 @@ const AddMobileEventForm = () => {
                 )}
 
                 <Stack spacing={2} direction="row">
-                  <RHFInput
-                    isRequiredLabel={true}
-                    name="eventCode"
-                    label="Mã sự kiện"
-                    control={control}
-                    placeholder="Nhập mã sự kiện"
-                  />
                   <RHFInput
                     isRequiredLabel={true}
                     name="contactInformation"

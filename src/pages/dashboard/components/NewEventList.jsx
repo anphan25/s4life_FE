@@ -49,7 +49,7 @@ const NewEventList = ({ events }) => {
                           })
                           .join(', ')
                           .concat(' - ', row?.area[0]?.provinceName)
-                      : row?.eventLocations[0]?.location?.address}
+                      : row?.eventLocations[0]?.location?.address || '-'}
                   </TableCell>
                   <TableCell>
                     <Box>

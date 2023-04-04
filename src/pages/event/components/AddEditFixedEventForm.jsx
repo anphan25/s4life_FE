@@ -240,6 +240,8 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       const startDate = moment(context.parent.startDate);
       const endDate = moment(context.parent.endDate);
 
+      if (startDate.isSameOrBefore(endDate, 'dates')) clearErrors(['startDate', 'endDate']);
+
       return startDate.isSameOrBefore(endDate, 'dates') || createError({ path, message: errorMessage });
     });
   });
@@ -249,6 +251,8 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       const { path, createError } = this;
       const startDate = moment(context.parent.startDate);
       const endDate = moment(context.parent.endDate);
+
+      if (endDate.isSameOrAfter(startDate, 'dates')) clearErrors(['startDate', 'endDate']);
 
       return endDate.isSameOrAfter(startDate, 'dates') || createError({ path, message: errorMessage });
     });
@@ -260,6 +264,8 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       const workingTimeStart = moment(context.parent.workingTimeStart);
       const workingTimeEnd = moment(context.parent.workingTimeEnd);
 
+      if (workingTimeStart.isSameOrBefore(workingTimeEnd, 'hours')) clearErrors(['workingTimeStart', 'workingTimeEnd']);
+
       return workingTimeStart.isSameOrBefore(workingTimeEnd, 'hours') || createError({ path, message: errorMessage });
     });
   });
@@ -269,6 +275,8 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       const { path, createError } = this;
       const workingTimeStart = moment(context.parent.workingTimeStart);
       const workingTimeEnd = moment(context.parent.workingTimeEnd);
+
+      if (workingTimeEnd.isSameOrAfter(workingTimeStart, 'hours')) clearErrors(['workingTimeStart', 'workingTimeEnd']);
 
       return workingTimeEnd.isSameOrAfter(workingTimeStart, 'hours') || createError({ path, message: errorMessage });
     });
@@ -318,7 +326,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập tên')
       .max(128, 'Tên không được dài quá 128 kí tự'),
     description: Yup.string()
-      .validateBlankDescription('Vui lòng nhập mô tả')
+      // .validateBlankDescription('Vui lòng nhập mô tả')
       .required('Vui lòng nhập mô tả')
       .max(512, 'Mô tả không được dài quá 512 kí tự'),
     contactInformation: Yup.string()
@@ -355,7 +363,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập giờ kết thúc')
       .isEndTimeAfterStartTime('Giờ kết thúc phải sau giờ bắt đầu')
       .validTimeDuration('Giờ bắt đầu và giờ kết thúc phải cách nhau ít nhất 1 giờ'),
-    eventCode: Yup.string().required('Vui lòng nhập mã sự kiện'),
     bloodTypeNeed: Yup.array()
       .of(
         Yup.object().shape({
@@ -403,7 +410,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
   const defaultValues = {
     name: '',
-    eventCode: '',
     description: '',
     startDate: moment().add(1, 'days'),
     endDate: moment().add(1, 'days'),
@@ -418,7 +424,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     () => ({
       name: eventEditData?.name || '',
       description: eventEditData?.description || '',
-      eventCode: eventEditData?.eventCode || '',
       contactInformation: eventEditData?.contactInformation || '',
       startDate: eventEditData?.startDate,
       endDate: eventEditData?.endDate,
@@ -440,10 +445,12 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     resetField,
     formState: { dirtyFields },
     setValue,
+    clearErrors,
   } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues: isEdit && eventEditData ? editDefaultValues : defaultValues,
-    mode: 'onSubmit',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const onChangeCheckBox = (newValue) => {
@@ -602,23 +609,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                     <GoongMap locationDetail={locationDetail} onDrag={handleDragMarker} />
                   </Box>
                 )}
-                <Stack spacing={2} direction="row">
-                  <RHFInput
-                    isRequiredLabel={true}
-                    disabled={isEdit}
-                    name="eventCode"
-                    label="Mã sự kiện"
-                    control={control}
-                    placeholder="Nhập mã sự kiện"
-                  />
-                  <RHFInput
-                    isRequiredLabel={true}
-                    name="contactInformation"
-                    label="Số điện thoại liên hệ"
-                    control={control}
-                    placeholder="Nhập số điện thoại liên hệ"
-                  />
-                </Stack>
 
                 <Stack direction="row" spacing={2} alignItems="center">
                   <RHFAutoComplete
@@ -705,8 +695,15 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                     </Stack>
                   </>
                 )}
+                <Stack spacing={2}>
+                  <RHFInput
+                    isRequiredLabel={true}
+                    name="contactInformation"
+                    label="Số điện thoại liên hệ"
+                    control={control}
+                    placeholder="Nhập số điện thoại liên hệ"
+                  />
 
-                <Stack direction="row" spacing={2}>
                   <RHFInput
                     type="number"
                     name="maxParticipant"
