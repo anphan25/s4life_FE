@@ -19,7 +19,6 @@ const AddEditFixedEventPage = () => {
     setEventEditData({
       description: data?.description,
       name: data?.name,
-      eventCode: data?.eventCode,
       contactInformation: data?.contactInformation,
       locations: {
         name: data?.eventLocations[0].location.name,
