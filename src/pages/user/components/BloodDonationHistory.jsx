@@ -483,7 +483,7 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
         onClose={handleImportBloodDonationHistoryDialog}
         title={`Thêm lịch sử hiến máu từ file`}
         children={importBloodDonationHistoryDialogContent()}
-        sx={{ '& .MuiDialog-paper': { maxWidth: '70% !important', maxHeight: '500px' } }}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
 
       {isMultipleAlertOpen && (

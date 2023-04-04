@@ -25,12 +25,12 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
   const daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
 
   const validHeader = [
-    'Tên*',
-    'Ðịa Chỉ*',
-    'Số Ðiện Thoại*',
+    'Tên',
+    'Ðịa Chỉ',
+    'Số Ðiện Thoại',
     'Email',
-    'Kinh Ðộ*',
-    'Vĩ Ðộ*',
+    'Kinh Ðộ',
+    'Vĩ Ðộ',
     'Thứ 2',
     'Thứ 3',
     'Thứ 4',
@@ -40,8 +40,11 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
     'Chủ Nhật',
   ];
 
-  const clonedHeaders = [...validHeader];
-  const checkedHeaders = [];
+  const requiredLabels = ['Tên', 'Ðịa Chỉ', 'Số Ðiện Thoại', 'Kinh Ðộ', 'Vĩ Ðộ'];
+
+  const requiredFields = ['name', 'address', 'phoneNumber', 'longitude', 'latitude'];
+
+  const missingColumns = [...validHeader];
 
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -63,15 +66,11 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       }
 
       case 'required-filed-missing': {
-        return 'Vui lòng điền đầy đủ các trường thông tin bắt buộc (*)';
-      }
-
-      case 'unknown-columns': {
-        return 'Vui lòng không thêm cột mới';
+        return `Vui lòng điền đầy đủ các trường thông tin bắt buộc (${requiredLabels.join(', ')})`;
       }
 
       case 'lack-modified-columns': {
-        return `Vui lòng không xóa hoặc sửa tên các cột mặc định của file (${missedColumns.join(', ')})`;
+        return `Thiếu các cột bắt buộc (${missedColumns.join(', ')})`;
       }
 
       case 'invalid-openingTime': {
@@ -100,10 +99,6 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
 
       case 'invalid-latitude': {
         return 'Vĩ độ không hợp lệ';
-      }
-
-      case 'too-much-record': {
-        return 'Khi chỉnh sửa chỉ cần 1 dòng thông tin';
       }
 
       default: {
@@ -162,39 +157,26 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
   };
 
   const validateCSVFileContent = (dataList) => {
-    // Check remove or modify column name
-    if (clonedHeaders.length > 0) {
-      setMissedColumns(clonedHeaders);
+    // Check missing column name
+    if (missingColumns.length > 0) {
+      setMissedColumns(missingColumns);
       displayInvalidFileContent('lack-modified-columns');
 
       return;
     }
 
-    //Check  add new columns(s)
-    validHeader.sort();
-    checkedHeaders.sort();
-
-    for (let i = 0; i < validHeader.length; i++) {
-      if (checkedHeaders[i] !== validHeader[i]) {
-        displayInvalidFileContent('unknown-columns');
-
-        return;
-      }
+    if (dataList?.length <= 0) {
+      displayInvalidFileContent('required-filed-missing');
+      return;
     }
 
-    if (isEdit) {
-      if (dataList.length > 1) {
-        displayInvalidFileContent('too-much-record');
-
-        return;
-      }
-    }
-
-    dataList.forEach((data) => {
+    dataList?.forEach((data) => {
       for (const property in data) {
         // Require all field except email
-        if (!data[property] && property !== 'email') {
+        if (!data[property] && requiredFields.includes(property)) {
           displayInvalidFileContent('required-filed-missing');
+
+          return;
         }
 
         if (property === 'openingTime') {
@@ -296,29 +278,27 @@ export const HospitalImport = ({ label, onImport, isEdit = false, ...props }) =>
       transformHeader: function (headerName) {
         if (!headerName) return;
 
-        const index = clonedHeaders.indexOf(headerName);
+        const index = missingColumns.indexOf(headerName);
 
-        if (index > -1) clonedHeaders.splice(index, 1);
-
-        checkedHeaders.push(headerName);
+        if (index > -1) missingColumns.splice(index, 1);
 
         switch (headerName) {
-          case 'Tên*': {
+          case 'Tên': {
             return 'name';
           }
-          case 'Ðịa Chỉ*': {
+          case 'Ðịa Chỉ': {
             return 'address';
           }
           case 'Email': {
             return 'email';
           }
-          case 'Số Ðiện Thoại*': {
+          case 'Số Ðiện Thoại': {
             return 'phoneNumber';
           }
-          case 'Kinh Ðộ*': {
+          case 'Kinh Ðộ': {
             return 'longitude';
           }
-          case 'Vĩ Ðộ*': {
+          case 'Vĩ Ðộ': {
             return 'latitude';
           }
           case 'Thứ 2': {

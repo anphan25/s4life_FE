@@ -9,3 +9,7 @@ export async function loginUserPassword(params) {
 export async function changePassword(params) {
   return await axiosInstance.patch(apiPath + '/change-password', params);
 }
+
+export async function forgetPassword(username) {
+  return await axiosInstance.post(apiPath + '/forget-password', { username });
+}

@@ -11,53 +11,23 @@ import { StatisticEnum, EventFilterEnum, StatisticFilterModeEnum, getStatisticRe
 import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
 
 const getFirstAndLastDateInCurrentQuarter = () => {
-  const currentMonth = moment().get('month');
-  const currentYear = moment().get('year');
-
-  switch (true) {
-    case 1 <= currentMonth <= 3: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 0, year: currentYear }),
-        DateEnd: moment().set('date', 31).set({ month: 2, year: currentYear }),
-      };
-    }
-
-    case 4 <= currentMonth <= 6: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 3, year: currentYear }),
-        DateEnd: moment().set('date', 30).set({ month: 5, year: currentYear }),
-      };
-    }
-
-    case 7 <= currentMonth <= 9: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 6, year: currentYear }),
-        DateEnd: moment().set('date', 30).set({ month: 8, year: currentYear }),
-      };
-    }
-
-    case 10 <= currentMonth <= 12: {
-      return {
-        DateStart: moment().set('date', 1).set({ month: 9, year: currentYear }),
-        DateEnd: moment().set('date', 31).set({ month: 11, year: currentYear }),
-      };
-    }
-
-    default: {
-      break;
-    }
-  }
+  const currentQuarter = moment().quarter();
+  return {
+    DateStart: moment().quarter(currentQuarter).startOf('quarter'),
+    DateEnd: moment().quarter(currentQuarter).endOf('quarter'),
+  };
 };
 
 const DashboardPage = () => {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [eventList, setEventList] = useState([]);
   const theme = useTheme();
 
-  const eventStatistics = data?.eventStatistics;
-  const eventRegistrationStatistics = data?.eventRegistrationStatistics;
-  const bloodVolumeStatistics = data?.bloodVolumeStatistics;
-  const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics;
+  const eventStatistics = data?.statistics[0]?.eventStatistics;
+  const eventRegistrationStatistics = data?.statistics[0]?.eventRegistrationStatistics;
+  const bloodVolumeStatistics = data?.statistics[0]?.bloodVolumeStatistics;
+  const bloodVolumeTypeStatistics = data?.statistics[0]?.bloodVolumeTypeStatistics;
 
   // Events
   const unstartedEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.UNSTARTED_GROUP);
@@ -127,16 +97,17 @@ const DashboardPage = () => {
   );
 
   const fetchDashboardData = useCallback(async () => {
-    const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.toISOString();
-    const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.toISOString();
-
+    const startDate = getFirstAndLastDateInCurrentQuarter().DateStart.format('yyyy-MM-DD');
+    const endDate = getFirstAndLastDateInCurrentQuarter().DateEnd.format('yyyy-MM-DD');
     const response = await getStatisticData(StatisticFilterModeEnum.All, startDate, endDate, false);
 
     setData(response);
   }, []);
 
   const fetchMostRecentEvents = useCallback(async () => {
+    setLoading(true);
     setEventList(await getEvents({ FilterMode: EventFilterEnum.MostRecent }));
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -166,7 +137,7 @@ const DashboardPage = () => {
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-calendar-star" className="tab_title--icon" />
-                  <Typography className="tab_title--text">Số sự kiện</Typography>
+                  <Typography className="tab_title--text">Tổng số sự kiện</Typography>
                 </Stack>
 
                 <Stack className="tab_content">
@@ -215,7 +186,7 @@ const DashboardPage = () => {
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-users-group" className="tab_title--icon" />
-                  <Typography className="tab_title--text">Số lượt đăng ký</Typography>
+                  <Typography className="tab_title--text">Tổng số lượt đăng ký sự kiện</Typography>
                 </Stack>
 
                 <Stack className="tab_content">
@@ -262,7 +233,7 @@ const DashboardPage = () => {
               <>
                 <Stack className="tab_title" direction="row" alignItems="center">
                   <Icon icon="solid-droplet" className="tab_title--icon" />
-                  <Typography className="tab_title--text">Số (ml) máu</Typography>
+                  <Typography className="tab_title--text">Tổng số (ml) máu nhận được</Typography>
                 </Stack>
                 <Stack className="tab_content">
                   <Typography className="tab_content--number">
@@ -303,7 +274,15 @@ const DashboardPage = () => {
 
       <Grid container spacing={3}>
         <Grid item lg={9} xs={12}>
-          <NewEventList events={eventList} />
+          {loading ? (
+            <StatisticTabContainer>
+              <Box textAlign="center" height="200px">
+                <CircularProgress sx={{ marginTop: '80px' }} />
+              </Box>
+            </StatisticTabContainer>
+          ) : (
+            <NewEventList events={eventList} />
+          )}
         </Grid>
         <Grid item lg={3} xs={12}>
           <BloodVolume>

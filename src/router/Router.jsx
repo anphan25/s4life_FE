@@ -21,6 +21,16 @@ export default function Router() {
       index: true,
     },
     {
+      path: 'change-password',
+      element: <PublicChangePassword />,
+      index: true,
+    },
+    {
+      path: 'forget-password',
+      element: <ForgetPassword />,
+      index: true,
+    },
+    {
       path: '/',
       element: (
         <AuthRouter>
@@ -172,7 +182,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Moderator', 'Admin']}>
+                <ProtectedRouter roles={['Admin']}>
                   <HospitalListPage />
                 </ProtectedRouter>
               ),
@@ -180,8 +190,16 @@ export default function Router() {
             {
               path: ':hospitalId',
               element: (
-                <ProtectedRouter roles={['Employee', 'Moderator', 'Admin', 'Manager']}>
+                <ProtectedRouter roles={['Employee', 'Admin', 'Manager']}>
                   <HospitalInfoPage />
+                </ProtectedRouter>
+              ),
+            },
+            {
+              path: ':hospitalId/edit',
+              element: (
+                <ProtectedRouter roles={['Manager']}>
+                  <EditHospitalInfoPage />
                 </ProtectedRouter>
               ),
             },
@@ -266,6 +284,7 @@ const EditUserInformationPage = Loadable(lazy(() => import('pages/user/EditUserI
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
+const EditHospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/EditHospitalInfoPage')));
 
 //script
 const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
@@ -273,3 +292,9 @@ const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')))
 //blood-donation-approval-request
 const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalListPage')));
 const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval-request/components/ApprovalDetail')));
+
+//public change password
+const PublicChangePassword = Loadable(lazy(() => import('pages/account/PublicChangePasswordPage')));
+
+//forget password
+const ForgetPassword = Loadable(lazy(() => import('pages/account/ForgetPassword')));

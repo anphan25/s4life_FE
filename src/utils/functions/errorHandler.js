@@ -11,14 +11,17 @@ export function convertErrorCodeToMessage(code) {
 
     //Login
     1003: 'Quyền truy cập bị giới hạn',
-    1004: 'Thông tin đăng nhập không chính xác',
+    1004: 'Tài khoản không tồn tại',
     1005: 'Mật khẩu không chính xác',
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
+    1010: 'Vui lòng cung cấp mật khẩu cũ',
     1034: 'Tài khoản đã bị vô hiệu',
+    1031: 'Thông tin đăng nhập không chính xác',
     1100: 'Đổi mật khẩu thành công',
 
     //Register
+    2000: 'Yêu cầu cập nhật tài khoản đang được xử lí',
     2001: 'Thông tin đăng kí tài khoản không hợp lệ',
     2011: 'Số điện thoại đã được đăng ký',
     2021: 'Số CMND/CCCD đã được đăng ký',
@@ -26,6 +29,10 @@ export function convertErrorCodeToMessage(code) {
     2041: 'Tên tài khoản đã tồn tại',
     2051: 'Bệnh viện này đã được cấp tài khoản quản lí bệnh viện',
     2100: 'Tạo tài khoản thành công',
+    2061: 'Chỉ có thể cập nhật trạng thái cho tài khoản của bệnh viện',
+    2071: 'Không thể cập nhật trạng thái tài khoản của bệnh viện không hoạt động',
+    2200: 'Kích hoạt tài khoản thành công',
+    2210: 'Vô hiệu hóa tài khoản thành công',
 
     //Hospital
     3000: PROCESSING_MESSAGE,
@@ -65,6 +72,7 @@ export function convertErrorCodeToMessage(code) {
     4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
     4141: 'Số lượng người tham gia tối thiểu phải bé hơn số lượng người tham gia tối đa',
     4151: 'Số lượng người tham gia tối thiểu ở sự kiện lưu động là 1',
+    4171: 'Không được hủy sự kiện đã có người tham gia',
     4100: 'Chỉnh sửa sự kiện thành công',
     4200: 'Hủy sự kiện thành công',
     4300: 'Tạo sự kiện thành công',
@@ -109,8 +117,10 @@ export function convertErrorCodeToMessage(code) {
     7161: 'Không thể đăng ký vào sự kiện lưu động đang diễn ra',
     7171: 'Đã điền phiếu đăng kí tham gia hiến máu',
     7181: 'Vui lòng đến tham dự sự kiện hiến máu vào đúng ngày đã đăng kí tham gia',
+    7191: 'Thiếu thông tin xác nhận hiến máu của nhân viên y tế',
     7100: 'Đăng kí sự kiện thành công',
     7200: 'Cập nhật thông tin đăng kí sự kiện thành công',
+    7201: 'Thời gian đăng kí phải trong khung giờ làm việc của sự kiện',
     7300: 'Hủy đăng kí sự kiện thành công',
 
     //User Informations

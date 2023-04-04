@@ -1,4 +1,4 @@
-import { Box, Typography, Button, FormControl, Select, MenuItem, Stack, styled } from '@mui/material';
+import { Box, Typography, Button, FormControl, Select, MenuItem, Stack } from '@mui/material';
 import {
   DataTable,
   CheckBoxFilter,
@@ -70,6 +70,8 @@ const VolunteerListOfEvent = () => {
   const [alertResult, setAlertResult] = useState(null);
   const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
   const [connection, setConnection] = useState(null);
+  // To prevent select/filter when calling apis
+  const [disableOperation, setDisableOperation] = useState(false);
 
   let user = useSelector((state) => state.auth.auth?.user);
 
@@ -248,6 +250,19 @@ const VolunteerListOfEvent = () => {
     setIsImportBtnDisabled(true);
   };
 
+  const handleChooseBloodType = (bloodTypes) => {
+    const mappingBloodTypeValues = [];
+
+    for (const property in BloodTypeFilterEnum) {
+      if (bloodTypes.includes(BloodTypeFilterEnum[property].label)) {
+        mappingBloodTypeValues.push(BloodTypeFilterEnum[property].value);
+      }
+    }
+    const bloodTypeString = mappingBloodTypeValues.toString();
+
+    setPageState((old) => ({ ...old, bloodTypes: bloodTypeString }));
+  };
+
   const handleDetailAlertDialog = () => {
     setIsDetailAlertOpen(!isDetailAlertOpen);
   };
@@ -421,6 +436,7 @@ const VolunteerListOfEvent = () => {
 
   const fetchVolunteersOfEvent = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+    setDisableOperation(true);
 
     try {
       const data = await getEventRegistrations({
@@ -449,12 +465,6 @@ const VolunteerListOfEvent = () => {
         isRhNegative: data?.isRhNegative,
         participationDate: formatDate(data?.participationDate, 2) || '-',
         statusId: data?.status,
-        // status:
-        //   EventRegistrationStatusEnum[
-        //     Object.keys(EventRegistrationStatusEnum).find(
-        //       (key) => EventRegistrationStatusEnum[key].value === data?.status
-        //     )
-        //   ].description,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
@@ -464,6 +474,7 @@ const VolunteerListOfEvent = () => {
       });
     } finally {
       setPageState((old) => ({ ...old, isLoading: false }));
+      setDisableOperation(false);
     }
   }, [
     pageState.page,
@@ -556,12 +567,14 @@ const VolunteerListOfEvent = () => {
               sx={{ width: '20%' }}
               onCheck={handleFilterBloodType}
               placeHolder="Chọn nhóm máu"
+              disableOperation={disableOperation}
             />
             <CheckBoxFilter
               options={getValuesFromEnum(EventRegistrationStatusEnum)}
               sx={{ width: '20%' }}
               placeHolder="Chọn trạng thái đăng ký"
               onCheck={handleFilterEventRegistration}
+              disableOperation={disableOperation}
             />
             <SearchBar
               type="number"

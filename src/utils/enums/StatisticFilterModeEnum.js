@@ -5,4 +5,5 @@ export const StatisticFilterModeEnum = Object.freeze({
   BloodVolumeStatistic: 3,
   BloodVolumeTypeStatistic: 4,
   BloodBagVolumeStatistic: 5,
+  DonateTimePerYearStatistic: 6,
 });

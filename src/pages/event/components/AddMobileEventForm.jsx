@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import moment from 'moment';
 import { DEFAULT_EVENT_IMAGE_URL, PHONE_NUMBER_PATTERN, MAX_INT, errorHandler } from 'utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -236,7 +236,7 @@ const AddMobileEventForm = () => {
     province: Yup.array()
       .of(
         Yup.object().shape({
-          id: Yup.number().required('Vui lòng chọn tỉnh thành'),
+          id: Yup.number(),
           name: Yup.string(),
         })
       )
@@ -263,8 +263,7 @@ const AddMobileEventForm = () => {
   const { handleSubmit, control, resetField } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues,
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onSubmit',
   });
 
   const onSubmit = async (data) => {
