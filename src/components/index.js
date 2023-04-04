@@ -9,6 +9,7 @@ export * from './react-hook-form/RHFDatePicker';
 export * from './react-hook-form/RHFRadio';
 export * from './react-hook-form/RHFAutoComplete';
 export * from './react-hook-form/RHFSelect';
+export * from './react-hook-form/RHFSwitch';
 export * from './import/HospitalImport';
 export * from './import/BloodDonationHistoryImport';
 export * from './import/UpdateBloodTypeImport';

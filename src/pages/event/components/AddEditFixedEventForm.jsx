@@ -326,7 +326,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập tên')
       .max(128, 'Tên không được dài quá 128 kí tự'),
     description: Yup.string()
-      // .validateBlankDescription('Vui lòng nhập mô tả')
+      .validateBlankDescription('Vui lòng nhập mô tả')
       .required('Vui lòng nhập mô tả')
       .max(512, 'Mô tả không được dài quá 512 kí tự'),
     contactInformation: Yup.string()
