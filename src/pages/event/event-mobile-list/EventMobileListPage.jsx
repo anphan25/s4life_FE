@@ -27,7 +27,6 @@ import {
   EventStatusEnum,
   getValuesFromEnum,
   RoleEnum,
-  isStartAndEndDateIsSame,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
@@ -309,7 +308,6 @@ const EventMobileListPage = () => {
       ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
     })
       .then((res) => {
-        console.log(res);
         const dataRow = res.items?.map((data, i) => ({
           id: data?.id,
           name: data?.name || '-',
