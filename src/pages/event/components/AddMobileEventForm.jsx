@@ -260,6 +260,15 @@ const AddMobileEventForm = () => {
           name: Yup.string(),
         })
       )
+      .transform(function (value, originalValue) {
+        if (originalValue?.length < 1 || !originalValue) return [];
+        return [
+          {
+            id: originalValue?.id,
+            name: originalValue?.name,
+          },
+        ];
+      })
       .min(1, 'Vui lòng chọn quận huyện'),
   });
 
