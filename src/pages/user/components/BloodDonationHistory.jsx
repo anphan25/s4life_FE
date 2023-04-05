@@ -8,6 +8,7 @@ import {
   RHFDatePicker,
   MultipleAlertSnackBar,
   DetailAlertDialog,
+  RHFSelect,
 } from 'components';
 import React, { useState, useCallback, useEffect, forwardRef, useRef } from 'react';
 import { getBloodDonations } from 'api';
@@ -21,9 +22,10 @@ import {
   InputFilterSectionStyle,
   RoleEnum,
   DownloadLink,
+  BLOOD_VOLUME,
 } from 'utils';
 import { addBloodDonations } from 'api';
-import { Stack, Box, Button, Divider, IconButton, Typography } from '@mui/material';
+import { Stack, Box, Button, Divider, IconButton, Typography, MenuItem } from '@mui/material';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
@@ -184,7 +186,7 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
 
             return value;
           })
-          .required('Vui lòng nhập số đơn vị máu')
+          .required('Vui lòng chọn số đơn vị máu')
           .min(1, 'Vui lòng nhập số lớn hơn 0'),
         bloodBagCode: Yup.string()
           .required('Vui lòng nhập số túi máu/số chứng nhận')
@@ -222,14 +224,27 @@ const BloodDonationHistory = forwardRef(({ userInformationId, fetchUserInfo }) =
         <form onSubmit={handleSubmit(onSubmitManualAdd)}>
           {fields.map((item, index) => (
             <Stack direction={'row'} gap={1} key={item.id}>
-              <RHFInput
+              {/* <RHFInput
                 type="number"
                 label="Số đơn vị máu"
                 name={`bloodDonations[${index}].donationVolume`}
                 control={control}
                 placeholder="Nhập số đơn vị máu"
                 isRequiredLabel={true}
-              />
+              /> */}
+              <RHFSelect
+                label="Số đơn vị máu"
+                name={`bloodDonations[${index}].donationVolume`}
+                control={control}
+                placeholder="Nhập số đơn vị máu"
+                isRequiredLabel={true}
+              >
+                {BLOOD_VOLUME.map((value, i) => (
+                  <MenuItem key={i} value={value}>
+                    {value}ml
+                  </MenuItem>
+                ))}
+              </RHFSelect>
               <RHFInput
                 label="Số túi máu/Số chứng nhận"
                 name={`bloodDonations[${index}].bloodBagCode`}

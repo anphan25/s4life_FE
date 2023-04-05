@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import moment from 'moment';
 import { CSVFileIcon } from 'assets';
-import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'utils';
+import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle, BLOOD_VOLUME } from 'utils';
 
 export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -49,7 +49,7 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       }
 
       case 'invalid-donation-volume': {
-        return 'Số đơn vị máu phải lớn hơn 0';
+        return 'Số đơn vị máu không hợp lệ. Số đơn vị hợp lệ là 250, 350, 375, 450';
       }
 
       case 'invalid-format-date': {
@@ -116,7 +116,7 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
           return;
         }
 
-        if (data['donationVolume'] <= 0) {
+        if (!BLOOD_VOLUME.includes(data['donationVolume'])) {
           displayInvalidFileContent('invalid-donation-volume');
         }
 
