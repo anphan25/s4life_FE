@@ -110,12 +110,6 @@ const EventFixedListPage = () => {
           const isEmergency = valueObject?.isEmergency;
           const isSameDate = startDate === endDate;
 
-          console.log('startDate', startDate);
-          console.log('endDate', endDate);
-
-          console.log('isSameDate', isSameDate);
-          console.log('----------------------');
-
           return (
             <Box>
               {isEmergency ? (

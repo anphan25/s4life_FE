@@ -250,19 +250,6 @@ const VolunteerListOfEvent = () => {
     setIsImportBtnDisabled(true);
   };
 
-  const handleChooseBloodType = (bloodTypes) => {
-    const mappingBloodTypeValues = [];
-
-    for (const property in BloodTypeFilterEnum) {
-      if (bloodTypes.includes(BloodTypeFilterEnum[property].label)) {
-        mappingBloodTypeValues.push(BloodTypeFilterEnum[property].value);
-      }
-    }
-    const bloodTypeString = mappingBloodTypeValues.toString();
-
-    setPageState((old) => ({ ...old, bloodTypes: bloodTypeString }));
-  };
-
   const handleDetailAlertDialog = () => {
     setIsDetailAlertOpen(!isDetailAlertOpen);
   };
