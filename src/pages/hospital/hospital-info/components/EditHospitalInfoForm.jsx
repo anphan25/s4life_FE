@@ -47,6 +47,54 @@ const EditHospitalInfoForm = ({ hospitalInfo = null }) => {
     [hospitalInfo]
   );
 
+  // Custom Validation
+  Yup.addMethod(Yup.string, 'validateLongitude', function (errorMessage) {
+    return this.test(`test-longitude`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      const isValid = Math.abs(value * 1) >= -180 && Math.abs(value * 1) <= 180 && value.match(LONGITUDE_PATTERN);
+
+      return isValid || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.string, 'validateLatitude', function (errorMessage) {
+    return this.test(`test-latitude`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      const isValid = Math.abs(value * 1) >= -90 && Math.abs(value * 1) <= 90 && value.match(LATITUDE_PATTERN);
+
+      return isValid || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isStartTimeBeforeEndTime', function (errorMessage) {
+    return this.test(`test-start-time-before-end-time`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+      const startTime = moment(context.parent.startTime);
+      const endTime = moment(context.parent.endTime);
+
+      if (startTime.isSameOrBefore(endTime, 'hours'))
+        clearErrors([context.path, context.path.replace('startTime', 'endTime')]);
+
+      return startTime.isSameOrBefore(endTime, 'hours') || createError({ path, message: errorMessage });
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isEndTimeAfterStartTime', function (errorMessage) {
+    return this.test(`test-end-time-after-start-time`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      const startTime = moment(context.parent.startTime);
+      const endTime = moment(context.parent.endTime);
+
+      if (endTime.isSameOrAfter(startTime, 'hours'))
+        clearErrors([context.path, context.path.replace('endTime', 'startTime')]);
+
+      return endTime.isSameOrAfter(startTime, 'hours') || createError({ path, message: errorMessage });
+    });
+  });
+
   const EditHospitalInfoSchema = Yup.object().shape({
     name: Yup.string()
       .transform((value) => {
@@ -98,54 +146,6 @@ const EditHospitalInfoForm = ({ hospitalInfo = null }) => {
     defaultValues,
     mode: 'onChange',
     reValidateMode: 'onChange',
-  });
-
-  // Custom Validation
-  Yup.addMethod(Yup.string, 'validateLongitude', function (errorMessage) {
-    return this.test(`test-longitude`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-
-      const isValid = Math.abs(value * 1) >= -180 && Math.abs(value * 1) <= 180 && value.match(LONGITUDE_PATTERN);
-
-      return isValid || createError({ path, message: errorMessage });
-    });
-  });
-
-  Yup.addMethod(Yup.string, 'validateLatitude', function (errorMessage) {
-    return this.test(`test-latitude`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-
-      const isValid = Math.abs(value * 1) >= -90 && Math.abs(value * 1) <= 90 && value.match(LATITUDE_PATTERN);
-
-      return isValid || createError({ path, message: errorMessage });
-    });
-  });
-
-  Yup.addMethod(Yup.date, 'isStartTimeBeforeEndTime', function (errorMessage) {
-    return this.test(`test-start-time-before-end-time`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-      const startTime = moment(context.parent.startTime);
-      const endTime = moment(context.parent.endTime);
-
-      if (startTime.isSameOrBefore(endTime, 'hours'))
-        clearErrors([context.path, context.path.replace('startTime', 'endTime')]);
-
-      return startTime.isSameOrBefore(endTime, 'hours') || createError({ path, message: errorMessage });
-    });
-  });
-
-  Yup.addMethod(Yup.date, 'isEndTimeAfterStartTime', function (errorMessage) {
-    return this.test(`test-end-time-after-start-time`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-
-      const startTime = moment(context.parent.startTime);
-      const endTime = moment(context.parent.endTime);
-
-      if (endTime.isSameOrAfter(startTime, 'hours'))
-        clearErrors([context.path, context.path.replace('endTime', 'startTime')]);
-
-      return endTime.isSameOrAfter(startTime, 'hours') || createError({ path, message: errorMessage });
-    });
   });
 
   const onSubmit = async (data) => {
