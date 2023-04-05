@@ -17,7 +17,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import {
   formatDate,
   errorHandler,
-  isEventEditableOrCancelable,
+  isEventEditable,
   convertErrorCodeToMessage,
   HeaderMainStyle,
   DialogButtonGroupStyle,
@@ -27,7 +27,6 @@ import {
   EventStatusEnum,
   getValuesFromEnum,
   RoleEnum,
-  isStartAndEndDateIsSame,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
@@ -187,7 +186,7 @@ const EventFixedListPage = () => {
       },
       {
         headerName: 'Đã hiến máu/Tổng đăng ký',
-        field: 'numberOfRegistration',
+        field: 'ratioOfDonated',
         type: 'string',
         width: 150,
       },
@@ -217,14 +216,7 @@ const EventFixedListPage = () => {
                     params.row.isEmergency
                   }
                   onClick={() => {
-                    if (
-                      !isEventEditableOrCancelable(
-                        params.row?.numberOfRegistration,
-                        params.row?.startDate,
-                        user.role,
-                        1
-                      )
-                    ) {
+                    if (!isEventEditable(params.row?.currentParticipation, params.row?.startDate)) {
                       handleEditCancelDialog();
                       return;
                     }
@@ -248,18 +240,6 @@ const EventFixedListPage = () => {
                       (params.row.isEmergency && isManager)
                     }
                     onClick={() => {
-                      if (
-                        !isEventEditableOrCancelable(
-                          params.row?.numberOfRegistration,
-                          params.row?.startDate,
-                          user.role,
-                          2
-                        )
-                      ) {
-                        handleEditCancelDialog();
-                        return;
-                      }
-
                       handleCancelEventDialog();
                       setCancelEventName(params.row.name);
                       setCancelEventId(params.row.id);
@@ -353,7 +333,7 @@ const EventFixedListPage = () => {
             variant="contained"
             autoFocus
           >
-            Hủy sự kiện
+            Ok
           </LoadingButton>
         </DialogButtonGroupStyle>
       </Box>
@@ -363,16 +343,11 @@ const EventFixedListPage = () => {
   const alertEditCancelDialogContent = () => {
     return (
       <Box>
-        {isAdmin ? (
-          <Typography>Chỉ được hủy sự khi sự kiện không có tình nguyện viên đăng ký.</Typography>
-        ) : (
-          <>
-            <Typography>
-              Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-            </Typography>
-            <Typography sx={{ marginTop: '10px' }}>Vui lòng liên hệ quản trị viên nếu bạn muốn hủy.</Typography>
-          </>
-        )}
+        <>
+          <Typography>
+            Chỉ được chỉnh sửa sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
+          </Typography>
+        </>
 
         <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button
@@ -415,7 +390,8 @@ const EventFixedListPage = () => {
           }),
           startDate: data?.startDate,
           endDate: data?.endDate,
-          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.currentParticipation}` || 0,
+          ratioOfDonated: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
+          currentParticipation: data?.currentParticipation,
           status: data?.status || '',
           isEmergency: data?.isEmergency,
         }));

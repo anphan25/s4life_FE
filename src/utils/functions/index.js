@@ -1,5 +1,5 @@
 export * from './handleDownloadTemplate';
-export * from './isEventEditableOrCancelable';
+export * from './isEventEditable';
 export * from './isStartAndEndDateIsSame';
 export * from './convertDayLabel';
 export * from './errorHandler';

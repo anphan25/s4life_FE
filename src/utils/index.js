@@ -6,7 +6,7 @@ export * from './constant/regexPattern';
 export * from './constant/message';
 export * from './functions/convertBloodTypeLabel';
 export * from './functions/convertDayLabel';
-export * from './functions/isEventEditableOrCancelable';
+export * from './functions/isEventEditable';
 export * from './styles/commonStyle';
 export * from './functions/isStartAndEndDateIsSame';
 export * from './enums';

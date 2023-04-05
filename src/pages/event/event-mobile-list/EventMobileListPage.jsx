@@ -17,7 +17,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import {
   formatDate,
   errorHandler,
-  isEventEditableOrCancelable,
   convertErrorCodeToMessage,
   HeaderMainStyle,
   DialogButtonGroupStyle,
@@ -40,7 +39,6 @@ const EventMobileListPage = () => {
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [isCancelAlertOpen, setIsCancelAlertOpen] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
   const [pageState, setPageState] = useState({
@@ -161,18 +159,6 @@ const EventMobileListPage = () => {
                       params.row.status === EventStatusEnum.Cancelled.description
                     }
                     onClick={() => {
-                      if (
-                        !isEventEditableOrCancelable(
-                          params.row?.numberOfRegistration,
-                          params.row?.startDate,
-                          user.role,
-                          2
-                        )
-                      ) {
-                        handleCancelDialog();
-                        return;
-                      }
-
                       handleCancelEventDialog();
                       setCancelEventName(params.row.name);
                       setCancelEventId(params.row.id);
@@ -216,9 +202,6 @@ const EventMobileListPage = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
 
-  const handleCancelDialog = () => {
-    setIsCancelAlertOpen(!isCancelAlertOpen);
-  };
   useEffect(() => {
     const openConnection = async () => {
       setConnection(await openHubConnection(store));
@@ -268,28 +251,6 @@ const EventMobileListPage = () => {
           >
             Hủy sự kiện
           </LoadingButton>
-        </DialogButtonGroupStyle>
-      </Box>
-    );
-  };
-
-  const alertCancelDialogContent = () => {
-    return (
-      <Box>
-        <Typography>
-          Chỉ được hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-        </Typography>
-        <Typography sx={{ marginTop: '10px' }}>Vui lòng liên hệ quản trị viên nếu bạn muốn hủy .</Typography>
-
-        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleCancelDialog();
-            }}
-          >
-            Ok
-          </Button>
         </DialogButtonGroupStyle>
       </Box>
     );
@@ -395,14 +356,6 @@ const EventMobileListPage = () => {
         onClose={handleCancelEventDialog}
         title="Hủy sự kiện"
         children={cancelEventDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
-      />
-
-      <CustomDialog
-        isOpen={isCancelAlertOpen}
-        onClose={handleCancelDialog}
-        title=""
-        children={alertCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
     </>

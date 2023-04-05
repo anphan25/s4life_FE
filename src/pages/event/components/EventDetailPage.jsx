@@ -24,7 +24,7 @@ import {
   convertBloodTypeLabel,
   errorHandler,
   formatDate,
-  isEventEditableOrCancelable,
+  isEventEditable,
   convertErrorCodeToMessage,
   isStartAndEndDateIsSame,
   EventTypeEnum,
@@ -232,7 +232,7 @@ const EventDetailPage = () => {
             variant="contained"
             autoFocus
           >
-            Hủy sự kiện
+            Ok
           </LoadingButton>
         </DialogButtonGroup>
       </Box>
@@ -242,16 +242,11 @@ const EventDetailPage = () => {
   const alertEditCancelDialogContent = () => {
     return (
       <Box>
-        {isAdmin ? (
-          <Typography>Chỉ được hủy sự khi sự kiện không có tình nguyện viên đăng ký.</Typography>
-        ) : (
-          <>
-            <Typography>
-              Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-            </Typography>
-            <Typography sx={{ marginTop: '10px' }}>Vui lòng liên hệ quản trị viên nếu bạn muốn hủy.</Typography>
-          </>
-        )}
+        <>
+          <Typography>
+            Chỉ được chỉnh sửa sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
+          </Typography>
+        </>
 
         <DialogButtonGroup sx={{ marginTop: '10px' }}>
           <Button
@@ -356,14 +351,7 @@ const EventDetailPage = () => {
                   }
                   onClick={() => {
                     handleClose();
-                    if (
-                      !isEventEditableOrCancelable(
-                        detailData?.numberOfRegistration,
-                        detailData?.startDate,
-                        user.role,
-                        1
-                      )
-                    ) {
+                    if (!isEventEditable(detailData?.currentParticipation, detailData?.startDate)) {
                       handleEditCancelDialog();
 
                       return;
@@ -387,19 +375,6 @@ const EventDetailPage = () => {
                   }
                   onClick={() => {
                     handleClose();
-
-                    if (
-                      !isEventEditableOrCancelable(
-                        detailData?.numberOfRegistration,
-                        detailData?.startDate,
-                        user.role,
-                        2
-                      )
-                    ) {
-                      handleEditCancelDialog();
-
-                      return;
-                    }
                     handleCancelEventDialog();
                   }}
                 >
