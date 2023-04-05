@@ -249,9 +249,7 @@ const EventDetailPage = () => {
             <Typography>
               Chỉ được sửa hoặc hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
             </Typography>
-            <Typography sx={{ marginTop: '10px' }}>
-              Vui lòng liên hệ quản trị viên nếu bạn muốn hủy.
-            </Typography>
+            <Typography sx={{ marginTop: '10px' }}>Vui lòng liên hệ quản trị viên nếu bạn muốn hủy.</Typography>
           </>
         )}
 
@@ -637,7 +635,7 @@ const EventDetailPage = () => {
 
             <Grid md={4} sm={6} xs={12} item>
               <Typography>
-                <TitleItemStyle>Số người đăng ký hiện tại:</TitleItemStyle> {detailData?.numberOfRegistration || 0}
+                <TitleItemStyle>Số người đăng ký hiện tại:</TitleItemStyle> {detailData?.currentParticipation || 0}
               </Typography>
             </Grid>
           </Grid>

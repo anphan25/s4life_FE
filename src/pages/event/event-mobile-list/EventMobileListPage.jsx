@@ -327,7 +327,7 @@ const EventMobileListPage = () => {
 
           startDate: data?.startDate,
           endDate: data?.endDate,
-          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
+          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.currentParticipation}` || 0,
           status: data?.status || '',
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
