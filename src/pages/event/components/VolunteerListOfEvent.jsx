@@ -198,7 +198,10 @@ const VolunteerListOfEvent = () => {
               showInMenu
             />,
             <GridActionsCellItem
-              disabled={params.row.statusId !== EventRegistrationStatusEnum.Donated.value}
+              disabled={
+                params.row.statusId !== EventRegistrationStatusEnum.Donated.value &&
+                params.row.statusId !== EventRegistrationStatusEnum.ConditionInsufficient.value
+              }
               icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
               label="Tải phiếu đăng ký"
               showInMenu
