@@ -108,13 +108,15 @@ const EditHospitalInfoForm = ({ hospitalInfo = null }) => {
       })
       .required('Vui lòng nhập địa chỉ')
       .max(128, 'Địa chỉ không được dài quá 128 kí tự'),
-    latitude: Yup.string().validateLatitude('Vĩ độ không hợp lệ'),
-    longitude: Yup.string().validateLongitude('Kinh độ không hợp lệ'),
-    email: Yup.string().matches(EMAIL_PATTERN, { message: 'Email không hợp lệ', excludeEmptyString: false }),
+    latitude: Yup.string().required('Vui lòng nhập vĩ độ').validateLatitude('Vĩ độ không hợp lệ'),
+    longitude: Yup.string().required('Vui lòng nhập kinh độ').validateLongitude('Kinh độ không hợp lệ'),
+    email: Yup.string()
+      .required('Vui lòng nhập email')
+      .matches(EMAIL_PATTERN, { message: 'Email không hợp lệ', excludeEmptyString: false }),
     phoneNumber: Yup.string()
+      .required('Vui lòng nhập số điện thoại')
       .trim('Số điện thoại không hợp lệ')
-      .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại không hợp lệ', excludeEmptyString: false })
-      .required('Vui lòng nhập số điện thoại'),
+      .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại không hợp lệ', excludeEmptyString: false }),
     nextWeekSchedule: Yup.array().of(
       Yup.object().shape({
         day: Yup.number(),
