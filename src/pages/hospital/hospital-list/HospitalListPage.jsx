@@ -117,7 +117,7 @@ const HospitalListPage = () => {
           <GridActionsCellItem
             sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
             label={isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
-            icon={<Icon icon={isHospitalActive ? 'disabled' : 'solid-trash-slash'} />}
+            icon={<Icon icon={isHospitalActive ? 'solid-ban' : 'solid-check-double'} />}
             onClick={() => {
               if (isHospitalActive) {
                 setDisableHospitalId(params.row.id);
