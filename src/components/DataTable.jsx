@@ -119,12 +119,12 @@ export const DataTable = ({ gridOptions, onPageChange, onPageSizeChange, disable
             MoreActionsIcon,
           }}
           disableColumnFilter={disableFilter}
-          componentsProps={{
-            cell: {
-              onMouseEnter: handlePopoverOpen,
-              onMouseLeave: handlePopoverClose,
-            },
-          }}
+          // componentsProps={{
+          //   cell: {
+          //     onMouseEnter: handlePopoverOpen,
+          //     onMouseLeave: handlePopoverClose,
+          //   },
+          // }}
           disableSelectionOnClick
         />
         <Popover

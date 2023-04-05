@@ -61,7 +61,7 @@ const HospitalListPage = () => {
         headerName: 'Tên bệnh viện',
         field: 'name',
         type: 'string',
-        width: 180,
+        width: 240,
         renderCell: (nameValue) => {
           return (
             <Typography
