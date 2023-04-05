@@ -27,6 +27,7 @@ import {
   EventStatusEnum,
   getValuesFromEnum,
   RoleEnum,
+  isStartAndEndDateIsSame,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
@@ -117,7 +118,7 @@ const EventMobileListPage = () => {
                       fontSize: 12,
                     }}
                   >
-                    {startDate} - {endDate}
+                    {startDate}
                   </Typography>
                   <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
                     {workingTimeStart} - {workingTimeEnd}
@@ -128,13 +129,6 @@ const EventMobileListPage = () => {
           );
         },
       },
-      // {
-      //   headerName: 'Bệnh viện tổ chức',
-      //   field: 'hospitalName',
-      //   type: 'string',
-      //   width: 200,
-      // },
-
       {
         headerName: 'Đã hiến máu/Tổng đăng ký',
         field: 'numberOfRegistration',
@@ -335,8 +329,6 @@ const EventMobileListPage = () => {
 
           startDate: data?.startDate,
           endDate: data?.endDate,
-          // hospitalName: data?.hospital.name,
-
           numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
           status: data?.status || '',
         }));

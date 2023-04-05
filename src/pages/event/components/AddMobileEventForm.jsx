@@ -192,9 +192,10 @@ const AddMobileEventForm = () => {
       .required('Vui lòng nhập mô tả')
       .max(512, 'Mô tả không được dài quá 512 kí tự'),
     contactInformation: Yup.string()
+      .required('Vui lòng nhập số điện thoại liên hệ')
       .trim('Số điện thoại liên hệ không hợp lệ ')
-      .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại liên hệ không hợp lệ', excludeEmptyString: false })
-      .required('Vui lòng nhập số điện thoại liên hệ'),
+      .matches(PHONE_NUMBER_PATTERN, { message: 'Số điện thoại liên hệ không hợp lệ', excludeEmptyString: false }),
+
     beginEvent: Yup.date()
       .nullable()
       .transform(transformDate)
