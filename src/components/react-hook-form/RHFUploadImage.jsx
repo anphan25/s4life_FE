@@ -155,7 +155,7 @@ export const RHFUploadImage = ({ label, name, control, onUpload, defaultValue = 
                 icon="solid-times"
                 onClick={() => {
                   setSelectedFile(null);
-                  onUpload(acceptedFiles[0]);
+                  onUpload(null);
                 }}
                 title="Gỡ bỏ ảnh"
               />
