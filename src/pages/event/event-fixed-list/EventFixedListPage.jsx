@@ -107,6 +107,7 @@ const EventFixedListPage = () => {
           const workingTimeStart = valueObject?.workingTimeStart;
           const workingTimeEnd = valueObject?.workingTimeEnd;
           const isEmergency = valueObject?.isEmergency;
+          const isSameDate = startDate === endDate;
 
           return (
             <Box>
