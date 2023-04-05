@@ -139,7 +139,7 @@ const DonationTimeFilter = ({ onFilter, disableOperation }) => {
               setDonationTimes([]);
             }}
           >
-            Bỏ lọc
+            Bỏ chọn
           </Button>
         </Stack>
       </Popover>

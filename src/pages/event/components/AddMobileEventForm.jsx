@@ -261,13 +261,8 @@ const AddMobileEventForm = () => {
         })
       )
       .transform(function (value, originalValue) {
-        if (originalValue?.length < 1 || !originalValue) return [];
-        return [
-          {
-            id: originalValue?.id,
-            name: originalValue?.name,
-          },
-        ];
+        if (value?.length < 1 || !value) return [];
+        return [...value];
       })
       .min(1, 'Vui lòng chọn quận huyện'),
   });
@@ -279,6 +274,7 @@ const AddMobileEventForm = () => {
   });
 
   const onSubmit = async (data) => {
+    console.log('data', data);
     setIsButtonLoading(true);
 
     const areas = data?.districts.map((item) => {
