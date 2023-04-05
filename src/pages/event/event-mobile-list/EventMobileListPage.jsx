@@ -17,7 +17,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import {
   formatDate,
   errorHandler,
-  isEventEditableOrCancelable,
   convertErrorCodeToMessage,
   HeaderMainStyle,
   DialogButtonGroupStyle,
@@ -40,7 +39,6 @@ const EventMobileListPage = () => {
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [isCancelAlertOpen, setIsCancelAlertOpen] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
   const [pageState, setPageState] = useState({
@@ -117,7 +115,7 @@ const EventMobileListPage = () => {
                       fontSize: 12,
                     }}
                   >
-                    {startDate} - {endDate}
+                    {startDate}
                   </Typography>
                   <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
                     {workingTimeStart} - {workingTimeEnd}
@@ -128,13 +126,6 @@ const EventMobileListPage = () => {
           );
         },
       },
-      // {
-      //   headerName: 'Bệnh viện tổ chức',
-      //   field: 'hospitalName',
-      //   type: 'string',
-      //   width: 200,
-      // },
-
       {
         headerName: 'Đã hiến máu/Tổng đăng ký',
         field: 'numberOfRegistration',
@@ -168,18 +159,6 @@ const EventMobileListPage = () => {
                       params.row.status === EventStatusEnum.Cancelled.description
                     }
                     onClick={() => {
-                      if (
-                        !isEventEditableOrCancelable(
-                          params.row?.numberOfRegistration,
-                          params.row?.startDate,
-                          user.role,
-                          2
-                        )
-                      ) {
-                        handleCancelDialog();
-                        return;
-                      }
-
                       handleCancelEventDialog();
                       setCancelEventName(params.row.name);
                       setCancelEventId(params.row.id);
@@ -223,9 +202,6 @@ const EventMobileListPage = () => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
 
-  const handleCancelDialog = () => {
-    setIsCancelAlertOpen(!isCancelAlertOpen);
-  };
   useEffect(() => {
     const openConnection = async () => {
       setConnection(await openHubConnection(store));
@@ -280,28 +256,6 @@ const EventMobileListPage = () => {
     );
   };
 
-  const alertCancelDialogContent = () => {
-    return (
-      <Box>
-        <Typography>
-          Chỉ được hủy sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-        </Typography>
-        <Typography sx={{ marginTop: '10px' }}>Vui lòng liên hệ quản trị viên nếu bạn muốn hủy .</Typography>
-
-        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleCancelDialog();
-            }}
-          >
-            Ok
-          </Button>
-        </DialogButtonGroupStyle>
-      </Box>
-    );
-  };
-
   const fetchEventListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true }));
     getEvents({
@@ -315,7 +269,6 @@ const EventMobileListPage = () => {
       ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
     })
       .then((res) => {
-        console.log(res);
         const dataRow = res.items?.map((data, i) => ({
           id: data?.id,
           name: data?.name || '-',
@@ -335,9 +288,7 @@ const EventMobileListPage = () => {
 
           startDate: data?.startDate,
           endDate: data?.endDate,
-          // hospitalName: data?.hospital.name,
-
-          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
+          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.currentParticipation}` || 0,
           status: data?.status || '',
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
@@ -405,14 +356,6 @@ const EventMobileListPage = () => {
         onClose={handleCancelEventDialog}
         title="Hủy sự kiện"
         children={cancelEventDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
-      />
-
-      <CustomDialog
-        isOpen={isCancelAlertOpen}
-        onClose={handleCancelDialog}
-        title=""
-        children={alertCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
     </>

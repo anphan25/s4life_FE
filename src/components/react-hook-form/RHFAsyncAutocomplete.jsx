@@ -46,7 +46,7 @@ export const RHFAsyncAutoComplete = ({
                 if (!onScrollToBottom) return;
 
                 const listboxNode = event.currentTarget;
-                if (Math.round(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
+                if (Math.ceil(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
                   const top = listboxNode.scrollTop;
                   setSize(size + 10);
 

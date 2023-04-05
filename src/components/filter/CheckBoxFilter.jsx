@@ -74,10 +74,12 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
           onAnimationEnd={() => inputRef?.current?.focus()}
           displayEmpty={true}
           renderValue={(selectedValues) => {
-            if (selectedValues.length === 0) {
+            const noNullSelectedValues = removeNullElement(selectedValues);
+
+            if (noNullSelectedValues.length === 0) {
               return placeHolder;
             }
-            return convertValueToLabel(selectedValues).join(', ');
+            return convertValueToLabel(noNullSelectedValues).join(', ');
           }}
           disabled={disableOperation}
           multiple

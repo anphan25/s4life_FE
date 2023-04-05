@@ -189,11 +189,6 @@ const StatisticsPage = () => {
         backgroundColor: [theme.palette.info.main],
       },
       {
-        label: '375ml',
-        data: bloodBags?.map((data) => data['volume375']),
-        backgroundColor: [theme.palette.warning.main],
-      },
-      {
         label: '450ml',
         data: bloodBags?.map((data) => data['volume450']),
         backgroundColor: [theme.palette.success.main],

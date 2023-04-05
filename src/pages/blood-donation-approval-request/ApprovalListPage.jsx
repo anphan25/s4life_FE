@@ -176,7 +176,7 @@ function ApprovalList() {
               sx={{ width: '100%' }}
               type={'number'}
               className="search-bar"
-              placeholder={'Nhập CCCD/CMND'}
+              placeholder={'Nhập số điện thoại'}
               onSubmit={handleSearchBloodBag}
             />
           </InputFilterSectionStyle>

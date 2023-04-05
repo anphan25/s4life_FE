@@ -16,4 +16,7 @@ export const BLOOD_TYPE = [
   { bloodTypeId: 4, isRhNegative: true },
   { bloodTypeId: 4, isRhNegative: false },
 ];
+
+export const BLOOD_VOLUME = [250, 350, 375, 450];
+
 export const EDIT_CANCEL_EVENT_VALID_PERIOD = 3;

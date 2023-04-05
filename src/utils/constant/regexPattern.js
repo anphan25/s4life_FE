@@ -1,4 +1,4 @@
-export const PHONE_NUMBER_PATTERN = /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/;
+export const PHONE_NUMBER_PATTERN = /^\d{9,12}$/;
 export const USERNAME_PATTERN = /^[a-zA-Z]{1}[a-zA-Z0-9]{4,256}$/;
 export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&\/]).{9,}$/;
 export const NUMBER_PATTERN = /^[0-9]+$/;

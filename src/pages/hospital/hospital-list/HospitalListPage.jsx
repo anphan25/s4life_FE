@@ -61,7 +61,7 @@ const HospitalListPage = () => {
         headerName: 'Tên bệnh viện',
         field: 'name',
         type: 'string',
-        width: 180,
+        width: 240,
         renderCell: (nameValue) => {
           return (
             <Typography
@@ -117,7 +117,7 @@ const HospitalListPage = () => {
           <GridActionsCellItem
             sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
             label={isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
-            icon={<Icon icon={isHospitalActive ? 'solid-trash' : 'solid-trash-slash'} />}
+            icon={<Icon icon={isHospitalActive ? 'solid-ban' : 'solid-check-double'} />}
             onClick={() => {
               if (isHospitalActive) {
                 setDisableHospitalId(params.row.id);
