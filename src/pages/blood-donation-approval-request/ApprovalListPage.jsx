@@ -160,8 +160,8 @@ function ApprovalList() {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading="Yêu cầu phê duyệt thẻ hiến máu"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Yêu cầu phê duyệt thẻ hiến máu' }]}
+          heading="Yêu cầu phê duyệt lịch sử hiến máu"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Yêu cầu phê duyệt lịch sử hiến máu' }]}
         />
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>

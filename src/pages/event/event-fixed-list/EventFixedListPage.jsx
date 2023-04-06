@@ -185,7 +185,7 @@ const EventFixedListPage = () => {
         },
       },
       {
-        headerName: 'Đã hiến máu/Tổng đăng ký',
+        headerName: 'Đã hiến máu/Tổng lượt đăng ký',
         field: 'ratioOfDonated',
         type: 'string',
         width: 150,

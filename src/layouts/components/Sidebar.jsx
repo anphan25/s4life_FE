@@ -89,7 +89,7 @@ export const Sidebar = ({ toggle, onClose }) => {
       to: '/user/list',
     },
     {
-      name: 'Xét duyệt thẻ hiến máu',
+      name: 'Xét duyệt lịch sử hiến máu',
       icon: <Icon icon="file-text-edit" />,
       to: '/blood-donation-approval-request/list',
     },
