@@ -227,15 +227,6 @@ export default function Router() {
             },
           ],
         },
-
-        {
-          path: '/script',
-          element: (
-            <ProtectedRouter roles={['Admin']}>
-              <RunScriptPage />
-            </ProtectedRouter>
-          ),
-        },
       ],
     },
     {
@@ -285,9 +276,6 @@ const EditUserInformationPage = Loadable(lazy(() => import('pages/user/EditUserI
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
 const EditHospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/EditHospitalInfoPage')));
-
-//script
-const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
 
 //blood-donation-approval-request
 const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalListPage')));
