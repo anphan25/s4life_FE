@@ -31,6 +31,7 @@ export function convertErrorCodeToMessage(code) {
     2100: 'Tạo tài khoản thành công',
     2061: 'Chỉ có thể cập nhật trạng thái cho tài khoản của bệnh viện',
     2071: 'Không thể cập nhật trạng thái tài khoản của bệnh viện không hoạt động',
+    2081: 'Bệnh viện này đã được cấp tài khoản nhân viên bệnh viện',
     2200: 'Kích hoạt tài khoản thành công',
     2210: 'Vô hiệu hóa tài khoản thành công',
 
@@ -73,6 +74,8 @@ export function convertErrorCodeToMessage(code) {
     4141: 'Số lượng người tham gia tối thiểu phải bé hơn số lượng người tham gia tối đa',
     4151: 'Số lượng người tham gia tối thiểu ở sự kiện lưu động là 1',
     4171: 'Không được hủy sự kiện đã có người tham gia',
+    4181: 'Sự kiện dự kiến phải có Tỉnh/Thành phố tổ chức',
+    4191: 'Tỉnh/Thành Phố không hợp lệ',
     4100: 'Chỉnh sửa sự kiện thành công',
     4200: 'Hủy sự kiện thành công',
     4300: 'Tạo sự kiện thành công',
@@ -121,6 +124,7 @@ export function convertErrorCodeToMessage(code) {
     7100: 'Đăng kí sự kiện thành công',
     7200: 'Cập nhật thông tin đăng kí sự kiện thành công',
     7201: 'Thời gian đăng kí phải trong khung giờ làm việc của sự kiện',
+    7211: 'Không thể hủy đăng ký sự cho kiện lưu động đã bắt đầu',
     7300: 'Hủy đăng kí sự kiện thành công',
 
     //User Informations

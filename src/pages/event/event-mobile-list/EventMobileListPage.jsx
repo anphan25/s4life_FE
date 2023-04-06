@@ -127,8 +127,8 @@ const EventMobileListPage = () => {
         },
       },
       {
-        headerName: 'Đã hiến máu/Tổng đăng ký',
-        field: 'numberOfRegistration',
+        headerName: 'Đã hiến máu/Tổng lượt đăng ký',
+        field: 'ratioOfDonated',
         type: 'string',
         width: 150,
       },
@@ -288,7 +288,7 @@ const EventMobileListPage = () => {
 
           startDate: data?.startDate,
           endDate: data?.endDate,
-          numberOfRegistration: `${data?.numberOfDonatedVolunteer}/${data?.currentParticipation}` || 0,
+          ratioOfDonated: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
           status: data?.status || '',
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
