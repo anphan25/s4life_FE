@@ -141,7 +141,7 @@ const DashboardPage = () => {
                 </Stack>
 
                 <Stack className="tab_content">
-                  <Typography className="tab_content--number">
+                  <Typography textAlign="center" className="tab_content--number">
                     {formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents)}
                   </Typography>
 
@@ -190,7 +190,9 @@ const DashboardPage = () => {
                 </Stack>
 
                 <Stack className="tab_content">
-                  <Typography className="tab_content--number">{formatNumber(totalRegistrations)}</Typography>
+                  <Typography textAlign="center" className="tab_content--number">
+                    {formatNumber(totalRegistrations)}
+                  </Typography>
 
                   <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
                     <Box className="status_box">
@@ -236,23 +238,11 @@ const DashboardPage = () => {
                   <Typography className="tab_title--text">Tổng số (ml) máu nhận được</Typography>
                 </Stack>
                 <Stack className="tab_content">
-                  <Typography className="tab_content--number">
-                    {formatNumber(receivedBlood + expectedBloodReceive)}
+                  <Typography textAlign="center" className="tab_content--number">
+                    {formatNumber(receivedBlood)}
                   </Typography>
 
                   <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">
-                    <Box className="status_box">
-                      <Stack className="status_title" direction="row" alignItems="center" justifyContent="center">
-                        <Icon icon="solid-check" className="status_icon success" />
-                        <Typography className="status_text">Đã nhận được</Typography>
-                      </Stack>
-                      <Typography className="status_number">{formatNumber(receivedBlood)}</Typography>
-                    </Box>
-
-                    <Box>
-                      <Divider orientation="vertical" />
-                    </Box>
-
                     <Box className="status_box">
                       <Stack className="status_title" direction="row" alignItems="center">
                         <Icon icon="solid-line-chart-dots" className="status_icon fail" />

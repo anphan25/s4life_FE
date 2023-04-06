@@ -86,7 +86,7 @@ const DetailRowData = ({ item, index }) => {
                     <TableCell>Ngày diễn ra</TableCell>
                     <TableCell>Thời gian</TableCell>
                     <TableCell>Trạng thái</TableCell>
-                    <TableCell>Đã hiến máu/Tổng đăng ký</TableCell>
+                    <TableCell>Đã hiến máu/Tổng lượt đăng ký</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
