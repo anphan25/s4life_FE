@@ -60,7 +60,7 @@ export function convertErrorCodeToMessage(code) {
     4011: 'Thời gian sự kiện không hợp lệ',
     4013: 'Từ chối yêu cầu truy cập sự kiện',
     4021: 'Sự kiện đã bị hủy hoặc đã kết thúc',
-    4031: 'Không thể chỉnh sửa, sự kiện đã có người đăng ký',
+    4031: 'Không thể chỉnh sửa hoặc hủy sự kiện đã có người đăng ký',
     4041: 'Khu vực tổ chức sự kiện không hợp lệ',
     4051: 'Không nằm trong khung thời gian sự kiện',
     4061: 'Không sửa được sự kiện theo lịch làm việc của bệnh viện',
@@ -78,6 +78,9 @@ export function convertErrorCodeToMessage(code) {
     4191: 'Tỉnh/Thành Phố không hợp lệ',
     4100: 'Chỉnh sửa sự kiện thành công',
     4200: 'Hủy sự kiện thành công',
+    4201: 'Đang có sự kiện dự kiến chưa kết thúc',
+    4211: 'Sự kiện dự kiến đã kết thúc hoặc bị hủy',
+    4221: 'Thời gian diễn ra phải nằm trong khung thời gian của sự kiện sự kiến',
     4300: 'Tạo sự kiện thành công',
 
     //Blood Donation Approval

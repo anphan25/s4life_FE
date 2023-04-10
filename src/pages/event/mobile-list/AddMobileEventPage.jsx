@@ -1,10 +1,11 @@
 import React from 'react';
 import { HeaderBreadcumbs } from 'components';
-
+import { useLocation } from 'react-router-dom';
 import { HeaderMainStyle } from 'utils';
-import AddMobileEventForm from '../components/AddMobileEventForm';
+import AddMobileEventForm from './AddMobileEventForm';
 
 const AddMobileEventPage = () => {
+  const location = useLocation();
   return (
     <div>
       <HeaderMainStyle>
@@ -18,7 +19,7 @@ const AddMobileEventPage = () => {
         />
       </HeaderMainStyle>
 
-      <AddMobileEventForm />
+      <AddMobileEventForm intendedData={location?.state} />
     </div>
   );
 };

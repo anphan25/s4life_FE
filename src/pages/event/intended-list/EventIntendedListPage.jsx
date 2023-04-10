@@ -32,7 +32,7 @@ import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-const EventMobileListPage = () => {
+const EventIntendedListPage = () => {
   const user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
@@ -48,7 +48,7 @@ const EventMobileListPage = () => {
     page: 1,
     pageSize: 10,
     filterMode: EventFilterEnum.FilterAndSearch,
-    status: EventStatusEnum.Unstarted.value,
+    status: EventStatusEnum.Started.value,
     searchKey: '',
     dateFrom: null,
     dateTo: null,
@@ -68,7 +68,7 @@ const EventMobileListPage = () => {
         headerName: 'Sự kiện',
         type: 'string',
         field: 'name',
-        width: 150,
+        flex: 1,
         renderCell: (nameValue) => {
           return (
             <Typography
@@ -80,57 +80,54 @@ const EventMobileListPage = () => {
         },
       },
       {
-        headerName: 'Mã sự kiện',
-        field: 'eventCode',
+        headerName: 'Tỉnh thành triển khai',
         type: 'string',
-        width: 140,
+        field: 'provinceName',
+        width: '200',
       },
       {
-        headerName: 'Khu vực',
-        type: 'string',
-        field: 'areas',
-        minWidth: 200,
-        flex: 1,
-      },
-      {
-        headerName: 'Thời gian',
+        headerName: 'Thời gian dự kiến',
         type: 'string',
         field: 'time',
-        width: 220,
+        width: 250,
         renderCell: (timeValue) => {
           const valueObject = JSON.parse(timeValue.value);
           const startDate = valueObject?.startDate;
           const endDate = valueObject?.endDate;
-          const workingTimeStart = valueObject?.workingTimeStart;
-          const workingTimeEnd = valueObject?.workingTimeEnd;
 
+          const isSameDate = startDate === endDate;
           return (
             <Box>
-              {
-                <>
-                  <Typography
-                    sx={{
-                      fontWeight: 500,
-                      marginBottom: '4px',
-                      fontSize: 12,
-                    }}
-                  >
-                    {startDate}
-                  </Typography>
-                  <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
-                    {workingTimeStart} - {workingTimeEnd}
-                  </Typography>
-                </>
-              }
+              {isSameDate ? (
+                <Typography
+                  sx={{
+                    fontWeight: 500,
+                    marginBottom: '4px',
+                    fontSize: 12,
+                  }}
+                >
+                  {startDate}
+                </Typography>
+              ) : (
+                <Typography
+                  sx={{
+                    fontWeight: 500,
+                    marginBottom: '4px',
+                    fontSize: 12,
+                  }}
+                >
+                  {startDate} - {endDate}
+                </Typography>
+              )}
             </Box>
           );
         },
       },
       {
-        headerName: 'Đã hiến máu/Tổng lượt đăng ký',
-        field: 'ratioOfDonated',
+        headerName: 'Số người đăng ký hiện tại',
+        field: 'currentParticipation',
         type: 'string',
-        width: 150,
+        width: 200,
       },
       {
         field: 'actions',
@@ -263,7 +260,7 @@ const EventMobileListPage = () => {
       PageSize: pageState?.pageSize,
       FilterMode: pageState?.filterMode,
       Status: pageState?.status,
-      EventType: EventTypeEnum.MobileEvent,
+      EventType: EventTypeEnum.IntendedEvent,
       SearchKey: pageState?.searchKey,
       ...(pageState?.dateFrom && { DateFrom: moment(pageState?.dateFrom).format('yyyy-MM-DD') }),
       ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
@@ -272,23 +269,16 @@ const EventMobileListPage = () => {
         const dataRow = res.items?.map((data, i) => ({
           id: data?.id,
           name: data?.name || '-',
-          eventCode: data?.eventCode || '-',
-          areas: data?.area
-            .map((item) => {
-              return item?.districtName;
-            })
-            .join(', ')
-            .concat(' - ', data?.area[0]?.provinceName),
           time: JSON.stringify({
             startDate: formatDate(data?.startDate, 4),
             endDate: formatDate(data?.endDate, 4),
             workingTimeStart: moment(data?.workingTimeStart, 'HH:mm').format('HH:mm'),
             workingTimeEnd: moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm'),
           }),
-
+          provinceName: data?.intendedProvince?.name || '-',
           startDate: data?.startDate,
           endDate: data?.endDate,
-          ratioOfDonated: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
+          currentParticipation: data?.currentParticipation || 0,
           status: data?.status || '',
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
@@ -310,15 +300,15 @@ const EventMobileListPage = () => {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading="Danh sách sự kiện lưu động"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách sự kiện lưu động' }]}
+          heading="Danh sách sự kiện lưu động dự kiến"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách sự kiện lưu động dự kiến' }]}
         />
         {user.role === 'Manager' && (
           <Button
             startIcon={<Icon icon="solid-plus" />}
             variant="contained"
             onClick={() => {
-              navigate('/event/mobile-list/add');
+              navigate('/event/intended-list/add');
             }}
           >
             Tạo sự kiện
@@ -328,7 +318,8 @@ const EventMobileListPage = () => {
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
-            tabs={getValuesFromEnum(EventStatusEnum)}
+            //Intended events don not have Unstarted status
+            tabs={getValuesFromEnum(EventStatusEnum).filter((item) => item.value !== EventStatusEnum.Unstarted.value)}
             onChangeTab={handleFilterTabChange}
             defaultValue={pageState.status}
           />
@@ -362,4 +353,4 @@ const EventMobileListPage = () => {
   );
 };
 
-export default EventMobileListPage;
+export default EventIntendedListPage;

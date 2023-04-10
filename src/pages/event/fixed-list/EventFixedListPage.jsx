@@ -71,7 +71,7 @@ const EventFixedListPage = () => {
         headerName: 'Sự kiện',
         type: 'string',
         field: 'name',
-        width: 150,
+        width: 250,
         renderCell: (nameValue) => {
           return (
             <Typography

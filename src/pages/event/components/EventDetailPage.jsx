@@ -14,6 +14,7 @@ import {
   Button,
   Skeleton,
 } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import { HeaderBreadcumbs, CustomDialog, Icon } from 'components';
 import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
@@ -38,6 +39,7 @@ import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { NotFoundIcon } from 'assets';
 
 const HeaderMainStyle = styled(Stack)(({ theme }) => ({
   marginBottom: '20px',
@@ -126,6 +128,9 @@ const EventDetailPage = () => {
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
   const [isHospitalScheduleEvent, setIsHospitalScheduleEvent] = useState(false);
+  const [registrationAreas, setRegistrationAreas] = useState([]);
+  const [isRegistrationAreaOpen, setIsRegistrationAreaOpen] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState([]);
   const [connection, setConnection] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -139,6 +144,25 @@ const EventDetailPage = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const StyledGridOverlay = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: '100%',
+  }));
+
+  function CustomNoRowsOverlay() {
+    return (
+      <StyledGridOverlay>
+        <NotFoundIcon height={200} width={200} />
+        <Typography fontSize={14} fontWeight={500} sx={{ mt: 1 }}>
+          Không tìm thấy dữ liệu
+        </Typography>
+      </StyledGridOverlay>
+    );
+  }
 
   const isAdmin = user.role === RoleEnum.Admin.name;
   const isManager = user.role === RoleEnum.Manager.name;
@@ -189,16 +213,23 @@ const EventDetailPage = () => {
     setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
   };
 
-  const eventListNavigator = (eventType) => {
-    switch (eventType) {
-      case 'Sự kiện cố định theo lịch bệnh viện': {
+  const handleRegistrationAreaDialog = () => {
+    setIsRegistrationAreaOpen(!isRegistrationAreaOpen);
+  };
+
+  const eventListNavigator = (eventTypeId) => {
+    switch (eventTypeId) {
+      case EventTypeEnum.PermanentScheduledEvent: {
         return { label: 'Danh sách sự kiện cố định theo lịch bệnh viện', link: '/event/schedule-list/' };
       }
-      case 'Sự kiện cố định': {
+      case EventTypeEnum.PermanentEvent: {
         return { label: 'Danh sách sự kiện cố định', link: '/event/fixed-list/' };
       }
-      case 'Sự kiện lưu động': {
+      case EventTypeEnum.MobileEvent: {
         return { label: 'Danh sách sự kiện lưu động', link: '/event/mobile-list/' };
+      }
+      case EventTypeEnum.IntendedEvent: {
+        return { label: 'Danh sách sự kiện lưu động dự kiến', link: '/event/intended-list/' };
       }
       default: {
         return '-';
@@ -262,10 +293,85 @@ const EventDetailPage = () => {
     );
   };
 
+  const registrationAreaDialogContent = () => {
+    return (
+      <Box>
+        <Typography mb={2}>
+          Số lượng đăng ký của <b>{detailData?.intendedProvince?.name}</b>:
+        </Typography>
+        <Box>
+          <DataGrid
+            disableColumnMenu
+            sx={{
+              minHeight: 500,
+              maxHeight: '70vh',
+              '.MuiPopper-root': {
+                boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04) !important',
+                borderRadius: 12,
+                padding: '12px',
+              },
+            }}
+            rows={registrationAreas}
+            columns={[
+              { field: 'id', hide: true },
+              { field: 'districtName', headerName: 'Quận huyện', flex: 1, minWidth: 200, type: 'string' },
+              { field: 'count', headerName: 'Số người đăng ký', width: 150, type: 'number', align: 'right' },
+            ]}
+            pageSize={10}
+            rowsPerPageOptions={[5, 10, 20]}
+            checkboxSelection
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            onSelectionModelChange={(ids) => {
+              const selectedIDs = new Set(ids);
+              const selectedRows = registrationAreas?.filter((row) => selectedIDs.has(row?.id));
+              setSelectedDistrict(selectedRows);
+            }}
+          />
+        </Box>
+
+        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+          <Button
+            disabled={selectedDistrict.length <= 0}
+            variant="contained"
+            onClick={() => {
+              navigate('/event/mobile-list/add', {
+                state: {
+                  province: { id: detailData?.intendedProvince?.id, name: detailData?.intendedProvince?.name },
+                  districts: selectedDistrict?.map((district) => ({
+                    id: district?.districtId,
+                    name: district?.districtName,
+                  })),
+                  registrationAreas: registrationAreas,
+                  contactInformation: detailData?.contactInformation,
+                  intendedStartDate: detailData?.startDate,
+                  intendedEndDate: detailData?.endDate,
+                  minParticipant: detailData?.minParticipant,
+                  maxParticipant: detailData?.maxParticipant,
+                  intendedEventId: detailData?.id,
+                },
+              });
+            }}
+          >
+            Tiến hành tạo sự kiện lưu động
+          </Button>
+        </DialogButtonGroup>
+      </Box>
+    );
+  };
+
   const fetchEventDetailData = useCallback(async () => {
     try {
       const data = await getEventDetailByEventId(eventId);
-      setIsHospitalScheduleEvent(data.eventTypeId === EventTypeEnum.PermanentScheduledEvent);
+      setIsHospitalScheduleEvent(data?.eventTypeId === EventTypeEnum.PermanentScheduledEvent);
+
+      // Only intended events have registrationAreas
+      if (data?.eventTypeId === EventTypeEnum.IntendedEvent) {
+        const registrationAreaList = Object.values(data?.registrationAreas);
+
+        setRegistrationAreas(registrationAreaList?.map((item) => ({ ...item, id: item?.districtId })));
+      }
 
       setDetailData(data);
     } catch (error) {
@@ -308,8 +414,8 @@ const EventDetailPage = () => {
           links={[
             { name: 'Trang chủ', to: '/' },
             {
-              name: eventListNavigator(detailData?.eventType)?.label || '-',
-              to: eventListNavigator(detailData?.eventType)?.link || '-',
+              name: eventListNavigator(detailData?.eventTypeId)?.label || '-',
+              to: eventListNavigator(detailData?.eventTypeId)?.link || '-',
             },
             { name: `${detailData?.name || '-'}` },
           ]}
@@ -344,6 +450,7 @@ const EventDetailPage = () => {
                   disabled={
                     detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent ||
                     detailData?.eventTypeId === EventTypeEnum.MobileEvent ||
+                    detailData?.eventTypeId === EventTypeEnum.IntendedEvent ||
                     detailData?.status === EventStatusEnum.Finished.description ||
                     detailData?.status === EventStatusEnum.Cancelled.description ||
                     detailData?.isEmergency ||
@@ -368,7 +475,7 @@ const EventDetailPage = () => {
                 <MenuItem
                   key={2}
                   disabled={
-                    detailData?.eventType === EventTypeEnum.PermanentScheduledEvent ||
+                    detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent ||
                     detailData?.status === EventStatusEnum.Finished.description ||
                     detailData?.status === EventStatusEnum.Cancelled.description ||
                     (detailData?.isEmergency && isManager)
@@ -435,7 +542,7 @@ const EventDetailPage = () => {
                     <Icon icon="solid-location-pin" className="info-item_icon_item" />
                   </Box>
                   <Box sx={{ width: '90%' }}>
-                    {detailData?.eventType === 'Sự kiện lưu động' ? (
+                    {detailData?.eventTypeId === EventTypeEnum.MobileEvent && (
                       <>
                         <Typography className="info-item_title">Khu vực lấy máu</Typography>
                         <Typography>
@@ -448,12 +555,22 @@ const EventDetailPage = () => {
                               .concat(' - ', detailData?.area[0]?.provinceName)}
                         </Typography>
                       </>
-                    ) : (
+                    )}
+
+                    {(detailData?.eventTypeId === EventTypeEnum.PermanentEvent ||
+                      detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent) && (
                       <>
                         <Typography className="info-item_title">
                           {detailData?.eventLocations[0]?.location.name || ''}
                         </Typography>
                         <Typography>{detailData?.eventLocations[0]?.location.address || ''}</Typography>
+                      </>
+                    )}
+
+                    {detailData?.eventTypeId === EventTypeEnum.IntendedEvent && (
+                      <>
+                        <Typography className="info-item_title">Khu vực lấy máu</Typography>
+                        <Typography>{detailData?.intendedProvince?.name}</Typography>
                       </>
                     )}
                   </Box>
@@ -475,10 +592,14 @@ const EventDetailPage = () => {
                       )}`}</Typography>
                     )}
 
-                    <Typography>{`${moment(detailData?.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(
-                      detailData?.workingTimeEnd,
-                      'HH:mm'
-                    ).format('HH:mm')} `}</Typography>
+                    {detailData?.eventTypeId !== EventTypeEnum.IntendedEvent ? (
+                      <Typography>{`${moment(detailData?.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(
+                        detailData?.workingTimeEnd,
+                        'HH:mm'
+                      ).format('HH:mm')} `}</Typography>
+                    ) : (
+                      <Typography>Chưa có thời gian cụ thể</Typography>
+                    )}
                   </Box>
                 </Stack>
               </InfoItemWithIconStyle>
@@ -562,7 +683,7 @@ const EventDetailPage = () => {
               <InfoItemWithIconStyle lg={6} xs={12} item>
                 <Stack className="info-item">
                   <Box className="info-item_avt">
-                    <img src={detailData?.hospital.avatarUrl} alt="ảnh đại diện" />
+                    <Skeleton variant="circular" width="50px" height="50px" />
                   </Box>
                   <Box>
                     <Typography className="info-item_title">Đơn vị tổ chức</Typography>
@@ -592,7 +713,7 @@ const EventDetailPage = () => {
               </Typography>
             </Grid>
 
-            {detailData?.eventType === 'Sự kiện lưu động' && (
+            {detailData?.eventTypeId === EventTypeEnum.MobileEvent && (
               <Grid md={4} sm={6} xs={12} item>
                 <Typography>
                   <TitleItemStyle>Số người đăng ký tối thiểu:</TitleItemStyle>{' '}
@@ -617,9 +738,11 @@ const EventDetailPage = () => {
         </Stack>
 
         <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
-
         {/* Volunteer of event */}
-        <VolunteerListOfEvent />
+        <VolunteerListOfEvent
+          isIntendedEvent={detailData?.eventTypeId === EventTypeEnum.IntendedEvent}
+          onViewRegistrationArea={handleRegistrationAreaDialog}
+        />
       </Box>
 
       {/* Cancel Event Dialog */}
@@ -638,6 +761,15 @@ const EventDetailPage = () => {
         title=""
         children={alertEditCancelDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
+      />
+
+      {/* View Registration Area Dialog */}
+      <CustomDialog
+        isOpen={isRegistrationAreaOpen}
+        onClose={handleRegistrationAreaDialog}
+        title=""
+        children={registrationAreaDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
       />
     </Box>
   );

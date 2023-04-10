@@ -68,12 +68,12 @@ const DashboardPage = () => {
 
   const totalRegistrations =
     cancelledRegistrations +
-    registeredRegistrations +
-    donatedRegistrations +
-    conditionInsufficientRegistrations +
-    presentRegistrations +
-    discardedRegistrations +
-    missedRegistrations;
+      registeredRegistrations +
+      donatedRegistrations +
+      conditionInsufficientRegistrations +
+      presentRegistrations +
+      discardedRegistrations +
+      missedRegistrations || 0;
 
   // Blood Volume
   const receivedBlood = getStatisticResultFromGroup(
@@ -142,7 +142,7 @@ const DashboardPage = () => {
 
                 <Stack className="tab_content">
                   <Typography textAlign="center" className="tab_content--number">
-                    {formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents)}
+                    {formatNumber(unstartedEvents + startedEvents + finishedEvents + canceledEvents || 0)}
                   </Typography>
 
                   <Stack className="tab_content--status" direction="row" spacing={3} justifyContent="center">

@@ -1,49 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Stack, MenuItem, Paper, Grid, Button, Box, Typography } from '@mui/material';
-import { RHFInput, RHFEditor, RHFAutoComplete, RHFDatePicker, RHFTimePicker, RHFUploadImage } from 'components';
+import {
+  RHFInput,
+  RHFEditor,
+  RHFAutoComplete,
+  RHFDatePicker,
+  RHFTimePicker,
+  RHFUploadImage,
+  CustomDialog,
+} from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import moment from 'moment';
-import { DEFAULT_EVENT_IMAGE_URL, PHONE_NUMBER_PATTERN, MAX_INT, errorHandler } from 'utils';
+import { DEFAULT_EVENT_IMAGE_URL, PHONE_NUMBER_PATTERN, MAX_INT, errorHandler, EventTypeEnum } from 'utils';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getDistrictsByProvinceId, getAllProvinces, createEvent } from 'api';
-import { convertErrorCodeToMessage, isValidDate, isValidTime } from 'utils';
+import { convertErrorCodeToMessage, isValidDate, isValidTime, formatDate, DialogButtonGroupStyle } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-const minDateHandler = () => {
-  return moment().add(7, 'days');
-};
+const minDate = moment().add(7, 'days');
 
-const AddMobileEventForm = () => {
+const AddMobileEventForm = ({ intendedData = null }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [districts, setDistricts] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState(0);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [connection, setConnection] = useState(null);
-
+  const [isConfirmDone, setIsConfirmDone] = useState(false);
   const store = useStore();
-
+  const submitBtnRef = useRef(null);
   const navigate = useNavigate();
 
   const defaultValues = {
     name: '',
     description: '',
-    beginEvent: moment().add(7, 'days'),
+    beginEvent: minDate,
     workingTimeStart: moment(),
     workingTimeEnd: moment().add(1, 'hours'),
     province: 0,
     districts: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
+  };
+
+  const intendedValues = useMemo(
+    () => ({
+      name: '',
+      description: '',
+      beginEvent: intendedData?.intendedStartDate,
+      intendedStartDate: intendedData?.intendedStartDate,
+      intendedEndDate: intendedData?.intendedEndDate,
+      contactInformation: intendedData?.contactInformation,
+      workingTimeStart: moment(),
+      workingTimeEnd: moment().add(1, 'hours'),
+      province: intendedData?.province,
+      districts: intendedData?.districts,
+      minParticipant: intendedData?.minParticipant,
+      maxParticipant: intendedData?.maxParticipant,
+      selectedDistricts: intendedData?.registrationAreas.map((district) => district?.districtName).join(', '),
+    }),
+    [intendedData]
+  );
+  const maxDateProps = {
+    if(intendedData) {
+      maxDateProps.maxDate = moment(intendedData?.intendedEndDate);
+    },
   };
 
   const addMobileEventHandler = async (params) => {
@@ -157,10 +188,35 @@ const AddMobileEventForm = () => {
       const { path, createError } = this;
       const beginEvent = context.parent.beginEvent;
 
+      if (intendedData) return true;
+
       return (
         moment().add(7, 'days').isSameOrBefore(moment(beginEvent), 'dates') ||
         createError({ path, message: errorMessage })
       );
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'isInPeriodOfIntendedDate', function (errorMessage) {
+    return this.test(`test-valid-period-date`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      if (!intendedData) return true;
+      return (
+        (moment(value).isSameOrAfter(moment(intendedData?.intendedStartDate), 'dates') &&
+          moment(value).isSameOrBefore(moment(intendedData?.intendedEndDate), 'dates')) ||
+        createError({ path, message: errorMessage })
+      );
+    });
+  });
+
+  Yup.addMethod(Yup.date, 'validateStartDate', function (errorMessage) {
+    return this.test(`test-valid-date-base-on-now`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      if (!intendedData) return true;
+
+      return moment().isSameOrBefore(moment(value), 'dates') || createError({ path, message: errorMessage });
     });
   });
 
@@ -201,7 +257,14 @@ const AddMobileEventForm = () => {
       .transform(transformDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 7 ngày'),
+      .validateStartDate('Ngày bắt đầu không thể nhỏ hơn hiện tại')
+      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại ít nhất 7 ngày')
+      .isInPeriodOfIntendedDate(
+        `Ngày diễn ra phải nằm trong khoảng (${formatDate(intendedData?.intendedStartDate, 2)} - ${formatDate(
+          intendedData?.intendedEndDate,
+          2
+        )}) như đã dự kiến`
+      ),
     workingTimeStart: Yup.date()
       .nullable()
       .transform(transformTime)
@@ -265,26 +328,61 @@ const AddMobileEventForm = () => {
         return [...value];
       })
       .min(1, 'Vui lòng chọn quận huyện'),
+    selectedDistricts: Yup.string(),
   });
 
   const { handleSubmit, control, resetField, clearErrors } = useForm({
     resolver: yupResolver(AddEventSchema),
-    defaultValues,
+    defaultValues: intendedData ? intendedValues : defaultValues,
     mode: 'onChange',
   });
 
+  const handleConfirmOpen = () => {
+    setIsConfirmOpen(!isConfirmOpen);
+  };
+
+  const confirmDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          <b>Số lượng người đăng ký hiện tại</b> đang thấp hơn <b>số người tối thiếu</b>. Bạn có chắc chắn muốn tạo ?{' '}
+        </Typography>
+
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleConfirmOpen();
+              setIsConfirmDone(true);
+              submitBtnRef.current.click();
+            }}
+          >
+            Tạo
+          </Button>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
   const onSubmit = async (data) => {
-    console.log('data', data);
+    // if (intendedData && !isConfirmDone && data?.minParticipant > intendedData?.registrationAreas.length) {
+    //   handleConfirmOpen();
+
+    //   return;
+    // }
     setIsButtonLoading(true);
 
-    const areas = data?.districts.map((item) => {
-      return { provinceId: data?.province[0]?.id, districtId: item?.id };
-    });
+    const areas = intendedData
+      ? intendedData?.registrationAreas?.map((district) => ({
+          provinceId: intendedData?.province?.id,
+          districtId: district?.id,
+        }))
+      : data?.districts?.map((item) => ({ provinceId: data?.province[0]?.id, districtId: item?.id }));
 
     const mappingData = {
       name: data?.name,
       description: data?.description,
-      eventType: 3,
+      eventType: EventTypeEnum.MobileEvent,
       imageUrls: data?.imageUrls,
       areas,
       startDate: moment(data?.beginEvent).format('yyyy-MM-DD'),
@@ -294,6 +392,7 @@ const AddMobileEventForm = () => {
       contactInformation: data?.contactInformation,
       minParticipant: data?.minParticipant,
       maxParticipant: data?.maxParticipant,
+      ...(intendedData && { intendedEventId: intendedData?.intendedEventId }),
     };
 
     if (imgUploadFile) {
@@ -310,6 +409,7 @@ const AddMobileEventForm = () => {
   };
 
   const fetchAllProvinces = useCallback(async () => {
+    if (intendedData) return;
     const rawProvinces = await getAllProvinces(0);
     const mappingProvinces = rawProvinces.map((d) => ({ id: d.id, name: d.name }));
 
@@ -317,6 +417,7 @@ const AddMobileEventForm = () => {
   }, []);
 
   const fetchDistrictsByProvinceId = useCallback(async () => {
+    if (intendedData) return;
     // Remove district autocomplete when clearing province
     if (!selectedProvinceId || selectedProvinceId === 0) {
       setDistricts([]);
@@ -395,10 +496,11 @@ const AddMobileEventForm = () => {
                   onSelect={(value) => {
                     setSelectedProvinceId(value?.id || null);
                   }}
+                  disabled={intendedData ? true : false}
                   label="Tỉnh thành"
                   paramsCompare="id"
                   name="province"
-                  list={provinces}
+                  list={intendedData ? [intendedData?.province] : provinces}
                   control={control}
                   placeholder="Chọn tỉnh thành"
                   getOptionLabel={(option) => {
@@ -430,6 +532,16 @@ const AddMobileEventForm = () => {
                   />
                 )}
 
+                {intendedData && (
+                  <RHFInput
+                    disabled
+                    label="Quận huyện"
+                    name="selectedDistricts"
+                    control={control}
+                    isRequiredLabel={true}
+                  />
+                )}
+
                 <Stack spacing={2} direction="row">
                   <RHFInput
                     isRequiredLabel={true}
@@ -448,7 +560,14 @@ const AddMobileEventForm = () => {
                     control={control}
                     label="Ngày bắt đầu"
                     placeholder="Nhập ngày bắt đầu"
-                    minDate={minDateHandler()}
+                    minDate={
+                      intendedData
+                        ? moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
+                          ? moment()
+                          : moment(intendedData?.intendedStartDate)
+                        : minDate
+                    }
+                    maxDate={intendedData ? moment(intendedData?.intendedEndDate) : undefined}
                   />
                 </Stack>
 
@@ -502,7 +621,7 @@ const AddMobileEventForm = () => {
                     >
                       Hủy
                     </Button>
-                    <LoadingButton type="submit" loading={isButtonLoading} variant="contained">
+                    <LoadingButton ref={submitBtnRef} type="submit" loading={isButtonLoading} variant="contained">
                       Tạo
                     </LoadingButton>
                   </Box>
@@ -512,6 +631,14 @@ const AddMobileEventForm = () => {
           </Grid>
         </Grid>
       </form>
+      {/* Confirm Dialog */}
+      <CustomDialog
+        isOpen={isConfirmOpen}
+        onClose={handleConfirmOpen}
+        title=""
+        children={confirmDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
+      />
     </>
   );
 };

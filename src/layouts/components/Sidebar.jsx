@@ -77,6 +77,7 @@ export const Sidebar = ({ toggle, onClose }) => {
           name: 'Cố định',
           to: '/event/fixed-list/',
         },
+
         {
           name: 'Lưu động',
           to: '/event/mobile-list',
@@ -105,9 +106,14 @@ export const Sidebar = ({ toggle, onClose }) => {
           name: 'Cố định',
           to: '/event/fixed-list/',
         },
+
         {
           name: 'Lưu động',
           to: '/event/mobile-list',
+        },
+        {
+          name: 'Lưu động dự kiến',
+          to: '/event/intended-list/',
         },
         {
           name: 'Theo lịch bệnh viện',
@@ -140,6 +146,10 @@ export const Sidebar = ({ toggle, onClose }) => {
         {
           name: 'Theo lịch bệnh viện',
           to: '/event/schedule-list/',
+        },
+        {
+          name: 'Lưu động dự kiến',
+          to: '/event/intended-list/',
         },
       ],
     },

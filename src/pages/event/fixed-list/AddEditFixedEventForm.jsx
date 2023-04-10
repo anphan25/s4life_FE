@@ -31,10 +31,12 @@ import { storage } from 'config/firebaseConfig';
 import moment from 'moment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
-import GoongMap from './GoongMap';
+import GoongMap from '../components/GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
+
+const minDate = moment().add(1, 'days');
 
 const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -294,14 +296,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
-  Yup.addMethod(Yup.date, 'validateValidDate', function (errorMessage) {
-    return this.test(`test-valid-date`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-
-      return value !== 'Invalid Date' || createError({ path, message: errorMessage });
-    });
-  });
-
   function transformTime(value, originalValue) {
     if (this.isType(value)) {
       return value;
@@ -411,15 +405,15 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   const defaultValues = {
     name: '',
     description: '',
-    startDate: moment().add(1, 'days'),
-    endDate: moment().add(1, 'days'),
+    startDate: minDate,
+    endDate: minDate,
     workingTimeStart: moment(),
     workingTimeEnd: moment().add(1, 'hours'),
     bloodTypeNeed: [],
     locations: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
-
+  console.log('locations', eventEditData?.locations);
   const editDefaultValues = useMemo(
     () => ({
       name: eventEditData?.name || '',
@@ -473,10 +467,6 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     resetField('endDate');
     resetField('workingTimeStart');
     resetField('workingTimeEnd');
-  };
-
-  const minDateHandler = () => {
-    return moment().add(1, 'days');
   };
 
   useEffect(() => {
@@ -658,7 +648,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                         control={control}
                         label="Ngày bắt đầu"
                         placeholder="Nhập ngày bắt đầu"
-                        minDate={minDateHandler()}
+                        minDate={minDate}
                       />
                       <RHFDatePicker
                         disablePast
@@ -668,7 +658,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
                         control={control}
                         label="Ngày kết thúc"
                         placeholder="Nhập ngày kết thúc"
-                        minDate={minDateHandler()}
+                        minDate={minDate}
                       />
                     </Stack>
 

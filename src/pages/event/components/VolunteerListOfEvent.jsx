@@ -38,7 +38,7 @@ import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-const VolunteerListOfEvent = () => {
+const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { eventId } = useParams();
   const [pageState, setPageState] = useState({
@@ -544,6 +544,15 @@ const VolunteerListOfEvent = () => {
             sx={{ marginBottom: '13px', marginRight: '15px' }}
           >
             Cập nhật nhóm máu từ file
+          </Button>
+        )}
+        {isIntendedEvent && isManager && (
+          <Button
+            variant="contained"
+            onClick={onViewRegistrationArea}
+            sx={{ marginBottom: '13px', marginRight: '15px' }}
+          >
+            Xem số lượng đăng ký của các quận huyện
           </Button>
         )}
       </Stack>
