@@ -134,8 +134,10 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       }
     }
 
-    if (!moment(obj['donationDate'], 'DD/MM/yyyy', true).isValid) {
+    if (!moment(obj['donationDate'], 'DD/MM/yyyy', true).isValid()) {
       displayInvalidFileContent('invalid-format-date');
+
+      return;
     }
 
     const formattedDate = moment(obj['donationDate'], 'DD/MM/yyyy').format('yyyy-MM-DD');
