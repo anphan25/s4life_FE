@@ -413,7 +413,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     locations: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
-  console.log('locations', eventEditData?.locations);
+
   const editDefaultValues = useMemo(
     () => ({
       name: eventEditData?.name || '',
