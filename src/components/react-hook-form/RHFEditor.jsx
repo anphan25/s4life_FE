@@ -41,6 +41,8 @@ export const RHFEditor = ({ control, label, name, placeholder, isRequiredLabel, 
               placeholder,
               min_height: 300,
               menubar: false,
+              smart_paste: false,
+              paste_data_images: false,
               plugins: [
                 'advlist',
                 'autolink',

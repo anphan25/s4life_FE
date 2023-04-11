@@ -1,38 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Stack,
-  styled,
-  Grid,
-  Box,
-  Typography,
-  Divider,
-  Menu,
-  MenuItem,
-  IconButton,
-  Chip,
-  DialogActions,
-  Button,
-  Skeleton,
-} from '@mui/material';
+import { Stack, styled, Box, Typography, Divider, Menu, MenuItem, IconButton, Button, Skeleton } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { HeaderBreadcumbs, CustomDialog, Icon } from 'components';
-import moment from 'moment';
 import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   DEFAULT_EVENT_IMAGE_URL,
-  MAX_INT,
-  convertBloodTypeLabel,
   errorHandler,
-  formatDate,
   isEventEditable,
   convertErrorCodeToMessage,
-  isStartAndEndDateIsSame,
   EventTypeEnum,
   RoleEnum,
   EventStatusEnum,
+  DialogButtonGroupStyle,
+  HeaderMainStyle,
 } from 'utils';
-import parse from 'html-react-parser';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector } from 'react-redux';
@@ -40,84 +22,7 @@ import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { NotFoundIcon } from 'assets';
-
-const HeaderMainStyle = styled(Stack)(({ theme }) => ({
-  marginBottom: '20px',
-  justifyContent: 'space-between',
-
-  flexDirection: 'row',
-
-  [theme.breakpoints.up('sm')]: {
-    alignItems: 'center',
-  },
-
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    justifyContent: 'start',
-    gap: '20px',
-  },
-}));
-
-const TitleItemStyle = styled('span')(({ theme }) => ({
-  fontWeight: 'bold',
-}));
-
-const TagStyleConvert = (status, theme) => {
-  switch (status) {
-    case 'Chưa bắt đầu': {
-      return 'warning';
-    }
-    case 'Đã bắt đầu': {
-      return 'success';
-    }
-    case 'Đã kết thúc': {
-      return 'info';
-    }
-    case 'Đã bị hủy': {
-      return 'error';
-    }
-
-    default: {
-    }
-  }
-};
-
-const InfoItemWithIconStyle = styled(Grid)(({ theme }) => ({
-  '& .info-item': { flexDirection: 'row', gap: '15px' },
-
-  '& .info-item_icon': {
-    width: '50px',
-    height: '50px',
-    borderRadius: '100%',
-    color: theme.palette.primary.main,
-    backgroundColor: theme.palette.error.light,
-    padding: '10px',
-  },
-
-  '& .info-item_avt': {
-    width: '50px',
-    height: '50px',
-    borderRadius: '100%',
-
-    '& img': { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '100%' },
-  },
-
-  '& .info-item_icon_item': { width: '100%', height: '100%' },
-
-  '& .info-item_title': { fontWeight: 'bold', marginBottom: '5px' },
-}));
-
-const DialogButtonGroup = styled(DialogActions)(({ theme }) => ({
-  marginTop: 'auto',
-  padding: '10px 0px 10px !important',
-
-  [theme.breakpoints.down('sm')]: {
-    margin: '0 auto',
-    '& .dialog_button': {
-      fontSize: '10px',
-    },
-  },
-}));
+import EventDetailInfo from './EventDetailInfo';
 
 const EventDetailPage = () => {
   const [detailData, setDetailData] = useState(null);
@@ -131,6 +36,7 @@ const EventDetailPage = () => {
   const [registrationAreas, setRegistrationAreas] = useState([]);
   const [isRegistrationAreaOpen, setIsRegistrationAreaOpen] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState([]);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [connection, setConnection] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -167,29 +73,6 @@ const EventDetailPage = () => {
   const isAdmin = user.role === RoleEnum.Admin.name;
   const isManager = user.role === RoleEnum.Manager.name;
 
-  const StatusTagStyle = styled(Chip)(({ theme }) => ({
-    borderRadius: '8px',
-    height: 'auto',
-    marginBottom: '15px',
-    padding: '4px 6px',
-    fontWeight: 'bold',
-    fontSize: '12px',
-    backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
-    color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
-  }));
-
-  const EmergencyTagStyle = styled(Chip)(({ theme }) => ({
-    borderRadius: '8px',
-    height: 'auto',
-    marginBottom: '15px',
-    marginLeft: '10px',
-    padding: '4px 6px',
-    fontWeight: 'bold',
-    fontSize: '12px',
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.grey[100],
-  }));
-
   const EventImageStyle = styled(Box)(({ theme }) => ({
     width: '100%',
     height: 'auto',
@@ -217,6 +100,10 @@ const EventDetailPage = () => {
     setIsRegistrationAreaOpen(!isRegistrationAreaOpen);
   };
 
+  const handleErrorDialog = () => {
+    setIsErrorDialogOpen(!isErrorDialogOpen);
+  };
+
   const eventListNavigator = (eventTypeId) => {
     switch (eventTypeId) {
       case EventTypeEnum.PermanentScheduledEvent: {
@@ -241,7 +128,7 @@ const EventDetailPage = () => {
     return (
       <Box>
         <Typography>Bạn có chắc chắn muốn hủy sự kiện này không ?</Typography>
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button onClick={handleCancelEventDialog}>Hủy</Button>
           <LoadingButton
             loading={isButtonLoading}
@@ -265,7 +152,7 @@ const EventDetailPage = () => {
           >
             Ok
           </LoadingButton>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -273,13 +160,11 @@ const EventDetailPage = () => {
   const alertEditCancelDialogContent = () => {
     return (
       <Box>
-        <>
-          <Typography>
-            Chỉ được chỉnh sửa sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-          </Typography>
-        </>
+        <Typography>
+          Chỉ được chỉnh sửa sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
+        </Typography>
 
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button
             variant="contained"
             onClick={() => {
@@ -288,7 +173,7 @@ const EventDetailPage = () => {
           >
             Ok
           </Button>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -303,7 +188,7 @@ const EventDetailPage = () => {
           <DataGrid
             disableColumnMenu
             sx={{
-              minHeight: 500,
+              minHeight: 400,
               maxHeight: '70vh',
               '.MuiPopper-root': {
                 boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04) !important',
@@ -331,11 +216,19 @@ const EventDetailPage = () => {
           />
         </Box>
 
-        <DialogButtonGroup sx={{ marginTop: '10px' }}>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button
             disabled={selectedDistrict.length <= 0}
             variant="contained"
             onClick={() => {
+              if (
+                detailData?.status === EventStatusEnum.Cancelled.description ||
+                detailData?.status === EventStatusEnum.Finished.description
+              ) {
+                handleErrorDialog();
+
+                return;
+              }
               navigate('/event/mobile-list/add', {
                 state: {
                   province: { id: detailData?.intendedProvince?.id, name: detailData?.intendedProvince?.name },
@@ -356,7 +249,26 @@ const EventDetailPage = () => {
           >
             Tiến hành tạo sự kiện lưu động
           </Button>
-        </DialogButtonGroup>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
+  const errorDialogContent = () => {
+    return (
+      <Box>
+        <Typography>Không thể tạo sự kiện lưu động từ sự kiện lưu động dự kiến đã kết thúc hoặc đã bị hủy</Typography>
+
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleErrorDialog();
+            }}
+          >
+            Ok
+          </Button>
+        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -370,7 +282,9 @@ const EventDetailPage = () => {
       if (data?.eventTypeId === EventTypeEnum.IntendedEvent) {
         const registrationAreaList = Object.values(data?.registrationAreas);
 
-        setRegistrationAreas(registrationAreaList?.map((item) => ({ ...item, id: item?.districtId })));
+        setRegistrationAreas(
+          registrationAreaList?.map((item) => ({ ...item, id: item?.districtId })).sort((a, b) => b?.count - a?.count)
+        );
       }
 
       setDetailData(data);
@@ -506,235 +420,7 @@ const EventDetailPage = () => {
             )}
           </EventImageStyle>
 
-          {detailData ? (
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: '35px',
-                  fontWeight: 'bold',
-                  wordBreak: 'break-all',
-                }}
-              >
-                {detailData?.name}
-              </Typography>
-
-              <Stack direction="row" sx={{ marginTop: '10px' }}>
-                <StatusTagStyle label={detailData?.status} />
-                {detailData?.isEmergency && <EmergencyTagStyle label="Sự kiện khẩn cấp" />}
-              </Stack>
-
-              <Box>{detailData?.description ? parse(`${detailData?.description}`) : 'Chưa cập nhật mô tả'}</Box>
-            </Box>
-          ) : (
-            <Stack spacing={1}>
-              <Skeleton variant="text" width="30%" />
-              <Skeleton variant="text" width="10%" />
-              <Skeleton variant="text" width="100%" />
-              <Skeleton variant="text" width="60%" />
-            </Stack>
-          )}
-
-          {detailData ? (
-            <Grid rowSpacing={3} container>
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_icon">
-                    <Icon icon="solid-location-pin" className="info-item_icon_item" />
-                  </Box>
-                  <Box sx={{ width: '90%' }}>
-                    {detailData?.eventTypeId === EventTypeEnum.MobileEvent && (
-                      <>
-                        <Typography className="info-item_title">Khu vực lấy máu</Typography>
-                        <Typography>
-                          {detailData?.eventLocations[0]?.location.name ??
-                            detailData?.area
-                              .map((item) => {
-                                return item?.districtName;
-                              })
-                              .join(', ')
-                              .concat(' - ', detailData?.area[0]?.provinceName)}
-                        </Typography>
-                      </>
-                    )}
-
-                    {(detailData?.eventTypeId === EventTypeEnum.PermanentEvent ||
-                      detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent) && (
-                      <>
-                        <Typography className="info-item_title">
-                          {detailData?.eventLocations[0]?.location.name || ''}
-                        </Typography>
-                        <Typography>{detailData?.eventLocations[0]?.location.address || ''}</Typography>
-                      </>
-                    )}
-
-                    {detailData?.eventTypeId === EventTypeEnum.IntendedEvent && (
-                      <>
-                        <Typography className="info-item_title">Khu vực lấy máu</Typography>
-                        <Typography>{detailData?.intendedProvince?.name}</Typography>
-                      </>
-                    )}
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_icon">
-                    <Icon icon="solid-calendar-star" className="info-item_icon_item" />
-                  </Box>
-                  <Box>
-                    {isStartAndEndDateIsSame(detailData?.startDate, detailData?.endDate) ? (
-                      <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)}`}</Typography>
-                    ) : (
-                      <Typography className="info-item_title">{`${formatDate(detailData?.startDate, 3)} - ${formatDate(
-                        detailData?.endDate,
-                        3
-                      )}`}</Typography>
-                    )}
-
-                    {detailData?.eventTypeId !== EventTypeEnum.IntendedEvent ? (
-                      <Typography>{`${moment(detailData?.workingTimeStart, 'HH:mm').format('HH:mm')} - ${moment(
-                        detailData?.workingTimeEnd,
-                        'HH:mm'
-                      ).format('HH:mm')} `}</Typography>
-                    ) : (
-                      <Typography>Chưa có thời gian cụ thể</Typography>
-                    )}
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_icon">
-                    <Icon icon="solid-droplet" className="info-item_icon_item" />
-                  </Box>
-                  <Box>
-                    <Typography className="info-item_title">Nhóm máu cần lấy</Typography>
-                    <Box>
-                      {detailData?.bloodTypeNeed
-                        ? detailData?.bloodTypeNeed.map((e, i) => (
-                            <Chip
-                              key={i}
-                              label={convertBloodTypeLabel(e.bloodTypeId, e.isRhNegative)}
-                              sx={{ marginLeft: '5px' }}
-                              variant="contained"
-                              color="primary"
-                            />
-                          ))
-                        : 'Tất cả nhóm máu'}
-                    </Box>
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_avt">
-                    <img src={detailData?.hospital.avatarUrl} alt="ảnh đại diện" />
-                  </Box>
-                  <Box>
-                    <Typography className="info-item_title">Đơn vị tổ chức</Typography>
-                    <Typography>{detailData?.hospital.name}</Typography>
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-            </Grid>
-          ) : (
-            <Grid rowSpacing={3} container>
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_icon">
-                    <Icon icon="solid-location-pin" className="info-item_icon_item" />
-                  </Box>
-                  <Box sx={{ width: '90%' }}>
-                    <Skeleton variant="text" width="40%" />
-                    <Skeleton variant="text" width="60%" />
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_icon">
-                    <Icon icon="solid-calendar-star" className="info-item_icon_item" />
-                  </Box>
-                  <Box sx={{ width: '90%' }}>
-                    <Skeleton variant="text" width="50%" />
-                    <Skeleton variant="text" width="20%" />
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_icon">
-                    <Icon icon="solid-droplet" className="info-item_icon_item" />
-                  </Box>
-                  <Box>
-                    <Typography className="info-item_title">Nhóm máu cần lấy</Typography>
-                    <Box>
-                      <Skeleton variant="text" width="60%" />
-                    </Box>
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-
-              <InfoItemWithIconStyle lg={6} xs={12} item>
-                <Stack className="info-item">
-                  <Box className="info-item_avt">
-                    <Skeleton variant="circular" width="50px" height="50px" />
-                  </Box>
-                  <Box>
-                    <Typography className="info-item_title">Đơn vị tổ chức</Typography>
-                    <Skeleton variant="text" width="60%" />
-                  </Box>
-                </Stack>
-              </InfoItemWithIconStyle>
-            </Grid>
-          )}
-
-          <Grid rowSpacing={3} container>
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Liên hệ:</TitleItemStyle> {detailData?.contactInformation || '-'}
-              </Typography>
-            </Grid>
-
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData?.eventCode || '-'}
-              </Typography>
-            </Grid>
-
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Loại sự kiện:</TitleItemStyle> {detailData?.eventType || '-'}
-              </Typography>
-            </Grid>
-
-            {detailData?.eventTypeId === EventTypeEnum.MobileEvent && (
-              <Grid md={4} sm={6} xs={12} item>
-                <Typography>
-                  <TitleItemStyle>Số người đăng ký tối thiểu:</TitleItemStyle>{' '}
-                  {detailData?.minParticipant ? detailData?.minParticipant : '-'}
-                </Typography>
-              </Grid>
-            )}
-
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Số người đăng ký tối đa:</TitleItemStyle>{' '}
-                {detailData?.maxParticipant === MAX_INT ? '-' : detailData?.maxParticipant}
-              </Typography>
-            </Grid>
-
-            <Grid md={4} sm={6} xs={12} item>
-              <Typography>
-                <TitleItemStyle>Số người đăng ký hiện tại:</TitleItemStyle> {detailData?.currentParticipation || 0}
-              </Typography>
-            </Grid>
-          </Grid>
+          <EventDetailInfo detailData={detailData} />
         </Stack>
 
         <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
@@ -769,6 +455,15 @@ const EventDetailPage = () => {
         onClose={handleRegistrationAreaDialog}
         title=""
         children={registrationAreaDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
+      />
+
+      {/* Error Dialog */}
+      <CustomDialog
+        isOpen={isErrorDialogOpen}
+        onClose={handleErrorDialog}
+        title=""
+        children={errorDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
       />
     </Box>
