@@ -64,10 +64,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       workingTimeStart: moment(),
       workingTimeEnd: moment().add(1, 'hours'),
       province: intendedData?.province,
-      districts: intendedData?.districts,
       minParticipant: intendedData?.minParticipant,
       maxParticipant: intendedData?.maxParticipant,
-      selectedDistricts: intendedData?.registrationAreas.map((district) => district?.districtName).join(', '),
+      selectedDistricts: intendedData?.selectedDistricts.map((district) => district?.name).join(', '),
     }),
     [intendedData]
   );
@@ -375,7 +374,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     setIsButtonLoading(true);
 
     const areas = intendedData
-      ? intendedData?.registrationAreas?.map((district) => ({
+      ? intendedData?.selectedDistricts?.map((district) => ({
           provinceId: intendedData?.province?.id,
           districtId: district?.id,
         }))
