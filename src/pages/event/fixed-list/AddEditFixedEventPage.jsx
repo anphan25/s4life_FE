@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { HeaderBreadcumbs } from 'components';
 import { getEventDetailByEventId } from 'api';
-import AddEditFixedEventForm from '../components/AddEditFixedEventForm';
+import AddEditFixedEventForm from './AddEditFixedEventForm';
 import { useParams } from 'react-router-dom';
 import { errorHandler, HeaderMainStyle } from 'utils';
 import { useSnackbar } from 'notistack';

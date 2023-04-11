@@ -54,17 +54,13 @@ const PermissionDeniedPage = () => {
           onClick={() => {
             navigate('/');
           }}
+          variant="contained"
           sx={{
             position: 'absolute',
             marginTop: 15,
-            background: '#C13538',
-            color: 'black',
-            '&:hover': {
-              background: '#D8514B',
-            },
           }}
         >
-          <u>VỀ TRANG CHỦ</u>
+          VỀ TRANG CHỦ
         </Button>
       </DivContent>
     </MainContainer>

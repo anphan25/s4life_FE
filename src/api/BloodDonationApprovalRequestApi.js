@@ -12,6 +12,5 @@ export async function getBloodDonationApprovalRequestById(id) {
 }
 
 export async function updateApproveBloodDonation(requestId, bloodDonationApprovals) {
-  console.log('params', { requestId, bloodDonationApprovals });
   return await axiosInstance.patch(`${apiPath}`, { requestId, bloodDonationApprovals });
 }

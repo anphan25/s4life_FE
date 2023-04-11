@@ -127,6 +127,27 @@ export default function Router() {
               ],
             },
             {
+              path: 'intended-list',
+              children: [
+                {
+                  index: true,
+                  element: (
+                    <ProtectedRouter roles={['Manager', 'Employee']}>
+                      <EventIntendedListPage />
+                    </ProtectedRouter>
+                  ),
+                },
+                {
+                  path: 'add',
+                  element: (
+                    <ProtectedRouter roles={['Manager']}>
+                      <AddIntendedEventPage />
+                    </ProtectedRouter>
+                  ),
+                },
+              ],
+            },
+            {
               path: ':eventId',
               element: (
                 <ProtectedRouter roles={['Manager', 'Admin', 'Employee', 'Moderator']}>
@@ -251,14 +272,16 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage')));
 
 //event
-const EventFixedListPage = Loadable(lazy(() => import('pages/event/event-fixed-list/EventFixedListPage')));
-const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/event-fixed-list/AddEditFixedEventPage')));
+const EventFixedListPage = Loadable(lazy(() => import('pages/event/fixed-list/EventFixedListPage')));
+const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/fixed-list/AddEditFixedEventPage')));
 const EventDetailPage = Loadable(lazy(() => import('pages/event/components/EventDetailPage')));
 const EventHospitalSchedulePage = Loadable(
-  lazy(() => import('pages/event/event-hospital-schedule-list/EventHospitalSchedulePage'))
+  lazy(() => import('pages/event/hospital-schedule-list/EventHospitalSchedulePage'))
 );
-const AddMobileEventPage = Loadable(lazy(() => import('pages/event/event-mobile-list/AddMobileEventPage')));
-const EventMobileListPage = Loadable(lazy(() => import('pages/event/event-mobile-list/EventMobileListPage')));
+const AddMobileEventPage = Loadable(lazy(() => import('pages/event/mobile-list/AddMobileEventPage')));
+const EventMobileListPage = Loadable(lazy(() => import('pages/event/mobile-list/EventMobileListPage')));
+const EventIntendedListPage = Loadable(lazy(() => import('pages/event/intended-list/EventIntendedListPage')));
+const AddIntendedEventPage = Loadable(lazy(() => import('pages/event/intended-list/AddIntendedEventPage')));
 
 //error
 const PermissionDeniedPage = Loadable(lazy(() => import('pages/error/PermissionDeniedPage')));
