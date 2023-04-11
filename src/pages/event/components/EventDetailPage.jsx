@@ -326,6 +326,7 @@ const EventDetailPage = () => {
             onSelectionModelChange={(ids) => {
               const selectedIDs = new Set(ids);
               const selectedRows = registrationAreas?.filter((row) => selectedIDs.has(row?.id));
+              console.log('selectedRows', selectedRows);
               setSelectedDistrict(selectedRows);
             }}
           />
@@ -339,11 +340,11 @@ const EventDetailPage = () => {
               navigate('/event/mobile-list/add', {
                 state: {
                   province: { id: detailData?.intendedProvince?.id, name: detailData?.intendedProvince?.name },
-                  districts: selectedDistrict?.map((district) => ({
+                  selectedDistricts: selectedDistrict?.map((district) => ({
                     id: district?.districtId,
                     name: district?.districtName,
                   })),
-                  registrationAreas: registrationAreas,
+                  totalRegistrations: selectedDistrict?.reduce((acc, current) => acc + current?.count, 0),
                   contactInformation: detailData?.contactInformation,
                   intendedStartDate: detailData?.startDate,
                   intendedEndDate: detailData?.endDate,
