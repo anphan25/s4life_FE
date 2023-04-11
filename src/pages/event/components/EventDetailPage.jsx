@@ -326,7 +326,7 @@ const EventDetailPage = () => {
             onSelectionModelChange={(ids) => {
               const selectedIDs = new Set(ids);
               const selectedRows = registrationAreas?.filter((row) => selectedIDs.has(row?.id));
-              console.log('selectedRows', selectedRows);
+
               setSelectedDistrict(selectedRows);
             }}
           />

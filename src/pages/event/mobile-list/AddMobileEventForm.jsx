@@ -52,7 +52,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     districts: [],
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
-  console.log('intendedData', intendedData);
+
   const intendedValues = useMemo(
     () => ({
       name: '',
