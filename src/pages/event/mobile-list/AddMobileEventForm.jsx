@@ -57,9 +57,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     () => ({
       name: '',
       description: '',
-      beginEvent: intendedData?.intendedStartDate,
-      intendedStartDate: intendedData?.intendedStartDate,
-      intendedEndDate: intendedData?.intendedEndDate,
+      beginEvent: moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
+        ? moment(intendedData?.intendedStartDate)
+        : moment().add(1, 'days'),
       contactInformation: intendedData?.contactInformation,
       workingTimeStart: moment(),
       workingTimeEnd: moment().add(1, 'hours'),
@@ -216,7 +216,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
 
       if (!intendedData) return true;
 
-      return moment().isSameOrBefore(moment(value), 'dates') || createError({ path, message: errorMessage });
+      return (
+        moment().add(1, 'days').isSameOrBefore(moment(value), 'dates') || createError({ path, message: errorMessage })
+      );
     });
   });
 
@@ -257,7 +259,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       .transform(transformDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
-      .validateStartDate('Ngày bắt đầu không thể nhỏ hơn hiện tại')
+      .validateStartDate('Ngày bắt đầu phải lớn hơn hiện tại ít nhất 1 ngày')
       .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại ít nhất 7 ngày')
       .isInPeriodOfIntendedDate(
         `Ngày diễn ra phải nằm trong khoảng (${formatDate(intendedData?.intendedStartDate, 2)} - ${formatDate(
@@ -563,8 +565,8 @@ const AddMobileEventForm = ({ intendedData = null }) => {
                     minDate={
                       intendedData
                         ? moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
-                          ? moment()
-                          : moment(intendedData?.intendedStartDate)
+                          ? moment(intendedData?.intendedStartDate)
+                          : moment().add(1, 'days')
                         : minDate
                     }
                     maxDate={intendedData ? moment(intendedData?.intendedEndDate) : undefined}
