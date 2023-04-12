@@ -160,8 +160,8 @@ function ApprovalList() {
     <>
       <HeaderMainStyle>
         <HeaderBreadcumbs
-          heading="Yêu cầu phê duyệt thẻ hiến máu"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Yêu cầu phê duyệt thẻ hiến máu' }]}
+          heading="Yêu cầu phê duyệt lịch sử hiến máu"
+          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Yêu cầu phê duyệt lịch sử hiến máu' }]}
         />
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
@@ -176,7 +176,7 @@ function ApprovalList() {
               sx={{ width: '100%' }}
               type={'number'}
               className="search-bar"
-              placeholder={'Nhập CCCD/CMND'}
+              placeholder={'Nhập số điện thoại'}
               onSubmit={handleSearchBloodBag}
             />
           </InputFilterSectionStyle>
@@ -195,7 +195,7 @@ function ApprovalList() {
         onClose={handleApprovalDetailDialog}
         title="Chi tiết yêu cầu"
         children={approvalDetailDialogContent()}
-        sx={{ '& .MuiDialog-paper': { maxWidth: '90% !important', maxHeight: '90%' } }}
+        sx={{ '& .MuiDialog-paper': { width: '95% !important', maxWidth: '95% !important', maxHeight: '90%' } }}
       />
     </>
   );

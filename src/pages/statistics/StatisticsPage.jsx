@@ -6,6 +6,7 @@ import {
   getStatisticResultFromGroup,
   StatisticEnum,
 } from 'utils';
+import { getYearFilterParam, getLastThreeYear } from 'utils/extensions/year';
 import { HeaderBreadcumbs } from 'components';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -50,22 +51,10 @@ const mothLabels = [
   'Tháng 12',
 ];
 
-const getLastThreeYear = () => {
-  const years = [];
-
-  for (let i = 0; i < 3; i++) {
-    const year = currentYear - i;
-    years.push(year);
-  }
-  return years;
-};
-
-const getYearFilterParam = (year) => {
-  return { DateStart: `${year}-1-1`, DateEnd: `${year}-12-31` };
-};
-
 const bloodVolumeRatioCalculator = (partialValue, totalValue) => {
-  return (100 * partialValue) / totalValue;
+  const result = (100 * partialValue) / totalValue || 0;
+
+  return result;
 };
 
 const StatisticsPage = () => {
@@ -73,16 +62,16 @@ const StatisticsPage = () => {
 
   // Total Blood Donation
   const [totalBloodDonation, setTotalBloodDonation] = useState([]);
-  const [totalBloodDonationYearFilter, setTotalBloodDonationYearFilter] = useState(getLastThreeYear()[0]);
+  const [totalBloodDonationYearFilter, setTotalBloodDonationYearFilter] = useState(getLastThreeYear(currentYear)[0]);
 
   // Blood Type Ratio
   const [bloodTypeRatio, setBloodTypeRatio] = useState([]);
-  const [bloodTypeRatioYearFilter, setBloodTypeRatioYearFilter] = useState(getLastThreeYear()[0]);
+  const [bloodTypeRatioYearFilter, setBloodTypeRatioYearFilter] = useState(getLastThreeYear(currentYear)[0]);
   const [totalVolume, setTotalVolume] = useState(0);
 
   // Blood Bag
   const [bloodBags, setBloodBags] = useState([]);
-  const [bloodBagYearFilter, setBloodBagYearFilter] = useState(getLastThreeYear()[0]);
+  const [bloodBagYearFilter, setBloodBagYearFilter] = useState(getLastThreeYear(currentYear)[0]);
 
   ChartJS?.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -200,11 +189,6 @@ const StatisticsPage = () => {
         backgroundColor: [theme.palette.info.main],
       },
       {
-        label: '375ml',
-        data: bloodBags?.map((data) => data['volume375']),
-        backgroundColor: [theme.palette.warning.main],
-      },
-      {
         label: '450ml',
         data: bloodBags?.map((data) => data['volume450']),
         backgroundColor: [theme.palette.success.main],
@@ -234,7 +218,7 @@ const StatisticsPage = () => {
       true
     );
 
-    const totalBloodVolumePerMonth = response?.map((data) =>
+    const totalBloodVolumePerMonth = response?.statistics?.map((data) =>
       getStatisticResultFromGroup(data?.bloodVolumeStatistics, StatisticEnum.BloodVolumeStatistic.RECEIVED_GROUP)
     );
 
@@ -249,7 +233,7 @@ const StatisticsPage = () => {
       false
     );
 
-    const bloodVolumeTypeStatistics = data?.bloodVolumeTypeStatistics;
+    const bloodVolumeTypeStatistics = data?.statistics[0]?.bloodVolumeTypeStatistics;
 
     const typeAVolume = getStatisticResultFromGroup(
       bloodVolumeTypeStatistics,
@@ -310,8 +294,7 @@ const StatisticsPage = () => {
       getYearFilterParam(bloodBagYearFilter).DateEnd,
       true
     );
-
-    const totalBloodBagVolumePerMonth = response?.map((data) => ({
+    const totalBloodBagVolumePerMonth = response?.statistics?.map((data) => ({
       volume250: getStatisticResultFromGroup(
         data?.bloodBagVolumeStatistics,
         StatisticEnum.BloodBagVolumeStatistic.GROUP_250
@@ -362,7 +345,7 @@ const StatisticsPage = () => {
                 label="Year"
                 onChange={handelChooseTotalDonationYear}
               >
-                {getLastThreeYear().map((year, i) => (
+                {getLastThreeYear(currentYear).map((year, i) => (
                   <MenuItem key={i} value={year}>
                     {year}
                   </MenuItem>
@@ -384,14 +367,14 @@ const StatisticsPage = () => {
                 label="Year"
                 onChange={handelChooseBloodTypeRatioYear}
               >
-                {getLastThreeYear().map((year, i) => (
+                {getLastThreeYear(currentYear).map((year, i) => (
                   <MenuItem key={i} value={year}>
                     {year}
                   </MenuItem>
                 ))}
               </Select>
             </Stack>
-            {bloodTypeRatio.length > 0 ? (
+            {bloodTypeRatio.some((data) => data?.volume > 0) ? (
               <>
                 <Doughnut
                   options={bloodTypeRatioDoughnutChartOptions}
@@ -421,7 +404,7 @@ const StatisticsPage = () => {
                 label="Year"
                 onChange={handelChooseBloodBagYear}
               >
-                {getLastThreeYear().map((year, i) => (
+                {getLastThreeYear(currentYear).map((year, i) => (
                   <MenuItem key={i} value={year}>
                     {year}
                   </MenuItem>

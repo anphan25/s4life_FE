@@ -33,21 +33,39 @@ import {
   DialogButtonGroupStyle,
   EMAIL_PATTERN,
   convertErrorCodeToMessage,
+  DonationTimeEnum,
 } from 'utils';
-import { getUsers, getHospitalsList, addUser } from 'api';
+import { getUsers, getHospitalsList, addUser, disableUser, enableUser } from 'api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { openHubConnection, listenOnHub } from 'config';
+import { useStore } from 'react-redux';
+import DonationTimeFilter from './components/DonationTimeFilter';
+import DonationTimeAnalyticContainer from './components/DonationTimeAnalyticContainer';
+import useResponsive from 'hooks/useResponsive';
 
 const StatusTagConvertLabel = (value) => {
   return value ? 'success' : 'error';
 };
 
+const DonateTimeTagConvertLabel = (time) => {
+  const tag = {
+    1: 'success',
+    2: 'warning',
+    3: 'error',
+    4: 'info',
+  };
+
+  return tag[time];
+};
+
 const UserListPage = () => {
   const navigate = useNavigate();
+  const store = useStore();
 
   const [pageState, setPageState] = useState({
     isLoading: false,
@@ -78,13 +96,26 @@ const UserListPage = () => {
     PageSize: 10,
     SearchKey: '',
   });
-  const [isAddAccountOptionsOpen, setIsAddAccountOptionsOpen] = useState(false);
+
   const [isImportAccountOpen, setIsImportAccountOpen] = useState(false);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [importParams, setImportParams] = useState([]);
   const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
   const [isMultipleAlertOpen, setIsMultipleAlertOpen] = useState(false);
   const [alertResult, setAlertResult] = useState(null);
+  const [isAddAccountOptionsOpen, setIsAddAccountOptionsOpen] = useState(false);
+  const [disableName, setDisableName] = useState('');
+  const [activateName, setActivateName] = useState('');
+  const [isDisableAccountOpen, setIsDisableAccountOpen] = useState(false);
+  const [isActivateAccountOpen, setIsActivateAccountOpen] = useState(false);
+  const [disableId, setDisableId] = useState();
+  const [enableId, setEnableId] = useState();
+  const [connection, setConnection] = useState(null);
+  const [userYearFilterParam, setUserYearFilterParam] = useState();
+  const [donationTimeParam, setDonationTimeParam] = useState([]);
+  const [isDisableOperation, setIsDisableOperation] = useState(false);
+  const isDesktop = useResponsive('up', 'md');
+
   const userStatusOption = [
     { name: 'Tất cả', value: 0 },
     { name: 'Đang hoạt động', value: 1 },
@@ -122,12 +153,7 @@ const UserListPage = () => {
         field: 'address',
         flex: 1,
       },
-      {
-        headerName: 'CCCD/CMND',
-        type: 'string',
-        field: 'nationalIdAndCitizenId',
-        width: 120,
-      },
+
       {
         headerName: 'Số điện thoại',
         field: 'phoneNumber',
@@ -140,6 +166,22 @@ const UserListPage = () => {
         type: 'string',
         width: 90,
         align: 'center',
+      },
+      {
+        headerName: `Số lần hiến trong năm ${userYearFilterParam}`,
+        type: 'string',
+        field: 'donateTime',
+        width: 200,
+        renderCell: ({ value }) => {
+          return (
+            <Tag status={DonateTimeTagConvertLabel(value)}>
+              {
+                DonationTimeEnum[Object.keys(DonationTimeEnum).find((key) => DonationTimeEnum[key].value === value)]
+                  ?.description
+              }
+            </Tag>
+          );
+        },
       },
       {
         field: 'actions',
@@ -176,7 +218,7 @@ const UserListPage = () => {
         hide: true,
       },
       {
-        headerName: 'Tên đăng nhập',
+        headerName: 'Email',
         field: 'userName',
         type: 'string',
         flex: 1,
@@ -215,12 +257,22 @@ const UserListPage = () => {
         renderCell: (params) => {
           return (
             <div>
-              <Tooltip title="Vô hiệu" placement="bottom">
+              <Tooltip title={params.row.isActive ? 'Vô hiệu' : 'Kích hoạt'} placement="bottom">
                 <Box>
                   <Icon
-                    onClick={() => {}}
+                    onClick={() => {
+                      if (params.row.isActive) {
+                        setDisableId(params.row.id);
+                        setDisableName(params.row.userName);
+                        handleDisableAccountDialog();
+                      } else {
+                        setEnableId(params.row.id);
+                        setActivateName(params.row.userName);
+                        handleActivateAccountDialog();
+                      }
+                    }}
                     sx={{ color: params.row.isActive ? 'error.main' : 'success.main', cursor: 'pointer', fontSize: 18 }}
-                    icon={params.row.isActive ? 'solid-trash' : 'solid-trash-slash'}
+                    icon={params.row.isActive ? 'solid-user-slash' : 'solid-user-check'}
                   />
                 </Box>
               </Tooltip>
@@ -241,7 +293,19 @@ const UserListPage = () => {
   };
 
   const handleFilterTabChange = (e, value) => {
-    setPageState((old) => ({ ...old, filterMode: value, page: 1, pageSize: 10 }));
+    setPageState((old) => ({
+      ...old,
+      filterMode: value,
+      page: 1,
+      pageSize: 10,
+      ...(value === FilterRoleEnum.Volunteer.value && { hospitalId: '' }), // If role is volunteer, filter param for other role will reset
+    }));
+
+    if (value === FilterRoleEnum.Volunteer.value) {
+      setStatusFilter(0);
+      setHospitalsFilterParam((pre) => ({ ...pre, SearchKey: '' }));
+    }
+
     setSearchParam('');
   };
 
@@ -299,9 +363,23 @@ const UserListPage = () => {
   const handleFilterStatusChange = (event) => {
     setStatusFilter(event.target.value);
   };
+
+  const handleDisableAccountDialog = () => {
+    setIsDisableAccountOpen(!isDisableAccountOpen);
+  };
+
+  const handleActivateAccountDialog = () => {
+    setIsActivateAccountOpen(!isActivateAccountOpen);
+  };
+
+  const handleDonationTimeFilter = (year, times) => {
+    setUserYearFilterParam(year);
+    setDonationTimeParam(times.join(','));
+  };
+
   const AddUserSchema = Yup.object().shape({
-    username: Yup.string().required('Vui lòng nhập tên tài khoản').matches(EMAIL_PATTERN, {
-      message: 'Tên tài khoản không hợp lệ',
+    username: Yup.string().required('Vui lòng nhập email').matches(EMAIL_PATTERN, {
+      message: 'Email không hợp lệ',
       excludeEmptyString: false,
     }),
     hospital: Yup.array()
@@ -458,17 +536,17 @@ const UserListPage = () => {
           />
           <RHFSelect name="role" label="Vai trò" control={addUserControl} isRequiredLabel={true}>
             {roleSelectOption.map((option, i) => (
-              <option key={i} value={option?.value}>
+              <MenuItem key={i} value={option?.value}>
                 {option?.label}
-              </option>
+              </MenuItem>
             ))}
           </RHFSelect>
 
           <RHFInput
-            label="Tên tài khoản"
+            label="Email"
             name="username"
             control={addUserControl}
-            placeholder="Nhập tên tài khoản"
+            placeholder="Nhập email"
             isRequiredLabel={true}
           />
           <Stack>
@@ -586,14 +664,87 @@ const UserListPage = () => {
     );
   };
 
+  const disableAccountDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Bạn có chắc chắn muốn vô hiệu <b>{disableName}</b> không ?
+        </Typography>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button onClick={handleDisableAccountDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setIsButtonLoading(true);
+              try {
+                await disableUser(disableId);
+                await fetchUserListData();
+              } catch (error) {
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
+              } finally {
+                handleDisableAccountDialog();
+                setIsButtonLoading(false);
+              }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Vô Hiệu
+          </LoadingButton>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
+  const activateAccountDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Bạn có chắc chắn muốn kích hoạt <b>{activateName}</b> không ?
+        </Typography>
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button onClick={handleActivateAccountDialog}>Hủy</Button>
+          <LoadingButton
+            loading={isButtonLoading}
+            onClick={async () => {
+              setIsButtonLoading(true);
+              try {
+                await enableUser(enableId);
+                await fetchUserListData();
+              } catch (error) {
+                enqueueSnackbar(errorHandler(error), {
+                  variant: 'error',
+                  persist: false,
+                });
+              } finally {
+                handleActivateAccountDialog();
+                setIsButtonLoading(false);
+              }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Kích hoạt
+          </LoadingButton>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
   const fetchUserListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true, data: [] }));
+    setIsDisableOperation(true);
     try {
       const getVolunteerParam = {
         Role: pageState.filterMode,
         SearchKey: searchParam,
         Page: pageState.page,
         PageSize: pageState.pageSize,
+        ...(donationTimeParam?.length > 0 && { DonateTimeInYear: donationTimeParam }),
+        Year: userYearFilterParam,
       };
 
       const getManagerStaffParam = {
@@ -612,12 +763,12 @@ const UserListPage = () => {
             id: data?.userInformation?.userId,
             name: data?.userInformation?.fullName || '-',
             address: data?.userInformation?.address || '-',
-            nationalIdAndCitizenId: data?.userInformation?.nationalId || data?.userInformation?.citizenId,
             phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
             bloodType: data?.userInformation?.bloodTypeId
               ? convertBloodTypeLabel(data?.userInformation?.bloodTypeId, data?.userInformation?.isRhNegative)
               : '-',
             userInformationId: data?.userInformationId,
+            donateTime: data?.donateTime,
           }))
         : data.items?.map((data, i) => ({
             id: data?.id,
@@ -634,8 +785,18 @@ const UserListPage = () => {
       });
     } finally {
       setPageState((pre) => ({ ...pre, isLoading: false }));
+      setIsDisableOperation(false);
     }
-  }, [pageState.pageSize, pageState.page, searchParam, pageState.filterMode, pageState.hospitalId, statusFilter]);
+  }, [
+    pageState.pageSize,
+    pageState.page,
+    searchParam,
+    pageState.filterMode,
+    pageState.hospitalId,
+    statusFilter,
+    donationTimeParam,
+    userYearFilterParam,
+  ]);
 
   useEffect(() => {
     fetchUserListData();
@@ -666,6 +827,25 @@ const UserListPage = () => {
     fetchHospitals();
   }, [fetchHospitals]);
 
+  useEffect(() => {
+    const openConnection = async () => {
+      setConnection(await openHubConnection(store));
+    };
+    openConnection();
+  }, []);
+
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
+      });
+    });
+    connection?.onclose((e) => {
+      setConnection(null);
+    });
+  }, [connection]);
+
   return (
     <>
       <HeaderMainStyle>
@@ -683,7 +863,10 @@ const UserListPage = () => {
           </Button>
         )}
       </HeaderMainStyle>
+      {isVolunteerFilterMode && isAdmin && <DonationTimeAnalyticContainer />}
+
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+        {/* Table toolbar */}
         <Box>
           {isAdmin && (
             <FilterTab
@@ -694,7 +877,7 @@ const UserListPage = () => {
           )}
 
           <InputFilterSectionStyle>
-            {pageState.filterMode !== FilterRoleEnum.Volunteer.value && (
+            {!isVolunteerFilterMode && (
               <>
                 <Box>
                   <Select
@@ -705,7 +888,7 @@ const UserListPage = () => {
 
                       return userStatusOption.find((option) => option.value === selected).name;
                     }}
-                    sx={{ minWidth: 200 }}
+                    sx={{ minWidth: 200, width: isDesktop ? '200px' : '100%' }}
                     name={'status'}
                     select={'true'}
                     value={statusFilter}
@@ -724,7 +907,7 @@ const UserListPage = () => {
                   </Select>
                 </Box>
                 <AsyncAutocompleteFilter
-                  sx={{ width: '50%' }}
+                  sx={{ width: isDesktop ? '50%' : '100%' }}
                   placeholder="Chọn bệnh viện"
                   onInput={handleSearchHospitalToFilter}
                   onSelect={handleChooseHospital}
@@ -745,13 +928,19 @@ const UserListPage = () => {
               </>
             )}
 
-            <SearchBar
-              sx={{ width: isVolunteerFilterMode ? '100%' : '50%' }}
-              type={isVolunteerFilterMode ? 'number' : 'text'}
-              className="search-bar"
-              placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập tên tài khoản'}
-              onSubmit={handleUserSearch}
-            />
+            <Stack direction="row" width="100%" justifyContent="space-between">
+              <SearchBar
+                sx={{ width: isVolunteerFilterMode ? (isDesktop ? '30%' : '90%') : '100%' }}
+                type={isVolunteerFilterMode ? 'number' : 'text'}
+                className="search-bar"
+                placeholder={isVolunteerFilterMode ? 'Nhập số điện thoại' : 'Nhập email'}
+                onSubmit={handleUserSearch}
+              />
+
+              {isVolunteerFilterMode && (
+                <DonationTimeFilter onFilter={handleDonationTimeFilter} disableOperation={isDisableOperation} />
+              )}
+            </Stack>
           </InputFilterSectionStyle>
         </Box>
 
@@ -786,10 +975,9 @@ const UserListPage = () => {
           onClose={handleImportAccountDialog}
           title={'Tạo tài khoản nhân viên y tế từ file'}
           children={importAccountDialogContent()}
-          sx={{ '& .MuiDialog-paper': { width: '70%' } }}
+          sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
         />
       </Box>
-
       {isMultipleAlertOpen && (
         <MultipleAlertSnackBar
           onClose={() => {
@@ -801,7 +989,6 @@ const UserListPage = () => {
           onClick={handleDetailAlertDialog}
         />
       )}
-
       {/* Detail alerts dialog */}
       <DetailAlertDialog
         isOpen={isDetailAlertOpen}
@@ -811,6 +998,24 @@ const UserListPage = () => {
         failedList={alertResult?.failedList || []}
         columns={[{ name: 'Tài khoản', field: 'data' }]}
         sx={{ '& .MuiDialog-paper': { width: '80% !important', maxHeight: '600px' } }}
+      />
+      {/* 
+
+      {/* Disable User Dialog */}
+      <CustomDialog
+        isOpen={isDisableAccountOpen}
+        onClose={handleDisableAccountDialog}
+        title={'Vô hiệu tài khoản'}
+        children={disableAccountDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%' } }}
+      />
+      {/* Activate User Dialog */}
+      <CustomDialog
+        isOpen={isActivateAccountOpen}
+        onClose={handleActivateAccountDialog}
+        title={'Kích hoạt tài khoản'}
+        children={activateAccountDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70%' } }}
       />
     </>
   );

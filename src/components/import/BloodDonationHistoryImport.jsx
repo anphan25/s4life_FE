@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import moment from 'moment';
 import { CSVFileIcon } from 'assets';
-import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'utils';
+import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle, BLOOD_VOLUME } from 'utils';
 
 export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -13,10 +13,13 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
 
   let tempErrorFileContent = [];
 
-  const validHeader = ['Ngày hiến*', 'Số đơn vị máu*', 'Số túi máu*'];
+  const validHeader = ['Ngày hiến', 'Số đơn vị máu', 'Số túi máu'];
 
-  const clonedHeaders = [...validHeader];
-  const checkedHeaders = [];
+  const requiredLabels = [...validHeader];
+
+  const requiredFields = ['donationDate', 'donationVolume', 'bloodBagCode'];
+
+  const missingColumns = [...validHeader];
 
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -38,19 +41,15 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       }
 
       case 'required-filed-missing': {
-        return 'Vui lòng điền đầy đủ các trường thông tin bắt buộc (*)';
-      }
-
-      case 'unknown-columns': {
-        return 'Vui lòng không thêm cột mới';
+        return `Vui lòng điền đầy đủ các trường thông tin bắt buộc (${requiredLabels.join(', ')})`;
       }
 
       case 'lack-modified-columns': {
-        return `Vui lòng không xóa hoặc sửa tên các cột mặc định của file (${missedColumns.join(', ')})`;
+        return `Thiếu các cột bắt buộc (${missedColumns.join(', ')})`;
       }
 
       case 'invalid-donation-volume': {
-        return 'Số đơn vị máu phải lớn hơn 0';
+        return 'Số đơn vị máu không hợp lệ. Số đơn vị hợp lệ là 250, 350, 375, 450';
       }
 
       case 'invalid-format-date': {
@@ -98,32 +97,26 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
 
   const validateCSVFileContent = (dataList) => {
     // Check remove or modify column name
-    if (clonedHeaders.length > 0) {
-      setMissedColumns(clonedHeaders);
+    if (missingColumns.length > 0) {
+      setMissedColumns(missingColumns);
       displayInvalidFileContent('lack-modified-columns');
 
       return;
     }
 
-    //Check  add new columns(s)
-    validHeader.sort();
-    checkedHeaders.sort();
-
-    for (let i = 0; i < validHeader.length; i++) {
-      if (checkedHeaders[i] !== validHeader[i]) {
-        displayInvalidFileContent('unknown-columns');
-
-        return;
-      }
+    if (dataList?.length <= 0) {
+      displayInvalidFileContent('required-filed-missing');
+      return;
     }
 
-    dataList.forEach((data) => {
+    dataList?.forEach((data) => {
       for (const property in data) {
-        if (!data[property]) {
+        if (!data[property] && requiredFields.includes(property)) {
           displayInvalidFileContent('required-filed-missing');
+          return;
         }
 
-        if (data['donationVolume'] <= 0) {
+        if (!BLOOD_VOLUME.includes(data['donationVolume'])) {
           displayInvalidFileContent('invalid-donation-volume');
         }
 
@@ -141,8 +134,10 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       }
     }
 
-    if (!moment(obj['donationDate'], 'DD/MM/yyyy', true).isValid) {
+    if (!moment(obj['donationDate'], 'DD/MM/yyyy', true).isValid()) {
       displayInvalidFileContent('invalid-format-date');
+
+      return;
     }
 
     const formattedDate = moment(obj['donationDate'], 'DD/MM/yyyy').format('yyyy-MM-DD');
@@ -165,20 +160,18 @@ export const BloodDonationHistoryImport = ({ label, onImport, ...props }) => {
       transformHeader: function (headerName) {
         if (!headerName) return;
 
-        const index = clonedHeaders.indexOf(headerName);
+        const index = missingColumns.indexOf(headerName);
 
-        if (index > -1) clonedHeaders.splice(index, 1);
-
-        checkedHeaders.push(headerName);
+        if (index > -1) missingColumns.splice(index, 1);
 
         switch (headerName) {
-          case 'Ngày hiến*': {
+          case 'Ngày hiến': {
             return 'donationDate';
           }
-          case 'Số đơn vị máu*': {
+          case 'Số đơn vị máu': {
             return 'donationVolume';
           }
-          case 'Số túi máu*': {
+          case 'Số túi máu': {
             return 'bloodBagCode';
           }
           default: {

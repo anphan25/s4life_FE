@@ -1,5 +1,5 @@
 export * from './handleDownloadTemplate';
-export * from './isEventEditableOrCancelable';
+export * from './isEventEditable';
 export * from './isStartAndEndDateIsSame';
 export * from './convertDayLabel';
 export * from './errorHandler';
@@ -10,3 +10,4 @@ export * from './groupDataByErrorCode';
 export * from './formatPhoneNumber';
 export * from './getValuesFromEnum';
 export * from './getStatisticResultFromGroup';
+export * from './restructureHospitalSchedule';

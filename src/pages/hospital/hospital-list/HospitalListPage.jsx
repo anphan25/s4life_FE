@@ -14,12 +14,11 @@ import {
   HospitalFilterEnum,
   HospitalStatusEnum,
   getValuesFromEnum,
-  RoleEnum,
 } from 'utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DownloadLink } from './HospitalListStyle';
 import { openHubConnection, listenOnHub } from 'config';
-import { useStore, useSelector } from 'react-redux';
+import { useStore } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
@@ -52,9 +51,6 @@ const HospitalListPage = () => {
 
   const isHospitalActive = pageState.status === HospitalStatusEnum.Active.value;
 
-  const user = useSelector((state) => state.auth.auth?.user);
-  const isModerator = user.role === RoleEnum.Moderator.name;
-
   const gridOptions = {
     columns: [
       {
@@ -65,7 +61,7 @@ const HospitalListPage = () => {
         headerName: 'Tên bệnh viện',
         field: 'name',
         type: 'string',
-        width: 180,
+        width: 240,
         renderCell: (nameValue) => {
           return (
             <Typography
@@ -119,10 +115,9 @@ const HospitalListPage = () => {
             showInMenu
           />,
           <GridActionsCellItem
-            disabled={!isModerator}
             sx={{ color: isHospitalActive ? 'error.main' : 'success.main' }}
             label={isHospitalActive ? 'Vô hiệu' : 'Kích hoạt'}
-            icon={<Icon icon={isHospitalActive ? 'solid-trash' : 'solid-trash-slash'} />}
+            icon={<Icon icon={isHospitalActive ? 'solid-ban' : 'solid-check-double'} />}
             onClick={() => {
               if (isHospitalActive) {
                 setDisableHospitalId(params.row.id);
@@ -401,11 +396,10 @@ const HospitalListPage = () => {
           heading="Danh sách bệnh viện"
           links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách bệnh viện' }]}
         />
-        {isModerator && (
-          <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={addHospitalDialogHandler}>
-            Tạo bệnh viện
-          </Button>
-        )}
+
+        <Button startIcon={<Icon icon="solid-plus" />} variant="contained" onClick={addHospitalDialogHandler}>
+          Tạo bệnh viện
+        </Button>
       </HeaderMainStyle>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>

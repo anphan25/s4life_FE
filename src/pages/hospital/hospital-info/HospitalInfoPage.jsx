@@ -1,21 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashedBox, HospitalImgStyle, Item, LeftContainer } from './HospitalInfoStyle';
-import {
-  Stack,
-  Box,
-  Typography,
-  Button,
-  Grid,
-  Paper,
-  Avatar,
-  styled,
-  Switch,
-  FormControl,
-  FormControlLabel,
-  Tooltip,
-  IconButton,
-} from '@mui/material';
-import { CustomDialog, RHFUploadImage, HospitalImport, Icon, HeaderBreadcumbs } from 'components';
+import { Stack, Box, Typography, Button, Grid, Paper, Avatar, styled, CircularProgress } from '@mui/material';
+import { CustomDialog, RHFUploadImage, Icon, HeaderBreadcumbs } from 'components';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   errorHandler,
@@ -24,6 +10,7 @@ import {
   HeaderMainStyle,
   DialogButtonGroupStyle,
   RoleEnum,
+  restructureHospitalSchedule,
 } from 'utils';
 import { useForm } from 'react-hook-form';
 import { ref, getDownloadURL, getStorage, deleteObject, uploadBytesResumable } from 'firebase/storage';
@@ -38,14 +25,12 @@ import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
 
 const HospitalInfoPage = () => {
-  const [isUpdateHospitalOpen, setIsUpdateHospitalOpen] = useState(false);
   const [isUpdateHospitalImgOpen, setIsUpdateHospitalImgOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [importParams, setImportParams] = useState([]);
-  const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [isUpdateImgBtnDisabled, setIsUpdateImgBtnDisabled] = useState(true);
   const [imgUploadFile, setImgUploadFile] = useState(null);
   const [connection, setConnection] = useState(null);
@@ -54,12 +39,13 @@ const HospitalInfoPage = () => {
   const user = useSelector((state) => state.auth?.auth?.user);
   const store = useStore();
   const { hospitalId } = useParams();
-  const { handleSubmit: handleSubmitHospitalInfo, control: hospitalInfoControl } = useForm({});
   const { handleSubmit: handleSubmitHospitalImg, control: hospitalImgControl } = useForm({});
+  const [isCurrentSchedule, setIsCurrentSchedule] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(false);
 
-  const downloadRef = useRef();
+  const navigate = useNavigate();
 
-  const isEmployee = user.role === RoleEnum.Employee.name;
+  const isManager = user.role === RoleEnum.Manager.name;
 
   const PlaceholderStyle = styled('div')(({ theme }) => ({
     opacity: 0,
@@ -79,14 +65,8 @@ const HospitalInfoPage = () => {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.shorter,
     }),
-    '&:hover': { opacity: !isEmployee ? 0 : 0.72 },
+    '&:hover': { opacity: !isManager ? 0 : 0.72 },
   }));
-
-  const handleUpdateHospitalDialog = () => {
-    setIsUpdateHospitalOpen(!isUpdateHospitalOpen);
-    setIsImportBtnDisabled(true);
-    setImportParams([]);
-  };
 
   const handleUpdateHospitalImgDialog = () => {
     setIsUpdateHospitalImgOpen(!isUpdateHospitalImgOpen);
@@ -141,24 +121,6 @@ const HospitalInfoPage = () => {
     );
   };
 
-  const updateHospitalInfoHandler = async (data) => {
-    setIsButtonLoading(true);
-    setImportParams([]);
-    try {
-      await editHospital(data);
-      dispatch(setHospital(data));
-      await fetchHospitalInfoData();
-    } catch (error) {
-      enqueueSnackbar(errorHandler(error), {
-        variant: 'error',
-        persist: false,
-      });
-    } finally {
-      setIsButtonLoading(false);
-      handleUpdateHospitalDialog();
-    }
-  };
-
   const updateHospitalImgHandler = async (data) => {
     setImgUploadFile(null);
 
@@ -175,44 +137,6 @@ const HospitalInfoPage = () => {
       setIsButtonLoading(false);
       handleUpdateHospitalImgDialog();
     }
-  };
-
-  const updateHospitalDialogContent = () => {
-    return (
-      <Paper>
-        <form onSubmit={handleSubmitHospitalInfo(onSubmitHospitalInfo)}>
-          <Stack justifyContent="center" spacing={2}>
-            <HospitalImport
-              control={hospitalInfoControl}
-              name="hospitalFile"
-              label="Kéo thả hoặc nhấn vào để gửi lên"
-              onImport={getDataFromFile}
-              isEdit={true}
-            />
-          </Stack>
-
-          <a ref={downloadRef} style={{ display: 'hidden' }} />
-
-          <Stack direction="row" justifyContent="space-between">
-            <Button startIcon={<Icon icon="solid-file-download" />} onClick={handleDownloadInfo}>
-              Tải thông tin bệnh viện
-            </Button>
-            <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-              <Button onClick={handleUpdateHospitalDialog}>Hủy</Button>
-              <LoadingButton
-                loading={isButtonLoading}
-                disabled={isImportBtnDisabled}
-                type="submit"
-                variant="contained"
-                autoFocus
-              >
-                Cập nhật
-              </LoadingButton>
-            </DialogButtonGroupStyle>
-          </Stack>
-        </form>
-      </Paper>
-    );
   };
 
   const updateHospitalImgDialogContent = () => {
@@ -250,20 +174,6 @@ const HospitalInfoPage = () => {
     );
   };
 
-  const onSubmitHospitalInfo = async (data) => {
-    if (importParams.length < 1) return;
-
-    data.name = importParams[0].name;
-    data.address = importParams[0].address;
-    data.latitude = importParams[0].latitude;
-    data.longitude = importParams[0].longitude;
-    data.email = importParams[0].email;
-    data.phoneNumber = importParams[0].phoneNumber;
-    data.openingTime = importParams[0].openingTime;
-
-    updateHospitalInfoHandler(data);
-  };
-
   const onSubmitHospitalImg = async (data) => {
     if (!imgUploadFile) return;
 
@@ -271,124 +181,10 @@ const HospitalInfoPage = () => {
     await uploadImage(data);
   };
 
-  function downloadBlob(content, filename, contentType) {
-    // Create a blob
-    var blob = new Blob([content], { type: contentType });
-    var url = URL.createObjectURL(blob);
-
-    downloadRef.current.setAttribute('href', url);
-    downloadRef.current.setAttribute('download', filename);
-    downloadRef.current.click();
-  }
-
-  function arrayToCsv(data) {
-    return data
-      .map(
-        (row) =>
-          row
-            .map(String) // convert every value to String
-            .map((v) => v.replaceAll('"', '""')) // escape double colons
-            .map((v) => `"${v}"`) // quote it
-            .join(',') // comma-separated
-      )
-      .join('\r\n'); // rows starting on new lines
-  }
-
-  //Format to HH:mm:ss - HH:mm:ss
-  const formatWorkingTimeValue = (dayObject) => {
-    return `${dayObject.startTime} - ${dayObject.endTime}`;
-  };
-
-  const getWorkingTimeOfADay = (arr, day) => {
-    const dayValue = arr.find((d) => d.day === day);
-
-    if (!dayValue.isEnabled) return '';
-
-    return formatWorkingTimeValue(dayValue);
-  };
-
-  const handleDownloadInfo = () => {
-    //Init data
-    const arrData = [
-      [
-        'Tên*',
-        'Ðịa Chỉ*',
-        'Kinh Ðộ*',
-        'Vĩ Ðộ*',
-        'Số Ðiện Thoại*',
-        'Email',
-        'Thứ 2',
-        'Thứ 3',
-        'Thứ 4',
-        'Thứ 5',
-        'Thứ 6',
-        'Thứ 7',
-        'Chủ Nhật',
-      ],
-      [
-        hospitalData.name || '',
-        hospitalData.address || '',
-        hospitalData.longitude || '',
-        hospitalData.latitude || '',
-        hospitalData.phoneNumber || '',
-        hospitalData.email || '',
-        getWorkingTimeOfADay(hospitalData.openingTime, 1),
-        getWorkingTimeOfADay(hospitalData.openingTime, 2),
-        getWorkingTimeOfADay(hospitalData.openingTime, 3),
-        getWorkingTimeOfADay(hospitalData.openingTime, 4),
-        getWorkingTimeOfADay(hospitalData.openingTime, 5),
-        getWorkingTimeOfADay(hospitalData.openingTime, 6),
-        getWorkingTimeOfADay(hospitalData.openingTime, 0),
-      ],
-    ];
-
-    //Convert Data to CSV
-    let csv = arrayToCsv(arrData);
-    //Download
-    downloadBlob(csv, 'hospital_info.csv', 'data:text/csv;charset=utf-8');
-  };
-
-  const getDataFromFile = (values, disabledBtn) => {
-    setImportParams([]);
-    setImportParams(values);
-    setIsImportBtnDisabled(disabledBtn);
-  };
-
-  const mappingHospitalSchedule = (schedule) => {
-    if (!schedule) return;
-
-    schedule?.sort((a, b) => a?.day - b?.day);
-    const sunday = schedule?.find((el) => el.day === 0);
-
-    const result = schedule?.filter((item) => item.day !== 0);
-
-    result.push(sunday);
-
-    return result;
-  };
-
-  const handleSwitchChange = async (e) => {
-    console.log(e.target.checked);
-    if (e.target.checked) {
-      await editHospital({
-        hospitalConfig: {
-          autoGenerateScheduledEvent: true,
-        },
-      });
-    } else {
-      await editHospital({
-        openingTime: null,
-        hospitalConfig: {
-          autoGenerateScheduledEvent: false,
-        },
-      });
-    }
-
-    fetchHospitalInfoData();
-  };
-
   const fetchHospitalInfoData = async () => {
+    setIsPageLoading(true);
     setHospitalData(await getHospitalById(hospitalId));
+    setIsPageLoading(false);
   };
 
   useEffect(() => {
@@ -422,147 +218,155 @@ const HospitalInfoPage = () => {
           ]}
         />
 
-        {isEmployee && (
+        {isManager && (
           <Button
             startIcon={<Icon icon="solid-pen-line" />}
             variant="contained"
-            onClick={() => handleUpdateHospitalDialog()}
+            onClick={() => {
+              navigate(`/hospital/${hospitalId}/edit`);
+            }}
           >
             Cập nhật
           </Button>
         )}
       </HeaderMainStyle>
-      <Grid container spacing={2}>
-        <Grid item md={8} sm={6} xs={12}>
-          <Item>
-            <LeftContainer>
-              <HospitalImgStyle>
-                <PlaceholderStyle onClick={user?.role !== 'Employee' ? null : handleUpdateHospitalImgDialog}>
-                  <Icon icon="solid-camera" />
-                  <Typography variant="caption">Cập nhật ảnh</Typography>
-                </PlaceholderStyle>
-                <img src={hospitalData?.avatarUrl} alt="Ảnh bệnh viện" />
-              </HospitalImgStyle>
-              <Stack direction={'column'} alignItems="start">
-                <Typography fontSize={'20px'} fontWeight={600} sx={{ mb: 0.5 }}>
-                  {hospitalData?.name}
-                </Typography>
-                <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
-                  {hospitalData?.address}
-                </Typography>
-                <Typography fontSize={'16px'} fontWeight={600} sx={{ mt: 3, mb: 1 }}>
-                  Thông tin liên hệ
-                </Typography>
-                <Stack direction={'row'} flexWrap={'wrap'}>
-                  <DashedBox>
-                    <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
-                      Email
-                    </Typography>
-                    <Typography fontSize={'16px'} fontWeight={600}>
-                      {hospitalData?.email || 'Chưa cập nhật'}
-                    </Typography>
-                  </DashedBox>
-                  <DashedBox>
-                    <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
-                      Số điện thoại
-                    </Typography>
-                    <Typography align="left" fontSize={'16px'} fontWeight={600}>
-                      {hospitalData?.phoneNumber || 'Chưa cập nhật'}
-                    </Typography>
-                  </DashedBox>
-                </Stack>
-              </Stack>
-            </LeftContainer>
-          </Item>
-        </Grid>
-        <Grid item md={4} sm={6} xs={12}>
-          <Item sx={{ textAlign: 'left' }}>
-            {user?.role === 'Employee' && (
-              <Box>
-                <FormControl component="fieldset" variant="standard" sx={{ marginBottom: '10px' }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={hospitalData?.hospitalConfig?.autoGenerateScheduledEvent}
-                        onChange={handleSwitchChange}
-                      />
-                    }
-                    label="Tự động tạo sự kiện theo lịch"
-                  />
-                </FormControl>
-                <Tooltip
-                  title={`Khi bật sẽ tự động tạo sự kiện theo lịch cho tuần sau vào cuối ngày chủ nhật tuần này`}
-                >
-                  <IconButton>
-                    <Icon icon="solid-info-circle" sx={{ color: 'info.main', width: '20px', height: '20px' }} />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            )}
-
-            <Stack direction={'row'} alignItems="center">
-              <Avatar sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}>
-                <Icon icon="clock" />
-              </Avatar>
-              <Typography fontSize={16} fontWeight={600}>
-                Lịch làm việc
-              </Typography>
-            </Stack>
-            <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
-              {mappingHospitalSchedule(hospitalData?.openingTime)?.map((item, i) => (
-                <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={i}>
-                  <Typography fontWeight={600} fontSize={14}>
-                    {convertDayLabel(item?.day)}
+      {isPageLoading ? (
+        <Paper sx={{ height: '65vh', position: 'relative' }}>
+          <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+            <CircularProgress />
+          </Box>
+        </Paper>
+      ) : (
+        <Grid container spacing={2}>
+          <Grid item md={8} sm={6} xs={12}>
+            <Item>
+              <LeftContainer>
+                <HospitalImgStyle>
+                  <PlaceholderStyle onClick={isManager && handleUpdateHospitalImgDialog}>
+                    <Icon icon="solid-camera" />
+                    <Typography variant="caption">Cập nhật ảnh</Typography>
+                  </PlaceholderStyle>
+                  <img src={hospitalData?.avatarUrl} alt="Ảnh bệnh viện" />
+                </HospitalImgStyle>
+                <Stack direction={'column'} alignItems="start">
+                  <Typography fontSize={'20px'} fontWeight={600} sx={{ mb: 0.5 }}>
+                    {hospitalData?.name}
                   </Typography>
-                  <Box key={item.id}>
-                    {item?.isEnabled ? (
-                      <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'grey.700' }} key={item.id}>
-                        <Typography
-                          fontSize={14}
-                          sx={{
-                            padding: '4px 12px',
-                            border: '1px solid',
-                            borderColor: 'grey.300',
-                            borderRadius: '4px',
-                          }}
-                        >
-                          {moment(item?.startTime, 'HH:mm').format('HH:mm')}
-                        </Typography>
-                        <Typography fontSize={14}>đến</Typography>
-                        <Typography
-                          fontSize={14}
-                          sx={{
-                            padding: '4px 12px',
-                            border: '1px solid',
-                            borderColor: 'grey.300',
-                            borderRadius: '4px',
-                          }}
-                        >
-                          {moment(item?.endTime, 'HH:mm').format('HH:mm')}
-                        </Typography>
-                      </Stack>
-                    ) : (
-                      <Typography fontSize={14} sx={{ color: 'error.main' }}>
-                        Đóng cửa
+                  <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
+                    {hospitalData?.address}
+                  </Typography>
+                  <Typography fontSize={'16px'} fontWeight={600} sx={{ mt: 3, mb: 1 }}>
+                    Thông tin liên hệ
+                  </Typography>
+                  <Stack direction={'row'} flexWrap={'wrap'}>
+                    <DashedBox>
+                      <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
+                        Email
                       </Typography>
-                    )}
-                  </Box>
+                      <Typography fontSize={'16px'} fontWeight={600}>
+                        {hospitalData?.email || 'Chưa cập nhật'}
+                      </Typography>
+                    </DashedBox>
+                    <DashedBox>
+                      <Typography align="left" fontSize={'14px'} fontWeight={500} color="grey.500">
+                        Số điện thoại
+                      </Typography>
+                      <Typography align="left" fontSize={'16px'} fontWeight={600}>
+                        {hospitalData?.phoneNumber || 'Chưa cập nhật'}
+                      </Typography>
+                    </DashedBox>
+                  </Stack>
                 </Stack>
-              ))}
+              </LeftContainer>
+            </Item>
+          </Grid>
+          <Grid item md={4} sm={6} xs={12}>
+            <Item sx={{ textAlign: 'left' }}>
+              <Stack direction={'row'} alignItems="center">
+                <Avatar
+                  sx={{ backgroundColor: 'primary.light', color: 'primary.main', borderRadius: '50%', mr: '10px' }}
+                >
+                  <Icon icon="clock" />
+                </Avatar>
+                <Typography fontSize={16} fontWeight={600}>
+                  Lịch lấy máu tuần {isCurrentSchedule ? 'này' : 'sau'}
+                </Typography>
+              </Stack>
+              <Stack direction={'column'} sx={{ mt: 2 }} gap={2}>
+                {restructureHospitalSchedule(
+                  isCurrentSchedule ? hospitalData?.openingTime : hospitalData?.nextWeekSchedule
+                )?.map((item, i) => (
+                  <Stack direction={'row'} alignItems="center" justifyContent={'space-between'} key={i}>
+                    <Typography fontWeight={600} fontSize={14}>
+                      {convertDayLabel(item?.day)}
+                    </Typography>
+                    <Box key={item.id}>
+                      {item?.isEnabled ? (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'grey.700' }} key={item.id}>
+                          <Typography
+                            fontSize={14}
+                            sx={{
+                              padding: '4px 12px',
+                              border: '1px solid',
+                              borderColor: 'grey.300',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {moment(item?.startTime, 'HH:mm').format('HH:mm')}
+                          </Typography>
+                          <Typography fontSize={14}>đến</Typography>
+                          <Typography
+                            fontSize={14}
+                            sx={{
+                              padding: '4px 12px',
+                              border: '1px solid',
+                              borderColor: 'grey.300',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {moment(item?.endTime, 'HH:mm').format('HH:mm')}
+                          </Typography>
+                        </Stack>
+                      ) : (
+                        <Typography fontSize={14} sx={{ color: 'error.main' }}>
+                          Đóng cửa
+                        </Typography>
+                      )}
+                    </Box>
+                  </Stack>
+                ))}
+              </Stack>
+            </Item>
+            <Stack justifyContent={isCurrentSchedule ? 'flex-end' : 'flex-start'} direction="row" mt={1}>
+              {isCurrentSchedule ? (
+                <>
+                  {hospitalData?.nextWeekSchedule.length > 0 && (
+                    <Button
+                      fontWeight={400}
+                      endIcon={<Icon icon="solid-caret-right" />}
+                      onClick={() => {
+                        setIsCurrentSchedule(false);
+                      }}
+                    >
+                      Lịch tuần sau
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <Button
+                  fontWeight={400}
+                  startIcon={<Icon icon="solid-caret-left" />}
+                  onClick={() => {
+                    setIsCurrentSchedule(true);
+                  }}
+                >
+                  Lịch tuần này
+                </Button>
+              )}
             </Stack>
-          </Item>
+          </Grid>
         </Grid>
-      </Grid>
-
-      {/* Update Hospital Info Dialog */}
-      <CustomDialog
-        isOpen={isUpdateHospitalOpen}
-        onClose={handleUpdateHospitalDialog}
-        title="Sửa thông tin bệnh viện"
-        children={updateHospitalDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '700px' } }}
-      />
+      )}
 
       {/* Update Hospital Img Dialog */}
       <CustomDialog

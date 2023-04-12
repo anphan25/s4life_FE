@@ -28,7 +28,6 @@ export const AsyncAutocompleteFilter = ({
           if (!onSelect) return;
           onSelect(newValue);
         }}
-        // isOptionEqualToValue={(option, value) => option.id === value.id}
         options={list}
         ListboxProps={{
           role: 'list-box',
@@ -37,7 +36,7 @@ export const AsyncAutocompleteFilter = ({
             if (!onScrollToBottom) return;
 
             const listboxNode = event.currentTarget;
-            if (Math.round(listboxNode.scrollTop) + listboxNode.clientHeight === listboxNode.scrollHeight) {
+            if (Math.ceil(listboxNode.scrollTop) + listboxNode.clientHeight >= listboxNode.scrollHeight) {
               const top = listboxNode.scrollTop;
               setSize(size + 10);
 

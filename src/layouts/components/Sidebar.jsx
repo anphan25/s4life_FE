@@ -69,7 +69,6 @@ export const Sidebar = ({ toggle, onClose }) => {
 
   const sidebarModerator = [
     { name: 'Trang chủ', icon: <Icon icon="grid-web-7" />, to: '/' },
-    { name: 'Quản lý bệnh viện', icon: <Icon icon="hospital" />, to: '/hospital/list' },
     {
       name: 'Quản lý sự kiện',
       icon: <Icon icon="coupon-star" />,
@@ -78,6 +77,7 @@ export const Sidebar = ({ toggle, onClose }) => {
           name: 'Cố định',
           to: '/event/fixed-list/',
         },
+
         {
           name: 'Lưu động',
           to: '/event/mobile-list',
@@ -90,7 +90,7 @@ export const Sidebar = ({ toggle, onClose }) => {
       to: '/user/list',
     },
     {
-      name: 'Xét duyệt thẻ hiến máu',
+      name: 'Xét duyệt lịch sử hiến máu',
       icon: <Icon icon="file-text-edit" />,
       to: '/blood-donation-approval-request/list',
     },
@@ -106,9 +106,14 @@ export const Sidebar = ({ toggle, onClose }) => {
           name: 'Cố định',
           to: '/event/fixed-list/',
         },
+
         {
           name: 'Lưu động',
           to: '/event/mobile-list',
+        },
+        {
+          name: 'Lưu động dự kiến',
+          to: '/event/intended-list/',
         },
         {
           name: 'Theo lịch bệnh viện',
@@ -141,6 +146,10 @@ export const Sidebar = ({ toggle, onClose }) => {
         {
           name: 'Theo lịch bệnh viện',
           to: '/event/schedule-list/',
+        },
+        {
+          name: 'Lưu động dự kiến',
+          to: '/event/intended-list/',
         },
       ],
     },

@@ -11,14 +11,17 @@ export function convertErrorCodeToMessage(code) {
 
     //Login
     1003: 'Quyền truy cập bị giới hạn',
-    1004: 'Thông tin đăng nhập không chính xác',
+    1004: 'Tài khoản không tồn tại',
     1005: 'Mật khẩu không chính xác',
     1008: 'Đổi mật khẩu thất bại',
     1009: 'Mật khẩu không hợp lệ',
+    1010: 'Vui lòng cung cấp mật khẩu cũ',
     1034: 'Tài khoản đã bị vô hiệu',
+    1031: 'Thông tin đăng nhập không chính xác',
     1100: 'Đổi mật khẩu thành công',
 
     //Register
+    2000: 'Yêu cầu cập nhật tài khoản đang được xử lí',
     2001: 'Thông tin đăng kí tài khoản không hợp lệ',
     2011: 'Số điện thoại đã được đăng ký',
     2021: 'Số CMND/CCCD đã được đăng ký',
@@ -26,6 +29,11 @@ export function convertErrorCodeToMessage(code) {
     2041: 'Tên tài khoản đã tồn tại',
     2051: 'Bệnh viện này đã được cấp tài khoản quản lí bệnh viện',
     2100: 'Tạo tài khoản thành công',
+    2061: 'Chỉ có thể cập nhật trạng thái cho tài khoản của bệnh viện',
+    2071: 'Không thể cập nhật trạng thái tài khoản của bệnh viện không hoạt động',
+    2081: 'Bệnh viện này đã được cấp tài khoản nhân viên bệnh viện',
+    2200: 'Kích hoạt tài khoản thành công',
+    2210: 'Vô hiệu hóa tài khoản thành công',
 
     //Hospital
     3000: PROCESSING_MESSAGE,
@@ -52,7 +60,7 @@ export function convertErrorCodeToMessage(code) {
     4011: 'Thời gian sự kiện không hợp lệ',
     4013: 'Từ chối yêu cầu truy cập sự kiện',
     4021: 'Sự kiện đã bị hủy hoặc đã kết thúc',
-    4031: 'Không thể chỉnh sửa, sự kiện đã có người đăng ký',
+    4031: 'Không thể chỉnh sửa hoặc hủy sự kiện đã có người đăng ký',
     4041: 'Khu vực tổ chức sự kiện không hợp lệ',
     4051: 'Không nằm trong khung thời gian sự kiện',
     4061: 'Không sửa được sự kiện theo lịch làm việc của bệnh viện',
@@ -65,8 +73,14 @@ export function convertErrorCodeToMessage(code) {
     4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
     4141: 'Số lượng người tham gia tối thiểu phải bé hơn số lượng người tham gia tối đa',
     4151: 'Số lượng người tham gia tối thiểu ở sự kiện lưu động là 1',
+    4171: 'Không được hủy sự kiện đã có người tham gia',
+    4181: 'Sự kiện dự kiến phải có Tỉnh/Thành phố tổ chức',
+    4191: 'Tỉnh/Thành Phố không hợp lệ',
     4100: 'Chỉnh sửa sự kiện thành công',
     4200: 'Hủy sự kiện thành công',
+    4201: 'Đang có sự kiện dự kiến chưa kết thúc',
+    4211: 'Sự kiện dự kiến đã kết thúc hoặc bị hủy',
+    4221: 'Thời gian diễn ra phải nằm trong khung thời gian của sự kiện sự kiến',
     4300: 'Tạo sự kiện thành công',
 
     //Blood Donation Approval
@@ -109,8 +123,11 @@ export function convertErrorCodeToMessage(code) {
     7161: 'Không thể đăng ký vào sự kiện lưu động đang diễn ra',
     7171: 'Đã điền phiếu đăng kí tham gia hiến máu',
     7181: 'Vui lòng đến tham dự sự kiện hiến máu vào đúng ngày đã đăng kí tham gia',
+    7191: 'Thiếu thông tin xác nhận hiến máu của nhân viên y tế',
     7100: 'Đăng kí sự kiện thành công',
     7200: 'Cập nhật thông tin đăng kí sự kiện thành công',
+    7201: 'Thời gian đăng kí phải trong khung giờ làm việc của sự kiện',
+    7211: 'Không thể hủy đăng ký sự cho kiện lưu động đã bắt đầu',
     7300: 'Hủy đăng kí sự kiện thành công',
 
     //User Informations

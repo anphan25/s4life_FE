@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { CSVFileIcon } from 'assets';
-import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle } from 'utils';
+import { DropZone, ClearFile, ErrorMessageList, ImportTextDisplayStyle, NATIONALID_PATTERN } from 'utils';
 
 export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -12,10 +12,13 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
 
   let tempErrorFileContent = [];
 
-  const validHeader = ['CMND/CCCD*', 'Nhóm máu*', 'Yếu tố Rh*'];
+  const validHeader = ['CMND/CCCD', 'Nhóm máu', 'Yếu tố Rh'];
 
-  const clonedHeaders = [...validHeader];
-  const checkedHeaders = [];
+  const requiredLabels = [...validHeader];
+
+  const requiredFields = ['nationalId', 'bloodType', 'isRhNegative'];
+
+  const missingColumns = [...validHeader];
 
   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -37,19 +40,19 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
       }
 
       case 'required-filed-missing': {
-        return 'Vui lòng điền đầy đủ các trường thông tin bắt buộc (*)';
-      }
-
-      case 'unknown-columns': {
-        return 'Vui lòng không thêm cột mới';
+        return `Vui lòng điền đầy đủ các trường thông tin bắt buộc (${requiredLabels.join(', ')})`;
       }
 
       case 'lack-modified-columns': {
-        return `Vui lòng không xóa hoặc sửa tên các cột mặc định của file (${missedColumns.join(', ')})`;
+        return `Thiếu các cột bắt buộc (${missedColumns.join(', ')})`;
       }
 
       case 'invalid-blood-type': {
         return 'Nhóm máu không hợp lệ';
+      }
+
+      case 'invalid-nationalId': {
+        return 'CMND/CCCD không hợp lệ';
       }
 
       case 'invalid-isRhNegative': {
@@ -93,30 +96,29 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
   };
 
   const validateCSVFileContent = (dataList) => {
-    // Check remove or modify column name
-    if (clonedHeaders.length > 0) {
-      setMissedColumns(clonedHeaders);
+    // Check missing column name
+    if (missingColumns.length > 0) {
+      setMissedColumns(missingColumns);
       displayInvalidFileContent('lack-modified-columns');
 
       return;
     }
 
-    //Check modify or add new columns(s)
-    validHeader.sort();
-    checkedHeaders.sort();
-
-    for (let i = 0; i < validHeader.length; i++) {
-      if (checkedHeaders[i] !== validHeader[i]) {
-        displayInvalidFileContent('unknown-columns');
-
-        return;
-      }
+    if (dataList?.length <= 0) {
+      displayInvalidFileContent('required-filed-missing');
+      return;
     }
 
-    dataList.forEach((data) => {
+    dataList?.forEach((data) => {
       for (const property in data) {
-        if (!data[property]) {
+        if (!data[property] && requiredFields.includes(property)) {
           displayInvalidFileContent('required-filed-missing');
+
+          return;
+        }
+
+        if (property === 'nationalId' && !data[property].match(NATIONALID_PATTERN)) {
+          displayInvalidFileContent('invalid-nationalId');
         }
 
         if (!['A', 'B', 'O', 'AB'].includes(data['bloodType'])) {
@@ -155,20 +157,18 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
       transformHeader: function (headerName) {
         if (!headerName) return;
 
-        const index = clonedHeaders.indexOf(headerName);
+        const index = missingColumns.indexOf(headerName);
 
-        if (index > -1) clonedHeaders.splice(index, 1);
-
-        checkedHeaders.push(headerName);
+        if (index > -1) missingColumns.splice(index, 1);
 
         switch (headerName) {
-          case 'CMND/CCCD*': {
+          case 'CMND/CCCD': {
             return 'nationalId';
           }
-          case 'Nhóm máu*': {
+          case 'Nhóm máu': {
             return 'bloodType';
           }
-          case 'Yếu tố Rh*': {
+          case 'Yếu tố Rh': {
             return 'isRhNegative';
           }
           default: {
@@ -186,8 +186,8 @@ export const UpdateBloodTypeImport = ({ label, onImport, ...props }) => {
         const data = results.data
           .filter((data) => Object.keys(data).length > 1)
           .map((filteredData) => convertDataToObject(filteredData));
-        console.log('data', data);
         validateCSVFileContent(data);
+
         if (tempErrorFileContent.length > 0) {
           onImport([], true);
           setSelectedFile(null);

@@ -1,5 +1,6 @@
 export { default as Logo } from './images/logo.png';
-
+export { default as NotFound } from './images/img404.png';
+export { default as PermissionDenied } from './images/imgPermissionDenied.png';
 export { ReactComponent as BellIcon } from 'assets/icons/bell.svg';
 export { ReactComponent as CSVFileIcon } from 'assets/icons/csv-file.svg';
 export { ReactComponent as ImageFileIcon } from 'assets/icons/image-file.svg';

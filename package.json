@@ -19,6 +19,7 @@
     "@tinymce/tinymce-react": "^4.2.0",
     "axios": "^1.1.2",
     "chart.js": "^3.9.1",
+    "crypto-js": "^4.1.1",
     "firebase": "^9.11.0",
     "html-react-parser": "^3.0.4",
     "icomoon-react": "^3.0.0",

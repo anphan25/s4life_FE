@@ -21,6 +21,16 @@ export default function Router() {
       index: true,
     },
     {
+      path: 'change-password',
+      element: <PublicChangePassword />,
+      index: true,
+    },
+    {
+      path: 'forget-password',
+      element: <ForgetPassword />,
+      index: true,
+    },
+    {
       path: '/',
       element: (
         <AuthRouter>
@@ -117,6 +127,27 @@ export default function Router() {
               ],
             },
             {
+              path: 'intended-list',
+              children: [
+                {
+                  index: true,
+                  element: (
+                    <ProtectedRouter roles={['Manager', 'Employee']}>
+                      <EventIntendedListPage />
+                    </ProtectedRouter>
+                  ),
+                },
+                {
+                  path: 'add',
+                  element: (
+                    <ProtectedRouter roles={['Manager']}>
+                      <AddIntendedEventPage />
+                    </ProtectedRouter>
+                  ),
+                },
+              ],
+            },
+            {
               path: ':eventId',
               element: (
                 <ProtectedRouter roles={['Manager', 'Admin', 'Employee', 'Moderator']}>
@@ -172,7 +203,7 @@ export default function Router() {
             {
               path: 'list',
               element: (
-                <ProtectedRouter roles={['Moderator', 'Admin']}>
+                <ProtectedRouter roles={['Admin']}>
                   <HospitalListPage />
                 </ProtectedRouter>
               ),
@@ -180,8 +211,16 @@ export default function Router() {
             {
               path: ':hospitalId',
               element: (
-                <ProtectedRouter roles={['Employee', 'Moderator', 'Admin', 'Manager']}>
+                <ProtectedRouter roles={['Employee', 'Admin', 'Manager']}>
                   <HospitalInfoPage />
+                </ProtectedRouter>
+              ),
+            },
+            {
+              path: ':hospitalId/edit',
+              element: (
+                <ProtectedRouter roles={['Manager']}>
+                  <EditHospitalInfoPage />
                 </ProtectedRouter>
               ),
             },
@@ -242,14 +281,16 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/LoginPage')));
 const DashboardPage = Loadable(lazy(() => import('pages/dashboard/DashboardPage')));
 
 //event
-const EventFixedListPage = Loadable(lazy(() => import('pages/event/event-fixed-list/EventFixedListPage')));
-const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/event-fixed-list/AddEditFixedEventPage')));
+const EventFixedListPage = Loadable(lazy(() => import('pages/event/fixed-list/EventFixedListPage')));
+const AddEditFixedEventPage = Loadable(lazy(() => import('pages/event/fixed-list/AddEditFixedEventPage')));
 const EventDetailPage = Loadable(lazy(() => import('pages/event/components/EventDetailPage')));
 const EventHospitalSchedulePage = Loadable(
-  lazy(() => import('pages/event/event-hospital-schedule-list/EventHospitalSchedulePage'))
+  lazy(() => import('pages/event/hospital-schedule-list/EventHospitalSchedulePage'))
 );
-const AddMobileEventPage = Loadable(lazy(() => import('pages/event/event-mobile-list/AddMobileEventPage')));
-const EventMobileListPage = Loadable(lazy(() => import('pages/event/event-mobile-list/EventMobileListPage')));
+const AddMobileEventPage = Loadable(lazy(() => import('pages/event/mobile-list/AddMobileEventPage')));
+const EventMobileListPage = Loadable(lazy(() => import('pages/event/mobile-list/EventMobileListPage')));
+const EventIntendedListPage = Loadable(lazy(() => import('pages/event/intended-list/EventIntendedListPage')));
+const AddIntendedEventPage = Loadable(lazy(() => import('pages/event/intended-list/AddIntendedEventPage')));
 
 //error
 const PermissionDeniedPage = Loadable(lazy(() => import('pages/error/PermissionDeniedPage')));
@@ -266,6 +307,7 @@ const EditUserInformationPage = Loadable(lazy(() => import('pages/user/EditUserI
 //hospital
 const HospitalListPage = Loadable(lazy(() => import('pages/hospital/hospital-list/HospitalListPage')));
 const HospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/HospitalInfoPage')));
+const EditHospitalInfoPage = Loadable(lazy(() => import('pages/hospital/hospital-info/EditHospitalInfoPage')));
 
 //script
 const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')));
@@ -273,3 +315,9 @@ const RunScriptPage = Loadable(lazy(() => import('pages/script/RunScriptPage')))
 //blood-donation-approval-request
 const ApprovalList = Loadable(lazy(() => import('pages/blood-donation-approval-request/ApprovalListPage')));
 const ApprovalDetail = Loadable(lazy(() => import('pages/blood-donation-approval-request/components/ApprovalDetail')));
+
+//public change password
+const PublicChangePassword = Loadable(lazy(() => import('pages/account/PublicChangePasswordPage')));
+
+//forget password
+const ForgetPassword = Loadable(lazy(() => import('pages/account/ForgetPassword')));

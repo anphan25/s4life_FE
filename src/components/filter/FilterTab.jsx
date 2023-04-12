@@ -25,6 +25,7 @@ export const FilterTab = ({ tabs, sx, defaultValue, onChangeTab, ...props }) => 
         scrollButtons="auto"
         onChange={onChangeTab}
         value={defaultValue}
+        
         sx={{
           float: props.orientation === 'vertical' ? 'left' : 'center',
           '& .MuiTab-root': {

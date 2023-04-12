@@ -1,4 +1,4 @@
-import { Box, Typography, Button, FormControl, Select, MenuItem, Stack, styled } from '@mui/material';
+import { Box, Typography, Button, FormControl, Select, MenuItem, Stack } from '@mui/material';
 import {
   DataTable,
   CheckBoxFilter,
@@ -38,7 +38,7 @@ import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-const VolunteerListOfEvent = () => {
+const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { eventId } = useParams();
   const [pageState, setPageState] = useState({
@@ -70,6 +70,8 @@ const VolunteerListOfEvent = () => {
   const [alertResult, setAlertResult] = useState(null);
   const [isDetailAlertOpen, setIsDetailAlertOpen] = useState(false);
   const [connection, setConnection] = useState(null);
+  // To prevent select/filter when calling apis
+  const [disableOperation, setDisableOperation] = useState(false);
 
   let user = useSelector((state) => state.auth.auth?.user);
 
@@ -196,7 +198,10 @@ const VolunteerListOfEvent = () => {
               showInMenu
             />,
             <GridActionsCellItem
-              disabled={params.row.statusId !== EventRegistrationStatusEnum.Donated.value}
+              disabled={
+                params.row.statusId !== EventRegistrationStatusEnum.Donated.value &&
+                params.row.statusId !== EventRegistrationStatusEnum.ConditionInsufficient.value
+              }
               icon={<Icon sx={{ color: 'success.main' }} icon="solid-folder-download" className="action-icon" />}
               label="Tải phiếu đăng ký"
               showInMenu
@@ -421,6 +426,7 @@ const VolunteerListOfEvent = () => {
 
   const fetchVolunteersOfEvent = useCallback(async () => {
     setPageState((old) => ({ ...old, isLoading: true, data: [] }));
+    setDisableOperation(true);
 
     try {
       const data = await getEventRegistrations({
@@ -449,12 +455,6 @@ const VolunteerListOfEvent = () => {
         isRhNegative: data?.isRhNegative,
         participationDate: formatDate(data?.participationDate, 2) || '-',
         statusId: data?.status,
-        // status:
-        //   EventRegistrationStatusEnum[
-        //     Object.keys(EventRegistrationStatusEnum).find(
-        //       (key) => EventRegistrationStatusEnum[key].value === data?.status
-        //     )
-        //   ].description,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
     } catch (error) {
@@ -464,6 +464,7 @@ const VolunteerListOfEvent = () => {
       });
     } finally {
       setPageState((old) => ({ ...old, isLoading: false }));
+      setDisableOperation(false);
     }
   }, [
     pageState.page,
@@ -545,6 +546,15 @@ const VolunteerListOfEvent = () => {
             Cập nhật nhóm máu từ file
           </Button>
         )}
+        {isIntendedEvent && isManager && (
+          <Button
+            variant="contained"
+            onClick={onViewRegistrationArea}
+            sx={{ marginBottom: '13px', marginRight: '15px' }}
+          >
+            Xem số lượng đăng ký của các quận huyện
+          </Button>
+        )}
       </Stack>
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
@@ -556,12 +566,14 @@ const VolunteerListOfEvent = () => {
               sx={{ width: '20%' }}
               onCheck={handleFilterBloodType}
               placeHolder="Chọn nhóm máu"
+              disableOperation={disableOperation}
             />
             <CheckBoxFilter
               options={getValuesFromEnum(EventRegistrationStatusEnum)}
               sx={{ width: '20%' }}
               placeHolder="Chọn trạng thái đăng ký"
               onCheck={handleFilterEventRegistration}
+              disableOperation={disableOperation}
             />
             <SearchBar
               type="number"
