@@ -12,7 +12,13 @@ import {
   RegistrationStatusTag,
 } from 'components';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { errorHandler, formatDate, UserInformationUpdateModeEnum, convertErrorCodeToMessage } from 'utils';
+import {
+  errorHandler,
+  formatDate,
+  UserInformationUpdateModeEnum,
+  convertErrorCodeToMessage,
+  getEnumDescriptionByValue,
+} from 'utils';
 import { useParams } from 'react-router-dom';
 import { getEventRegistrations, updateUserInfo, getEventRegistrationById } from 'api';
 import moment from 'moment';
@@ -143,13 +149,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         renderCell: ({ value }) => {
           return (
             <RegistrationStatusTag status={value}>
-              {
-                EventRegistrationStatusEnum[
-                  Object.keys(EventRegistrationStatusEnum).find(
-                    (key) => EventRegistrationStatusEnum[key].value === value
-                  )
-                ]?.description
-              }
+              {getEnumDescriptionByValue(EventRegistrationStatusEnum, value)}
             </RegistrationStatusTag>
           );
         },

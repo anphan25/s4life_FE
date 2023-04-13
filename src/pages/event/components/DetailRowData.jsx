@@ -1,29 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, TableCell, TableRow, Collapse, Table, TableHead, TableBody, CircularProgress } from '@mui/material';
-import { formatDate } from 'utils';
+import { formatDate, getLabelFromEventStatus, getEnumDescriptionByValue, EventStatusEnum } from 'utils';
 import { Icon, Tag } from 'components';
 import { useNavigate } from 'react-router-dom';
 import { getEvents } from 'api';
-
-const TagStyleConvert = (status, theme) => {
-  switch (status) {
-    case 'Chưa bắt đầu': {
-      return 'warning';
-    }
-    case 'Đã bắt đầu': {
-      return 'success';
-    }
-    case 'Đã kết thúc': {
-      return 'info';
-    }
-    case 'Đã bị hủy': {
-      return 'error';
-    }
-
-    default: {
-    }
-  }
-};
 
 const DetailRowData = ({ item, index }) => {
   const [isDisplayDetail, setIsDisplayDetail] = useState(false);
@@ -106,7 +86,9 @@ const DetailRowData = ({ item, index }) => {
                         </TableCell>
 
                         <TableCell sx={{ padding: '10px' }}>
-                          <Tag status={TagStyleConvert(event?.status)}>{event?.status}</Tag>
+                          <Tag status={getLabelFromEventStatus(event?.statusId)}>
+                            {getEnumDescriptionByValue(EventStatusEnum, event?.statusId)}
+                          </Tag>
                         </TableCell>
                         <TableCell sx={{ padding: '10px' }}>
                           {event?.numberOfDonatedVolunteer}/{event?.numberOfRegistration}

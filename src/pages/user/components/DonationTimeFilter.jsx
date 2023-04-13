@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Stack, Button, Typography, MenuItem, Select, Popover, Checkbox, ListItemText } from '@mui/material';
-import { getLastThreeYear } from 'utils/extensions/year';
+import { getLastThreeYear } from 'utils';
 import { Icon } from 'components';
 import moment from 'moment';
 

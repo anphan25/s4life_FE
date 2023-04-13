@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Stack, styled, Box, Typography, Divider, Menu, MenuItem, IconButton, Button, Skeleton } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { HeaderBreadcumbs, CustomDialog, Icon } from 'components';
-import { getEventDetailByEventId, cancelEvent } from 'api/EventApi';
+import { getEventDetailByEventId } from 'api/EventApi';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   DEFAULT_EVENT_IMAGE_URL,
@@ -16,19 +16,18 @@ import {
   HeaderMainStyle,
 } from 'utils';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { NotFoundIcon } from 'assets';
 import EventDetailInfo from './EventDetailInfo';
+import CancelEventForm from './CancelEventForm';
 
 const EventDetailPage = () => {
   const [detailData, setDetailData] = useState(null);
   const [cancelEventId, setCancelEventId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const { eventId } = useParams();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
@@ -127,32 +126,18 @@ const EventDetailPage = () => {
   const cancelEventDialogContent = () => {
     return (
       <Box>
-        <Typography>Bạn có chắc chắn muốn hủy sự kiện này không ?</Typography>
-        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-          <Button onClick={handleCancelEventDialog}>Hủy</Button>
-          <LoadingButton
-            loading={isButtonLoading}
-            onClick={async () => {
-              setIsButtonLoading(true);
-              try {
-                await cancelEvent(cancelEventId);
-                await fetchEventDetailData();
-              } catch (error) {
-                enqueueSnackbar(errorHandler(error), {
-                  variant: 'error',
-                  persist: false,
-                });
-              } finally {
-                handleCancelEventDialog();
-                setIsButtonLoading(false);
-              }
-            }}
-            variant="contained"
-            autoFocus
-          >
-            Ok
-          </LoadingButton>
-        </DialogButtonGroupStyle>
+        <Typography>
+          Bạn có chắc chắn muốn hủy sự kiện này không ?<br /> Nếu có vui lòng nhập lý do bên dưới.
+        </Typography>
+        <CancelEventForm
+          eventId={cancelEventId}
+          onFinishSubmit={async () => {
+            await fetchEventDetailData();
+          }}
+          handleCloseDialog={() => {
+            handleCancelEventDialog();
+          }}
+        />
       </Box>
     );
   };
@@ -223,8 +208,8 @@ const EventDetailPage = () => {
             variant="contained"
             onClick={() => {
               if (
-                detailData?.status === EventStatusEnum.Cancelled.description ||
-                detailData?.status === EventStatusEnum.Finished.description
+                detailData?.statusId === EventStatusEnum.Cancelled.value ||
+                detailData?.statusId === EventStatusEnum.Finished.value
               ) {
                 handleErrorDialog();
 
@@ -366,8 +351,8 @@ const EventDetailPage = () => {
                     detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent ||
                     detailData?.eventTypeId === EventTypeEnum.MobileEvent ||
                     detailData?.eventTypeId === EventTypeEnum.IntendedEvent ||
-                    detailData?.status === EventStatusEnum.Finished.description ||
-                    detailData?.status === EventStatusEnum.Cancelled.description ||
+                    detailData?.statusId === EventStatusEnum.Finished.value ||
+                    detailData?.statusId === EventStatusEnum.Cancelled.value ||
                     detailData?.isEmergency ||
                     isAdmin
                   }
@@ -391,8 +376,8 @@ const EventDetailPage = () => {
                   key={2}
                   disabled={
                     detailData?.eventTypeId === EventTypeEnum.PermanentScheduledEvent ||
-                    detailData?.status === EventStatusEnum.Finished.description ||
-                    detailData?.status === EventStatusEnum.Cancelled.description ||
+                    detailData?.statusId === EventStatusEnum.Finished.value ||
+                    detailData?.statusId === EventStatusEnum.Cancelled.value ||
                     (detailData?.isEmergency && isManager)
                   }
                   onClick={() => {

@@ -1,12 +1,20 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { Paper, Grid, Stack, Box, Typography, Divider, CircularProgress } from '@mui/material';
 import moment from 'moment';
-import { formatNumber } from 'utils/functions/formatNumber';
+import { useTheme } from '@mui/material/styles';
+import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';
 import { getStatisticData, getEvents } from 'api';
-import { StatisticEnum, EventFilterEnum, StatisticFilterModeEnum, getStatisticResultFromGroup } from 'utils';
-import { PageTitle, StatisticTabContainer } from './DashboardStyle.js';
+import {
+  StatisticEnum,
+  EventFilterEnum,
+  StatisticFilterModeEnum,
+  getStatisticResultFromGroup,
+  formatNumber,
+} from 'utils';
+import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
+
 
 const getFirstAndLastDateInCurrentQuarter = () => {
   const currentQuarter = moment().quarter();
