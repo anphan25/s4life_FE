@@ -19,6 +19,6 @@ export async function editEvent(params) {
   return await axiosInstance.patch(apiPath, params);
 }
 
-export async function cancelEvent(eventId) {
-  return await axiosInstance.delete(`${apiPath}/${eventId}`);
+export async function cancelEvent({ id, reason }) {
+  return await axiosInstance.delete(`${apiPath}/${id}?reason=${reason}`);
 }

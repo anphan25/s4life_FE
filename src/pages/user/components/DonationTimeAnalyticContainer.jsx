@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import DonationTimeAnalytic from './DonationTimeAnalytic';
 import { useTheme } from '@mui/material/styles';
 import { Card, Stack, Box, Divider, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
-import { getYearFilterParam, getLastThreeYear } from 'utils/extensions/year';
 import moment from 'moment';
-import { DonationTimeEnum, StatisticFilterModeEnum } from 'utils';
+import { DonationTimeEnum, StatisticFilterModeEnum, getYearFilterParam, getLastThreeYear } from 'utils';
 import { getStatisticData } from 'api';
 
 const currentYear = Number(moment().get('years'));
