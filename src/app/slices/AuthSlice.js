@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import jwtDecode from 'jwt-decode';
 
 const getAuthState = () => {
-  const storedValue = sessionStorage.getItem('authTokens');
+  const storedValue = localStorage.getItem('authTokens');
   const authTokens = storedValue ? JSON.parse(storedValue) : null;
   if (authTokens) {
     const decode = jwtDecode(authTokens.accessToken);
@@ -40,12 +40,12 @@ export const authSlice = createSlice({
     },
     logoutSuccess: (state) => {
       state.auth = null;
-      sessionStorage.removeItem('authTokens');
+      localStorage.removeItem('authTokens');
     },
     setToken: (state, action) => {
       state.auth.accessToken = action.payload;
       state.auth.user = jwtDecode(action.payload);
-      sessionStorage.setItem(
+      localStorage.setItem(
         'authTokens',
         JSON.stringify({
           accessToken: state.auth.accessToken,
@@ -55,7 +55,7 @@ export const authSlice = createSlice({
     },
     refreshFail: (state) => {
       state.auth = null;
-      sessionStorage.removeItem('authTokens');
+      localStorage.removeItem('authTokens');
     },
   },
 });

@@ -53,7 +53,7 @@ const LoginForm = () => {
         })
       );
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         'authTokens',
         JSON.stringify({
           accessToken: res.accessToken,

@@ -60,11 +60,6 @@ export const Sidebar = ({ toggle, onClose }) => {
       icon: <Icon icon="chart-pie" />,
       to: '/statistics',
     },
-    {
-      name: 'Giả lập',
-      icon: <Icon icon="code-square" />,
-      to: '/script',
-    },
   ];
 
   const sidebarModerator = [
