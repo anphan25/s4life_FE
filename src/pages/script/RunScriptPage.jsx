@@ -168,7 +168,7 @@ const RunScriptPage = () => {
                     },
                   ]);
                 })
-                .catch((err) => {
+                .catch((error) => {
                   setResult((prevState) => [
                     ...prevState,
                     {
