@@ -303,7 +303,10 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
                     },
                   ],
                 });
-                await fetchVolunteersOfEvent();
+
+                setTimeout(async () => {
+                  await fetchVolunteersOfEvent();
+                }, [500]);
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
                   variant: 'error',
