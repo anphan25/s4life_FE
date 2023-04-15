@@ -134,11 +134,11 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         type: 'string',
         width: 120,
       },
-
       {
         headerName: 'Ngày tham gia',
         field: 'participationDate',
         type: 'string',
+        hide: isIntendedEvent,
         width: 120,
       },
       {
@@ -453,7 +453,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
         bloodTypeId: data?.bloodTypeId,
         isRhNegative: data?.isRhNegative,
-        participationDate: formatDate(data?.participationDate, 2) || '-',
+        ...(!isIntendedEvent && { participationDate: formatDate(data?.participationDate, 2) || '-' }),
         statusId: data?.status,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });

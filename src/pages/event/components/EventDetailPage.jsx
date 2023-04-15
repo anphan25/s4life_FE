@@ -221,14 +221,14 @@ const EventDetailPage = () => {
                   selectedDistricts: selectedDistrict?.map((district) => ({
                     id: district?.districtId,
                     name: district?.districtName,
+                    count: district?.count,
                   })),
                   totalRegistrations: selectedDistrict?.reduce((acc, current) => acc + current?.count, 0),
                   contactInformation: detailData?.contactInformation,
                   intendedStartDate: detailData?.startDate,
                   intendedEndDate: detailData?.endDate,
-                  minParticipant: detailData?.minParticipant,
-                  maxParticipant: detailData?.maxParticipant,
                   intendedEventId: detailData?.id,
+                  intendedEventName: detailData?.name,
                 },
               });
             }}
