@@ -1,6 +1,6 @@
 export const EventRegistrationStatusEnum = Object.freeze({
   Registered: { description: 'Đã đăng ký', value: 2 },
-  Present: { description: 'Đang có mặt', value: 5 },
+  Present: { description: 'Đã có mặt', value: 5 },
   Donated: { description: 'Đã hiến máu', value: 3 },
   Cancelled: { description: 'Đã hủy đăng ký', value: 1 },
   ConditionInsufficient: { description: 'Không đủ sức khỏe', value: 4 },
