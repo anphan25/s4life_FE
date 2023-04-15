@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { Paper, Grid, Stack, Box, Typography, Divider, useMediaQuery, CircularProgress } from '@mui/material';
+import { Paper, Grid, Stack, Box, Typography, Divider, CircularProgress } from '@mui/material';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
@@ -15,6 +15,7 @@ import {
 } from 'utils';
 import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
 
+
 const getFirstAndLastDateInCurrentQuarter = () => {
   const currentQuarter = moment().quarter();
   return {
@@ -27,12 +28,10 @@ const DashboardPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [eventList, setEventList] = useState([]);
-  const theme = useTheme();
 
   const eventStatistics = data?.statistics[0]?.eventStatistics;
   const eventRegistrationStatistics = data?.statistics[0]?.eventRegistrationStatistics;
   const bloodVolumeStatistics = data?.statistics[0]?.bloodVolumeStatistics;
-  const bloodVolumeTypeStatistics = data?.statistics[0]?.bloodVolumeTypeStatistics;
 
   // Events
   const unstartedEvents = getStatisticResultFromGroup(eventStatistics, StatisticEnum.EventStatistic.UNSTARTED_GROUP);
@@ -88,17 +87,6 @@ const DashboardPage = () => {
   const expectedBloodReceive = getStatisticResultFromGroup(
     bloodVolumeStatistics,
     StatisticEnum.BloodVolumeStatistic.EXPECTED_RECEIVE_GROUP
-  );
-
-  // Blood Type
-  const oBloodTypeVolume = getStatisticResultFromGroup(
-    bloodVolumeTypeStatistics,
-    StatisticEnum.BloodTypeStatistic.O_GROUP
-  );
-
-  const rhNegativeVolume = getStatisticResultFromGroup(
-    bloodVolumeStatistics,
-    StatisticEnum.BloodVolumeStatistic.RH_NEGATIVE
   );
 
   const fetchDashboardData = useCallback(async () => {
@@ -268,7 +256,7 @@ const DashboardPage = () => {
       </Grid>
 
       <Grid container spacing={3}>
-        <Grid item lg={9} xs={12}>
+        <Grid item xs={12}>
           {loading ? (
             <StatisticTabContainer>
               <Box textAlign="center" height="200px">
@@ -278,38 +266,6 @@ const DashboardPage = () => {
           ) : (
             <NewEventList events={eventList} />
           )}
-        </Grid>
-        <Grid item lg={3} xs={12}>
-          <BloodVolume>
-            <Stack className="blood_volume--content">
-              <Stack className="blood_volume--item" direction="row">
-                <TypeOBloodIcon className="blood-type" />
-                <Box>
-                  <Typography className="blood-volume-number">{formatNumber(oBloodTypeVolume)} ml</Typography>
-                  <Typography>Nhóm máu O</Typography>
-                </Box>
-              </Stack>
-
-              <Divider
-                flexItem={true}
-                orientation={useMediaQuery(theme.breakpoints.down('lg')) ? 'vertical' : 'horizontal'}
-                sx={{
-                  margin: '30px 0 30px',
-                  [theme.breakpoints.down('lg')]: {
-                    margin: '0 40px 0',
-                  },
-                }}
-              />
-
-              <Stack className="blood_volume--item" direction="row">
-                <TypeRHSubtractIcon className="blood-type" />
-                <Box>
-                  <Typography className="blood-volume-number">{formatNumber(rhNegativeVolume)} ml</Typography>
-                  <Typography>Nhóm máu Rh-</Typography>
-                </Box>
-              </Stack>
-            </Stack>
-          </BloodVolume>
         </Grid>
       </Grid>
     </Box>
