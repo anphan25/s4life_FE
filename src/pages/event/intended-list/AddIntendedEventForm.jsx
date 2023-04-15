@@ -101,16 +101,6 @@ const AddIntendedEventForm = () => {
     });
   });
 
-  Yup.addMethod(Yup.number, 'validateMinAndMax', function (errorMessage) {
-    return this.test(`test-valid-min-max`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-      const minParticipant = moment(context.parent.minParticipant);
-      const maxParticipant = moment(context.parent.maxParticipant);
-
-      return minParticipant < maxParticipant || createError({ path, message: errorMessage });
-    });
-  });
-
   Yup.addMethod(Yup.date, 'validDateBaseOnCurrentDate', function (errorMessage) {
     return this.test(`test-valid-date-base-on-now`, errorMessage, function (value, context) {
       const { path, createError } = this;
@@ -209,26 +199,6 @@ const AddIntendedEventForm = () => {
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
       .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 7 ngày')
       .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
-    maxParticipant: Yup.number()
-      .nullable()
-      .transform((value) => {
-        if (isNaN(value) || !value) return null;
-        return value;
-      })
-      .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
-      .max(MAX_INT, 'Số nhập vào quá lớn')
-      .required('Vui lòng nhập số người tham gia tối đa')
-      .validateMinAndMax('Số người tham gia tối đa phải lớn hơn số người tham gia tối thiếu'),
-    minParticipant: Yup.number()
-      .nullable()
-      .transform((value) => {
-        if (isNaN(value) || !value) return null;
-        return value;
-      })
-      .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
-      .max(MAX_INT, 'Số nhập vào quá lớn')
-      .required('Vui lòng nhập số người tham gia tối thiểu')
-      .validateMinAndMax('Số người tham gia tối đa phải lớn hơn số người tham gia tối thiếu'),
     province: Yup.array()
       .of(
         Yup.object().shape({
@@ -266,8 +236,8 @@ const AddIntendedEventForm = () => {
       startDate: moment(data?.startDate).format('yyyy-MM-DD'),
       endDate: moment(data?.endDate).format('yyyy-MM-DD'),
       contactInformation: data?.contactInformation,
-      minParticipant: data?.minParticipant,
-      maxParticipant: data?.maxParticipant,
+      minParticipant: 0,
+      maxParticipant: MAX_INT,
     };
 
     if (imgUploadFile) {
@@ -391,26 +361,6 @@ const AddIntendedEventForm = () => {
                     label="Ngày kết thúc"
                     placeholder="Nhập ngày kết thúc"
                     minDate={minDate}
-                  />
-                </Stack>
-
-                <Stack direction="row" spacing={2}>
-                  <RHFInput
-                    isRequiredLabel={true}
-                    type="number"
-                    name="minParticipant"
-                    control={control}
-                    label="Số người tham gia tối thiểu"
-                    placeholder="Nhập số người tham gia tối thiểu"
-                  />
-
-                  <RHFInput
-                    isRequiredLabel={true}
-                    type="number"
-                    name="maxParticipant"
-                    control={control}
-                    label="Số người tham gia tối đa"
-                    placeholder="Nhập số người tham gia tối đa"
                   />
                 </Stack>
 
