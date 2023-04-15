@@ -13,7 +13,9 @@ const AddMobileEventPage = () => {
           heading={'Tạo sự kiện lưu động'}
           links={[
             { name: 'Trang chủ', to: '/' },
-            { name: 'Danh sách sự kiện lưu động', to: '/event/mobile-list' },
+            location?.state
+              ? { name: `${location?.state?.intendedEventName}`, to: `/event/${location?.state?.intendedEventId}` }
+              : { name: 'Danh sách sự kiện lưu động', to: '/event/mobile-list' },
             { name: 'Tạo sự kiện lưu động' },
           ]}
         />

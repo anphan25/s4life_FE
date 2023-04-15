@@ -123,15 +123,6 @@ const EventMobileListPage = () => {
         },
       },
       {
-        headerName: 'Trạng thái',
-        field: 'statusId',
-        type: 'string',
-        width: 140,
-        renderCell: ({ value }) => {
-          return <Tag status={getLabelFromEventStatus(value)}>{getEnumDescriptionByValue(EventStatusEnum, value)}</Tag>;
-        },
-      },
-      {
         headerName: 'Đã hiến máu/Tổng lượt đăng ký',
         field: 'ratioOfDonated',
         type: 'string',

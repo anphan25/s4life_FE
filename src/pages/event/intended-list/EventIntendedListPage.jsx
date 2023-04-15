@@ -125,15 +125,6 @@ const EventIntendedListPage = () => {
         },
       },
       {
-        headerName: 'Trạng thái',
-        field: 'statusId',
-        type: 'string',
-        width: 140,
-        renderCell: ({ value }) => {
-          return <Tag status={getLabelFromEventStatus(value)}>{getEnumDescriptionByValue(EventStatusEnum, value)}</Tag>;
-        },
-      },
-      {
         headerName: 'Số người đăng ký hiện tại',
         field: 'currentParticipation',
         type: 'string',

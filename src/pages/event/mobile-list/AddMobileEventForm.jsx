@@ -37,10 +37,10 @@ const AddMobileEventForm = ({ intendedData = null }) => {
   const [selectedProvinceId, setSelectedProvinceId] = useState(0);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [connection, setConnection] = useState(null);
-  const [isConfirmDone, setIsConfirmDone] = useState(false);
   const store = useStore();
   const submitBtnRef = useRef(null);
   const navigate = useNavigate();
+  let isConfirmDone = false;
 
   const defaultValues = {
     name: '',
@@ -66,7 +66,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       province: intendedData?.province,
       minParticipant: intendedData?.minParticipant,
       maxParticipant: intendedData?.maxParticipant,
-      selectedDistricts: intendedData?.selectedDistricts.map((district) => district?.name).join(', '),
+      selectedDistricts: intendedData?.selectedDistricts
+        .map((district) => `${district?.name} (${district?.count})`)
+        .join(', '),
     }),
     [intendedData]
   );
@@ -178,6 +180,8 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       const minParticipant = moment(context.parent.minParticipant);
       const maxParticipant = moment(context.parent.maxParticipant);
 
+      if (minParticipant < maxParticipant) clearErrors(['minParticipant', 'maxParticipant']);
+
       return minParticipant < maxParticipant || createError({ path, message: errorMessage });
     });
   });
@@ -218,6 +222,16 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       return (
         moment().add(1, 'days').isSameOrBefore(moment(value), 'dates') || createError({ path, message: errorMessage })
       );
+    });
+  });
+
+  Yup.addMethod(Yup.number, 'validateOverMaxParticipation', function (errorMessage) {
+    return this.test(`test-valid-over-max-participation`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      if (!intendedData) return true;
+
+      return intendedData?.totalRegistrations <= value || createError({ path, message: errorMessage });
     });
   });
 
@@ -289,7 +303,8 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
       .max(MAX_INT, 'Số nhập vào quá lớn')
       .required('Vui lòng nhập số người tham gia tối đa')
-      .validateMinAndMax('Số người tham gia tối đa phải lớn hơn số người tham gia tối thiếu'),
+      .validateMinAndMax('Số người tham gia tối đa phải lớn hơn số người tham gia tối thiếu')
+      .validateOverMaxParticipation('Số lượng tham gia tối đa đang ít hơn tổng người đăng ký'),
     minParticipant: Yup.number()
       .nullable()
       .transform((value) => {
@@ -346,15 +361,15 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     return (
       <Box>
         <Typography>
-          <b>Số lượng người đăng ký hiện tại</b> đang thấp hơn <b>số người tối thiếu</b>. Bạn có chắc chắn muốn tạo ?{' '}
+          <b>Tổng người đăng ký hiện tại</b> đang thấp hơn <b>số người tối thiếu</b>. Bạn có chắc chắn muốn tạo ?{' '}
         </Typography>
 
         <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button
             variant="contained"
-            onClick={() => {
+            onClick={(e) => {
               handleConfirmOpen();
-              setIsConfirmDone(true);
+              isConfirmDone = !isConfirmDone;
               submitBtnRef.current.click();
             }}
           >
@@ -366,11 +381,11 @@ const AddMobileEventForm = ({ intendedData = null }) => {
   };
 
   const onSubmit = async (data) => {
-    // if (intendedData && !isConfirmDone && data?.minParticipant > intendedData?.registrationAreas.length) {
-    //   handleConfirmOpen();
+    if (intendedData && !isConfirmDone && data?.minParticipant > intendedData?.totalRegistrations) {
+      handleConfirmOpen();
+      return;
+    }
 
-    //   return;
-    // }
     setIsButtonLoading(true);
 
     const areas = intendedData
@@ -534,13 +549,19 @@ const AddMobileEventForm = ({ intendedData = null }) => {
                 )}
 
                 {intendedData && (
-                  <RHFInput
-                    disabled
-                    label="Quận huyện"
-                    name="selectedDistricts"
-                    control={control}
-                    isRequiredLabel={true}
-                  />
+                  <>
+                    <RHFInput
+                      disabled
+                      label="Quận huyện"
+                      name="selectedDistricts"
+                      control={control}
+                      isRequiredLabel={true}
+                    />
+
+                    <Typography mb={2}>
+                      Tổng người đăng ký: <b>{intendedData?.totalRegistrations}</b>
+                    </Typography>
+                  </>
                 )}
 
                 <Stack spacing={2} direction="row">
@@ -622,7 +643,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
                     >
                       Hủy
                     </Button>
-                    <LoadingButton ref={submitBtnRef} type="submit" loading={isButtonLoading} variant="contained">
+                    <LoadingButton type="submit" loading={isButtonLoading} variant="contained" ref={submitBtnRef}>
                       Tạo
                     </LoadingButton>
                   </Box>
