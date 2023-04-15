@@ -303,7 +303,6 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
                     },
                   ],
                 });
-                await fetchVolunteersOfEvent();
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
                   variant: 'error',
@@ -356,7 +355,6 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         updateMode: UserInformationUpdateModeEnum.BloodTypeFilling,
         volunteerBloodTypeUpdationInformations: importParamsWithEventId,
       });
-      await fetchVolunteersOfEvent();
     } catch (error) {
       enqueueSnackbar(errorHandler(error), {
         variant: 'error',
@@ -488,7 +486,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
   }, []);
 
   useEffect(() => {
-    listenOnHubInBulkOperations(connection, (result, messageCode) => {
+    listenOnHubInBulkOperations(connection, async (result, messageCode) => {
       if (result) {
         setIsMultipleAlertOpen(false);
 
@@ -513,6 +511,10 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
 
         setAlertResult(result);
         setIsMultipleAlertOpen(true);
+
+        if (messageCode === 8100) {
+          await fetchVolunteersOfEvent();
+        }
       }
     });
 
