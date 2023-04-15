@@ -3,13 +3,7 @@ import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
 import { HeaderMainStyle, ResultContainer, RunContainer } from './RunScriptStyle';
-import {
-  listVolunteerAccount,
-  registerEvent,
-  StaffAccount,
-  confirmRegistrationForm,
-  editRegistrationForm,
-} from './Script';
+import { listVolunteerAccount, registerEvent, StaffAccount, editEventRegistration } from './Script';
 import { convertErrorCodeToMessage, errorHandler } from 'utils';
 import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { loginUserPassword } from 'api';
@@ -20,8 +14,12 @@ const categoryList = [
     value: 0,
   },
   {
-    name: 'Xác nhận hiến máu',
+    name: 'Xác nhận tham gia',
     value: 1,
+  },
+  {
+    name: 'Xác nhận hiến máu',
+    value: 2,
   },
 ];
 
@@ -36,6 +34,7 @@ const RunScriptPage = () => {
     eventId: eventId,
     participationDate: new Date().toISOString(),
   };
+
   const [totalApproval, setTotalApproval] = useState(0);
   const [totalReject, setTotalReject] = useState(0);
 
@@ -50,149 +49,208 @@ const RunScriptPage = () => {
       .withAutomaticReconnect()
       .build();
     try {
-      if (category === 0) {
-        setListEventId([]);
-        hubConnection.on('ReceiveContent', async (id, messageCode) => {
-          console.log('ReceiveContent', id, messageCode);
-          setListEventId((prev) => [...prev, id]);
-          setResult((prevState) => [
-            ...prevState,
-            {
-              event: event,
-              message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
-              type: messageCode !== 7100 ? 'error' : 'success',
-              username: username,
-              eventRegisterId: id,
-              action: 'Đăng ký hiến máu',
-            },
-          ]);
-          if (id !== '') {
-            editRegistrationForm(
-              {
-                eventRegistrationId: id,
-                registrationForm: {
-                  isFirstTimeDonating: false,
-                  isMalariaInfectedOrHadSurgery: false,
-                  isDiseasedBefore: false,
-                  isBloodTransfused: false,
-                  isVaccinatedAroundOneYear: false,
-                  isLosingWeightWithoutCause: false,
-                  isHadGanglionRelatedDisease: false,
-                  isHadDentalTreatmentOrAcupunctureTreatment: false,
-                  isGotTatooedOrPierced: false,
-                  isUsingDrugs: false,
-                  isHadSexualIntercourseWithHIVInfectedPerson: false,
-                  isHadHomoeroticSexualIntercourse: false,
-                  isHadBronchitisOrPneumoniaOrRubella: false,
-                  isVaccinatedAroundOneMonth: false,
-                  isTravelledIntoInfectedZone: false,
-                  isHadFluAroundOneWeek: false,
-                  isUsingAntibiotic: false,
-                  isVaccinatedAroundOneWeek: false,
-                  isPregnant: false,
-                  isHadAPeriodAroundOneWeek: false,
-                  isComfirmedToPerformHIVTest: true,
-                },
-              },
-              token
-            )
-              .then((res) => {
-                setResult((prevState) => [
-                  ...prevState,
-                  {
-                    event,
-                    message: 'Điền phiếu đăng ký thành công',
-                    type: 'success',
-                    username: username,
-                    action: 'Điền phiếu đăng ký',
-                  },
-                ]);
-              })
-              .catch((error) => {
-                setResult((prevState) => [
-                  ...prevState,
-                  {
-                    event,
-                    message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
-                    type: 'error',
-                    username: username,
-                    action: 'Điền phiếu đăng ký',
-                  },
-                ]);
-              })
-              .finally(async () => {
-                await hubConnection.stop();
-                console.log('close');
-                setLoading(false);
-              });
-          } else {
-            await hubConnection.stop();
-            console.log('close');
-            setLoading(false);
-          }
-        });
-
-        hubConnection.start().then(() => {
-          registerEvent({ eventId, participationDate: event.participationDate }, token);
-        });
-      } else {
-        setTotalApproval(0);
-        setTotalReject(0);
-        setLoading(true);
-        listEventId.forEach(async (e, i) => {
-          if (e !== '') {
-            setRun((prevState) => [
+      switch (category) {
+        case 0:
+          setListEventId([]);
+          hubConnection.on('ReceiveContent', async (id, messageCode) => {
+            console.log('ReceiveContent', id, messageCode);
+            setListEventId((prev) => [...prev, id]);
+            setResult((prevState) => [
               ...prevState,
               {
-                action: 'Xác nhận hiến máu',
-                username,
+                event: event,
+                message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
+                type: messageCode !== 7100 ? 'error' : 'success',
+                username: username,
+                eventRegisterId: id,
+                action: 'Đăng ký hiến máu',
               },
             ]);
-            if (hubConnection.state === HubConnectionState.Disconnected) {
-              await hubConnection.start();
+            if (id !== '') {
+              editEventRegistration(
+                {
+                  updateMode: 1,
+                  eventRegistrationId: id,
+                  registrationForm: {
+                    isFirstTimeDonating: false,
+                    isMalariaInfectedOrHadSurgery: false,
+                    isDiseasedBefore: false,
+                    isBloodTransfused: false,
+                    isVaccinatedAroundOneYear: false,
+                    isLosingWeightWithoutCause: false,
+                    isHadGanglionRelatedDisease: false,
+                    isHadDentalTreatmentOrAcupunctureTreatment: false,
+                    isGotTatooedOrPierced: false,
+                    isUsingDrugs: false,
+                    isHadSexualIntercourseWithHIVInfectedPerson: false,
+                    isHadHomoeroticSexualIntercourse: false,
+                    isHadBronchitisOrPneumoniaOrRubella: false,
+                    isVaccinatedAroundOneMonth: false,
+                    isTravelledIntoInfectedZone: false,
+                    isHadFluAroundOneWeek: false,
+                    isUsingAntibiotic: false,
+                    isVaccinatedAroundOneWeek: false,
+                    isPregnant: false,
+                    isHadAPeriodAroundOneWeek: false,
+                    isComfirmedToPerformHIVTest: true,
+                  },
+                },
+                token
+              )
+                .then((res) => {
+                  setResult((prevState) => [
+                    ...prevState,
+                    {
+                      event,
+                      message: 'Điền phiếu đăng ký thành công',
+                      type: 'success',
+                      username: username,
+                      action: 'Điền phiếu đăng ký',
+                    },
+                  ]);
+                })
+                .catch((error) => {
+                  setResult((prevState) => [
+                    ...prevState,
+                    {
+                      event,
+                      message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
+                      type: 'error',
+                      username: username,
+                      action: 'Điền phiếu đăng ký',
+                    },
+                  ]);
+                })
+                .finally(async () => {
+                  await hubConnection.stop();
+                  console.log('close');
+                  setLoading(false);
+                });
+            } else {
+              await hubConnection.stop();
+              console.log('close');
+              setLoading(false);
             }
+          });
 
-            confirmRegistrationForm(
-              {
-                eventRegistrationId: e,
-                heartRate: 80,
-                systolicPressure: 120,
-                diastolicPressure: 80,
-                bodyTemperature: 36,
-                height: 165,
-                weight: 50,
-                status: i % 2 === 0 ? 1 : 0,
-                note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
-                donationVolume: i % 2 === 0 ? 350 : null,
-              },
-              token
-            );
-            hubConnection.on('ReceiveMessage', async (messageCode) => {
-              console.log('ReceiveMessage', messageCode);
-              if (i % 2 === 0) {
-                setTotalApproval((prev) => prev + 1);
-              } else {
-                setTotalReject((prev) => prev + 1);
-              }
-              setResult((prevState) => [
+          hubConnection.start().then(() => {
+            registerEvent({ eventId, participationDate: event.participationDate }, token);
+          });
+          break;
+
+        case 1:
+          listEventId.forEach(async (e, i) => {
+            if (e !== '') {
+              setRun((prevState) => [
                 ...prevState,
                 {
-                  event: event,
-                  message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
-                  type: messageCode !== 7200 ? 'error' : 'success',
-                  username: username,
-                  status: i % 2 === 0 ? 1 : 0,
-                  note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
-                  donationVolume: i % 2 === 0 ? 350 : null,
-                  action: 'Xác nhận hiến máu',
+                  action: 'Xác nhận đăng ký',
+                  username,
                 },
               ]);
-              console.log('close');
-              await hubConnection.stop();
-              setLoading(false);
-            });
-          }
-        });
+
+              editEventRegistration(
+                {
+                  updateMode: 2,
+                  eventRegistrationId: e,
+                },
+                token
+              )
+                .then((res) => {
+                  setResult((prevState) => [
+                    ...prevState,
+                    {
+                      event,
+                      message: 'Xác nhận tham gia thành công',
+                      type: 'success',
+                      username: username,
+                      action: 'Xác nhận tham gia',
+                    },
+                  ]);
+                })
+                .catch((error) => {
+                  setResult((prevState) => [
+                    ...prevState,
+                    {
+                      event,
+                      message: `${error?.response?.data?.code}: ${errorHandler(error)}`,
+                      type: 'error',
+                      username: username,
+                      action: 'Xác nhận tham gia',
+                    },
+                  ]);
+                });
+            }
+          });
+
+          break;
+
+        case 2:
+          setTotalApproval(0);
+          setTotalReject(0);
+          setLoading(true);
+          listEventId.forEach(async (e, i) => {
+            if (e !== '') {
+              setRun((prevState) => [
+                ...prevState,
+                {
+                  action: 'Xác nhận hiến máu',
+                  username,
+                },
+              ]);
+              if (hubConnection.state === HubConnectionState.Disconnected) {
+                await hubConnection.start();
+              }
+
+              editEventRegistration(
+                {
+                  updateMode: 3,
+                  eventRegistrationId: e,
+                  confirmationForm: {
+                    heartRate: 80,
+                    systolicPressure: 120,
+                    diastolicPressure: 80,
+                    bodyTemperature: 36,
+                    height: 165,
+                    weight: 50,
+                    status: i % 2 === 0 ? 1 : 0,
+                    note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: i % 2 === 0 ? 350 : null,
+                    eventCode: null,
+                  },
+                },
+                token
+              );
+              hubConnection.on('ReceiveMessage', async (messageCode) => {
+                console.log('ReceiveMessage', messageCode);
+                if (i % 2 === 0) {
+                  setTotalApproval((prev) => prev + 1);
+                } else {
+                  setTotalReject((prev) => prev + 1);
+                }
+                setResult((prevState) => [
+                  ...prevState,
+                  {
+                    event: event,
+                    message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
+                    type: messageCode !== 7200 ? 'error' : 'success',
+                    username: username,
+                    status: i % 2 === 0 ? 1 : 0,
+                    note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: i % 2 === 0 ? 350 : null,
+                    action: 'Xác nhận hiến máu',
+                  },
+                ]);
+                console.log('close');
+                await hubConnection.stop();
+                setLoading(false);
+              });
+            }
+          });
+          break;
+
+        default:
+          break;
       }
     } catch (error) {
       console.log(error);
@@ -229,6 +287,22 @@ const RunScriptPage = () => {
     });
   }
 
+  function staffCheckin() {
+    setRun([]);
+    setResult([]);
+
+    setRun((prevState) => [
+      ...prevState,
+      {
+        action: 'Đăng nhập',
+        username: StaffAccount.username,
+      },
+    ]);
+    loginUserPassword(StaffAccount).then((res) => {
+      openHubConnection(res.accessToken, StaffAccount.username);
+    });
+  }
+
   function staffConfirm() {
     setRun([]);
     setResult([]);
@@ -252,6 +326,10 @@ const RunScriptPage = () => {
         break;
 
       case 1:
+        staffCheckin();
+        break;
+
+      case 2:
         staffConfirm();
         break;
 
@@ -340,7 +418,7 @@ const RunScriptPage = () => {
           </RunContainer>
         </Grid>
         <Grid item md={7} sm={6} xs={12}>
-          {!loading && category == 1 && (totalApproval > 0 || totalReject > 0) && (
+          {!loading && category == 2 && (totalApproval > 0 || totalReject > 0) && (
             <Box sx={{ px: 3, py: 2, backgroundColor: 'white', mb: 2, borderRadius: '0.475rem', width: 'fit-content' }}>
               <Typography fontSize={16} fontWeight={500}>
                 Kết quả xác nhận lấy máu:
