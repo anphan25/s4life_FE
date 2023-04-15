@@ -277,12 +277,6 @@ const EventDetailInfo = ({ detailData }) => {
 
         <Grid md={4} sm={6} xs={12} item>
           <Typography>
-            <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData?.eventCode || '-'}
-          </Typography>
-        </Grid>
-
-        <Grid md={4} sm={6} xs={12} item>
-          <Typography>
             <TitleItemStyle>Loại sự kiện:</TitleItemStyle> {detailData?.eventType || '-'}
           </Typography>
         </Grid>
