@@ -2,12 +2,17 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { Paper, Grid, Stack, Box, Typography, Divider, useMediaQuery, CircularProgress } from '@mui/material';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
-import { formatNumber } from 'utils/functions/formatNumber';
 import { TypeOBloodIcon, TypeRHSubtractIcon } from 'assets';
 import { Icon } from 'components';
 import NewEventList from './components/NewEventList';
 import { getStatisticData, getEvents } from 'api';
-import { StatisticEnum, EventFilterEnum, StatisticFilterModeEnum, getStatisticResultFromGroup } from 'utils';
+import {
+  StatisticEnum,
+  EventFilterEnum,
+  StatisticFilterModeEnum,
+  getStatisticResultFromGroup,
+  formatNumber,
+} from 'utils';
 import { PageTitle, StatisticTabContainer, BloodVolume } from './DashboardStyle.js';
 
 const getFirstAndLastDateInCurrentQuarter = () => {

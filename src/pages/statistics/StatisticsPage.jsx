@@ -6,7 +6,7 @@ import {
   getStatisticResultFromGroup,
   StatisticEnum,
 } from 'utils';
-import { getYearFilterParam, getLastThreeYear } from 'utils/extensions/year';
+import { getYearFilterParam, getLastThreeYear } from 'utils';
 import { HeaderBreadcumbs } from 'components';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';

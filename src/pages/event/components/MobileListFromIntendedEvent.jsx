@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Box, Typography, Divider, MenuItem } from '@mui/material';
-import {
-  DataTable,
-  HeaderBreadcumbs,
-  SearchBar,
-  FilterTab,
-  CustomDialog,
-  FromToDateFilter,
-  Icon,
-  MoreMenuButton,
-} from 'components';
+import { DataTable, SearchBar, FilterTab, CustomDialog, FromToDateFilter, Icon, MoreMenuButton } from 'components';
 import { getEvents } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -17,8 +8,6 @@ import {
   formatDate,
   errorHandler,
   isEventEditable,
-  convertErrorCodeToMessage,
-  HeaderMainStyle,
   DialogButtonGroupStyle,
   InputFilterSectionStyle,
   EventTypeEnum,
@@ -28,20 +17,16 @@ import {
   RoleEnum,
 } from 'utils';
 import moment from 'moment';
-import { openHubConnection, listenOnHub } from 'config';
-import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import CancelEventForm from '../components/CancelEventForm';
+import CancelEventForm from './CancelEventForm';
 
-const EventFixedListPage = () => {
+const MobileListFromIntendedEvent = ({ intendedEventId }) => {
   const user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
   const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
-  const [connection, setConnection] = useState(null);
-  const store = useStore();
   const location = useLocation();
   const [pageState, setPageState] = useState({
     isLoading: false,
@@ -92,7 +77,7 @@ const EventFixedListPage = () => {
         headerName: 'Thời gian',
         type: 'string',
         field: 'time',
-        width: 220,
+        width: 200,
         renderCell: (timeValue) => {
           const valueObject = JSON.parse(timeValue.value);
           const startDate = valueObject?.startDate;
@@ -279,24 +264,6 @@ const EventFixedListPage = () => {
   const handleEditCancelDialog = () => {
     setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
   };
-  useEffect(() => {
-    const openConnection = async () => {
-      setConnection(await openHubConnection(store));
-    };
-    openConnection();
-  }, []);
-
-  useEffect(() => {
-    listenOnHub(connection, (messageCode) => {
-      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
-        variant: messageCode < 0 ? 'error' : 'success',
-        persist: false,
-      });
-    });
-    connection?.onclose((e) => {
-      setConnection(null);
-    });
-  }, [connection]);
 
   const cancelEventDialogContent = () => {
     return (
@@ -343,11 +310,12 @@ const EventFixedListPage = () => {
   const fetchEventListData = useCallback(async () => {
     setPageState((pre) => ({ ...pre, isLoading: true }));
     getEvents({
+      IntendedEventId: intendedEventId,
       Page: pageState?.page,
       PageSize: pageState?.pageSize,
       FilterMode: pageState?.filterMode,
       Status: pageState?.status,
-      EventType: EventTypeEnum.PermanentEvent,
+      EventType: EventTypeEnum.MobileEvent,
       SearchKey: pageState?.searchKey,
       ...(pageState?.dateFrom && { DateFrom: moment(pageState?.dateFrom).format('yyyy-MM-DD') }),
       ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
@@ -388,23 +356,10 @@ const EventFixedListPage = () => {
 
   return (
     <>
-      <HeaderMainStyle>
-        <HeaderBreadcumbs
-          heading="Danh sách sự kiện cố định"
-          links={[{ name: 'Trang chủ', to: '/' }, { name: 'Danh sách sự kiện cố định' }]}
-        />
-        {isManager && (
-          <Button
-            startIcon={<Icon icon="solid-plus" />}
-            variant="contained"
-            onClick={() => {
-              navigate('/event/fixed-list/add');
-            }}
-          >
-            Tạo sự kiện
-          </Button>
-        )}
-      </HeaderMainStyle>
+      <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
+        Danh sách sự kiện lưu động được tổ chức từ sự kiện này
+      </Typography>
+
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
@@ -450,4 +405,4 @@ const EventFixedListPage = () => {
   );
 };
 
-export default EventFixedListPage;
+export default MobileListFromIntendedEvent;

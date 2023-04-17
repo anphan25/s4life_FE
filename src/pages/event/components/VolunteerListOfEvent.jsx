@@ -12,7 +12,13 @@ import {
   RegistrationStatusTag,
 } from 'components';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { errorHandler, formatDate, UserInformationUpdateModeEnum, convertErrorCodeToMessage } from 'utils';
+import {
+  errorHandler,
+  formatDate,
+  UserInformationUpdateModeEnum,
+  convertErrorCodeToMessage,
+  getEnumDescriptionByValue,
+} from 'utils';
 import { useParams } from 'react-router-dom';
 import { getEventRegistrations, updateUserInfo, getEventRegistrationById } from 'api';
 import moment from 'moment';
@@ -100,19 +106,13 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Tên',
         field: 'fullName',
         type: 'string',
-        minWidth: 150,
+        minWidth: 120,
         flex: 1,
       },
 
       {
-        headerName: 'CCCD',
-        field: 'nationalId',
-        type: 'string',
-        width: 150,
-      },
-      {
-        headerName: 'CMND',
-        field: 'citizenId',
+        headerName: 'CCCD/CMND',
+        field: 'cccdcmnd',
         type: 'string',
         width: 150,
       },
@@ -120,7 +120,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Số điện thoại',
         field: 'phoneNumber',
         type: 'string',
-        width: 150,
+        width: 120,
       },
       {
         headerName: 'Nhóm máu',
@@ -128,11 +128,17 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         type: 'string',
         width: 120,
       },
-
+      {
+        headerName: 'Số lượng hiến (ml)',
+        field: 'donationVolume',
+        type: 'number',
+        width: 150,
+      },
       {
         headerName: 'Ngày tham gia',
         field: 'participationDate',
         type: 'string',
+        hide: isIntendedEvent,
         width: 120,
       },
       {
@@ -143,13 +149,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         renderCell: ({ value }) => {
           return (
             <RegistrationStatusTag status={value}>
-              {
-                EventRegistrationStatusEnum[
-                  Object.keys(EventRegistrationStatusEnum).find(
-                    (key) => EventRegistrationStatusEnum[key].value === value
-                  )
-                ]?.description
-              }
+              {getEnumDescriptionByValue(EventRegistrationStatusEnum, value)}
             </RegistrationStatusTag>
           );
         },
@@ -303,7 +303,6 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
                     },
                   ],
                 });
-                await fetchVolunteersOfEvent();
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
                   variant: 'error',
@@ -447,13 +446,13 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         id: data?.id, //eventRegistrationId
         userInformationId: data?.userInformationId,
         fullName: data?.fullName || '-',
-        nationalId: data?.nationalId || '-',
-        citizenId: data?.citizenId || '-',
+        cccdcmnd: (data?.citizenId ? data?.citizenId : data?.nationalId) || '-',
         phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
         bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
         bloodTypeId: data?.bloodTypeId,
+        donationVolume: data?.donationVolume || '-',
         isRhNegative: data?.isRhNegative,
-        participationDate: formatDate(data?.participationDate, 2) || '-',
+        ...(!isIntendedEvent && { participationDate: formatDate(data?.participationDate, 2) || '-' }),
         statusId: data?.status,
       }));
       setPageState({ ...pageState, data: dataRow, total: data.total });
@@ -488,7 +487,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
   }, []);
 
   useEffect(() => {
-    listenOnHubInBulkOperations(connection, (result, messageCode) => {
+    listenOnHubInBulkOperations(connection, async (result, messageCode) => {
       if (result) {
         setIsMultipleAlertOpen(false);
 
@@ -513,6 +512,10 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
 
         setAlertResult(result);
         setIsMultipleAlertOpen(true);
+      }
+
+      if (messageCode === 8100) {
+        await fetchVolunteersOfEvent();
       }
     });
 

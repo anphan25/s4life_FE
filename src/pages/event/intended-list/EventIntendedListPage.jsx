@@ -9,17 +9,16 @@ import {
   FromToDateFilter,
   Icon,
   MoreMenuButton,
+  Tag,
 } from 'components';
-import { getEvents, cancelEvent } from 'api';
+import { getEvents } from 'api';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import LoadingButton from '@mui/lab/LoadingButton';
 import {
   formatDate,
   errorHandler,
   convertErrorCodeToMessage,
   HeaderMainStyle,
-  DialogButtonGroupStyle,
   InputFilterSectionStyle,
   EventTypeEnum,
   EventFilterEnum,
@@ -31,6 +30,7 @@ import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import CancelEventForm from '../components/CancelEventForm';
 
 const EventIntendedListPage = () => {
   const user = useSelector((state) => state.auth.auth?.user);
@@ -38,7 +38,6 @@ const EventIntendedListPage = () => {
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
   const [pageState, setPageState] = useState({
@@ -152,8 +151,8 @@ const EventIntendedListPage = () => {
                   <Divider sx={{ borderStyle: 'dashed' }} />
                   <MenuItem
                     disabled={
-                      params.row.status === EventStatusEnum.Finished.description ||
-                      params.row.status === EventStatusEnum.Cancelled.description
+                      params.row.statusId === EventStatusEnum.Finished.value ||
+                      params.row.statusId === EventStatusEnum.Cancelled.value
                     }
                     onClick={() => {
                       handleCancelEventDialog();
@@ -222,33 +221,18 @@ const EventIntendedListPage = () => {
     return (
       <Box>
         <Typography>
-          Bạn có chắc chắn muốn hủy sự kiện <b>{cancelEventName}</b> không ?
+          Bạn có chắc chắn muốn hủy sự kiện <b>{cancelEventName}</b> không ?<br /> Nếu có vui lòng nhập lý do bên dưới.
         </Typography>
-        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-          <Button onClick={handleCancelEventDialog}>Hủy</Button>
-          <LoadingButton
-            loading={isButtonLoading}
-            onClick={async () => {
-              setIsButtonLoading(true);
-              try {
-                await cancelEvent(cancelEventId);
-                await fetchEventListData();
-              } catch (error) {
-                enqueueSnackbar(errorHandler(error), {
-                  variant: 'error',
-                  persist: false,
-                });
-              } finally {
-                handleCancelEventDialog();
-                setIsButtonLoading(false);
-              }
-            }}
-            variant="contained"
-            autoFocus
-          >
-            Hủy sự kiện
-          </LoadingButton>
-        </DialogButtonGroupStyle>
+
+        <CancelEventForm
+          eventId={cancelEventId}
+          onFinishSubmit={async () => {
+            await fetchEventListData();
+          }}
+          handleCloseDialog={() => {
+            handleCancelEventDialog();
+          }}
+        />
       </Box>
     );
   };
@@ -279,7 +263,7 @@ const EventIntendedListPage = () => {
           startDate: data?.startDate,
           endDate: data?.endDate,
           currentParticipation: data?.currentParticipation || 0,
-          status: data?.status || '',
+          statusId: data?.statusId || '',
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
       })
@@ -318,7 +302,7 @@ const EventIntendedListPage = () => {
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
-            //Intended events don not have Unstarted status
+            //Intended events do not have Unstarted status
             tabs={getValuesFromEnum(EventStatusEnum).filter((item) => item.value !== EventStatusEnum.Unstarted.value)}
             onChangeTab={handleFilterTabChange}
             defaultValue={pageState.status}

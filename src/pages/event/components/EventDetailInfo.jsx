@@ -1,8 +1,17 @@
 import React from 'react';
 import { Stack, styled, Grid, Box, Typography, Chip, Skeleton } from '@mui/material';
-import { Icon } from 'components';
+import { Icon, Tag } from 'components';
 import moment from 'moment';
-import { MAX_INT, convertBloodTypeLabel, formatDate, isStartAndEndDateIsSame, EventTypeEnum } from 'utils';
+import {
+  MAX_INT,
+  convertBloodTypeLabel,
+  formatDate,
+  isStartAndEndDateIsSame,
+  EventTypeEnum,
+  getLabelFromEventStatus,
+  getEnumDescriptionByValue,
+  EventStatusEnum,
+} from 'utils';
 import parse from 'html-react-parser';
 
 const TagStyleConvert = (status, theme) => {
@@ -26,16 +35,16 @@ const TagStyleConvert = (status, theme) => {
 };
 
 const EventDetailInfo = ({ detailData }) => {
-  const StatusTagStyle = styled(Chip)(({ theme }) => ({
-    borderRadius: '8px',
-    height: 'auto',
-    marginBottom: '15px',
-    padding: '4px 6px',
-    fontWeight: 'bold',
-    fontSize: '12px',
-    backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
-    color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
-  }));
+  // const StatusTagStyle = styled(Chip)(({ theme }) => ({
+  //   borderRadius: '8px',
+  //   height: 'auto',
+  //   marginBottom: '15px',
+  //   padding: '4px 6px',
+  //   fontWeight: 'bold',
+  //   fontSize: '12px',
+  //   backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
+  //   color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
+  // }));
 
   const InfoItemWithIconStyle = styled(Grid)(({ theme }) => ({
     '& .info-item': { flexDirection: 'row', gap: '15px' },
@@ -92,8 +101,10 @@ const EventDetailInfo = ({ detailData }) => {
             {detailData?.name}
           </Typography>
 
-          <Stack direction="row" sx={{ marginTop: '10px' }}>
-            <StatusTagStyle label={detailData?.status} />
+          <Stack direction="row" sx={{ marginTop: '10px', marginBottom: '15px' }}>
+            <Tag status={getLabelFromEventStatus(detailData?.statusId)}>
+              {getEnumDescriptionByValue(EventStatusEnum, detailData?.statusId)}
+            </Tag>
             {detailData?.isEmergency && <EmergencyTagStyle label="Sự kiện khẩn cấp" />}
           </Stack>
 
@@ -272,12 +283,6 @@ const EventDetailInfo = ({ detailData }) => {
         <Grid md={4} sm={6} xs={12} item>
           <Typography>
             <TitleItemStyle>Liên hệ:</TitleItemStyle> {detailData?.contactInformation || '-'}
-          </Typography>
-        </Grid>
-
-        <Grid md={4} sm={6} xs={12} item>
-          <Typography>
-            <TitleItemStyle>Mã sự kiện:</TitleItemStyle> {detailData?.eventCode || '-'}
           </Typography>
         </Grid>
 

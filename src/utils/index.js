@@ -1,5 +1,4 @@
 export * from './functions/errorHandler';
-export * from './functions/formatNumber';
 export * from './functions/getFontValue';
 export * from './constant/generalConstant';
 export * from './constant/regexPattern';
@@ -8,8 +7,9 @@ export * from './functions/convertBloodTypeLabel';
 export * from './functions/convertDayLabel';
 export * from './functions/isEventEditable';
 export * from './styles/commonStyle';
-export * from './functions/isStartAndEndDateIsSame';
 export * from './enums';
 export * from './styles';
 export * from './extensions/datetime';
+export * from './extensions/number';
+export * from './extensions/year';
 export * from './functions';
