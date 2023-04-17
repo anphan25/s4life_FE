@@ -106,19 +106,13 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Tên',
         field: 'fullName',
         type: 'string',
-        minWidth: 150,
+        minWidth: 120,
         flex: 1,
       },
 
       {
-        headerName: 'CCCD',
-        field: 'nationalId',
-        type: 'string',
-        width: 150,
-      },
-      {
-        headerName: 'CMND',
-        field: 'citizenId',
+        headerName: 'CCCD/CMND',
+        field: 'cccdcmnd',
         type: 'string',
         width: 150,
       },
@@ -126,13 +120,19 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Số điện thoại',
         field: 'phoneNumber',
         type: 'string',
-        width: 150,
+        width: 120,
       },
       {
         headerName: 'Nhóm máu',
         field: 'bloodType',
         type: 'string',
         width: 120,
+      },
+      {
+        headerName: 'Số lượng hiến (ml)',
+        field: 'donationVolume',
+        type: 'number',
+        width: 150,
       },
       {
         headerName: 'Ngày tham gia',
@@ -445,11 +445,11 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         id: data?.id, //eventRegistrationId
         userInformationId: data?.userInformationId,
         fullName: data?.fullName || '-',
-        nationalId: data?.nationalId || '-',
-        citizenId: data?.citizenId || '-',
+        cccdcmnd: (data?.citizenId ? data?.citizenId : data?.nationalId) || '-',
         phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
         bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
         bloodTypeId: data?.bloodTypeId,
+        donationVolume: data?.donationVolume || '-',
         isRhNegative: data?.isRhNegative,
         ...(!isIntendedEvent && { participationDate: formatDate(data?.participationDate, 2) || '-' }),
         statusId: data?.status,
@@ -515,6 +515,10 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         if (messageCode === 8100) {
           await fetchVolunteersOfEvent();
         }
+      }
+
+      if (messageCode === 8100) {
+        await fetchVolunteersOfEvent();
       }
     });
 

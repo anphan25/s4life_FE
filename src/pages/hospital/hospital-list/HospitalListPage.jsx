@@ -188,7 +188,6 @@ const HospitalListPage = () => {
               setIsButtonLoading(true);
               try {
                 await disableHospital(disableHospitalId);
-                await fetchHospitalData();
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
                   variant: 'error',
@@ -223,7 +222,6 @@ const HospitalListPage = () => {
               setIsButtonLoading(true);
               try {
                 await enableHospital(enableHospitalId);
-                await fetchHospitalData();
               } catch (error) {
                 enqueueSnackbar(errorHandler(error), {
                   variant: 'error',
@@ -266,7 +264,6 @@ const HospitalListPage = () => {
 
     try {
       await importCSVHospitalData(importParamsWithAvatarUrl);
-      await fetchHospitalData();
     } catch (error) {
       enqueueSnackbar(errorHandler(error), {
         variant: 'error',
@@ -378,12 +375,17 @@ const HospitalListPage = () => {
   }, []);
 
   useEffect(() => {
-    listenOnHub(connection, (messageCode) => {
+    listenOnHub(connection, async (messageCode) => {
       enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
         variant: messageCode < 0 ? 'error' : 'success',
         persist: false,
       });
+
+      if (messageCode === 3300 || messageCode === 3400 || messageCode === 3100) {
+        await fetchHospitalData();
+      }
     });
+
     connection?.onclose((e) => {
       setConnection(null);
     });
