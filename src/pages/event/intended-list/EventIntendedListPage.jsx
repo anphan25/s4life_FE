@@ -25,8 +25,6 @@ import {
   EventStatusEnum,
   getValuesFromEnum,
   RoleEnum,
-  getLabelFromEventStatus,
-  getEnumDescriptionByValue,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';

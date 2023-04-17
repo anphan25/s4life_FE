@@ -9,7 +9,6 @@ import {
   FromToDateFilter,
   Icon,
   MoreMenuButton,
-  Tag,
 } from 'components';
 import { getEvents } from 'api';
 import { useSelector } from 'react-redux';
@@ -25,8 +24,6 @@ import {
   EventStatusEnum,
   getValuesFromEnum,
   RoleEnum,
-  getLabelFromEventStatus,
-  getEnumDescriptionByValue,
 } from 'utils';
 import moment from 'moment';
 import { openHubConnection, listenOnHub } from 'config';
@@ -92,7 +89,7 @@ const EventMobileListPage = () => {
         headerName: 'Thời gian',
         type: 'string',
         field: 'time',
-        width: 220,
+        width: 200,
         renderCell: (timeValue) => {
           const valueObject = JSON.parse(timeValue.value);
           const startDate = valueObject?.startDate;

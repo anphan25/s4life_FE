@@ -23,6 +23,7 @@ import { useSnackbar } from 'notistack';
 import { NotFoundIcon } from 'assets';
 import EventDetailInfo from './EventDetailInfo';
 import CancelEventForm from './CancelEventForm';
+import MobileListFromIntendedEvent from './MobileListFromIntendedEvent';
 
 const EventDetailPage = () => {
   const [detailData, setDetailData] = useState(null);
@@ -409,13 +410,22 @@ const EventDetailPage = () => {
           <EventDetailInfo detailData={detailData} />
         </Stack>
 
-        <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
         {/* Volunteer of event */}
+        <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
+
         <VolunteerListOfEvent
           isIntendedEvent={detailData?.eventTypeId === EventTypeEnum.IntendedEvent}
           onViewRegistrationArea={handleRegistrationAreaDialog}
         />
       </Box>
+
+      {detailData?.eventTypeId === EventTypeEnum.IntendedEvent && (
+        <>
+          {/* MobileListFromIntendedEvent */}
+          <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
+          <MobileListFromIntendedEvent intendedEventId={detailData?.id} />
+        </>
+      )}
 
       {/* Cancel Event Dialog */}
       <CustomDialog
