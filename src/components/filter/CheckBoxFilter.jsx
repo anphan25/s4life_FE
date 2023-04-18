@@ -48,7 +48,7 @@ export const CheckBoxFilter = ({ options, onCheck, sx, placeHolder, disableOpera
   };
 
   const removeNullElement = (list) => {
-    return list?.filter((item) => item);
+    return list?.filter((item) => item !== null && item !== undefined);
   };
 
   const handleSearch = (e) => {
