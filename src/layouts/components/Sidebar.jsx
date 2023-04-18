@@ -144,12 +144,12 @@ export const Sidebar = ({ toggle, onClose }) => {
           to: '/event/mobile-list',
         },
         {
-          name: 'Theo lịch bệnh viện',
-          to: '/event/schedule-list/',
-        },
-        {
           name: 'Lưu động dự kiến',
           to: '/event/intended-list/',
+        },
+        {
+          name: 'Theo lịch bệnh viện',
+          to: '/event/schedule-list/',
         },
       ],
     },
