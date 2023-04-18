@@ -3,7 +3,7 @@ import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
 import { HeaderMainStyle, ResultContainer, RunContainer } from './RunScriptStyle';
-import { listVolunteerAccount, registerEvent, StaffAccount, editEventRegistration } from './Script';
+import { listVolunteerAccount, registerEvent, StaffAccount, editEventRegistration, listReject } from './Script';
 import { convertErrorCodeToMessage, errorHandler } from 'utils';
 import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { loginUserPassword } from 'api';
@@ -38,7 +38,7 @@ const RunScriptPage = () => {
   const [totalApproval, setTotalApproval] = useState(0);
   const [totalReject, setTotalReject] = useState(0);
 
-  const openHubConnection = (token, username) => {
+  const openHubConnection = (token, username, volunteerAcc) => {
     const hubConnection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_SIGNALR_URL, {
         accessTokenFactory: () => {
@@ -54,7 +54,13 @@ const RunScriptPage = () => {
           setListEventId([]);
           hubConnection.on('ReceiveContent', async (id, messageCode) => {
             console.log('ReceiveContent', id, messageCode);
-            setListEventId((prev) => [...prev, id]);
+            setListEventId((prev) => [
+              ...prev,
+              {
+                username,
+                id,
+              },
+            ]);
             setResult((prevState) => [
               ...prevState,
               {
@@ -139,8 +145,8 @@ const RunScriptPage = () => {
           break;
 
         case 1:
-          listEventId.forEach(async (e, i) => {
-            if (e !== '') {
+          listEventId.forEach(async (e) => {
+            if (e['id'] !== '') {
               setRun((prevState) => [
                 ...prevState,
                 {
@@ -152,7 +158,7 @@ const RunScriptPage = () => {
               editEventRegistration(
                 {
                   updateMode: 2,
-                  eventRegistrationId: e,
+                  eventRegistrationId: e['id'],
                 },
                 token
               )
@@ -190,7 +196,7 @@ const RunScriptPage = () => {
           setTotalReject(0);
           setLoading(true);
           listEventId.forEach(async (e, i) => {
-            if (e !== '') {
+            if (e['id'] !== '') {
               setRun((prevState) => [
                 ...prevState,
                 {
@@ -205,7 +211,7 @@ const RunScriptPage = () => {
               editEventRegistration(
                 {
                   updateMode: 3,
-                  eventRegistrationId: e,
+                  eventRegistrationId: e['id'],
                   confirmationForm: {
                     heartRate: 80,
                     systolicPressure: 120,
@@ -213,9 +219,9 @@ const RunScriptPage = () => {
                     bodyTemperature: 36,
                     height: 165,
                     weight: 50,
-                    status: i <= 44 ? 1 : 0,
-                    note: i <= 44 ? null : 'Từ chối lấy máu tự động',
-                    donationVolume: i <= 44 ? 350 : null,
+                    status: !listReject.includes(e['username']) ? 1 : 0,
+                    note: !listReject.includes(e['username']) ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: !listReject.includes(e['username']) ? 350 : null,
                     eventCode: null,
                   },
                 },
@@ -223,7 +229,7 @@ const RunScriptPage = () => {
               );
               hubConnection.on('ReceiveMessage', async (messageCode) => {
                 console.log('ReceiveMessage', messageCode);
-                if (i % 2 === 0) {
+                if (!listReject.includes(e['username'])) {
                   setTotalApproval((prev) => prev + 1);
                 } else {
                   setTotalReject((prev) => prev + 1);
@@ -235,9 +241,9 @@ const RunScriptPage = () => {
                     message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
                     type: messageCode !== 7200 ? 'error' : 'success',
                     username: username,
-                    status: i <= 44 ? 1 : 0,
-                    note: i <= 44 ? null : 'Từ chối lấy máu tự động',
-                    donationVolume: i <= 44 ? 350 : null,
+                    status: !listReject.includes(e['username']) ? 1 : 0,
+                    note: !listReject.includes(e['username']) ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: !listReject.includes(e['username']) ? 350 : null,
                     action: 'Xác nhận hiến máu',
                   },
                 ]);
