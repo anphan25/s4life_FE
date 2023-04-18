@@ -58,6 +58,14 @@ export const listVolunteerAccount = [
   'tinhnguyenvientest0019',
 ];
 
+export const listReject = [
+  'tinhnguyenvientest00150',
+  'tinhnguyenvientest0016',
+  'tinhnguyenvientest0017',
+  'tinhnguyenvientest0018',
+  'tinhnguyenvientest0019',
+];
+
 function setupAxios(accessToken) {
   var axiosScript = axios.create({
     baseURL: process.env.REACT_APP_BASE_API_URL,
