@@ -235,9 +235,9 @@ const RunScriptPage = () => {
                     message: `${messageCode}: ${convertErrorCodeToMessage(messageCode)}`,
                     type: messageCode !== 7200 ? 'error' : 'success',
                     username: username,
-                    status: i % 2 === 0 ? 1 : 0,
-                    note: i % 2 === 0 ? null : 'Từ chối lấy máu tự động',
-                    donationVolume: i % 2 === 0 ? 350 : null,
+                    status: i <= 44 ? 1 : 0,
+                    note: i <= 44 ? null : 'Từ chối lấy máu tự động',
+                    donationVolume: i <= 44 ? 350 : null,
                     action: 'Xác nhận hiến máu',
                   },
                 ]);

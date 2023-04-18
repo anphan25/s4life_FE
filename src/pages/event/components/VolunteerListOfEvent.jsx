@@ -114,7 +114,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'CCCD/CMND',
         field: 'cccdcmnd',
         type: 'string',
-        width: 150,
+        width: 130,
       },
       {
         headerName: 'Số điện thoại',
@@ -126,13 +126,13 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Nhóm máu',
         field: 'bloodType',
         type: 'string',
-        width: 120,
+        width: 100,
       },
       {
         headerName: 'Số lượng hiến (ml)',
         field: 'donationVolume',
         type: 'number',
-        width: 150,
+        width: 130,
       },
       {
         headerName: 'Ngày tham gia',
@@ -446,6 +446,8 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         id: data?.id, //eventRegistrationId
         userInformationId: data?.userInformationId,
         fullName: data?.fullName || '-',
+        nationalId: data?.nationalId || '-',
+        citizenId: data?.citizenId || '-',
         cccdcmnd: (data?.citizenId ? data?.citizenId : data?.nationalId) || '-',
         phoneNumber: formatPhoneNumber(data?.phoneNumber) || '-',
         bloodType: data?.bloodTypeId ? convertBloodTypeLabel(data?.bloodTypeId, data?.isRhNegative) : '-',
