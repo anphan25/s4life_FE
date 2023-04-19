@@ -33,7 +33,6 @@ const Navbar = ({ onOpen }) => {
       </Stack>
 
       <Stack direction="row" gap={3}>
-        {/* <NotificationPopover /> */}
         <UserPopover />
       </Stack>
     </NavbarStyle>

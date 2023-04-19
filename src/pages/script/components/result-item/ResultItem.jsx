@@ -10,7 +10,7 @@ const ResultItem = ({ item, index }) => {
   return (
     <ResultItemContainer onClick={() => setShowItem(!showItem)}>
       <Stack direction={'row'} gap="30px" justifyContent={'space-between'}>
-        <Stack direction={'row'} gap="12px">
+        <Stack direction={'row'} gap="12px" useFlexGap flexWrap="wrap">
           <Typography fontSize={15} fontWeight={500}>
             {++index}. {item.username} - {item.action}
           </Typography>
@@ -27,21 +27,24 @@ const ResultItem = ({ item, index }) => {
       {showItem && (
         <Box>
           <Stack direction={'column'} gap={2} sx={{ mt: 0.5, ml: 1.5 }}>
-            <Stack direction={'row'} alignItems="center">
-              <Box
-                sx={{
-                  width: '8px',
-                  height: '4px',
-                  borderRadius: 6,
-                  flexShrink: 0,
-                  backgroundColor: 'primary.main',
-                  mr: '0.75rem',
-                }}
-              />
-              <Typography fontSize={14} color="grey.900">
-                Ngày lấy máu: {moment(item.event.participationDate).format('DD MMMM YYYY HH:mm')}
-              </Typography>
-            </Stack>
+            {item.event != null && (
+              <Stack direction={'row'} alignItems="center">
+                <Box
+                  sx={{
+                    width: '8px',
+                    height: '4px',
+                    borderRadius: 6,
+                    flexShrink: 0,
+                    backgroundColor: 'primary.main',
+                    mr: '0.75rem',
+                  }}
+                />
+                <Typography fontSize={14} color="grey.900">
+                  Ngày lấy máu: {moment(item.event.participationDate).format('DD MMMM YYYY HH:mm')}
+                </Typography>
+              </Stack>
+            )}
+
             <Stack direction={'row'} alignItems="center">
               <Box
                 sx={{

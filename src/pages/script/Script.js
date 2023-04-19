@@ -94,3 +94,7 @@ export async function getEventRegistrationById(id, accessToken) {
 export async function editEventRegistration(params, accessToken) {
   return await setupAxios(accessToken).patch('/event-registrations', params);
 }
+
+export async function changeTime(params, accessToken) {
+  return await setupAxios(accessToken).post('/time', params);
+}
