@@ -107,7 +107,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Tên',
         field: 'fullName',
         type: 'string',
-        minWidth: 120,
+        minWidth: 200,
         flex: 1,
       },
 
