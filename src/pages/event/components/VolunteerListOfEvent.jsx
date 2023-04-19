@@ -43,6 +43,7 @@ import { useSelector } from 'react-redux';
 import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent } from 'config';
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import useResponsive from 'hooks/useResponsive';
 
 const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -106,7 +107,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Tên',
         field: 'fullName',
         type: 'string',
-        minWidth: 120,
+        minWidth: 200,
         flex: 1,
       },
 
@@ -145,6 +146,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         headerName: 'Trạng thái',
         field: 'statusId',
         type: 'string',
+        align: 'center',
         width: 150,
         renderCell: ({ value }) => {
           return (
@@ -513,10 +515,6 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
 
         setAlertResult(result);
         setIsMultipleAlertOpen(true);
-
-        if (messageCode === 8100) {
-          await fetchVolunteersOfEvent();
-        }
       }
 
       if (messageCode === 8100) {
@@ -545,47 +543,52 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
           Danh sách người đăng ký
         </Typography>
-        {isEmployee && (
-          <Button
-            variant="contained"
-            onClick={handleImportBloodTypeDialog}
-            sx={{ marginBottom: '13px', marginRight: '15px' }}
-          >
-            Cập nhật nhóm máu từ file
-          </Button>
-        )}
-        {isIntendedEvent && isManager && (
-          <Button
-            variant="contained"
-            onClick={onViewRegistrationArea}
-            sx={{ marginBottom: '13px', marginRight: '15px' }}
-          >
-            Xem số lượng đăng ký của các quận huyện
-          </Button>
-        )}
+        <Box>
+          {isEmployee && (
+            <Button
+              variant="contained"
+              onClick={handleImportBloodTypeDialog}
+              sx={{ marginBottom: '13px', marginRight: '15px' }}
+            >
+              Cập nhật nhóm máu từ file
+            </Button>
+          )}
+          {isIntendedEvent && isManager && (
+            <Button
+              variant="contained"
+              onClick={onViewRegistrationArea}
+              sx={{ marginBottom: '13px', marginRight: '15px' }}
+            >
+              Xem số lượng đăng ký của các quận huyện
+            </Button>
+          )}
+        </Box>
       </Stack>
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <InputFilterSectionStyle>
-            <FromToDateFilter onChange={handleFromToDateFilter} sx={{ width: '40%' }} />
+            <FromToDateFilter
+              onChange={handleFromToDateFilter}
+              sx={{ width: useResponsive('down', 'md') ? '100%' : '40%' }}
+            />
             <CheckBoxFilter
               options={getValuesFromEnum(BloodTypeFilterEnum)}
-              sx={{ width: '20%' }}
+              sx={{ width: useResponsive('down', 'md') ? '100%' : '20%' }}
               onCheck={handleFilterBloodType}
               placeHolder="Chọn nhóm máu"
               disableOperation={disableOperation}
             />
             <CheckBoxFilter
               options={getValuesFromEnum(EventRegistrationStatusEnum)}
-              sx={{ width: '20%' }}
+              sx={{ width: useResponsive('down', 'md') ? '100%' : '20%' }}
               placeHolder="Chọn trạng thái đăng ký"
               onCheck={handleFilterEventRegistration}
               disableOperation={disableOperation}
             />
             <SearchBar
               type="number"
-              sx={{ width: '20%' }}
+              sx={{ width: useResponsive('down', 'md') ? '100%' : '20%' }}
               className="search-bar"
               placeholder="Nhập số điện thoại..."
               onSubmit={handleSearchVolunteerPhoneNumber}
