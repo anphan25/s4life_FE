@@ -3,10 +3,19 @@ import { HeaderBreadcumbs, Icon } from 'components';
 import React, { useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
 import { HeaderMainStyle, ResultContainer, RunContainer } from './RunScriptStyle';
-import { listVolunteerAccount, registerEvent, StaffAccount, editEventRegistration, listReject } from './Script';
-import { convertErrorCodeToMessage, errorHandler } from 'utils';
+import {
+  listVolunteerAccount,
+  registerEvent,
+  StaffAccount,
+  editEventRegistration,
+  listReject,
+  changeTime,
+} from './Script';
+import { convertErrorCodeToMessage, dateToISOLikeButLocal, errorHandler, formatDate } from 'utils';
 import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { loginUserPassword } from 'api';
+import moment from 'moment';
+import { DateTimePicker } from '@mui/x-date-pickers';
 
 const categoryList = [
   {
@@ -21,6 +30,10 @@ const categoryList = [
     name: 'Xác nhận hiến máu',
     value: 2,
   },
+  {
+    name: 'Đổi thời gian',
+    value: 3,
+  },
 ];
 
 const RunScriptPage = () => {
@@ -34,11 +47,11 @@ const RunScriptPage = () => {
     eventId: eventId,
     participationDate: new Date().toISOString(),
   };
-
+  const [dateChange, setDateChange] = useState(moment(new Date().toISOString()));
   const [totalApproval, setTotalApproval] = useState(0);
   const [totalReject, setTotalReject] = useState(0);
 
-  const openHubConnection = (token, username, volunteerAcc) => {
+  const openHubConnection = (token, username) => {
     const hubConnection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_SIGNALR_URL, {
         accessTokenFactory: () => {
@@ -325,6 +338,37 @@ const RunScriptPage = () => {
     });
   }
 
+  function changeCurrentTime() {
+    setRun((prevState) => [
+      ...prevState,
+      {
+        action: 'Đăng nhập',
+        username: 'admin001',
+      },
+      {
+        action: 'Đổi thời gian',
+        username: 'admin001',
+      },
+    ]);
+    loginUserPassword({
+      username: 'admin001',
+      password: 'Admin001//',
+    }).then((response) => {
+      var date = formatDate(dateChange, 6);
+      changeTime(date, response.accessToken).then((res) => {
+        setResult((prevState) => [
+          ...prevState,
+          {
+            message: `Đổi thời gian thành công`,
+            type: 'success',
+            username: 'admin001',
+            action: 'Đổi thời gian',
+          },
+        ]);
+      });
+    });
+  }
+
   async function runScript() {
     switch (category) {
       case 0:
@@ -337,6 +381,10 @@ const RunScriptPage = () => {
 
       case 2:
         staffConfirm();
+        break;
+
+      case 3:
+        changeCurrentTime();
         break;
 
       default:
@@ -395,8 +443,17 @@ const RunScriptPage = () => {
               }}
             />
           )}
+          {category === 3 && (
+            <DateTimePicker
+              value={dateChange}
+              onChange={(newValue) => {
+                setDateChange(newValue);
+              }}
+              renderInput={(params) => <TextField {...params} inputProps={params.inputProps} />}
+            />
+          )}
+
           <Button
-            id="sign-in-button"
             sx={{ whiteSpace: 'nowrap' }}
             startIcon={<Icon icon={loading ? 'solid-pause' : 'solid-play'} />}
             variant="contained"
