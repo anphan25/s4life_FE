@@ -44,6 +44,7 @@ import { openHubConnection, listenOnHubInBulkOperations, listenOnHubToGetContent
 import { useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import useResponsive from 'hooks/useResponsive';
+import * as XLSX from 'xlsx';
 
 const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -257,6 +258,64 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
 
   const handleDetailAlertDialog = () => {
     setIsDetailAlertOpen(!isDetailAlertOpen);
+  };
+
+  const handleExportListOfAttendant = async () => {
+    setIsButtonLoading(true);
+
+    try {
+      const data = await getEventRegistrations({
+        EventId: eventId,
+        Status: `${EventRegistrationStatusEnum.Donated.value}, ${EventRegistrationStatusEnum.ConditionInsufficient.value}`,
+        Page: 1,
+        PageSize: pageState.total,
+      });
+
+      const mappingData = data?.items?.map((item) => ({
+        fullName: item?.fullName || '-',
+        cmndcccd: item?.nationalId || '-',
+        phoneNumber: formatPhoneNumber(item?.phoneNumber),
+        bloodType: item?.bloodTypeId ? convertBloodTypeLabel(item?.bloodTypeId, item?.isRhNegative) : '-',
+        donationVolume: item?.donationVolume || '-',
+        participationDate: formatDate(item?.participationDate, 2) || '-',
+        status: item?.statusName || '-',
+      }));
+
+      const headers = [
+        'Tên',
+        'CCCD/CMND',
+        'Số điện thoại',
+        'Nhóm máu',
+        'Số lượng hiến (ml)',
+        'Ngày tham gia',
+        'Trạng thái',
+      ];
+
+      const arrData = mappingData?.map((item) => [
+        item?.fullName,
+        item?.cmndcccd,
+        item?.phoneNumber,
+        item?.bloodType,
+        item?.donationVolume,
+        item?.participationDate,
+        item?.status,
+      ]);
+
+      const final = [headers, ...arrData];
+
+      const wb = XLSX.utils.book_new(),
+        ws = XLSX.utils.aoa_to_sheet(final);
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, 'danh_sach_nguoi_tham_gia.xlsx');
+    } catch (error) {
+      enqueueSnackbar(errorHandler(error), {
+        variant: 'error',
+        persist: false,
+      });
+    } finally {
+      setIsButtonLoading(false);
+    }
   };
 
   const updateBloodTypeDialogContent = () => {
@@ -543,7 +602,15 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
           Danh sách người đăng ký
         </Typography>
-        <Box>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <LoadingButton
+            loading={isButtonLoading}
+            startIcon={<Icon icon="solid-download-alt" />}
+            onClick={handleExportListOfAttendant}
+          >
+            Tải xuống
+          </LoadingButton>
           {isEmployee && (
             <Button
               variant="contained"
@@ -562,7 +629,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
               Xem số lượng đăng ký của các quận huyện
             </Button>
           )}
-        </Box>
+        </Stack>
       </Stack>
 
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>

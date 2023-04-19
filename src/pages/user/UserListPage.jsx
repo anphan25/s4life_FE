@@ -234,7 +234,8 @@ const UserListPage = () => {
       {
         headerName: 'Trạng thái',
         field: 'isActive',
-        type: 'boolean',
+        type: 'string',
+        align: 'center',
         width: 130,
         renderCell: ({ value }) => {
           return <Tag status={StatusTagConvertLabel(value)}>{value ? 'Đang hoạt động' : 'Vô hiệu hóa'}</Tag>;
