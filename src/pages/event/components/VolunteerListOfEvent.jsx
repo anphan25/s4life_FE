@@ -357,7 +357,6 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         updateMode: UserInformationUpdateModeEnum.BloodTypeFilling,
         volunteerBloodTypeUpdationInformations: importParamsWithEventId,
       });
-      await fetchVolunteersOfEvent();
     } catch (error) {
       enqueueSnackbar(errorHandler(error), {
         variant: 'error',
