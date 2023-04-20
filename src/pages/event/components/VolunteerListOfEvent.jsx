@@ -555,16 +555,19 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
 
         const convertBloodTypeSuccessList = result?.successList?.map((data) => ({
           ...data,
-          bloodType: Object.values(BloodTypeEnum).find((value) => value.value === data.bloodType).description,
-          isRhNegative: data.isRhNegative ? '-' : '+',
+          fullName: data?.fullName || '-',
+          bloodType: Object.values(BloodTypeEnum).find((value) => value?.value === data?.bloodType).description,
+          isRhNegative: data?.isRhNegative ? '-' : '+',
         }));
 
         const convertBloodTypeFailList = result?.failedList.map((data) => ({
           errorCode: data?.errorCode,
           data: {
-            ...data.data,
-            bloodType: Object.values(BloodTypeEnum).find((value) => value.value === data.data.bloodType).description,
-            isRhNegative: data.data.isRhNegative ? '-' : '+',
+            ...data?.data,
+            fullName: data?.data?.fullName || '-',
+            bloodType: Object.values(BloodTypeEnum).find((value) => value?.value === data?.data?.bloodType)
+              ?.description,
+            isRhNegative: data?.data?.isRhNegative ? '-' : '+',
             index: data?.index,
           },
         }));
@@ -696,6 +699,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         successList={alertResult?.successList || []}
         failedList={alertResult?.failedList || []}
         columns={[
+          { name: 'Tên', field: 'fullName' },
           { name: 'CMND/CCCD', field: 'nationalId' },
           { name: 'Nhóm máu', field: 'bloodType' },
           { name: 'Yếu tố Rh', field: 'isRhNegative' },
