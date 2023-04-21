@@ -14,6 +14,7 @@ import {
   EventStatusEnum,
   DialogButtonGroupStyle,
   HeaderMainStyle,
+  areDistrictsNearby,
 } from 'utils';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
 import { useSelector } from 'react-redux';
@@ -37,6 +38,7 @@ const EventDetailPage = () => {
   const [isRegistrationAreaOpen, setIsRegistrationAreaOpen] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState([]);
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+  const [isAlertFarAwayOpen, setIsAlertFarAwayOpen] = useState(false);
   const [connection, setConnection] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -102,6 +104,29 @@ const EventDetailPage = () => {
 
   const handleErrorDialog = () => {
     setIsErrorDialogOpen(!isErrorDialogOpen);
+  };
+
+  const handleAlertFarAway = () => {
+    setIsAlertFarAwayOpen(!isAlertFarAwayOpen);
+  };
+
+  const handelNavigateToCreateMobile = () => {
+    navigate('/event/mobile-list/add', {
+      state: {
+        province: { id: detailData?.intendedProvince?.id, name: detailData?.intendedProvince?.name },
+        selectedDistricts: selectedDistrict?.map((district) => ({
+          id: district?.districtId,
+          name: district?.districtName,
+          count: district?.count,
+        })),
+        totalRegistrations: selectedDistrict?.reduce((acc, current) => acc + current?.count, 0),
+        contactInformation: detailData?.contactInformation,
+        intendedStartDate: detailData?.startDate,
+        intendedEndDate: detailData?.endDate,
+        intendedEventId: detailData?.id,
+        intendedEventName: detailData?.name,
+      },
+    });
   };
 
   const eventListNavigator = (eventTypeId) => {
@@ -216,22 +241,11 @@ const EventDetailPage = () => {
 
                 return;
               }
-              navigate('/event/mobile-list/add', {
-                state: {
-                  province: { id: detailData?.intendedProvince?.id, name: detailData?.intendedProvince?.name },
-                  selectedDistricts: selectedDistrict?.map((district) => ({
-                    id: district?.districtId,
-                    name: district?.districtName,
-                    count: district?.count,
-                  })),
-                  totalRegistrations: selectedDistrict?.reduce((acc, current) => acc + current?.count, 0),
-                  contactInformation: detailData?.contactInformation,
-                  intendedStartDate: detailData?.startDate,
-                  intendedEndDate: detailData?.endDate,
-                  intendedEventId: detailData?.id,
-                  intendedEventName: detailData?.name,
-                },
-              });
+              if (areDistrictsNearby(selectedDistrict?.map((district) => district.id))) {
+                handelNavigateToCreateMobile();
+              } else {
+                handleAlertFarAway();
+              }
             }}
           >
             Tiến hành tạo sự kiện lưu động
@@ -254,6 +268,34 @@ const EventDetailPage = () => {
             }}
           >
             Ok
+          </Button>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
+  const alertFarAwayDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Các khu vực bạn chọn không gần kề nhau. Bạn có chắc chắn muốn tiến hành tạo sự kiện lưu động
+        </Typography>
+
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button
+            onClick={() => {
+              handleAlertFarAway();
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handelNavigateToCreateMobile();
+            }}
+          >
+            Tạo
           </Button>
         </DialogButtonGroupStyle>
       </Box>
@@ -460,6 +502,15 @@ const EventDetailPage = () => {
         onClose={handleErrorDialog}
         title=""
         children={errorDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
+      />
+
+      {/* Alert District Far Away Dialog */}
+      <CustomDialog
+        isOpen={isAlertFarAwayOpen}
+        onClose={handleAlertFarAway}
+        title="Lưu ý"
+        children={alertFarAwayDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
       />
     </Box>

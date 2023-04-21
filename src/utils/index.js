@@ -3,6 +3,7 @@ export * from './functions/getFontValue';
 export * from './constant/generalConstant';
 export * from './constant/regexPattern';
 export * from './constant/message';
+export * from './constant/nearByDistrict';
 export * from './functions/convertBloodTypeLabel';
 export * from './functions/convertDayLabel';
 export * from './functions/isEventEditable';
