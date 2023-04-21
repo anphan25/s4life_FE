@@ -10,3 +10,4 @@ export * from './getStatisticResultFromGroup';
 export * from './restructureHospitalSchedule';
 export * from './getLabelFromEventStatus';
 export * from './getEnumDescriptionByValue';
+export * from './areDistrictsNearby';
