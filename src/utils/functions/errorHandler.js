@@ -95,6 +95,7 @@ export function convertErrorCodeToMessage(code) {
     5051: 'Lịch sử hiến máu đã tồn tại trong hệ thống',
     5100: 'Tạo yêu cầu xét duyệt lịch sử hiến máu thành công',
     5200: 'Cập nhật yêu cầu xét duyệt lịch sử hiến máu thành công',
+
     //Blood Donation
     6000: PROCESSING_MESSAGE,
     6003: 'Từ chối yêu cầu truy cập lịch sử hiến máu',
