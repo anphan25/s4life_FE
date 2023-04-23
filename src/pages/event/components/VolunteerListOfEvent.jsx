@@ -614,7 +614,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
           >
             Tải xuống
           </LoadingButton>
-          {isEmployee && (
+          {isEmployee && !isIntendedEvent && (
             <Button
               variant="contained"
               onClick={handleImportBloodTypeDialog}
