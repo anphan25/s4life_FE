@@ -96,7 +96,6 @@ const UserListPage = () => {
     PageSize: 10,
     SearchKey: '',
   });
-
   const [isImportAccountOpen, setIsImportAccountOpen] = useState(false);
   const [isImportBtnDisabled, setIsImportBtnDisabled] = useState(true);
   const [importParams, setImportParams] = useState([]);
@@ -234,7 +233,8 @@ const UserListPage = () => {
       {
         headerName: 'Trạng thái',
         field: 'isActive',
-        type: 'boolean',
+        type: 'string',
+        align: 'center',
         width: 130,
         renderCell: ({ value }) => {
           return <Tag status={StatusTagConvertLabel(value)}>{value ? 'Đang hoạt động' : 'Vô hiệu hóa'}</Tag>;
@@ -469,7 +469,12 @@ const UserListPage = () => {
       }
 
       handleAddUserDialog();
-      fetchUserListData();
+      if (data.role * 1 === pageState.filterMode) {
+        fetchUserListData();
+      } else {
+        setPageState((pre) => ({ ...pre, filterMode: data.role * 1 }));
+      }
+
       addUserReset();
     } catch (error) {
       enqueueSnackbar(errorHandler(error), {
@@ -590,7 +595,12 @@ const UserListPage = () => {
       setAlertResult({ successList: mappingSuccessList, failedList: mappingDateFailList });
       setIsMultipleAlertOpen(true);
       handleImportAccountDialog();
-      fetchUserListData();
+
+      if (pageState.filterMode === RoleEnum.Staff.value) {
+        fetchUserListData();
+      } else {
+        setPageState((pre) => ({ ...pre, filterMode: RoleEnum.Staff.value }));
+      }
     } catch (error) {
       enqueueSnackbar(errorHandler(error), {
         variant: 'error',
