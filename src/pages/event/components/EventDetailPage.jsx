@@ -15,6 +15,7 @@ import {
   DialogButtonGroupStyle,
   HeaderMainStyle,
   areDistrictsNearby,
+  getRecommendedDistricts,
 } from 'utils';
 import VolunteerListOfEvent from './VolunteerListOfEvent';
 import { useSelector } from 'react-redux';
@@ -275,12 +276,26 @@ const EventDetailPage = () => {
   };
 
   const alertFarAwayDialogContent = () => {
+    const recommendedDistricts = getRecommendedDistricts(registrationAreas.map((district) => district.id));
     return (
       <Box>
         <Typography>
-          Các khu vực bạn chọn không gần kề nhau. Bạn có chắc chắn muốn tiến hành tạo sự kiện lưu động
+          Các khu vực bạn chọn không gần kề nhau. Bạn có chắc chắn muốn tiến hành tạo sự kiện lưu động không ?
         </Typography>
 
+        {recommendedDistricts?.length > 0 && (
+          <>
+            <br />
+            <Box>
+              <Typography>Chúng tôi đề xuất cho bạn các khu vực gần kề nhau như sau:</Typography>
+              {recommendedDistricts?.map((nearByDistricts, i) => (
+                <Typography>
+                  {i + 1}. {nearByDistricts?.map((district) => district).join(', ')}
+                </Typography>
+              ))}
+            </Box>
+          </>
+        )}
         <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
           <Button
             onClick={() => {
