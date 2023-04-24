@@ -289,7 +289,7 @@ const EventDetailPage = () => {
             <Box>
               <Typography>Chúng tôi đề xuất cho bạn các khu vực gần kề nhau như sau:</Typography>
               {recommendedDistricts?.map((nearByDistricts, i) => (
-                <Typography>
+                <Typography key={i}>
                   {i + 1}. {nearByDistricts?.map((district) => district).join(', ')}
                 </Typography>
               ))}
