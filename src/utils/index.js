@@ -7,6 +7,7 @@ export * from './constant/nearByDistrict';
 export * from './functions/convertBloodTypeLabel';
 export * from './functions/convertDayLabel';
 export * from './functions/isEventEditable';
+export * from './functions/getRecommendedDistricts';
 export * from './styles/commonStyle';
 export * from './enums';
 export * from './styles';
