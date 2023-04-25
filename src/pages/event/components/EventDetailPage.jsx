@@ -423,7 +423,7 @@ const EventDetailPage = () => {
         <>
           {/* MobileListFromIntendedEvent */}
           <Divider sx={{ margin: ' 30px 0 30px' }} variant="middle" />
-          <MobileListFromIntendedEvent intendedEventId={detailData?.id} />
+          <MobileListFromIntendedEvent intendedEventId={detailData?.id} connection={connection} />
         </>
       )}
 
