@@ -272,13 +272,14 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
       });
 
       const mappingData = data?.items?.map((item) => ({
-        fullName: item?.fullName || '-',
-        cmndcccd: item?.nationalId || '-',
+        fullName: item?.fullName || '',
+        cmndcccd: item?.nationalId || '',
         phoneNumber: formatPhoneNumber(item?.phoneNumber),
         bloodType: item?.bloodTypeId ? convertBloodTypeLabel(item?.bloodTypeId, item?.isRhNegative) : '-',
-        donationVolume: item?.donationVolume || '-',
-        participationDate: formatDate(item?.participationDate, 2) || '-',
-        status: item?.statusName || '-',
+        donationVolume: item?.donationVolume || '',
+        participationDate: formatDate(item?.participationDate, 2) || '',
+        status: item?.statusName || '',
+        registrationForm: item?.documentUrl || '',
       }));
 
       const headers = [
@@ -289,6 +290,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         'Số lượng hiến (ml)',
         'Ngày tham gia',
         'Trạng thái',
+        'Phiếu đăng ký',
       ];
 
       const arrData = mappingData?.map((item) => [
@@ -299,6 +301,7 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
         item?.donationVolume,
         item?.participationDate,
         item?.status,
+        item?.registrationForm,
       ]);
 
       const final = [headers, ...arrData];
