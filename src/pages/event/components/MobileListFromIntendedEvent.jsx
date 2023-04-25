@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Box, Typography, Divider, MenuItem } from '@mui/material';
+import { Stack, Box, Typography, Divider, MenuItem } from '@mui/material';
 import { DataTable, SearchBar, FilterTab, CustomDialog, FromToDateFilter, Icon, MoreMenuButton } from 'components';
 import { getEvents } from 'api';
 import { useSelector } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   formatDate,
   errorHandler,
-  isEventEditable,
-  DialogButtonGroupStyle,
+  convertErrorCodeToMessage,
   InputFilterSectionStyle,
   EventTypeEnum,
   EventFilterEnum,
@@ -17,17 +16,16 @@ import {
   RoleEnum,
 } from 'utils';
 import moment from 'moment';
+import { listenOnHub } from 'config';
 import { useSnackbar } from 'notistack';
-import CancelEventForm from './CancelEventForm';
+import CancelEventForm from '../components/CancelEventForm';
 
-const MobileListFromIntendedEvent = ({ intendedEventId }) => {
+const MobileListFromIntendedEvent = ({ intendedEventId, connection }) => {
   const user = useSelector((state) => state.auth.auth?.user);
   const navigate = useNavigate();
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
-  const [isEditCancelAlertOpen, setIsEditCancelAlertOpen] = useState(false);
-  const location = useLocation();
   const [pageState, setPageState] = useState({
     isLoading: false,
     total: 0,
@@ -35,7 +33,7 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
     page: 1,
     pageSize: 10,
     filterMode: EventFilterEnum.FilterAndSearch,
-    status: location?.state?.isStarted ? EventStatusEnum.Started.value : EventStatusEnum.Unstarted.value,
+    status: EventStatusEnum.Unstarted.value,
     searchKey: '',
     dateFrom: null,
     dateTo: null,
@@ -67,9 +65,9 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
         },
       },
       {
-        headerName: 'Địa điểm',
+        headerName: 'Khu vực',
         type: 'string',
-        field: 'address',
+        field: 'areas',
         minWidth: 200,
         flex: 1,
       },
@@ -84,81 +82,26 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
           const endDate = valueObject?.endDate;
           const workingTimeStart = valueObject?.workingTimeStart;
           const workingTimeEnd = valueObject?.workingTimeEnd;
-          const isEmergency = valueObject?.isEmergency;
-          const isSameDate = startDate === endDate;
 
           return (
             <Box>
-              {isEmergency ? (
+              {
                 <>
                   <Typography
                     sx={{
                       fontWeight: 500,
-                      fontSize: 12,
-                      mb: '4px',
-                    }}
-                  >
-                    <Typography component={'span'} fontWeight={600} fontSize={13} color="primary.main">
-                      {workingTimeStart}
-                    </Typography>
-                    , {startDate}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontWeight: 500,
+                      marginBottom: '4px',
                       fontSize: 12,
                     }}
                   >
-                    <Typography component={'span'} fontWeight={600} fontSize={13} color="primary.main">
-                      {workingTimeEnd}
-                    </Typography>
-                    , {endDate}
+                    {startDate}
                   </Typography>
-                </>
-              ) : (
-                <>
-                  {isSameDate ? (
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        marginBottom: '4px',
-                        fontSize: 12,
-                      }}
-                    >
-                      {startDate}
-                    </Typography>
-                  ) : (
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        marginBottom: '4px',
-                        fontSize: 12,
-                      }}
-                    >
-                      {startDate} - {endDate}
-                    </Typography>
-                  )}
-
                   <Typography sx={{ fontWeight: 600, fontSize: 13, color: 'primary.main' }}>
                     {workingTimeStart} - {workingTimeEnd}
                   </Typography>
                 </>
-              )}
+              }
             </Box>
-          );
-        },
-      },
-      {
-        headerName: 'Khẩn cấp',
-        type: 'boolean',
-        field: 'isEmergency',
-        width: 80,
-        renderCell: (params) => {
-          return (
-            <Icon
-              icon={params.row.isEmergency ? 'solid-light-emergency-on' : 'solid-light-emergency'}
-              sx={{ fontSize: 20, color: params.row.isEmergency ? 'error.main' : 'grey.600' }}
-            />
           );
         },
       },
@@ -186,36 +129,13 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
                 Xem chi tiết
               </MenuItem>
 
-              {isManager && (
-                <MenuItem
-                  disabled={
-                    params.row.statusId === EventStatusEnum.Finished.value ||
-                    params.row.statusId === EventStatusEnum.Cancelled.value ||
-                    params.row.isEmergency
-                  }
-                  onClick={() => {
-                    if (!isEventEditable(params.row?.currentParticipation, params.row?.startDate)) {
-                      handleEditCancelDialog();
-                      return;
-                    }
-
-                    navigate(`/event/fixed-list/${params.row.id}/edit`);
-                  }}
-                >
-                  <Icon icon={'solid-pen'} />
-                  Cập nhật
-                </MenuItem>
-              )}
-
               {(isAdmin || isManager) && (
                 <>
                   <Divider sx={{ borderStyle: 'dashed' }} />
-
                   <MenuItem
                     disabled={
                       params.row.statusId === EventStatusEnum.Finished.value ||
-                      params.row.statusId === EventStatusEnum.Cancelled.value ||
-                      (params.row.isEmergency && isManager)
+                      params.row.statusId === EventStatusEnum.Cancelled.value
                     }
                     onClick={() => {
                       handleCancelEventDialog();
@@ -261,15 +181,20 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
     setIsCancelEventOpen(!isCancelEventOpen);
   };
 
-  const handleEditCancelDialog = () => {
-    setIsEditCancelAlertOpen(!isEditCancelAlertOpen);
-  };
+  useEffect(() => {
+    listenOnHub(connection, (messageCode) => {
+      enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
+        variant: messageCode < 0 ? 'error' : 'success',
+        persist: false,
+      });
+    });
+  }, []);
 
   const cancelEventDialogContent = () => {
     return (
       <Box>
         <Typography>
-          Bạn có chắc chắn muốn hủy sự kiện <b>{cancelEventName}</b> không ? <br /> Nếu có vui lòng nhập lý do bên dưới.
+          Bạn có chắc chắn muốn hủy sự kiện <b>{cancelEventName}</b> không ?<br /> Nếu có vui lòng nhập lý do bên dưới.
         </Typography>
         <CancelEventForm
           eventId={cancelEventId}
@@ -280,29 +205,6 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
             handleCancelEventDialog();
           }}
         />
-      </Box>
-    );
-  };
-
-  const alertEditCancelDialogContent = () => {
-    return (
-      <Box>
-        <>
-          <Typography>
-            Chỉ được chỉnh sửa sự kiện trước 3 ngày sự kiện bắt đầu và sự kiện không có tình nguyện viên đăng ký.
-          </Typography>
-        </>
-
-        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleEditCancelDialog();
-            }}
-          >
-            Ok
-          </Button>
-        </DialogButtonGroupStyle>
       </Box>
     );
   };
@@ -321,23 +223,23 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
       ...(pageState?.dateTo && { DateTo: moment(pageState?.dateTo).format('yyyy-MM-DD') }),
     })
       .then((res) => {
-        const dataRow = res.items?.map((data) => ({
+        const dataRow = res.items?.map((data, i) => ({
           id: data?.id,
           name: data?.name || '-',
-          address: data.eventLocations[0]?.location?.name || '-',
+          areas: data?.area
+            .map((item) => {
+              return item?.districtName;
+            })
+            .join(', ')
+            .concat(' - ', data?.area[0]?.provinceName),
           time: JSON.stringify({
             startDate: formatDate(data?.startDate, 4),
             endDate: formatDate(data?.endDate, 4),
             workingTimeStart: moment(data?.workingTimeStart, 'HH:mm').format('HH:mm'),
             workingTimeEnd: moment(data?.workingTimeEnd, 'HH:mm').format('HH:mm'),
-            isEmergency: data?.isEmergency,
           }),
-          startDate: data?.startDate,
-          endDate: data?.endDate,
           ratioOfDonated: `${data?.numberOfDonatedVolunteer}/${data?.numberOfRegistration}` || 0,
-          currentParticipation: data?.currentParticipation,
           statusId: data?.statusId || '',
-          isEmergency: data?.isEmergency,
         }));
         setPageState((pre) => ({ ...pre, data: dataRow, total: res.total }));
       })
@@ -356,10 +258,11 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
 
   return (
     <>
-      <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
-        Danh sách sự kiện lưu động được tổ chức từ sự kiện này
-      </Typography>
-
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="h4" sx={{ marginBottom: '10px', pl: 3 }}>
+          Danh sách sự kiện lưu động tạo ra từ sự kiện này
+        </Typography>
+      </Stack>
       <Box sx={{ backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden' }}>
         <Box>
           <FilterTab
@@ -385,7 +288,7 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
           disableFilter={true}
         />
       </Box>
-      {/* Cancel Event Dialog */}
+
       <CustomDialog
         isOpen={isCancelEventOpen}
         onClose={handleCancelEventDialog}
@@ -393,16 +296,8 @@ const MobileListFromIntendedEvent = ({ intendedEventId }) => {
         children={cancelEventDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
       />
-      {/* Alert Edit/Cancel Event Dialog */}
-      <CustomDialog
-        isOpen={isEditCancelAlertOpen}
-        onClose={handleEditCancelDialog}
-        title=""
-        children={alertEditCancelDialogContent()}
-        sx={{ '& .MuiDialog-paper': { width: '70% !important', maxHeight: '500px' } }}
-      />
     </>
   );
 };
 
-export default MobileListFromIntendedEvent;
+export default React.memo(MobileListFromIntendedEvent);
