@@ -296,6 +296,16 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
     });
   });
 
+  Yup.addMethod(Yup.date, 'validateDurationStartAndCurrentDate', function (errorMessage) {
+    return this.test(`test-current-start-date-duration`, errorMessage, function (value, context) {
+      const { path, createError } = this;
+
+      const diff = moment(value).diff(moment(), 'days');
+
+      return (diff >= 0 && diff <= 365) || createError({ path, message: errorMessage });
+    });
+  });
+
   function transformTime(value, originalValue) {
     if (this.isType(value)) {
       return value;
@@ -334,7 +344,8 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .required('Vui lòng nhập ngày bắt đầu')
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
       .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
+      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày')
+      .validateDurationStartAndCurrentDate('Không thể tạo sự kiện cách hiện tại quá 365 ngày'),
     endDate: Yup.date()
       .nullable()
       .transform(transformDate)
