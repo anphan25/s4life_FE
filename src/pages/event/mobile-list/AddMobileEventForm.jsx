@@ -20,7 +20,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { storage } from 'config/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getDistrictsByProvinceId, getAllProvinces, createEvent } from 'api';
-import { convertErrorCodeToMessage, isValidDate, isValidTime, formatDate, DialogButtonGroupStyle } from 'utils';
+import {
+  convertErrorCodeToMessage,
+  isValidDate,
+  isValidTime,
+  formatDate,
+  DialogButtonGroupStyle,
+  areDistrictsNearby,
+} from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
 import { useStore } from 'react-redux';
@@ -37,10 +44,12 @@ const AddMobileEventForm = ({ intendedData = null }) => {
   const [selectedProvinceId, setSelectedProvinceId] = useState(0);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [connection, setConnection] = useState(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const store = useStore();
   const submitBtnRef = useRef(null);
   const navigate = useNavigate();
   let isConfirmDone = false;
+  let isAlertDone = false;
 
   const defaultValues = {
     name: '',
@@ -357,6 +366,10 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     setIsConfirmOpen(!isConfirmOpen);
   };
 
+  const handleAlertOpen = () => {
+    setIsAlertOpen(!isAlertOpen);
+  };
+
   const confirmDialogContent = () => {
     return (
       <Box>
@@ -380,9 +393,52 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     );
   };
 
+  const alertDialogContent = () => {
+    return (
+      <Box>
+        <Typography>
+          Các quận huyện bạn đang chọn không gần kề nhau. Bạn có chắc chắn muốn tạo sự kiện lưu động trên các quận huyện
+          này ?
+        </Typography>
+
+        <DialogButtonGroupStyle sx={{ marginTop: '10px' }}>
+          <Button
+            onClick={(e) => {
+              handleAlertOpen();
+              isAlertDone = false;
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            variant="contained"
+            onClick={(e) => {
+              handleAlertOpen();
+              isAlertDone = !isAlertDone;
+              submitBtnRef.current.click();
+            }}
+          >
+            Tạo
+          </Button>
+        </DialogButtonGroupStyle>
+      </Box>
+    );
+  };
+
   const onSubmit = async (data) => {
     if (intendedData && !isConfirmDone && data?.minParticipant > intendedData?.totalRegistrations) {
       handleConfirmOpen();
+      return;
+    }
+
+    if (
+      !intendedData &&
+      !isAlertDone &&
+      data?.province[0]?.id === 79 &&
+      !areDistrictsNearby(data?.districts?.map((district) => district?.id))
+    ) {
+      handleAlertOpen();
+
       return;
     }
 
@@ -657,8 +713,17 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       <CustomDialog
         isOpen={isConfirmOpen}
         onClose={handleConfirmOpen}
-        title=""
+        title="Lưu ý"
         children={confirmDialogContent()}
+        sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
+      />
+
+      {/* Alert Dialog */}
+      <CustomDialog
+        isOpen={isAlertOpen}
+        onClose={handleAlertOpen}
+        title="Lưu ý"
+        children={alertDialogContent()}
         sx={{ '& .MuiDialog-paper': { width: '70% !important' } }}
       />
     </>
