@@ -31,6 +31,7 @@ export function convertErrorCodeToMessage(code) {
     2100: 'Tạo tài khoản thành công',
     2061: 'Chỉ có thể cập nhật trạng thái cho tài khoản của bệnh viện',
     2071: 'Không thể cập nhật trạng thái tài khoản của bệnh viện không hoạt động',
+    2091: 'Tình nguyện viên phải nằm trong độ tuổi từ 18 đến 60',
     2081: 'Bệnh viện này đã được cấp tài khoản nhân viên bệnh viện',
     2200: 'Kích hoạt tài khoản thành công',
     2210: 'Vô hiệu hóa tài khoản thành công',
@@ -78,9 +79,12 @@ export function convertErrorCodeToMessage(code) {
     4191: 'Tỉnh/Thành Phố không hợp lệ',
     4100: 'Chỉnh sửa sự kiện thành công',
     4200: 'Hủy sự kiện thành công',
-    4201: 'Đang có sự kiện dự kiến chưa kết thúc',
+    4201: 'Sự kiện dự kiến hiện tại chưa kết thúc',
     4211: 'Sự kiện dự kiến đã kết thúc hoặc bị hủy',
     4221: 'Thời gian diễn ra phải nằm trong khung thời gian của sự kiện sự kiến',
+    4231: 'Không thể chỉnh sửa sự kiện dự kiến',
+    4241: 'Phải cung cấp lý do nếu muốn hủy sự kiện đã có người đăng kí',
+    4251: 'Khu vực diễn ra phải nằm trong khu vực của sự kiện dự kiến',
     4300: 'Tạo sự kiện thành công',
 
     //Blood Donation Approval
@@ -117,7 +121,7 @@ export function convertErrorCodeToMessage(code) {
     7081: 'Thiếu số lượng máu hiến',
     7091: 'Sự kiện đã bắt đầu, không thể hủy đăng ký',
     7101: 'Thời gian dự kiến tham gia không hợp lệ',
-    7111: 'Khoảng cách giữa 2 lần hiến máu gần nhất phải tối thiểu 90 ngày',
+    7111: 'Khoảng cách giữa 2 lần hiến máu gần nhất phải tối thiểu 84 ngày',
     7131: 'Nhóm máu của tình nguyện viên không nằm trong danh sách của sự kiện',
     7141: 'Từ chối yêu cầu cập nhật nhóm máu',
     7151: 'Tình nguyện viên không được đăng ký nhiều sự kiện cùng một lúc',
@@ -162,7 +166,7 @@ export function convertErrorCodeToMessage(code) {
     14001: 'Chỉ được tải xuống phiếu đăng kí cho tình nguyện viên đã tham gia',
     14003: 'Từ chối yêu cầu tải xuống phiếu đăng kí',
     14100: 'Tải xuống thành công',
-
+    14110: 'Link tải xuống đang được xử lí, xin vui lòng thử lại',
     //Internal Error
     5555: 'Có lỗi xảy ra, Vui lòng liên hệ quản trị viên',
   };
