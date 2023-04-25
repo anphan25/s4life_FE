@@ -37,7 +37,6 @@ const EventMobileListPage = () => {
   const [isCancelEventOpen, setIsCancelEventOpen] = useState(false);
   const [cancelEventName, setCancelEventName] = useState('');
   const [cancelEventId, setCancelEventId] = useState(0);
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [connection, setConnection] = useState(null);
   const store = useStore();
   const [pageState, setPageState] = useState({
