@@ -28,19 +28,20 @@ export const setupAxiosInstance = (store) => {
 
   axiosInstance.interceptors.response.use(
     (response) => response.data.result,
-    (error) => {
+    async (error) => {
       const prevRequest = error?.config;
       if (error?.response?.status === 401 && !prevRequest?.sent) {
-        return getAccessToken(store.getState().auth.auth?.refreshToken)
-          .then(async (res) => {
-            store.dispatch(setToken(res));
-            return await axiosInstance({
-              ...prevRequest,
-              headers: { ...prevRequest.headers, Authorization: `Bearer ${res}` },
-              sent: true,
-            });
-          })
-          .catch((err) => store.dispatch(refreshFail()));
+        try {
+          const res = await getAccessToken(store.getState().auth.auth?.refreshToken);
+          store.dispatch(setToken(res));
+          return await await axiosInstance({
+            ...prevRequest,
+            headers: { ...prevRequest.headers, Authorization: `Bearer ${res}` },
+            sent: true,
+          });
+        } catch (err) {
+          return store.dispatch(refreshFail());
+        }
       }
 
       return Promise.reject(error);

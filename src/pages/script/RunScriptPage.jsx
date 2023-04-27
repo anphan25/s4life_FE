@@ -1,6 +1,6 @@
 import { Box, Button, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { HeaderBreadcumbs, Icon } from 'components';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ResultItem from 'pages/script/components/result-item/ResultItem';
 import { HeaderMainStyle, ResultContainer, RunContainer } from './RunScriptStyle';
 import {
@@ -11,7 +11,7 @@ import {
   listReject,
   changeTime,
 } from './Script';
-import { convertErrorCodeToMessage, dateToISOLikeButLocal, errorHandler, formatDate } from 'utils';
+import { convertErrorCodeToMessage, errorHandler, formatDate } from 'utils';
 import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { loginUserPassword } from 'api';
 import moment from 'moment';
@@ -50,6 +50,11 @@ const RunScriptPage = () => {
   const [dateChange, setDateChange] = useState(moment(new Date().toISOString()));
   const [totalApproval, setTotalApproval] = useState(0);
   const [totalReject, setTotalReject] = useState(0);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  };
 
   const openHubConnection = (token, username) => {
     const hubConnection = new HubConnectionBuilder()
@@ -240,6 +245,8 @@ const RunScriptPage = () => {
                 },
                 token
               );
+              // await new Promise((resolve) => setTimeout(resolve, 3000));
+              // console.log('after 3 second');
               hubConnection.on('ReceiveMessage', async (messageCode) => {
                 console.log('ReceiveMessage', messageCode);
                 if (!listReject.includes(e['username'])) {
@@ -339,6 +346,8 @@ const RunScriptPage = () => {
   }
 
   function changeCurrentTime() {
+    setRun([]);
+    setResult([]);
     setRun((prevState) => [
       ...prevState,
       {
@@ -369,7 +378,11 @@ const RunScriptPage = () => {
     });
   }
 
-  async function runScript() {
+  useEffect(() => {
+    scrollToBottom();
+  }, [result]);
+
+  function runScript() {
     switch (category) {
       case 0:
         volunteerRegisterEvent();
@@ -401,7 +414,7 @@ const RunScriptPage = () => {
   };
 
   return (
-    <>
+    <Box sx={{ height: '100%' }}>
       <HeaderMainStyle>
         <HeaderBreadcumbs heading="Giả lập" links={[{ name: 'Trang chủ', to: '/' }, { name: 'Giả lập' }]} />
         <Stack direction={'row'} gap="12px">
@@ -481,43 +494,45 @@ const RunScriptPage = () => {
           </RunContainer>
         </Grid>
         <Grid item md={7} sm={6} xs={12}>
-          {!loading && category == 2 && (totalApproval > 0 || totalReject > 0) && (
-            <Box sx={{ px: 3, py: 2, backgroundColor: 'white', mb: 2, borderRadius: '0.475rem', width: 'fit-content' }}>
-              <Typography fontSize={16} fontWeight={500}>
-                Kết quả xác nhận lấy máu:
-              </Typography>
-              <Stack direction={'row'} alignItems={'center'} gap={3} sx={{ mt: 1 }}>
-                <Box>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <Icon icon="solid-check" sx={{ color: 'success.main' }} />
-                    <Typography fontSize={14}>Chấp nhận</Typography>
-                  </Stack>
-                  <Typography fontSize={22} fontWeight={700} sx={{ ml: 6 }}>
-                    {totalApproval}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <Icon icon="solid-times" sx={{ color: 'error.main' }} />
-                    <Typography fontSize={14}>Từ chối</Typography>
-                  </Stack>
-                  <Typography fontSize={22} fontWeight={700} sx={{ ml: 4.5 }}>
-                    {totalReject}
-                  </Typography>
-                </Box>
-              </Stack>
-            </Box>
-          )}
           <ResultContainer>
             <Box sx={{ height: 'auto' }}></Box>
-
-            <Stack direction={'column'} gap="12px" sx={{ overflow: 'auto', padding: '20px 30px 30px' }}>
+            {!loading && category === 2 && (totalApproval > 0 || totalReject > 0) && (
+              <Box
+                sx={{ px: 3, py: 2, backgroundColor: 'white', mb: 2, borderRadius: '0.475rem', width: 'fit-content' }}
+              >
+                <Typography fontSize={16} fontWeight={500}>
+                  Kết quả xác nhận lấy máu:
+                </Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={3} sx={{ mt: 1 }}>
+                  <Box>
+                    <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      <Icon icon="solid-check" sx={{ color: 'success.main' }} />
+                      <Typography fontSize={14}>Chấp nhận</Typography>
+                    </Stack>
+                    <Typography fontSize={22} fontWeight={700} sx={{ ml: 6 }}>
+                      {totalApproval}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      <Icon icon="solid-times" sx={{ color: 'error.main' }} />
+                      <Typography fontSize={14}>Từ chối</Typography>
+                    </Stack>
+                    <Typography fontSize={22} fontWeight={700} sx={{ ml: 4.5 }}>
+                      {totalReject}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+            )}
+            <Stack direction={'column'} gap="12px" sx={{ overflow: 'auto', padding: '20px 30px 30px', height: '100%' }}>
               {result.length > 0 && result.map((item, index) => <ResultItem item={item} index={index} key={index} />)}
+              <div ref={messagesEndRef} />
             </Stack>
           </ResultContainer>
         </Grid>
       </Grid>
-    </>
+    </Box>
   );
 };
 

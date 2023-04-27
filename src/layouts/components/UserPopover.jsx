@@ -1,13 +1,16 @@
 import { Avatar, Box, Divider, ListItemIcon, ListItemText, MenuItem, Stack, Typography } from '@mui/material';
 import { Dropdown, Icon } from 'components';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { logoutSuccess } from 'app/slices/AuthSlice';
 import useToggle from 'hooks/useToggle';
 import { RoleEnum } from 'utils';
 import { getHospital } from 'app/slices/HospitalSlice';
 import useResponsive from 'hooks/useResponsive';
+import { getConfig, setConfig } from 'app/slices/ConfigSlice';
+import { openHubConnection } from 'config';
+import { listenOnHubToGetConfig } from 'config';
 
 const UserPopover = () => {
   const isDesktop = useResponsive('up', 'lg');
@@ -31,15 +34,16 @@ const UserPopover = () => {
   };
 
   useEffect(() => {
-    if (user != null && user.role === 'Manager') {
+    if (user != null && (user.role === 'Manager' || user.role === 'Employee')) {
       dispatch(getHospital(user?.hospital_id));
     }
+    dispatch(getConfig());
   }, [dispatch, user]);
 
   return (
     <>
       <Box sx={{ cursor: 'pointer' }} onClick={onToggle}>
-        {user?.role === 'Manager' ? (
+        {user?.role === 'Manager' || user?.role === 'Employee' ? (
           <Stack gap={'12px'} direction={'row'} alignItems="center">
             <Avatar src={hospital?.avatarUrl || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
             {isDesktop && (
