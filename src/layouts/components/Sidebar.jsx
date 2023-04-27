@@ -60,11 +60,6 @@ export const Sidebar = ({ toggle, onClose }) => {
       to: '/statistics',
     },
     {
-      name: 'Cài đặt hệ thống',
-      icon: <Icon icon="settings" />,
-      to: '/config',
-    },
-    {
       name: 'Giả lập',
       icon: <Icon icon="code-square" />,
       to: '/script',

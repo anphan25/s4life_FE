@@ -26,6 +26,11 @@ const UserPopover = () => {
       name: 'Thông tin tài khoản',
       to: '/account',
     },
+    {
+      name: 'Cài đặt hệ thống',
+      icon: <Icon icon="settings" />,
+      to: '/config',
+    },
   ];
 
   const handleLogout = () => {
