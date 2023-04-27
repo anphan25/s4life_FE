@@ -11,3 +11,4 @@ export * from './BloodDonationApprovalRequestApi';
 export * from './AdministrativeDivisionApi';
 export * from './BloodDonation';
 export * from './StatisticApi';
+export * from './SystemConfigApi';

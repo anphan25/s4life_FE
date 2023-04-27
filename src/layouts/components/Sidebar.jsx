@@ -54,11 +54,15 @@ export const Sidebar = ({ toggle, onClose }) => {
       icon: <Icon icon="users" />,
       to: '/user/list',
     },
-
     {
       name: 'Thống kê',
       icon: <Icon icon="chart-pie" />,
       to: '/statistics',
+    },
+    {
+      name: 'Cài đặt hệ thống',
+      icon: <Icon icon="settings" />,
+      to: '/config',
     },
     {
       name: 'Giả lập',

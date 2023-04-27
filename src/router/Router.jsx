@@ -166,6 +166,14 @@ export default function Router() {
           ),
         },
         {
+          path: 'config',
+          element: (
+            <ProtectedRouter roles={['Admin']}>
+              <UpdateSystemConfig />
+            </ProtectedRouter>
+          ),
+        },
+        {
           path: 'user',
           children: [
             { element: <Navigate to="/user/list" replace />, index: true },
@@ -321,3 +329,6 @@ const PublicChangePassword = Loadable(lazy(() => import('pages/account/PublicCha
 
 //forget password
 const ForgetPassword = Loadable(lazy(() => import('pages/account/ForgetPassword')));
+
+//update system config
+const UpdateSystemConfig = Loadable(lazy(() => import('pages/config/UpdateSystemConfig')));

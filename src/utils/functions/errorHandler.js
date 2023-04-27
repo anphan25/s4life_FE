@@ -1,3 +1,4 @@
+import { store } from 'app/store';
 import { PROCESSING_MESSAGE } from 'utils';
 
 export function convertErrorCodeToMessage(code) {
@@ -70,8 +71,12 @@ export function convertErrorCodeToMessage(code) {
     4091: 'Yêu cầu tạo sự kiện hiến máu không hợp lệ',
     4101: 'Thời gian bắt đầu và thời gian kết thúc phải cách nhau 1 giờ',
     4111: 'Sự kiện lưu động phải có khu vực di chuyển của xe',
-    4121: 'Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa 30 ngày',
-    4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
+    4121: `Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa ${
+      store.getState().config.data.maxDaysEventDuration
+    } ngày`,
+    4131: `Chỉ được tạo sự kiện trong vòng ${
+      store.getState().config.data.maxDaysUntilEventStart
+    } ngày kể từ ngày hiện tại`,
     4141: 'Số lượng người tham gia tối thiểu phải bé hơn số lượng người tham gia tối đa',
     4151: 'Số lượng người tham gia tối thiểu ở sự kiện lưu động là 1',
     4171: 'Không được hủy sự kiện đã có người tham gia',

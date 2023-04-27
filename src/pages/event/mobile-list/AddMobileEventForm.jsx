@@ -30,10 +30,10 @@ import {
 } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
-import { useStore } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
-
-const minDate = moment().add(7, 'days');
+import { listenOnHubToGetConfig } from 'config';
+import { setConfig } from 'app/slices/ConfigSlice';
 
 const AddMobileEventForm = ({ intendedData = null }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -50,6 +50,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
   const navigate = useNavigate();
   let isConfirmDone = false;
   let isAlertDone = false;
+  const config = useSelector((state) => state.config.data);
+  const dispatch = useDispatch();
+  const minDate = moment().add(config.minDaysUntilMobileEventStart, 'days');
 
   const defaultValues = {
     name: '',
@@ -68,7 +71,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       description: '',
       beginEvent: moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
         ? moment(intendedData?.intendedStartDate)
-        : moment().add(1, 'days'),
+        : moment().add(config.minDaysUntilMobileEventStart, 'days'),
       contactInformation: intendedData?.contactInformation,
       workingTimeStart: moment(),
       workingTimeEnd: moment().add(1, 'hours'),
@@ -203,7 +206,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       if (intendedData) return true;
 
       return (
-        moment().add(7, 'days').isSameOrBefore(moment(beginEvent), 'dates') ||
+        moment().add(config.minDaysUntilMobileEventStart, 'days').isSameOrBefore(moment(beginEvent), 'dates') ||
         createError({ path, message: errorMessage })
       );
     });
@@ -229,7 +232,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       if (!intendedData) return true;
 
       return (
-        moment().add(1, 'days').isSameOrBefore(moment(value), 'dates') || createError({ path, message: errorMessage })
+        moment()
+          .add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days')
+          .isSameOrBefore(moment(value), 'dates') || createError({ path, message: errorMessage })
       );
     });
   });
@@ -250,7 +255,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
 
       const diff = moment(value).diff(moment(), 'days');
 
-      return (diff >= 0 && diff <= 365) || createError({ path, message: errorMessage });
+      return (diff >= 0 && diff <= config.maxDaysUntilEventStart) || createError({ path, message: errorMessage });
     });
   });
 
@@ -291,9 +296,13 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       .transform(transformDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
-      .validateStartDate('Ngày bắt đầu phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validateDurationStartAndCurrentDate('Không thể tạo sự kiện cách hiện tại quá 365 ngày')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại ít nhất 7 ngày')
+      .validateStartDate(
+        `Ngày bắt đầu phải lớn hơn hiện tại ít nhất ${config.minDaysUntilMobileEventFromIntendedEventStart} ngày`
+      )
+      .validateDurationStartAndCurrentDate(
+        `Không thể tạo sự kiện cách hiện tại quá ${config.maxDaysUntilEventStart} ngày`
+      )
+      .validDateBaseOnCurrentDate(`Ngày bắt đầu phải hơn hiện tại ít nhất ${config.minDaysUntilMobileEventStart} ngày`)
       .isInPeriodOfIntendedDate(
         `Ngày diễn ra phải nằm trong khoảng (${formatDate(intendedData?.intendedStartDate, 2)} - ${formatDate(
           intendedData?.intendedEndDate,
@@ -367,7 +376,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     selectedDistricts: Yup.string(),
   });
 
-  const { handleSubmit, control, resetField, clearErrors } = useForm({
+  const { handleSubmit, control, resetField, clearErrors, setValue } = useForm({
     resolver: yupResolver(AddEventSchema),
     defaultValues: intendedData ? intendedValues : defaultValues,
     mode: 'onChange',
@@ -537,10 +546,38 @@ const AddMobileEventForm = ({ intendedData = null }) => {
         persist: false,
       });
     });
+    listenOnHubToGetConfig(
+      connection,
+      (
+        maxDaysEventDuration,
+        maxDaysUntilEventStart,
+        minDaysUntilFixedEventStart,
+        minDaysUntilMobileEventStart,
+        minDaysUntilMobileEventFromIntendedEventStart
+      ) => {
+        dispatch(
+          setConfig(
+            maxDaysEventDuration,
+            maxDaysUntilEventStart,
+            minDaysUntilFixedEventStart,
+            minDaysUntilMobileEventStart,
+            minDaysUntilMobileEventFromIntendedEventStart
+          )
+        );
+      }
+    );
     connection?.onclose((e) => {
       setConnection(null);
     });
   }, [connection]);
+
+  useEffect(() => {
+    setValue('beginEvent', moment().add(config.minDaysUntilMobileEventStart, 'days'));
+  }, [config.minDaysUntilMobileEventStart]);
+
+  useEffect(() => {
+    setValue('beginEvent', moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days'));
+  }, [config.minDaysUntilMobileEventFromIntendedEventStart]);
 
   return (
     <>
@@ -653,7 +690,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
                       intendedData
                         ? moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
                           ? moment(intendedData?.intendedStartDate)
-                          : moment().add(1, 'days')
+                          : moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days')
                         : minDate
                     }
                     maxDate={intendedData ? moment(intendedData?.intendedEndDate) : undefined}
