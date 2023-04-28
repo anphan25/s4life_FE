@@ -26,11 +26,6 @@ const UserPopover = () => {
       name: 'Thông tin tài khoản',
       to: '/account',
     },
-    {
-      name: 'Cài đặt hệ thống',
-      icon: <Icon icon="settings" />,
-      to: '/config',
-    },
   ];
 
   const handleLogout = () => {
@@ -90,6 +85,14 @@ const UserPopover = () => {
               <ListItemText>{option.name}</ListItemText>
             </MenuItem>
           ))}
+          {user?.role === 'Admin' && (
+            <MenuItem to="/config" component={Link} onClick={onToggle} sx={{ color: 'grey.700', m: 0 }}>
+              <ListItemIcon sx={{ color: 'grey.700' }}>
+                <Icon icon="settings" />
+              </ListItemIcon>
+              <ListItemText>Cài đặt hệ thống</ListItemText>
+            </MenuItem>
+          )}
           <Divider
             sx={{
               my: '12px !important',
