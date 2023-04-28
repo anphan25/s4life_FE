@@ -576,7 +576,9 @@ const AddMobileEventForm = ({ intendedData = null }) => {
   }, [config.minDaysUntilMobileEventStart]);
 
   useEffect(() => {
-    setValue('beginEvent', moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days'));
+    if (intendedData) {
+      setValue('beginEvent', moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days'));
+    }
   }, [config.minDaysUntilMobileEventFromIntendedEventStart]);
 
   return (
