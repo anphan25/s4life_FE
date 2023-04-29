@@ -8,19 +8,37 @@ import * as Yup from 'yup';
 import { updateSystemConfig } from 'api';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
-import { convertErrorCodeToMessage } from 'utils';
+import { convertErrorCodeToMessage, errorHandler } from 'utils';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { getConfig } from 'app/slices/ConfigSlice';
 import { openHubConnection, listenOnHub } from 'config';
 
 const ConfigSchema = Yup.object().shape({
-  maxDaysEventDuration: Yup.string().required('Vui lòng nhập số ngày tối đa diễn ra sự kiện'),
-  maxDaysUntilEventStart: Yup.string().required('Vui lòng nhập số ngày tối đa được phép tạo sự kiện trước'),
-  minDaysUntilFixedEventStart: Yup.string().required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước'),
-  minDaysUntilMobileEventStart: Yup.string().required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước'),
-  minDaysUntilMobileEventFromIntendedEventStart: Yup.string().required(
-    'Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước từ sự kiện dự kiến'
-  ),
+  maxDaysEventDuration: Yup.number()
+    .typeError('Số ngày nhập vào phải là 1 số')
+    .required('Vui lòng nhập số ngày tối đa diễn ra sự kiện')
+    .positive('Số ngày không hợp lệ')
+    .integer('Số ngày không hợp lệ'),
+  maxDaysUntilEventStart: Yup.number()
+    .typeError('Số ngày nhập vào phải là 1 số')
+    .required('Vui lòng nhập số ngày tối đa được phép tạo sự kiện trước')
+    .positive('Số ngày không hợp lệ')
+    .integer('Số ngày không hợp lệ'),
+  minDaysUntilFixedEventStart: Yup.number()
+    .typeError('Số ngày nhập vào phải là 1 số')
+    .required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước')
+    .positive('Số ngày không hợp lệ')
+    .integer('Số ngày không hợp lệ'),
+  minDaysUntilMobileEventStart: Yup.number()
+    .typeError('Số ngày nhập vào phải là 1 số')
+    .required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước')
+    .positive('Số ngày không hợp lệ')
+    .integer('Số ngày không hợp lệ'),
+  minDaysUntilMobileEventFromIntendedEventStart: Yup.number()
+    .typeError('Số ngày nhập vào phải là 1 số')
+    .required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước từ sự kiện dự kiến')
+    .positive('Số ngày không hợp lệ')
+    .integer('Số ngày không hợp lệ'),
 });
 
 const UpdateSystemConfig = () => {
@@ -41,9 +59,17 @@ const UpdateSystemConfig = () => {
   };
 
   const onSubmit = async (data) => {
-    setIsButtonLoading(true);
-    await updateSystemConfig(data);
-    setIsButtonLoading(false);
+    try {
+      setIsButtonLoading(true);
+      await updateSystemConfig(data);
+    } catch (err) {
+      enqueueSnackbar(errorHandler(err), {
+        variant: 'error',
+        persist: false,
+      });
+    } finally {
+      setIsButtonLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -60,7 +86,7 @@ const UpdateSystemConfig = () => {
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
       enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
-        variant: messageCode != 12100 ? 'error' : 'success',
+        variant: messageCode !== 12100 ? 'error' : 'success',
         persist: false,
       });
       dispatch(getConfig());
