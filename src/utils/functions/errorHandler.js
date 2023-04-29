@@ -164,6 +164,7 @@ export function convertErrorCodeToMessage(code) {
 
     //Config number
     12000: 'Yêu cầu thay đổi hệ thống đang được xử lí',
+    12001: 'Số ngày tối thiểu được phép tạo sự kiện phải bé hơn số ngày tối đa được phép tạo sự kiện',
     12100: 'Thay đổi cấu hình hệ thống thành công',
 
     //Registration Form

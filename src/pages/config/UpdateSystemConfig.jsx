@@ -28,17 +28,20 @@ const ConfigSchema = Yup.object().shape({
     .typeError('Số ngày nhập vào phải là 1 số')
     .required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước')
     .positive('Số ngày không hợp lệ')
-    .integer('Số ngày không hợp lệ'),
+    .integer('Số ngày không hợp lệ')
+    .lessThan(Yup.ref('maxDaysUntilEventStart'), 'Số ngày tối thiểu phải nhỏ hơn số ngày tối đa'),
   minDaysUntilMobileEventStart: Yup.number()
     .typeError('Số ngày nhập vào phải là 1 số')
     .required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước')
     .positive('Số ngày không hợp lệ')
-    .integer('Số ngày không hợp lệ'),
+    .integer('Số ngày không hợp lệ')
+    .lessThan(Yup.ref('maxDaysUntilEventStart'), 'Số ngày tối thiểu phải nhỏ hơn số ngày tối đa'),
   minDaysUntilMobileEventFromIntendedEventStart: Yup.number()
     .typeError('Số ngày nhập vào phải là 1 số')
     .required('Vui lòng nhập số ngày tối thiểu được phép tạo sự kiện trước từ sự kiện dự kiến')
     .positive('Số ngày không hợp lệ')
-    .integer('Số ngày không hợp lệ'),
+    .integer('Số ngày không hợp lệ')
+    .lessThan(Yup.ref('maxDaysUntilEventStart'), 'Số ngày tối thiểu phải nhỏ hơn số ngày tối đa'),
 });
 
 const UpdateSystemConfig = () => {
@@ -167,9 +170,9 @@ const UpdateSystemConfig = () => {
                 <Grid item md={6} sm={12} xs={12}>
                   <RHFInput
                     name="minDaysUntilMobileEventFromIntendedEventStart"
-                    label="Số ngày tối đa được phép tạo sự kiện trước từ sự kiện dự kiến"
+                    label="Số ngày tối thiểu được phép tạo sự kiện trước từ sự kiện dự kiến"
                     control={control}
-                    placeholder="Nhập số ngày tối đa được phép tạo sự kiện trước"
+                    placeholder="Nhập số ngày tối thiểu được phép tạo sự kiện trước"
                     sx={{ marginBottom: '24px' }}
                   />
                 </Grid>
