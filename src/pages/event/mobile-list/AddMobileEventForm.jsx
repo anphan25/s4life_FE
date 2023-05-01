@@ -52,12 +52,10 @@ const AddMobileEventForm = ({ intendedData = null }) => {
   let isAlertDone = false;
   const config = useSelector((state) => state.config.data);
   const dispatch = useDispatch();
-  const minDate = moment().add(config.minDaysUntilMobileEventStart, 'days');
 
   const defaultValues = {
     name: '',
     description: '',
-    beginEvent: minDate,
     workingTimeStart: moment(),
     workingTimeEnd: moment().add(1, 'hours'),
     province: 0,
@@ -69,9 +67,6 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     () => ({
       name: '',
       description: '',
-      beginEvent: moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
-        ? moment(intendedData?.intendedStartDate)
-        : moment().add(config.minDaysUntilMobileEventStart, 'days'),
       contactInformation: intendedData?.contactInformation,
       workingTimeStart: moment(),
       workingTimeEnd: moment().add(1, 'hours'),
@@ -577,7 +572,12 @@ const AddMobileEventForm = ({ intendedData = null }) => {
 
   useEffect(() => {
     if (intendedData) {
-      setValue('beginEvent', moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days'));
+      setValue(
+        'beginEvent',
+        moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
+          ? moment(intendedData?.intendedStartDate)
+          : moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days')
+      );
     }
   }, [config.minDaysUntilMobileEventFromIntendedEventStart]);
 
@@ -693,7 +693,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
                         ? moment().isSameOrBefore(moment(intendedData?.intendedStartDate), 'dates')
                           ? moment(intendedData?.intendedStartDate)
                           : moment().add(config.minDaysUntilMobileEventFromIntendedEventStart, 'days')
-                        : minDate
+                        : moment().add(config.minDaysUntilMobileEventStart, 'days')
                     }
                     maxDate={intendedData ? moment(intendedData?.intendedEndDate) : undefined}
                   />

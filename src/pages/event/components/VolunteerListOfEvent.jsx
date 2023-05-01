@@ -611,6 +611,13 @@ const VolunteerListOfEvent = ({ isIntendedEvent, onViewRegistrationArea }) => {
 
         <Stack direction="row" alignItems="center" spacing={1}>
           <LoadingButton
+            disabled={
+              !pageState?.data?.some(
+                (item) =>
+                  item?.statusId === EventRegistrationStatusEnum.Donated.value ||
+                  item?.statusId === EventRegistrationStatusEnum.ConditionInsufficient.value
+              )
+            }
             loading={isButtonLoading}
             startIcon={<Icon icon="solid-download-alt" />}
             onClick={handleExportListOfAttendant}
