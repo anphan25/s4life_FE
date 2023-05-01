@@ -47,7 +47,6 @@ export const configSlice = createSlice({
 export const getConfig = createAsyncThunk('config/getConfig', async () => {
   const response = await getSystemConfig();
 
-  console.log('response', response);
   return response;
 });
 
