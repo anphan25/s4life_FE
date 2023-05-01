@@ -1,4 +1,5 @@
 import { PROCESSING_MESSAGE } from 'utils';
+import { store } from 'app/store';
 
 export function convertErrorCodeToMessage(code) {
   if (code === undefined || code === null) return;
@@ -70,8 +71,12 @@ export function convertErrorCodeToMessage(code) {
     4091: 'Yêu cầu tạo sự kiện hiến máu không hợp lệ',
     4101: 'Thời gian bắt đầu và thời gian kết thúc phải cách nhau 1 giờ',
     4111: 'Sự kiện lưu động phải có khu vực di chuyển của xe',
-    4121: 'Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa 30 ngày',
-    4131: 'Chỉ được tạo sự kiện trong vòng 365 ngày kể từ ngày hiện tại',
+    4121: `Ngày kết thúc sự kiện hơn ngày bắt đầu sự kiện tối đa ${
+      store.getState().config.data.maxDaysEventDuration
+    } ngày`,
+    4131: `Chỉ được tạo sự kiện trong vòng ${
+      store.getState().config.data.maxDaysUntilEventStart
+    } ngày kể từ ngày hiện tại`,
     4141: 'Số lượng người tham gia tối thiểu phải bé hơn số lượng người tham gia tối đa',
     4151: 'Số lượng người tham gia tối thiểu ở sự kiện lưu động là 1',
     4171: 'Không được hủy sự kiện đã có người tham gia',
@@ -160,6 +165,7 @@ export function convertErrorCodeToMessage(code) {
     //Config number
     12000: 'Yêu cầu thay đổi hệ thống đang được xử lí',
     12100: 'Thay đổi cấu hình hệ thống thành công',
+    12001: 'Số ngày tối thiểu được phép tạo sự kiện phải bé hơn số ngày tối đa được phép tạo sự kiện',
 
     //Registration Form
     14000: 'Yêu cầu tạo link tải xuống đang được xử lí',

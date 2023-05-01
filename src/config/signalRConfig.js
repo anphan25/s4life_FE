@@ -58,3 +58,29 @@ export const listenOnHubToGetContent = (connection, onReceive) => {
     console.log(error);
   }
 };
+
+export const listenOnHubToGetConfig = (connection, onReceive) => {
+  if (!connection) return;
+  try {
+    connection?.on(
+      'ReceiveSystemConfigUpdation',
+      (
+        maxDaysEventDuration,
+        maxDaysUntilEventStart,
+        minDaysUntilFixedEventStart,
+        minDaysUntilMobileEventStart,
+        minDaysUntilMobileEventFromIntendedEventStart
+      ) => {
+        onReceive(
+          maxDaysEventDuration,
+          maxDaysUntilEventStart,
+          minDaysUntilFixedEventStart,
+          minDaysUntilMobileEventStart,
+          minDaysUntilMobileEventFromIntendedEventStart
+        );
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};

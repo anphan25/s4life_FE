@@ -8,6 +8,7 @@ import useToggle from 'hooks/useToggle';
 import { RoleEnum } from 'utils';
 import { getHospital } from 'app/slices/HospitalSlice';
 import useResponsive from 'hooks/useResponsive';
+import { getConfig } from 'app/slices/ConfigSlice';
 
 const UserPopover = () => {
   const isDesktop = useResponsive('up', 'lg');
@@ -31,15 +32,16 @@ const UserPopover = () => {
   };
 
   useEffect(() => {
-    if (user != null && user.role === 'Manager') {
+    if (user != null && (user.role === 'Manager' || user.role === 'Employee')) {
       dispatch(getHospital(user?.hospital_id));
     }
+    dispatch(getConfig());
   }, [dispatch, user]);
 
   return (
     <>
       <Box sx={{ cursor: 'pointer' }} onClick={onToggle}>
-        {user?.role === 'Manager' ? (
+        {user?.role === 'Manager' || user?.role === 'Employee' ? (
           <Stack gap={'12px'} direction={'row'} alignItems="center">
             <Avatar src={hospital?.avatarUrl || 'https://cdn-icons-png.flaticon.com/512/3177/3177440.png'} />
             {isDesktop && (
@@ -81,6 +83,14 @@ const UserPopover = () => {
               <ListItemText>{option.name}</ListItemText>
             </MenuItem>
           ))}
+          {user?.role === 'Admin' && (
+            <MenuItem to="/config" component={Link} onClick={onToggle} sx={{ color: 'grey.700', m: 0 }}>
+              <ListItemIcon sx={{ color: 'grey.700' }}>
+                <Icon icon="settings" />
+              </ListItemIcon>
+              <ListItemText>Cài đặt hệ thống</ListItemText>
+            </MenuItem>
+          )}
           <Divider
             sx={{
               my: '12px !important',

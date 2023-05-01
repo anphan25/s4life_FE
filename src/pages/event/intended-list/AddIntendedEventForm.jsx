@@ -15,7 +15,7 @@ import { getAllProvinces, createEvent } from 'api';
 import { convertErrorCodeToMessage, isValidDate } from 'utils';
 import { useCallback } from 'react';
 import { openHubConnection, listenOnHub } from 'config';
-import { useStore } from 'react-redux';
+import { useSelector, useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 const AddIntendedEventForm = () => {
@@ -25,17 +25,15 @@ const AddIntendedEventForm = () => {
 
   const [provinces, setProvinces] = useState([]);
   const [connection, setConnection] = useState(null);
-
+  const config = useSelector((state) => state.config.data);
   const store = useStore();
-  const minDate = moment().add(7, 'days');
+  const minDate = moment().add(config.minDaysUntilMobileEventStart, 'days');
 
   const navigate = useNavigate();
 
   const defaultValues = {
     name: '',
     description: '',
-    startDate: minDate,
-    endDate: minDate,
     province: 0,
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
@@ -154,7 +152,7 @@ const AddIntendedEventForm = () => {
       const endDate = moment(context.parent.endDate);
       const duration = endDate.diff(startDate, 'days');
 
-      return Math.abs(duration) <= 30 || createError({ path, message: errorMessage });
+      return Math.abs(duration) <= config.maxDaysEventDuration || createError({ path, message: errorMessage });
     });
   });
 
@@ -164,7 +162,7 @@ const AddIntendedEventForm = () => {
 
       const diff = moment(value).diff(moment(), 'days');
 
-      return (diff >= 0 && diff <= 365) || createError({ path, message: errorMessage });
+      return (diff >= 0 && diff <= config.maxDaysUntilEventStart) || createError({ path, message: errorMessage });
     });
   });
 
@@ -198,9 +196,13 @@ const AddIntendedEventForm = () => {
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 7 ngày')
-      .validateDurationStartAndCurrentDate('Không thể tạo sự kiện cách hiện tại quá 365 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
+      .validateDurationStartAndCurrentDate(
+        `Không thể tạo sự kiện cách hiện tại quá ${config.maxDaysUntilEventStart} ngày`
+      )
+      .validDateBaseOnCurrentDate(`Ngày bắt đầu phải hơn hiện tại ít nhất ${config.minDaysUntilMobileEventStart} ngày`)
+      .validDaysDuration(
+        `Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa ${config.maxDaysEventDuration} ngày`
+      ),
 
     endDate: Yup.date()
       .nullable()
@@ -208,8 +210,9 @@ const AddIntendedEventForm = () => {
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày kết thúc')
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu phải hơn hiện tại 7 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
+      .validDaysDuration(
+        `Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa ${config.maxDaysEventDuration} ngày`
+      ),
     province: Yup.array()
       .of(
         Yup.object().shape({
@@ -229,7 +232,7 @@ const AddIntendedEventForm = () => {
       .min(1, 'Vui lòng chọn tỉnh thành'),
   });
 
-  const { handleSubmit, control, clearErrors } = useForm({
+  const { handleSubmit, control, clearErrors, setValue } = useForm({
     resolver: yupResolver(AddIntendedEventSchema),
     defaultValues,
     mode: 'onChange',
@@ -293,6 +296,11 @@ const AddIntendedEventForm = () => {
       setConnection(null);
     });
   }, [connection]);
+
+  useEffect(() => {
+    setValue('startDate', moment().add(config.minDaysUntilMobileEventStart, 'days'));
+    setValue('endDate', moment().add(config.minDaysUntilMobileEventStart, 'days'));
+  }, [config.minDaysUntilMobileEventStart]);
 
   return (
     <>
@@ -360,7 +368,7 @@ const AddIntendedEventForm = () => {
                     isRequiredLabel={true}
                     name="startDate"
                     control={control}
-                    label="Ngày bắt đầu"
+                    label="Từ ngày"
                     placeholder="Nhập ngày bắt đầu"
                     minDate={minDate}
                   />
@@ -369,7 +377,7 @@ const AddIntendedEventForm = () => {
                     isRequiredLabel={true}
                     name="endDate"
                     control={control}
-                    label="Ngày kết thúc"
+                    label="Đến ngày"
                     placeholder="Nhập ngày kết thúc"
                     minDate={minDate}
                   />

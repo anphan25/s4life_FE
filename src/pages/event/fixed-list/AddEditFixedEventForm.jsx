@@ -33,12 +33,13 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate, useParams } from 'react-router-dom';
 import GoongMap from '../components/GoongMap';
 import { openHubConnection, listenOnHub } from 'config';
-import { useStore } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useSnackbar } from 'notistack';
-
-const minDate = moment().add(1, 'days');
+import { setConfig } from 'app/slices/ConfigSlice';
+import { listenOnHubToGetConfig } from 'config';
 
 const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
+  const config = useSelector((state) => state.config.data);
   const { enqueueSnackbar } = useSnackbar();
   const [locations, setLocations] = useState([]);
   const [locationDetail, setLocationDetail] = useState({
@@ -55,8 +56,9 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const [connection, setConnection] = useState(null);
-
   const store = useStore();
+  const dispatch = useDispatch();
+  const minDate = moment().add(config.minDaysUntilFixedEventStart, 'days');
 
   const uploadImage = async (data) => {
     const filePath = `event-images/`;
@@ -218,8 +220,8 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       if (isEmergency) return true;
 
       return (
-        (moment().add(1, 'days').isSameOrBefore(moment(startDate), 'dates') &&
-          moment().add(1, 'days').isSameOrBefore(moment(endDate), 'dates')) ||
+        (moment().add(config.minDaysUntilFixedEventStart, 'days').isSameOrBefore(moment(startDate), 'dates') &&
+          moment().add(config.minDaysUntilFixedEventStart, 'days').isSameOrBefore(moment(endDate), 'dates')) ||
         createError({ path, message: errorMessage })
       );
     });
@@ -232,7 +234,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       const endDate = moment(context.parent.endDate);
       const duration = endDate.diff(startDate, 'days');
 
-      return Math.abs(duration) <= 30 || createError({ path, message: errorMessage });
+      return Math.abs(duration) <= config.maxDaysEventDuration || createError({ path, message: errorMessage });
     });
   });
 
@@ -302,7 +304,7 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
 
       const diff = moment(value).diff(moment(), 'days');
 
-      return (diff >= 0 && diff <= 365) || createError({ path, message: errorMessage });
+      return (diff >= 0 && diff <= config.maxDaysUntilEventStart) || createError({ path, message: errorMessage });
     });
   });
 
@@ -343,17 +345,25 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày bắt đầu')
       .isStartDateBeforeOrSameEndDate('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày')
-      .validateDurationStartAndCurrentDate('Không thể tạo sự kiện cách hiện tại quá 365 ngày'),
+      .validDateBaseOnCurrentDate(
+        `Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất ${config.minDaysUntilFixedEventStart} ngày`
+      )
+      .validDaysDuration(`Khoảng cách giữa ngày bắt đầu và ngày kết thúc tối đa là ${config.maxDaysEventDuration} ngày`)
+      .validateDurationStartAndCurrentDate(
+        `Không thể tạo sự kiện cách hiện tại quá ${config.maxDaysUntilEventStart} ngày`
+      ),
     endDate: Yup.date()
       .nullable()
       .transform(transformDate)
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày kết thúc')
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
-      .validDateBaseOnCurrentDate('Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất 1 ngày')
-      .validDaysDuration('Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa 30 ngày'),
+      .validDateBaseOnCurrentDate(
+        `Ngày bắt đầu và ngày kết thúc phải lớn hơn hiện tại ít nhất ${config.minDaysUntilFixedEventStart} ngày`
+      )
+      .validDaysDuration(
+        `Khoảng cách giữa ngày bắt đầu và ngày kết thúc tối đa là ${config.maxDaysEventDuration} ngày`
+      ),
     workingTimeStart: Yup.date()
       .nullable()
       .transform(transformTime)
@@ -517,10 +527,35 @@ const AddEditFixedEventForm = ({ isEdit = false, eventEditData = null }) => {
         persist: false,
       });
     });
+    listenOnHubToGetConfig(
+      connection,
+      (
+        maxDaysEventDuration,
+        maxDaysUntilEventStart,
+        minDaysUntilFixedEventStart,
+        minDaysUntilMobileEventStart,
+        minDaysUntilMobileEventFromIntendedEventStart
+      ) => {
+        dispatch(
+          setConfig(
+            maxDaysEventDuration,
+            maxDaysUntilEventStart,
+            minDaysUntilFixedEventStart,
+            minDaysUntilMobileEventStart,
+            minDaysUntilMobileEventFromIntendedEventStart
+          )
+        );
+      }
+    );
     connection?.onclose((e) => {
       setConnection(null);
     });
   }, [connection]);
+
+  useEffect(() => {
+    setValue('startDate', moment().add(config.minDaysUntilFixedEventStart, 'days'));
+    setValue('endDate', moment().add(config.minDaysUntilFixedEventStart, 'days'));
+  }, [config.minDaysUntilFixedEventStart]);
 
   return (
     <>
