@@ -14,38 +14,7 @@ import {
 } from 'utils';
 import parse from 'html-react-parser';
 
-const TagStyleConvert = (status, theme) => {
-  switch (status) {
-    case 'Chưa bắt đầu': {
-      return 'warning';
-    }
-    case 'Đã bắt đầu': {
-      return 'success';
-    }
-    case 'Đã kết thúc': {
-      return 'info';
-    }
-    case 'Đã bị hủy': {
-      return 'error';
-    }
-
-    default: {
-    }
-  }
-};
-
 const EventDetailInfo = ({ detailData }) => {
-  // const StatusTagStyle = styled(Chip)(({ theme }) => ({
-  //   borderRadius: '8px',
-  //   height: 'auto',
-  //   marginBottom: '15px',
-  //   padding: '4px 6px',
-  //   fontWeight: 'bold',
-  //   fontSize: '12px',
-  //   backgroundColor: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.light,
-  //   color: theme.palette[`${TagStyleConvert(detailData?.status)}`]?.main,
-  // }));
-
   const InfoItemWithIconStyle = styled(Grid)(({ theme }) => ({
     '& .info-item': { flexDirection: 'row', gap: '15px' },
 
@@ -78,8 +47,6 @@ const EventDetailInfo = ({ detailData }) => {
   const EmergencyTagStyle = styled(Chip)(({ theme }) => ({
     borderRadius: '8px',
     height: 'auto',
-    marginBottom: '15px',
-    marginLeft: '10px',
     padding: '4px 6px',
     fontWeight: 'bold',
     fontSize: '12px',
@@ -101,7 +68,7 @@ const EventDetailInfo = ({ detailData }) => {
             {detailData?.name}
           </Typography>
 
-          <Stack direction="row" sx={{ marginTop: '10px', marginBottom: '15px' }}>
+          <Stack direction="row" gap={1} sx={{ marginTop: '10px', marginBottom: '15px' }}>
             <Tag status={getLabelFromEventStatus(detailData?.statusId)}>
               {getEnumDescriptionByValue(EventStatusEnum, detailData?.statusId)}
             </Tag>
