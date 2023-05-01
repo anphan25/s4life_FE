@@ -34,8 +34,6 @@ const AddIntendedEventForm = () => {
   const defaultValues = {
     name: '',
     description: '',
-    startDate: minDate,
-    endDate: minDate,
     province: 0,
     imageUrls: [DEFAULT_EVENT_IMAGE_URL],
   };
@@ -212,7 +210,6 @@ const AddIntendedEventForm = () => {
       .typeError('Ngày không hợp lệ')
       .required('Vui lòng nhập ngày kết thúc')
       .isEndDateAfterOrSameStartDate('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu')
-      .validDateBaseOnCurrentDate(`Ngày bắt đầu phải hơn hiện tại ít nhất ${config.minDaysUntilMobileEventStart} ngày`)
       .validDaysDuration(
         `Khoảng cách giữa ngày bắt đầu và ngày kết thúc là tối đa ${config.maxDaysEventDuration} ngày`
       ),
