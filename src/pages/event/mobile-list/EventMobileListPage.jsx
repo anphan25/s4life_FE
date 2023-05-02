@@ -204,7 +204,7 @@ const EventMobileListPage = () => {
   useEffect(() => {
     listenOnHub(connection, (messageCode) => {
       enqueueSnackbar(convertErrorCodeToMessage(messageCode), {
-        variant: messageCode < 0 ? 'error' : 'success',
+        variant: messageCode < 0 || messageCode % 10 !== 0 ? 'error' : 'success',
         persist: false,
       });
     });
