@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const StaffAccount = {
-  username: 'choraystaff1',
+  username: 'choraystaff1@gmail',
   password: 'Staff@123',
 };
 
