@@ -225,16 +225,6 @@ const AddMobileEventForm = ({ intendedData = null }) => {
     });
   });
 
-  Yup.addMethod(Yup.number, 'validateOverMaxParticipation', function (errorMessage) {
-    return this.test(`test-valid-over-max-participation`, errorMessage, function (value, context) {
-      const { path, createError } = this;
-
-      if (!intendedData) return true;
-
-      return intendedData?.totalRegistrations <= value || createError({ path, message: errorMessage });
-    });
-  });
-
   Yup.addMethod(Yup.date, 'validateDurationStartAndCurrentDate', function (errorMessage) {
     return this.test(`test-current-start-date-duration`, errorMessage, function (value, context) {
       const { path, createError } = this;
@@ -318,8 +308,7 @@ const AddMobileEventForm = ({ intendedData = null }) => {
       .min(1, 'Vui lòng nhập số lớn hơn hoặc bằng 1')
       .max(MAX_INT, 'Số nhập vào quá lớn')
       .required('Vui lòng nhập số người tham gia tối đa')
-      .validateMinAndMax('Số người tham gia tối đa phải lớn hơn số người tham gia tối thiếu')
-      .validateOverMaxParticipation('Số lượng tham gia tối đa đang ít hơn tổng người đăng ký'),
+      .validateMinAndMax('Số người tham gia tối đa phải lớn hơn số người tham gia tối thiếu'),
     minParticipant: Yup.number()
       .nullable()
       .transform((value) => {
