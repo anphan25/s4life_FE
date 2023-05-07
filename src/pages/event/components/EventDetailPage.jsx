@@ -38,6 +38,7 @@ const EventDetailPage = () => {
   const [selectedDistrict, setSelectedDistrict] = useState([]);
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [connection, setConnection] = useState(null);
+  const [registrationAreaPageSize, setRegistrationAreaPageSize] = useState(10);
   const { enqueueSnackbar } = useSnackbar();
 
   const navigate = useNavigate();
@@ -102,6 +103,10 @@ const EventDetailPage = () => {
 
   const handleErrorDialog = () => {
     setIsErrorDialogOpen(!isErrorDialogOpen);
+  };
+
+  const onRegistrationAreaPageSizeChange = (newPageSize) => {
+    setRegistrationAreaPageSize(newPageSize);
   };
 
   const eventListNavigator = (eventTypeId) => {
@@ -170,12 +175,14 @@ const EventDetailPage = () => {
         <Typography mb={2}>
           Số lượng đăng ký của <b>{detailData?.intendedProvince?.name}</b>:
         </Typography>
-        <Box>
+        <Box sx={{ maxHeight: '55vh', overflow: 'scroll' }}>
           <DataGrid
+            autoHeight
             disableColumnMenu
             sx={{
+              overflow: 'scroll',
               minHeight: 400,
-              maxHeight: '70vh',
+
               '.MuiPopper-root': {
                 boxShadow: '0px 12px 23px rgba(62, 73, 84, 0.04) !important',
                 borderRadius: 12,
@@ -188,7 +195,9 @@ const EventDetailPage = () => {
               { field: 'districtName', headerName: 'Quận huyện', flex: 1, minWidth: 200, type: 'string' },
               { field: 'count', headerName: 'Số người đăng ký', width: 150, type: 'number', align: 'right' },
             ]}
-            pageSize={10}
+            paginationMode="client"
+            pageSize={registrationAreaPageSize}
+            onPageSizeChange={onRegistrationAreaPageSizeChange}
             rowsPerPageOptions={[5, 10, 20]}
             checkboxSelection
             components={{
